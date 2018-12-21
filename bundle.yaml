@@ -1,0 +1,17 @@
+bundle: kubernetes
+applications:
+  kubeflow-tf-hub:
+    charm: cs:~juju/kubeflow-tf-hub
+    scale: 1
+  kubeflow-tf-job-dashboard:
+    charm: cs:~juju/kubeflow-tf-job-dashboard
+    scale: 1
+  kubeflow-tf-serving:
+    charm: cs:~juju/kubeflow-tf-serving
+    scale: 1
+  kubeflow-tf-job-operator:
+    charm: cs:~juju/kubeflow-tf-job-operator
+    scale: 1
+  kubeflow-ambassador:
+    charm: cs:~juju/kubeflow-ambassador
+    scale: 1
