@@ -11,8 +11,6 @@ KubeFlow consists of:
 
   * TensorFlow Training, for training TensorFlow models
 
-  * TensorFlow Serving, to serve trained TensorFlow models
-
   * Ambassador, an API gateway for managing access to the services
 
 
