@@ -1,7 +1,7 @@
 bundle: kubernetes
 applications:
-  kubeflow-tf-hub:
-    charm: cs:~kubeflow-charmers/kubeflow-tf-hub
+  kubeflow-jupyterhub:
+    charm: cs:~kubeflow-charmers/kubeflow-jupyterhub
     scale: 1
     options:
       kubernetes-service-annotations:
@@ -12,15 +12,17 @@ applications:
           name:  tf_hub
           prefix: /hub/
           rewrite: /hub/
-          service: juju-kubeflow-tf-hub:8000
+          service: kubeflow-tf-hub:8000
           use_websocket: true
+          timeout_ms: 30000
           ---
           apiVersion: ambassador/v0
           kind:  Mapping
           name:  tf_hub_user
           prefix: /user/
           rewrite: /user/
-          service: juju-kubeflow-tf-hub:8000
+          service: kubeflow-tf-hub:8000
+          timeout_ms: 30000
   kubeflow-tf-job-dashboard:
     charm: cs:~kubeflow-charmers/kubeflow-tf-job-dashboard
     scale: 1
@@ -33,7 +35,8 @@ applications:
           name:  job_dashboard
           prefix: /tfjobs/
           rewrite: /tfjobs/
-          service: juju-kubeflow-tf-job-dashboard:8080
+          service: kubeflow-tf-job-dashboard:8080
+          timeout_ms: 30000
   kubeflow-tf-job-operator:
     charm: cs:~kubeflow-charmers/kubeflow-tf-job-operator
     scale: 1
