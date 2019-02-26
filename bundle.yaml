@@ -3,40 +3,9 @@ applications:
   kubeflow-jupyterhub:
     charm: cs:~kubeflow-charmers/kubeflow-jupyterhub
     scale: 1
-    options:
-      kubernetes-service-annotations:
-        getambassador.io/config: |
-          ---
-          apiVersion: ambassador/v0
-          kind:  Mapping
-          name:  tf_hub
-          prefix: /hub/
-          rewrite: /hub/
-          service: kubeflow-tf-hub:8000
-          use_websocket: true
-          timeout_ms: 30000
-          ---
-          apiVersion: ambassador/v0
-          kind:  Mapping
-          name:  tf_hub_user
-          prefix: /user/
-          rewrite: /user/
-          service: kubeflow-tf-hub:8000
-          timeout_ms: 30000
   kubeflow-tf-job-dashboard:
     charm: cs:~kubeflow-charmers/kubeflow-tf-job-dashboard
     scale: 1
-    options:
-      kubernetes-service-annotations:
-        getambassador.io/config: |
-          ---
-          apiVersion: ambassador/v0
-          kind:  Mapping
-          name:  job_dashboard
-          prefix: /tfjobs/
-          rewrite: /tfjobs/
-          service: kubeflow-tf-job-dashboard:8080
-          timeout_ms: 30000
   kubeflow-tf-job-operator:
     charm: cs:~kubeflow-charmers/kubeflow-tf-job-operator
     scale: 1
