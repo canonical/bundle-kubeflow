@@ -6,67 +6,54 @@ This bundle deploys KubeFlow to a Juju k8s model.
 
 KubeFlow consists of:
 
-  * TensorFlow Hub, a JupyterHub for running interactive notebooks
-    with TensorFlow libraries available
+  * JupyterHub, for running interactive notebooks
 
-  * TensorFlow Dashboard, to manage TensorFlow jobs
+  * TensorFlow Job Dashboard, to manage TensorFlow jobs
 
   * TensorFlow Training, for training TensorFlow models
 
+  * TensorFlow Serving, for serving TensorFlow models
+
   * Ambassador, an API gateway for managing access to the services
 
+And several charms that will be added soon:
 
-Note: This bundle is currently missing Seldon, which will be added soon.
+  * Seldon, for deploying ML models
+
+  * PyTorch operator, for deploying PyTorch models
 
 ## Deploying
 
+### Setup
+
+If you are on macOS or Windows, you will need to use an Ubuntu VM. You
+can [install multipass][multipass] and access an Ubuntu VM with these
+commands:
+
+    multipass launch --name kubeflow --mem 2G
+    multipass shell kubeflow
+
+[multipass]: https://github.com/CanonicalLtd/multipass/releases
+
+Once you have an Ubuntu environment, you'll need to install these snaps
+to get started:
+
+    sudo snap install juju --classic
+    sudo snap install juju-wait --classic
+
 ### microk8s
 
-You'll need to snap install both `juju` and `microk8s`. Kubeflow
-requires at least juju 2.5rc1.
+You'll also need to install the `microk8s` snap:
 
-    sudo snap install juju --beta --classic
-    sudo snap install microk8s --edge --classic
+    sudo snap install microk8s --classic
 
-Next, either run the commands individually from this script, or copy/paste
-them into a local script and run it:
-
-    #!/usr/bin/env bash
-
-    CLOUD=uk8s-kf-cloud
-    MODEL=uk8s-kf-model
-
-    cleanup() {
-      # Clean up resources
-      microk8s.kubectl delete ns $MODEL
-      juju kill-controller localhost-localhost -y -t0
-      juju remove-cloud $CLOUD
-    }
-
-    trap cleanup EXIT
-
-    set -eux
-
-    # Set up juju and microk8s to play nicely together
-    sudo microk8s.enable dns storage
-    juju bootstrap lxd
-    microk8s.config | juju add-k8s $CLOUD
-    juju add-model $MODEL $CLOUD
-    juju create-storage-pool operator-storage kubernetes storage-class=microk8s-hostpath
-
-    # Deploy kubeflow to microk8s
-    juju deploy cs:~juju/kubeflow
-
-    # Exposes the Ambassador reverse proxy at http://localhost:8081/
-    # The TF Jobs dashboard is available at http://localhost:8081/tfjobs/ui/
-    # The JupyterHub dashboard is available at http://localhost:8081/hub/
-    # When you're done, ctrl+c will exit this script and free the created resources
-    microk8s.kubectl port-forward svc/juju-kubeflow-ambassador -n $MODEL 8081:80
+Next, you can run the commands in [deploy-microk8s.sh](scripts/deploy-microk8s.sh)
+individually, or run the script as a whole.
 
 ### CDK
 
-You will first need to create an AWS account for juju to use, and then add the
-credentials to juju:
+You will first need to create an AWS account for juju to use, and then
+add the credentials to juju:
 
     $ juju add-credential aws
     Enter credential name: kubeflow-test
@@ -79,72 +66,39 @@ credentials to juju:
 
     Credential "kubeflow-test" added locally for cloud "aws".
 
-Next, you can run the commands in this script individually, or copy it into a
-local script and run the entire script.
+Next, you can run the commands in [deploy-aws.sh](scripts/deploy-aws.sh)
+individually, or run the script as a whole.
 
-    #!/usr/bin/env bash
+## Using
 
-    # Clean up generated resources on exit
-    cleanup() {
-        juju kill-controller aws-us-east-1 -y -t0
-    }
+### JupyterHub
 
-    trap cleanup EXIT
+JupyterHub is available at `/hub/`.
 
-    set -eux
+### TensorFlow Job Dashboard
 
-    CLOUD=aws-kf-cloud
-    MODEL=aws-kf-model
+The TensorFlow Job dashboard is available at `/tfjobs/ui/`.
 
-    # Set up Kubernetes cloud on AWS
-    juju bootstrap aws/us-east-1
+### TensorFlow Jobs
 
-    juju deploy cs:bundle/canonical-kubernetes
-    juju deploy cs:~containers/aws-integrator
-    juju trust aws-integrator
-    juju add-relation aws-integrator kubernetes-master
-    juju add-relation aws-integrator kubernetes-worker
-
-    # Wait for cloud to finish booting up
-    juju wait -e aws-us-east-1:default -w
-
-    # Copy details of cloud locally, and tell juju about it
-    juju scp kubernetes-master/0:~/config ~/.kube/config
-
-    juju add-k8s $CLOUD
-    juju add-model $MODEL $CLOUD
-
-    # Set up some storage for the new cloud, deploy Kubeflow, and wait for
-    # Kubeflow to boot up
-    juju create-storage-pool operator-storage kubernetes storage-class=juju-operator-storage storage-provisioner=kubernetes.io/aws-ebs parameters.type=gp2
-    juju create-storage-pool k8s-ebs kubernetes storage-class=juju-ebs storage-provisioner=kubernetes.io/aws-ebs parameters.type=gp2
-
-    juju deploy cs:~juju/kubeflow
-    juju wait -e aws-us-east-1:$MODEL -w
-
-
-    # Exposes the Ambassador reverse proxy at http://localhost:8081/
-    # The TF Jobs dashboard is available at http://localhost:8081/tfjobs/ui/
-    # The JupyterHub dashboard is available at http://localhost:8081/hub/
-    # When you're done, ctrl+c will exit this script and free the created resources
-    kubectl port-forward svc/juju-kubeflow-ambassador -n $MODEL 8081:80
-
-
-## TensorFlow Jobs
-
-To submit a TensorFlow job to the dashboard, you can run this `kubectl` command:
+To submit a TensorFlow job to the dashboard, you can run this `kubectl`
+command:
 
     kubectl create -n <NAMESPACE> -f path/to/job/definition.yaml
 
-Where `<NAMESPACE>` matches the name of the Juju model that you're using, and
-`path/to/job/definition.yaml` should point to a `TFJob` definition similar to the
-`tf_job_mnist.yaml` example [found here][mnist-example].
+Where `<NAMESPACE>` matches the name of the Juju model that you're using,
+and `path/to/job/definition.yaml` should point to a `TFJob` definition
+similar to the `tf_job_mnist.yaml` example [found here][mnist-example].
 
-[mnist-example]: https://github.com/kubeflow/tf-operator/tree/master/examples/v1alpha2/dist-mnist
+[mnist-example]: https://github.com/kubeflow/tf-operator/tree/master/examples/v1beta1/dist-mnist
 
-## TensorFlow Serving
+### TensorFlow Serving
 
-You can submit a model to be served with TensorFlow Serving. See the documentation
-in the [TF Serving Charm][tf-serving] for more information.
+You can submit a model to be served with TensorFlow Serving:
 
-[tf-serving]: https://github.com/juju-solutions/charm-kubeflow-tf-serving/
+    # For a single model
+    juju deploy cs:~kubeflow-charmers/kubeflow-tf-serving --storage models=storage-class,, --config model=/path/to/base/dir/model-name
+
+    # For a model.conf:
+    juju deploy cs:~kubeflow-charmers/kubeflow-tf-serving --storage models=storage-class,, --config model-conf=/path/to/model.conf
+
