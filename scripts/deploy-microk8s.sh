@@ -34,7 +34,7 @@ AMBASSADOR_IP=$(juju status | grep "kubeflow-ambassador " | awk '{print $8}')
 cat << EOF
 
 
-Congratulations, Kubeflow is now available. Run `microk8s.kubectl proxy` to be able to access the dashboard at
+Congratulations, Kubeflow is now available. Run \`microk8s.kubectl proxy\` to be able to access the dashboard at
 
     http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview?namespace=$MODEL
 
