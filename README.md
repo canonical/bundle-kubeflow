@@ -38,7 +38,7 @@ commands:
 Once you have an Ubuntu environment, you'll need to install these snaps
 to get started:
 
-    sudo snap install juju --classic
+    sudo snap install juju --classic --channel 2.5/candidate
     sudo snap install juju-wait --classic
 
 ### microk8s
@@ -52,7 +52,11 @@ individually, or run the script as a whole.
 
 ### CDK
 
-You will first need to create an AWS account for juju to use, and then
+You'll also need to install the `kubectl` snap:
+
+    sudo snap install kubectl --classic
+
+You will then need to create an AWS account for juju to use, and then
 add the credentials to juju:
 
     $ juju add-credential aws

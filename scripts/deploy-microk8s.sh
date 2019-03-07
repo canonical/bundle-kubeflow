@@ -17,11 +17,12 @@ esac
 set -eux
 
 # Set up juju and microk8s to play nicely together
-sudo microk8s.enable dns storage
+sudo microk8s.enable dns storage dashboard
 juju bootstrap lxd
 microk8s.config | juju add-k8s $CLOUD
 juju add-model $MODEL $CLOUD
-microk8s.kubectl create -f storage/local-storage.yml || true
+# Uncomment this line to present local disks into microk8s as Persistent Volumes
+# microk8s.kubectl create -f storage/local-storage.yml || true
 juju create-storage-pool operator-storage kubernetes storage-class=microk8s-hostpath
 juju deploy cs:~kubeflow-charmers/kubeflow
 juju wait -w
