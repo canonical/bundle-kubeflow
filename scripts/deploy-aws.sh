@@ -51,7 +51,7 @@ juju deploy ./bundle.yaml
 juju wait -e aws-us-east-1:$MODEL -w
 
 # Expose the Ambassador reverse proxy and print out a success message
-PUB_IP=$(juju status -m default --format json | jq -r '.applications["kubernetes-worker"].units["kubernetes-worker/0"]["public-address"]')
+PUB_IP=$(juju status | grep "kubernetes-worker/0" | awk '{print $5}')
 PUB_ADDR="${PUB_IP}.xip.io"
 
 juju config kubeflow-ambassador juju-external-hostname=$PUB_ADDR
