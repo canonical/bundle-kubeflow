@@ -38,7 +38,7 @@ commands:
 Once you have an Ubuntu environment, you'll need to install these snaps
 to get started:
 
-    sudo snap install juju --classic --channel 2.5/candidate
+    sudo snap install juju --classic
     sudo snap install juju-wait --classic
 
 ### microk8s
