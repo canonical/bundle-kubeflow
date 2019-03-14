@@ -12,3 +12,8 @@ applications:
   kubeflow-ambassador:
     charm: cs:~kubeflow-charmers/kubeflow-ambassador
     scale: 1
+relations:
+- - kubeflow-tf-job-dashboard
+  - kubeflow-ambassador
+- - kubeflow-jupyterhub
+  - kubeflow-ambassador
