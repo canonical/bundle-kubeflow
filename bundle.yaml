@@ -12,6 +12,9 @@ applications:
   kubeflow-ambassador:
     charm: cs:~kubeflow-charmers/kubeflow-ambassador
     scale: 1
+  kubeflow-pytorch-operator:
+    charm: cs:~kubeflow-charmers/kubeflow-pytorch-operator
+    scale: 1
 relations:
 - - kubeflow-tf-job-dashboard
   - kubeflow-ambassador
