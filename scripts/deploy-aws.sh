@@ -47,7 +47,7 @@ juju add-model $MODEL $CLOUD
 kubectl --kubeconfig=$KUBECONFIG create -f storage/aws-ebs.yml
 juju create-storage-pool operator-storage kubernetes storage-class=juju-operator-storage storage-provisioner=kubernetes.io/aws-ebs parameters.type=gp2
 juju create-storage-pool k8s-ebs kubernetes storage-class=juju-ebs storage-provisioner=kubernetes.io/aws-ebs parameters.type=gp2
-juju deploy ./bundle.yaml
+juju deploy kubeflow
 juju wait -e aws-us-east-1:$MODEL -w
 
 # Expose the Ambassador reverse proxy and print out a success message
