@@ -6,6 +6,8 @@ This bundle deploys KubeFlow to a Juju k8s model.
 
 KubeFlow consists of:
 
+  * Ambassador, an API gateway for managing access to the services
+
   * JupyterHub, for running interactive notebooks
 
   * TensorFlow Job Dashboard, to manage TensorFlow jobs
@@ -14,13 +16,11 @@ KubeFlow consists of:
 
   * TensorFlow Serving, for serving TensorFlow models
 
-  * Ambassador, an API gateway for managing access to the services
+  * PyTorch operator, for training PyTorch models
 
-And several charms that will be added soon:
+And support coming soon:
 
   * Seldon, for deploying ML models
-
-  * PyTorch operator, for deploying PyTorch models
 
 ## Deploying
 
