@@ -2,27 +2,35 @@ bundle: kubernetes
 applications:
   kubeflow-jupyterhub:
     charm: cs:~kubeflow-charmers/kubeflow-jupyterhub
+    source: charm-kubeflow-jupyterhub
     scale: 1
   kubeflow-tf-job-dashboard:
     charm: cs:~kubeflow-charmers/kubeflow-tf-job-dashboard
+    source: charm-kubeflow-tf-job-dashboard
     scale: 1
   kubeflow-tf-job-operator:
     charm: cs:~kubeflow-charmers/kubeflow-tf-job-operator
+    source: charm-kubeflow-tf-job-operator
     scale: 1
   kubeflow-ambassador:
     charm: cs:~kubeflow-charmers/kubeflow-ambassador
+    source: charm-kubeflow-ambassador
     scale: 1
   kubeflow-pytorch-operator:
     charm: cs:~kubeflow-charmers/kubeflow-pytorch-operator
+    source: charm-kubeflow-pytorch-operator
     scale: 1
   redis:
     charm: cs:~kubeflow-charmers/redis-k8s
+    source: charm-redis-k8s
     scale: 1
   kubeflow-seldon-api-frontend:
     charm: cs:~kubeflow-charmers/kubeflow-seldon-api-frontend
+    source: charm-kubeflow-seldon-api-frontend
     scale: 1
   kubeflow-seldon-cluster-manager:
     charm: cs:~kubeflow-charmers/kubeflow-seldon-cluster-manager
+    source: charm-kubeflow-seldon-cluster-manager
     scale: 1
 relations:
 - - kubeflow-tf-job-dashboard
