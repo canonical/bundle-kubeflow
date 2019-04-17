@@ -1,0 +1,6 @@
+# Overlay for using local storage paths in Jupyterhub.
+# Use with `juju deploy bundle.yaml --overlay overlays/jupyterhub-local-storage.yml`
+applications:
+  kubeflow-jupyterhub:
+    options:
+      notebook-storage-class: local-storage
