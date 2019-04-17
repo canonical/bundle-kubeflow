@@ -15,8 +15,21 @@ applications:
   kubeflow-pytorch-operator:
     charm: cs:~kubeflow-charmers/kubeflow-pytorch-operator
     scale: 1
+  redis:
+    charm: cs:~kubeflow-charmers/redis-k8s
+    scale: 1
+  kubeflow-seldon-api-frontend:
+    charm: cs:~kubeflow-charmers/kubeflow-seldon-api-frontend
+    scale: 1
+  kubeflow-seldon-cluster-manager:
+    charm: cs:~kubeflow-charmers/kubeflow-seldon-cluster-manager
+    scale: 1
 relations:
 - - kubeflow-tf-job-dashboard
   - kubeflow-ambassador
 - - kubeflow-jupyterhub
   - kubeflow-ambassador
+- - kubeflow-seldon-api-frontend
+  - redis
+- - kubeflow-seldon-cluster-manager
+  - redis
