@@ -1,9 +1,21 @@
 #!/usr/bin/env bash
 
-CONTROLLER=aws-kf-controller
-CLOUD=aws-kf-cloud
-MODEL=aws-kf-model
-AWS_MODEL=default
+missing=$(for cmd in juju juju-wait kubectl; do command -v $cmd > /dev/null || echo $cmd; done)
+if [[ -n "$missing" ]]; then
+    echo "Some dependencies were not found. Please install them with:"
+    echo
+    for cmd in $missing; do
+        echo "    sudo snap install $cmd --classic"
+    done
+    echo
+    exit 1
+fi
+
+CONTROLLER=${CONTROLLER:-aws-kf-controller}
+CLOUD=${CLOUD:-aws-kf-cloud}
+MODEL=${MODEL:-aws-kf-model}
+AWS_MODEL=${AWS_MODEL:-default}
+CHANNEL=${CHANNEL:-stable}
 START=$(date +%s.%N)
 
 # Convenience for destroying resources created by this script
@@ -49,7 +61,7 @@ juju add-model $MODEL $CLOUD
 kubectl --kubeconfig=$KUBECONFIG create -f storage/aws-ebs.yml
 juju create-storage-pool operator-storage kubernetes storage-class=juju-operator-storage storage-provisioner=kubernetes.io/aws-ebs parameters.type=gp2
 juju create-storage-pool k8s-ebs kubernetes storage-class=juju-ebs storage-provisioner=kubernetes.io/aws-ebs parameters.type=gp2
-juju deploy kubeflow
+juju deploy kubeflow --channel $CHANNEL
 juju wait -e $CONTROLLER:$MODEL -w
 
 # Expose the Ambassador reverse proxy and print out a success message

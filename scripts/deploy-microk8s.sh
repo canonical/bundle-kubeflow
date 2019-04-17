@@ -1,8 +1,20 @@
 #!/usr/bin/env bash
 
-CONTROLLER=microk8s-controller
-CLOUD=microk8s-cloud
-MODEL=microk8s-model
+missing=$(for cmd in juju juju-wait microk8s.kubectl; do command -v $cmd > /dev/null || echo $cmd; done)
+if [[ -n "$missing" ]]; then
+    echo "Some dependencies were not found. Please install them with:"
+    echo
+    for cmd in $missing; do
+        echo "    sudo snap install ${cmd//\.*/} --classic"
+    done
+    echo
+    exit 1
+fi
+
+CONTROLLER=${CONTROLLER:-microk8s-controller}
+CLOUD=${CLOUD:-microk8s-cloud}
+MODEL=${MODEL:-microk8s-model}
+CHANNEL=${CHANNEL:-stable}
 START=$(date +%s.%N)
 
 # Convenience for destroying resources created by this script
@@ -12,10 +24,8 @@ case $1 in
     # and `unregister` since edge doesn't support deleting k8s-bootstrapped
     # controllers yet.
     juju kill-controller $CONTROLLER
-    microk8s.kubectl delete ns controller-$CONTROLLER
-    juju unregister $CONTROLLER
     microk8s.kubectl delete ns $MODEL
-    juju remove-cloud $CLOUD
+    juju remove-cloud --local $CLOUD
     exit 0
     ;;
 esac
@@ -30,7 +40,7 @@ juju add-model $MODEL $CLOUD
 # Uncomment this line to present local disks into microk8s as Persistent Volumes
 # microk8s.kubectl create -f storage/local-storage.yml || true
 juju create-storage-pool operator-storage kubernetes storage-class=microk8s-hostpath
-juju deploy kubeflow
+juju deploy kubeflow --channel $CHANNEL
 juju wait -w
 
 juju config kubeflow-ambassador juju-external-hostname=localhost
