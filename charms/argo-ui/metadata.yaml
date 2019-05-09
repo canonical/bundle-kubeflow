@@ -1,0 +1,16 @@
+name: argo-ui
+display-name: Argo UI
+summary: Container-Native Workflow Engine for Kubernetes
+description: Container-Native Workflow Engine for Kubernetes
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [ai, bigdata, kubeflow, machine-learning, tensorflow]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: argoproj/argoui:v2.2.0
+requires:
+  ambassador:
+    interface: ambassador
