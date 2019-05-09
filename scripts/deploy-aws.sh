@@ -11,17 +11,19 @@ if [[ -n "$missing" ]]; then
     exit 1
 fi
 
-CONTROLLER=${CONTROLLER:-aws-kf-controller}
-CLOUD=${CLOUD:-aws-kf-cloud}
-MODEL=${MODEL:-aws-kf-model}
+CONTROLLER=${CONTROLLER:-cdkkf}
+CLOUD=${CLOUD:-cdkkf}
+MODEL=kubeflow
 AWS_MODEL=${AWS_MODEL:-default}
+REGION=${REGION:-us-east-1}
 CHANNEL=${CHANNEL:-stable}
+BUILD=${BUILD:-false}
 START=$(date +%s.%N)
 
 # Convenience for destroying resources created by this script
 case $1 in
     --destroy)
-    juju kill-controller $CONTROLLER
+    juju destroy-controller --destroy-all-models --destroy-storage $CONTROLLER
     exit 0
     ;;
 esac
@@ -37,7 +39,7 @@ trap cleanup EXIT
 set -eux
 
 # Set up Kubernetes cloud on AWS
-juju bootstrap aws/us-east-1 $CONTROLLER
+juju bootstrap aws/$REGION $CONTROLLER
 # Uncomment --overlay argument to use GPU instances
 juju deploy cs:bundle/canonical-kubernetes # --overlay overlays/cdk-gpu.yml
 juju deploy cs:~containers/aws-integrator
@@ -46,30 +48,41 @@ juju add-relation aws-integrator kubernetes-master
 juju add-relation aws-integrator kubernetes-worker
 
 # Wait for cloud to finish booting up
-juju wait -e $CONTROLLER:$AWS_MODEL -w
+juju wait -e $CONTROLLER:$AWS_MODEL -vw
 
 juju expose kubeapi-load-balancer
 
 # Copy details of cloud locally, and tell juju about it
 juju scp -m $AWS_MODEL kubernetes-master/0:~/config $KUBECONFIG
 
-juju add-k8s $CLOUD -c $CONTROLLER
+juju add-k8s $CLOUD -c $CONTROLLER --region=ec2/$REGION --storage juju-operator-storage
 juju add-model $MODEL $CLOUD
 
 # Set up some storage for the new cloud, deploy Kubeflow, and wait for
 # Kubeflow to boot up
 kubectl --kubeconfig=$KUBECONFIG create -f storage/aws-ebs.yml
-juju create-storage-pool operator-storage kubernetes storage-class=juju-operator-storage storage-provisioner=kubernetes.io/aws-ebs parameters.type=gp2
 juju create-storage-pool k8s-ebs kubernetes storage-class=juju-ebs storage-provisioner=kubernetes.io/aws-ebs parameters.type=gp2
-juju deploy kubeflow --channel $CHANNEL
-juju wait -e $CONTROLLER:$MODEL -w
+
+# Allow building local bundle.yaml, otherwise deploy from the charm store
+if [[ "$BUILD" = true ]] ; then
+    juju bundle deploy --build
+else
+    juju deploy kubeflow --channel $CHANNEL
+fi
+
+juju wait -e $CONTROLLER:$MODEL -vw
+
+# General Kubernetes setup
+find charms/*/files/sa.yaml | xargs -I[] kubectl --kubeconfig=$KUBECONFIG create -n $MODEL -f []
+find charms/*/files/secret.yaml | xargs -I[] kubectl --kubeconfig=$KUBECONFIG create -n $MODEL -f []
+kubectl --kubeconfig=$KUBECONFIG patch sc juju-operator-storage -p "$(<storage/is-default.yaml)"
 
 # Expose the Ambassador reverse proxy and print out a success message
 PUB_IP=$(juju status -m $AWS_MODEL | grep "kubernetes-worker/0" | awk '{print $5}')
 PUB_ADDR="${PUB_IP}.xip.io"
 
-juju config kubeflow-ambassador juju-external-hostname=$PUB_ADDR
-juju expose kubeflow-ambassador
+juju config ambassador juju-external-hostname=$PUB_ADDR
+juju expose ambassador
 
 set +x
 
@@ -93,8 +106,7 @@ The username and password are:
 ${USERNAME}
 ${PASSWORD}
 
-The JupyterHub dashboard is available at http://${PUB_ADDR}/hub/
-The TF Jobs dashboard is available at http://${PUB_ADDR}/tfjobs/ui/
+The central dashboard is available at http://${PUB_ADDR}/
 
 To tear down Kubeflow and associated infrastructure, run this command:
 
