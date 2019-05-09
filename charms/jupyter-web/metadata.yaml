@@ -1,0 +1,16 @@
+name: jupyter-web
+display-name: Jupyter Web
+summary: Multi-user server for Jupyter notebooks
+description: Multi-user server for Jupyter notebooks
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [ai, bigdata, kubeflow, machine-learning, tensorflow]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: 'gcr.io/kubeflow-images-public/jupyter-web-app:v0.5.0'
+requires:
+  ambassador:
+    interface: ambassador
