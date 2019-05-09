@@ -46,7 +46,7 @@ def test_jupyterhub():
         headers={'Authorization': 'token %s' % token},
         files={
             "imageType": "standard",
-            "image": "gcr.io/kubeflow-images-public/tensorflow-1.12.0-notebook-cpu:v0.4.0",
+            "image": "gcr.io/kubeflow-images-public/tensorflow-1.13.0-notebook-cpu:v0.5.0",
             "cpu": "1.0",
             "memory": "1.0Gi",
             "ws_type": "New",
