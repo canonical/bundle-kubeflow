@@ -1,0 +1,16 @@
+options:
+  port:
+    type: int
+    default: 9000
+    description: |
+      Port to listen to
+  access-key:
+    type: string
+    default: 'minio'
+    description: |
+      Access key
+  secret-key:
+    type: string
+    default: 'minio123'
+    description: |
+      Secret key
