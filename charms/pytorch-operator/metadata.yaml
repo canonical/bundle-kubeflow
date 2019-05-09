@@ -1,0 +1,15 @@
+name: pytorch-operator
+display-name: PyTorch Job Operator
+summary: Kubernetes Custom Resource and Operator for PyTorch jobs
+description: |
+  This charm deploys the specification and implementation of the
+  PyTorch custom resource definition.
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [ai, bigdata, kubeflow, machine-learning, tensorflow]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: 'gcr.io/kubeflow-images-public/pytorch-operator:v0.4.0'
