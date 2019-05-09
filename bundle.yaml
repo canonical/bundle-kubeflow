@@ -1,67 +1,163 @@
 bundle: kubernetes
 applications:
-  kubeflow-jupyterhub:
-    charm: cs:~kubeflow-charmers/kubeflow-jupyterhub
-    source: charm-kubeflow-jupyterhub
-    scale: 1
-    annotations:
-      gui-x: '1050'
-      gui-y: '350'
-  kubeflow-tf-job-dashboard:
-    charm: cs:~kubeflow-charmers/kubeflow-tf-job-dashboard
-    source: charm-kubeflow-tf-job-dashboard
-    scale: 1
-    annotations:
-      gui-x: '350'
-      gui-y: '350'
-  kubeflow-tf-job-operator:
-    charm: cs:~kubeflow-charmers/kubeflow-tf-job-operator
-    source: charm-kubeflow-tf-job-operator
-    scale: 1
-    annotations:
-      gui-x: '350'
-      gui-y: '0'
-  kubeflow-ambassador:
+  ambassador:
     charm: cs:~kubeflow-charmers/kubeflow-ambassador
-    source: charm-kubeflow-ambassador
+    source: ./charms/ambassador
     scale: 1
     annotations:
-      gui-x: '700'
-      gui-y: '350'
-  kubeflow-pytorch-operator:
-    charm: cs:~kubeflow-charmers/kubeflow-pytorch-operator
-    source: charm-kubeflow-pytorch-operator
+      gui-x: '0'
+      gui-y: '0'
+  minio:
+    charm: cs:~kubeflow-charmers/minio
+    source: ./charms/minio
     scale: 1
     annotations:
-      gui-x: '700'
+      gui-x: '800'
+      gui-y: '692'
+  mariadb:
+    charm: cs:~juju/mariadb-k8s
+    source: ./charms/mariadb-k8s
+    scale: 1
+    annotations:
+      gui-x: '800'
       gui-y: '0'
   redis:
     charm: cs:~kubeflow-charmers/redis-k8s
-    source: charm-redis-k8s
+    source: ./charms/redis-k8s
     scale: 1
     annotations:
-      gui-x: '700'
-      gui-y: '700'
-  kubeflow-seldon-api-frontend:
-    charm: cs:~kubeflow-charmers/kubeflow-seldon-api-frontend
-    source: charm-kubeflow-seldon-api-frontend
+      gui-x: '-600'
+      gui-y: '346'
+  jupyterhub:
+    charm: cs:~kubeflow-charmers/jupyterhub
+    source: ./charms/jupyterhub
     scale: 1
     annotations:
-      gui-x: '1050'
-      gui-y: '700'
-  kubeflow-seldon-cluster-manager:
-    charm: cs:~kubeflow-charmers/kubeflow-seldon-cluster-manager
-    source: charm-kubeflow-seldon-cluster-manager
+      gui-x: '-200'
+      gui-y: '346'
+  jupyter-web:
+    charm: cs:~kubeflow-charmers/jupyter-web
+    source: ./charms/jupyter-web
     scale: 1
     annotations:
-      gui-x: '350'
-      gui-y: '700'
+      gui-x: '-400'
+      gui-y: '0'
+  jupyter-controller:
+    charm: cs:~kubeflow-charmers/jupyter-controller
+    source: ./charms/jupyter-controller
+    scale: 1
+    annotations:
+      gui-x: '-800'
+      gui-y: '0'
+  argo-ui:
+    charm: cs:~kubeflow-charmers/argo-ui
+    source: ./charms/argo-ui
+    scale: 1
+    annotations:
+      gui-x: '200'
+      gui-y: '-346'
+  argo-controller:
+    charm: cs:~kubeflow-charmers/argo-controller
+    source: ./charms/argo-controller
+    scale: 1
+    annotations:
+      gui-x: '400'
+      gui-y: '-692'
+  tf-job-dashboard:
+    charm: cs:~kubeflow-charmers/tf-job-dashboard
+    source: ./charms/tf-job-dashboard
+    scale: 1
+    annotations:
+      gui-x: '-200'
+      gui-y: '-346'
+  tf-job-operator:
+    charm: cs:~kubeflow-charmers/tf-job-operator
+    source: ./charms/tf-job-operator
+    scale: 1
+    annotations:
+      gui-x: '-400'
+      gui-y: '-692'
+  tensorboard:
+    charm: cs:~kubeflow-charmers/tensorboard
+    source: ./charms/tensorboard
+    scale: 1
+    annotations:
+      gui-x: '-600'
+      gui-y: '-346'
+  pytorch-operator:
+    charm: cs:~kubeflow-charmers/pytorch-operator
+    source: ./charms/pytorch-operator
+    scale: 1
+    annotations:
+      gui-x: '0'
+      gui-y: '-692'
+  seldon-api-frontend:
+    charm: cs:~kubeflow-charmers/seldon-api-frontend
+    source: ./charms/seldon-api-frontend
+    scale: 1
+    annotations:
+      gui-x: '-800'
+      gui-y: '692'
+  seldon-cluster-manager:
+    charm: cs:~kubeflow-charmers/seldon-cluster-manager
+    source: ./charms/seldon-cluster-manager
+    scale: 1
+    annotations:
+      gui-x: '-400'
+      gui-y: '692'
+  pipelines-api:
+    charm: cs:~kubeflow-charmers/pipelines-api
+    source: ./charms/pipelines-api
+    scale: 1
+    annotations:
+      gui-x: '600'
+      gui-y: '346'
+  pipelines-persistence:
+    charm: cs:~kubeflow-charmers/pipelines-persistence
+    source: ./charms/pipelines-persistence
+    scale: 1
+    annotations:
+      gui-x: '400'
+      gui-y: '692'
+  pipelines-ui:
+    charm: cs:~kubeflow-charmers/pipelines-ui
+    source: ./charms/pipelines-ui
+    scale: 1
+    annotations:
+      gui-x: '200'
+      gui-y: '346'
+  pipelines-dashboard:
+    charm: cs:~kubeflow-charmers/pipelines-dashboard
+    source: ./charms/pipelines-dashboard
+    scale: 1
+    annotations:
+      gui-x: '600'
+      gui-y: '-346'
+  pipelines-viewer:
+    charm: cs:~kubeflow-charmers/pipelines-viewer
+    source: ./charms/pipelines-viewer
+    scale: 1
+    annotations:
+      gui-x: '400'
+      gui-y: '0'
+  pipelines-scheduledworkflow:
+    charm: cs:~kubeflow-charmers/pipelines-scheduledworkflow
+    source: ./charms/pipelines-scheduledworkflow
+    scale: 1
+    annotations:
+      gui-x: '0'
+      gui-y: '692'
 relations:
-- - kubeflow-tf-job-dashboard
-  - kubeflow-ambassador
-- - kubeflow-jupyterhub
-  - kubeflow-ambassador
-- - kubeflow-seldon-api-frontend
-  - redis
-- - kubeflow-seldon-cluster-manager
-  - redis
+- [ambassador, argo-ui]
+- [ambassador, jupyter-web]
+- [ambassador, jupyterhub]
+- [ambassador, pipelines-ui]
+- [ambassador, pipelines-viewer]
+- [ambassador, tensorboard]
+- [ambassador, tf-job-dashboard]
+- [pipelines-api, mariadb]
+- [pipelines-api, minio]
+- [pipelines-api, pipelines-persistence]
+- [pipelines-api, pipelines-ui]
+- [redis, seldon-api-frontend]
+- [redis, seldon-cluster-manager]
