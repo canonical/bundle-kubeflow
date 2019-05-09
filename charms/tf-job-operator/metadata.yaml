@@ -1,0 +1,15 @@
+name: tf-job-operator
+display-name: TensorFlow Job Operator
+summary: TensorFlow Job Operator
+description: |
+  This charm deploys the Job Operator configured for use with Kubeflow to
+  Kubernetes models in Juju.
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [ai, bigdata, kubeflow, machine-learning, tensorflow]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: 'gcr.io/kubeflow-images-public/tf_operator:v0.4.0'
