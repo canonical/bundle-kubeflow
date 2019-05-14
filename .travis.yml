@@ -17,7 +17,9 @@ install:
   - sudo snap install charm --classic
   - sudo snap install juju --classic --channel $JUJU_CHANNEL
   - sudo snap install juju-wait --classic
-  - sudo snap install microk8s --classic --channel 1.13/stable
+  - sudo systemctl stop docker.service
+  - sudo snap install microk8s --classic
+  - sudo microk8s.status --wait-ready --timeout 60
   - pip install pytest pyyaml requests sh
 before_script:
   - export PATH=$HOME/.cargo/bin:$PATH
