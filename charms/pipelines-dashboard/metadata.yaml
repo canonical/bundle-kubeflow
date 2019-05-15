@@ -1,0 +1,18 @@
+name: pipelines-dashboard
+display-name: Pipelines Central Dashboard
+summary: Pipelines Central Dashboard
+description: |
+  Platform for building and deploying portable, scalable machine learning (ML)
+  workflows based on Docker containers
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [ai, bigdata, kubeflow, machine-learning, tensorflow]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: gcr.io/kubeflow-images-public/centraldashboard:v0.5.0
+requires:
+  ambassador:
+    interface: ambassador

@@ -1,0 +1,7 @@
+options:
+  root-password:
+    description: |
+      Password to use for the database root user. If not specified,
+      one will be generated automatically.
+    type: string
+    default: ''

@@ -2,25 +2,8 @@
 
 ## Overview
 
-This bundle deploys KubeFlow to a Juju k8s model.
-
-KubeFlow consists of:
-
-  * Ambassador, an API gateway for managing access to the services
-
-  * JupyterHub, for running interactive notebooks
-
-  * TensorFlow Job Dashboard, to manage TensorFlow jobs
-
-  * TensorFlow Training, for training TensorFlow models
-
-  * TensorFlow Serving, for serving TensorFlow models
-
-  * PyTorch operator, for training PyTorch models
-
-And support coming soon:
-
-  * Seldon, for deploying ML models
+This bundle deploys KubeFlow to a Juju K8s model. The individual charms that
+make up this bundle can be found under `charms/`.
 
 ## Deploying
 
@@ -75,13 +58,16 @@ individually, or run the script as a whole.
 
 ## Using
 
-### JupyterHub
+### Main Dashboard
 
-JupyterHub is available at `/hub/`.
+Most interactions will go through the central dashboard, which is available via
+Ambassador at `/`. The deploy scripts will print out the address you can point
+your browser to when they are done deploying.
 
-### TensorFlow Job Dashboard
+### Argo UI
 
-The TensorFlow Job dashboard is available at `/tfjobs/ui/`.
+You can view pipelines from the Pipeline Dashboard available on the central
+dashboard, or by going to `/argo/`.
 
 ### TensorFlow Jobs
 
@@ -92,9 +78,9 @@ command:
 
 Where `<NAMESPACE>` matches the name of the Juju model that you're using,
 and `path/to/job/definition.yaml` should point to a `TFJob` definition
-similar to the `tf_job_mnist.yaml` example [found here][mnist-example].
+similar to the `mnist.yaml` example [found here][mnist-example].
 
-[mnist-example]: https://github.com/kubeflow/tf-operator/tree/master/examples/v1beta1/dist-mnist
+[mnist-example]: charms/tf-job-operator/files/mnist.yaml
 
 ### TensorFlow Serving
 

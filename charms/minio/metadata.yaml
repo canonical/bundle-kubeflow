@@ -1,0 +1,16 @@
+name: minio
+display-name: MinIO
+summary: Object storage for AI
+description: Object storage for AI
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [file-servers, storage]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: minio/minio:RELEASE.2018-02-09T22-40-05Z
+provides:
+  minio:
+    interface: http

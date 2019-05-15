@@ -1,0 +1,9 @@
+options:
+  ui-port:
+    type: int
+    default: 3000
+    description: Where UI resources will be served from
+  proxy-port:
+    type: int
+    default: 3001
+    description: Proxied port to the API server

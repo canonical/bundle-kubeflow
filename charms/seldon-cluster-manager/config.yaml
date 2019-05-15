@@ -1,0 +1,20 @@
+options:
+  port:
+    type: int
+    default: 8080
+    description: The port to listen to
+  engine-image:
+    type: string
+    default: 'seldonio/engine:0.2.6'
+    description: |
+      The image and version tag to use for Seldon Engine.
+  java-opts:
+    type: string
+    default: ''
+    description: |
+      Java options to pass to the Cluster Manager.
+  spring-opts:
+    type: string
+    default: ''
+    description: |
+      Spring options to pass to the Cluster Manager.

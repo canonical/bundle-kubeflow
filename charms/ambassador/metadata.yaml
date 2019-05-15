@@ -1,0 +1,16 @@
+name: ambassador
+display-name: Ambassador API Gateway
+summary: Kubernetes-native microservices API gateway
+description: Kubernetes-native microservices API gateway
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [kubeflow, reverse-proxy]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: 'quay.io/datawire/ambassador:0.30.1'
+provides:
+  ambassador:
+    interface: ambassador

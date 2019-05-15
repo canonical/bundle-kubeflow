@@ -1,0 +1,17 @@
+options:
+  model:
+    type: string
+    default: ~
+    description: Single model to serve, in the form of `path/to/base/dir/model-name`
+  model-conf:
+    type: string
+    default: model.conf
+    description: Configuration file containing models to serve
+  grpc-port:
+    type: int
+    default: 9000
+    description: The port to serve the GRPC API on
+  rest-port:
+    type: int
+    default: 9001
+    description: The port to serve the REST API on

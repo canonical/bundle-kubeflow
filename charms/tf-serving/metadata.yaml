@@ -1,0 +1,22 @@
+name: tf-serving
+display-name: TensorFlow Serving
+summary: TensorFlow Serving
+description: |
+  This charm deploys TensorFlow Serving configured for use with
+  Kubeflow to Kubernetes models in Juju.
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [ai, bigdata, kubeflow, machine-learning, tensorflow]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: tensorflow/serving:1.12.0
+storage:
+  models:
+    type: filesystem
+    description: Where TF Serving will look for models
+    location: /models
+    multiple:
+      range: 0-1

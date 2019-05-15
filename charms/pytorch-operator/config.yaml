@@ -1,0 +1,6 @@
+options:
+  pytorch-default-image:
+    type: string
+    default: ''
+    description: |
+      Optional default image to use for PyTorch jobs.
