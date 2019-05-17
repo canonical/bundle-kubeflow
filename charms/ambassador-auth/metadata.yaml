@@ -1,0 +1,16 @@
+name: ambassador-auth
+display-name: Ambassador HTTP Basic Authentication
+summary: Ambassador API Gateway — HTTP Basic auth
+description: Ambassador API Gateway — HTTP Basic auth
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [kubeflow, reverse-proxy, authentication]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: 'quay.io/datawire/ambassador-auth-httpbasic:0.1.1'
+requires:
+  ambassador:
+    interface: ambassador

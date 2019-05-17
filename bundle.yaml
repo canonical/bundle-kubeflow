@@ -7,6 +7,13 @@ applications:
     annotations:
       gui-x: '0'
       gui-y: '0'
+  ambassador-auth:
+    charm: cs:~kubeflow-charmers/ambassador-auth
+    source: ./charms/ambassador-auth
+    scale: 1
+    annotations:
+      gui-x: '800'
+      gui-y: '346'
   minio:
     charm: cs:~kubeflow-charmers/minio
     source: ./charms/minio
@@ -148,6 +155,7 @@ applications:
       gui-x: '0'
       gui-y: '692'
 relations:
+- [ambassador, ambassador-auth]
 - [ambassador, argo-ui]
 - [ambassador, jupyter-web]
 - [ambassador, jupyterhub]

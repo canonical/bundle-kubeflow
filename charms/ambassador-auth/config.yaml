@@ -1,0 +1,13 @@
+options:
+  port:
+    type: int
+    default: 5000
+    description: Port to listen to
+  username:
+    type: string
+    default: ''
+    description: HTTP Basic Auth username
+  password:
+    type: string
+    default: ''
+    description: HTTP Basic Auth password
