@@ -1,4 +1,3 @@
-import requests
 from .session import get_session
 
 URL = 'http://localhost:8081'
@@ -39,7 +38,7 @@ def test_jupyterhub():
     sess = get_session()
     token = get_token(sess)
 
-    response = sess.post(
+    sess.post(
         f'{URL}/hub/spawn',
         headers={'Authorization': 'token %s' % token},
         files={
@@ -53,4 +52,5 @@ def test_jupyterhub():
             "ws_mount_path": "/home/jovyan",
             "ws_access_modes": "ReadWriteOnce",
             "extraResources": "{}",
-        })
+        },
+    )

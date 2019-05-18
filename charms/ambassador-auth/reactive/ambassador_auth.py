@@ -49,51 +49,46 @@ def start_charm():
     h.update(password.encode('utf-8'))
     password = bcrypt.hashpw(b64encode(h.digest().hex().encode('utf-8')), bcrypt.gensalt()).decode()
 
-    layer.caas_base.pod_spec_set({
-        'service': {
-            'annotations': {
-                'getambassador.io/config': yaml.dump_all([
-                    {
-                        'apiVersion': 'ambassador/v0',
-                        'kind': 'AuthService',
-                        'name': 'authentication',
-                        'auth_service': f"{service_name}:{port}",
-                        'path_prefix': "/extauth",
-                        'allowed_headers': [],
-                    },
-                ]),
+    layer.caas_base.pod_spec_set(
+        {
+            'service': {
+                'annotations': {
+                    'getambassador.io/config': yaml.dump_all(
+                        [
+                            {
+                                'apiVersion': 'ambassador/v0',
+                                'kind': 'AuthService',
+                                'name': 'authentication',
+                                'auth_service': f"{service_name}:{port}",
+                                'path_prefix': "/extauth",
+                                'allowed_headers': [],
+                            }
+                        ]
+                    )
+                }
             },
-        },
-        'containers': [
-            {
-                'name': 'ambassador',
-                'imageDetails': {
-                    'imagePath': image_info.registry_path,
-                    'username': image_info.username,
-                    'password': image_info.password,
-                },
-                'ports': [
-                    {
-                        'name': 'ambassador-auth',
-                        'containerPort': port,
+            'containers': [
+                {
+                    'name': 'ambassador',
+                    'imageDetails': {
+                        'imagePath': image_info.registry_path,
+                        'username': image_info.username,
+                        'password': image_info.password,
                     },
-                ],
-                'files': [
-                    {
-                        'name': 'users',
-                        'mountPath': '/var/lib/ambassador/auth-httpbasic/',
-                        'files': {
-                            'users.yaml': yaml.dump({
-                                username: {
-                                    'hashed_password': password
-                                },
-                            })
-                        },
-                    },
-                ],
-            },
-        ],
-    })
+                    'ports': [{'name': 'ambassador-auth', 'containerPort': port}],
+                    'files': [
+                        {
+                            'name': 'users',
+                            'mountPath': '/var/lib/ambassador/auth-httpbasic/',
+                            'files': {
+                                'users.yaml': yaml.dump({username: {'hashed_password': password}})
+                            },
+                        }
+                    ],
+                }
+            ],
+        }
+    )
 
     layer.status.maintenance('creating container')
     set_flag('charm.ambassador-auth.started')

@@ -9,10 +9,7 @@ def charm_ready():
     layer.status.active('')
 
 
-@when(
-    'layer.docker-resource.oci-image.changed',
-    'config.changed',
-)
+@when('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
     clear_flag('charm.tensorboard.started')
 
@@ -27,42 +24,39 @@ def start_charm():
 
     port = hookenv.config('port')
 
-    layer.caas_base.pod_spec_set({
-        'service': {
-            'annotations': {
-                'getambassador.io/config': yaml.dump_all([{
-                    'apiVersion': 'ambassador/v0',
-                    'kind':  'Mapping',
-                    'name':  'tensorboard-mapping',
-                    'prefix': '/tensorboard/',
-                    'rewrite': '/',
-                    'service': f'{service_name}:{port}',
-                    'timeout_ms': 30000,
-                }]),
-            }
-        },
-        'containers': [
-            {
-                'name': 'tensorboard',
-                'imageDetails': {
-                    'imagePath': image_info.registry_path,
-                    'username': image_info.username,
-                    'password': image_info.password,
-                },
-                'command': [
-                    '/usr/local/bin/tensorboard',
-                    '--logdir=/logs',
-                    f'-port={port}',
-                ],
-                'ports': [
-                    {
-                        'name': 'tensorboard',
-                        'containerPort': port,
-                    },
-                ],
+    layer.caas_base.pod_spec_set(
+        {
+            'service': {
+                'annotations': {
+                    'getambassador.io/config': yaml.dump_all(
+                        [
+                            {
+                                'apiVersion': 'ambassador/v0',
+                                'kind': 'Mapping',
+                                'name': 'tensorboard-mapping',
+                                'prefix': '/tensorboard/',
+                                'rewrite': '/',
+                                'service': f'{service_name}:{port}',
+                                'timeout_ms': 30000,
+                            }
+                        ]
+                    )
+                }
             },
-        ],
-    })
+            'containers': [
+                {
+                    'name': 'tensorboard',
+                    'imageDetails': {
+                        'imagePath': image_info.registry_path,
+                        'username': image_info.username,
+                        'password': image_info.password,
+                    },
+                    'command': ['/usr/local/bin/tensorboard', '--logdir=/logs', f'-port={port}'],
+                    'ports': [{'name': 'tensorboard', 'containerPort': port}],
+                }
+            ],
+        }
+    )
 
     layer.status.maintenance('creating container')
     set_flag('charm.tensorboard.started')

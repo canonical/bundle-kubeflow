@@ -9,10 +9,7 @@ def charm_ready():
     layer.status.active('')
 
 
-@when(
-    'layer.docker-resource.oci-image.changed',
-    'config.changed',
-)
+@when('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
     clear_flag('charm.redis.started')
 
@@ -26,24 +23,21 @@ def start_charm():
 
     port = hookenv.config('port')
 
-    layer.caas_base.pod_spec_set({
-        'containers': [
-            {
-                'name': 'redis',
-                'imageDetails': {
-                    'imagePath': image_info.registry_path,
-                    'username': image_info.username,
-                    'password': image_info.password,
-                },
-                'ports': [
-                    {
-                        'name': 'redis',
-                        'containerPort': port,
+    layer.caas_base.pod_spec_set(
+        {
+            'containers': [
+                {
+                    'name': 'redis',
+                    'imageDetails': {
+                        'imagePath': image_info.registry_path,
+                        'username': image_info.username,
+                        'password': image_info.password,
                     },
-                ],
-            },
-        ],
-    })
+                    'ports': [{'name': 'redis', 'containerPort': port}],
+                }
+            ]
+        }
+    )
 
     layer.status.maintenance('creating container')
     set_flag('charm.redis.started')
@@ -53,7 +47,4 @@ def start_charm():
 def send_relation_info():
     client = endpoint_from_flag('endpoint.db.joined')
     random_unit = client.all_joined_units[0]
-    client.configure(
-        host=random_unit.received['ingress-address'],
-        port=hookenv.config('port'),
-    )
+    client.configure(host=random_unit.received['ingress-address'], port=hookenv.config('port'))

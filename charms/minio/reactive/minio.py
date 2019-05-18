@@ -12,10 +12,7 @@ def configure_minio(http):
     http.configure(port=hookenv.config('port'))
 
 
-@when(
-    'layer.docker-resource.oci-image.changed',
-    'config.changed',
-)
+@when('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
     clear_flag('charm.minio.started')
 
@@ -27,29 +24,26 @@ def start_charm():
 
     image_info = layer.docker_resource.get_info('oci-image')
 
-    layer.caas_base.pod_spec_set({
-        'containers': [
-            {
-                'name': 'minio',
-                'args': ['server', '/data'],
-                'imageDetails': {
-                    'imagePath': image_info.registry_path,
-                    'username': image_info.username,
-                    'password': image_info.password,
-                },
-                'ports': [
-                    {
-                        'name': 'minio',
-                        'containerPort': hookenv.config('port'),
+    layer.caas_base.pod_spec_set(
+        {
+            'containers': [
+                {
+                    'name': 'minio',
+                    'args': ['server', '/data'],
+                    'imageDetails': {
+                        'imagePath': image_info.registry_path,
+                        'username': image_info.username,
+                        'password': image_info.password,
                     },
-                ],
-                'config': {
-                    'MINIO_ACCESS_KEY': hookenv.config('access-key'),
-                    'MINIO_SECRET_KEY': hookenv.config('secret-key'),
+                    'ports': [{'name': 'minio', 'containerPort': hookenv.config('port')}],
+                    'config': {
+                        'MINIO_ACCESS_KEY': hookenv.config('access-key'),
+                        'MINIO_SECRET_KEY': hookenv.config('secret-key'),
+                    },
                 }
-            },
-        ],
-    })
+            ]
+        }
+    )
 
     layer.status.maintenance('creating container')
     set_flag('charm.minio.started')
