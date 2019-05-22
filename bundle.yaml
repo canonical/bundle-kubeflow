@@ -1,7 +1,7 @@
 bundle: kubernetes
 applications:
   ambassador:
-    charm: cs:~kubeflow-charmers/kubeflow-ambassador
+    charm: cs:~kubeflow-charmers/ambassador
     source: ./charms/ambassador
     scale: 1
     annotations:
@@ -15,7 +15,7 @@ applications:
       gui-x: '800'
       gui-y: '692'
   mariadb:
-    charm: cs:~juju/mariadb-k8s
+    charm: cs:~kubeflow-charmers/mariadb-k8s
     source: ./charms/mariadb-k8s
     scale: 1
     annotations:
