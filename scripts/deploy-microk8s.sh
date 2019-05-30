@@ -6,6 +6,7 @@ MODEL=kubeflow
 CHANNEL=${CHANNEL:-stable}
 BUILD=${BUILD:-false}
 START=$(date +%s.%N)
+CI=${CI:-false}
 
 missing=$(for cmd in juju juju-wait microk8s.kubectl $(if ${BUILD}; then echo juju-bundle; fi); do command -v $cmd > /dev/null || echo $cmd; done)
 if [[ -n "$missing" ]]; then
@@ -42,7 +43,7 @@ juju create-storage-pool operator-storage kubernetes storage-class=microk8s-host
 
 # Allow building local bundle.yaml, otherwise deploy from the charm store
 if [[ "$BUILD" = true ]] ; then
-    juju bundle deploy --build
+    juju bundle deploy --build $(if ${CI}; then echo "-- --overlay overlays/ci.yml"; fi)
 else
     juju deploy kubeflow --channel $CHANNEL
 fi

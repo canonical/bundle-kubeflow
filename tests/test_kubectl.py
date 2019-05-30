@@ -1,8 +1,5 @@
 """Runs tests by inspecting microk8s with kubectl."""
 
-import time
-
-import pytest
 import yaml
 from sh import Command
 
@@ -12,14 +9,15 @@ kubectl = Command('microk8s.kubectl').bake('-n', 'kubeflow')
 def test_running():
     pods = yaml.safe_load(kubectl.get('pods', '-oyaml').stdout)
 
-    statuses = [
+    statuses = sorted(
         (i['metadata']['labels']['juju-app'], i['status']['phase'])
         for i in pods['items']
         if 'juju-app' in i['metadata']['labels']
-    ]
+    )
 
     assert statuses == [
         ('ambassador', 'Running'),
+        ('ambassador-auth', 'Running'),
         ('argo-controller', 'Running'),
         ('argo-ui', 'Running'),
         ('jupyter-controller', 'Running'),
@@ -46,7 +44,7 @@ def test_running():
 def test_crd_created():
     crds = yaml.safe_load(kubectl.get('crd', '-oyaml').stdout)
 
-    names = [i['metadata']['name'] for i in crds['items']]
+    names = sorted(i['metadata']['name'] for i in crds['items'])
     assert names == [
         'notebooks.kubeflow.org',
         'pytorchjobs.kubeflow.org',

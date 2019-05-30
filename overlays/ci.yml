@@ -1,0 +1,4 @@
+applications:
+  ambassador-auth:
+    options:
+      password: foobar

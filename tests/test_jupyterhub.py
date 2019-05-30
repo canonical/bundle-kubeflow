@@ -1,26 +1,23 @@
-import base64
-import time
-
 import requests
+from .session import get_session
 
 URL = 'http://localhost:8081'
 USER = 'travisci'
 
 
-def get_token():
+def get_token(sess):
     """Generates a token for `USER`.
 
     Expects `DummyAuthenticator` to be used, and logs in to ensure user is created.
     """
-    response = requests.post(f'{URL}/hub/login', data={'username': USER})
-    response.raise_for_status()
+    response = sess.post(f'{URL}/hub/login', data={'username': USER})
 
-    response = requests.post(
+    response = sess.post(
         f'{URL}/hub/api/users/{USER}/tokens',
         json={'note': 'travisci'},
         cookies=response.history[0].cookies,
-        headers={'referer': f'{URL}/hub/token'})
-    response.raise_for_status()
+        headers={'referer': f'{URL}/hub/token'},
+    )
 
     return response.json()['token']
 
@@ -28,8 +25,8 @@ def get_token():
 def test_version():
     """Checks the that version matches what we expect"""
 
-    response = requests.get(f'{URL}/hub/api/')
-    response.raise_for_status()
+    sess = get_session()
+    response = sess.get(f'{URL}/hub/api/')
     assert response.json() == {'version': '1.0.0.dev'}
 
 
@@ -39,9 +36,10 @@ def test_jupyterhub():
     Uploads a sample file to ensure connectivity.
     """
 
-    token = get_token()
+    sess = get_session()
+    token = get_token(sess)
 
-    response = requests.post(
+    response = sess.post(
         f'{URL}/hub/spawn',
         headers={'Authorization': 'token %s' % token},
         files={
@@ -56,4 +54,3 @@ def test_jupyterhub():
             "ws_access_modes": "ReadWriteOnce",
             "extraResources": "{}",
         })
-    response.raise_for_status()
