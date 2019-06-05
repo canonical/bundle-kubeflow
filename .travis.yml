@@ -10,9 +10,6 @@ env:
   matrix:
     - JUJU_CHANNEL=stable
     - JUJU_CHANNEL=edge
-matrix:
-  allow_failures:
-    - env: JUJU_CHANNEL=stable
 install:
   - sudo systemctl stop docker.service
   - sudo apt purge libyaml-dev
