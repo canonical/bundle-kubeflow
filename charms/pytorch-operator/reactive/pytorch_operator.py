@@ -12,10 +12,7 @@ def charm_ready():
     layer.status.active('')
 
 
-@when(
-    'layer.docker-resource.oci-image.changed',
-    'config.changed',
-)
+@when('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
     clear_flag('charm.kubeflow-pytorch-operator.started')
 
@@ -34,45 +31,34 @@ def start_charm():
     if config['pytorch-default-image']:
         conf_data['pytorchImage'] = config['pytorch-default-image']
 
-    layer.caas_base.pod_spec_set({
-        'containers': [
-            {
-                'name': 'pytorch-operator',
-                'imageDetails': {
-                    'imagePath': image_info.registry_path,
-                    'username': image_info.username,
-                    'password': image_info.password,
-                },
-                'command': [
-                    '/pytorch-operator.v1beta1',
-                    '--alsologtostderr',
-                    '-v=1',
-                ],
-                'ports': [
-                    {
-                        'name': 'dummy',
-                        'containerPort': 9999,
+    layer.caas_base.pod_spec_set(
+        {
+            'containers': [
+                {
+                    'name': 'pytorch-operator',
+                    'imageDetails': {
+                        'imagePath': image_info.registry_path,
+                        'username': image_info.username,
+                        'password': image_info.password,
                     },
-                ],
-                'config': {
-                    'MY_POD_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
-                    'MY_POD_NAME': hookenv.service_name(),
-                },
-                'files': [
-                    {
-                        'name': 'configs',
-                        'mountPath': '/etc/config',
-                        'files': {
-                            'controller_config_file.yaml': yaml.dump(conf_data),
-                        },
+                    'command': ['/pytorch-operator.v1beta1', '--alsologtostderr', '-v=1'],
+                    'ports': [{'name': 'dummy', 'containerPort': 9999}],
+                    'config': {
+                        'MY_POD_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
+                        'MY_POD_NAME': hookenv.service_name(),
                     },
-                ],
-            },
-        ],
-        'customResourceDefinitions': {
-            crd['metadata']['name']: crd['spec'],
-        },
-    })
+                    'files': [
+                        {
+                            'name': 'configs',
+                            'mountPath': '/etc/config',
+                            'files': {'controller_config_file.yaml': yaml.dump(conf_data)},
+                        }
+                    ],
+                }
+            ],
+            'customResourceDefinitions': {crd['metadata']['name']: crd['spec']},
+        }
+    )
 
     layer.status.maintenance('creating container')
     set_flag('charm.kubeflow-pytorch-operator.started')

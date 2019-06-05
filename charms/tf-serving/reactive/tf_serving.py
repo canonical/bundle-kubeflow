@@ -9,10 +9,7 @@ def charm_ready():
     layer.status.active('')
 
 
-@when(
-    'layer.docker-resource.oci-image.changed',
-    'config.changed',
-)
+@when('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
     clear_flag('charm.kubeflow-tf-serving.started')
 
@@ -32,41 +29,35 @@ def start_charm():
     if model:
         hookenv.log(f'Serving single model `{model}`')
         path, name = model.rsplit('/', maxsplit=1)
-        command_args = [
-            f'--model_name={name}',
-            f'--model_base_path=/models/{path}',
-        ]
+        command_args = [f'--model_name={name}', f'--model_base_path=/models/{path}']
     else:
         hookenv.log(f'Serving models from {model_conf}')
         command_args = [f'--model_config_file=/models/{model_conf}']
 
-    layer.caas_base.pod_spec_set({
-        'containers': [
-            {
-                'name': 'tf-serving',
-                'imageDetails': {
-                    'imagePath': image_info.registry_path,
-                    'username': image_info.username,
-                    'password': image_info.password,
-                },
-                'command': [
-                    '/usr/bin/tensorflow_model_server',
-                    f'--port={grpc_port}',
-                    f'--rest_api_port={rest_port}',
-                ] + command_args,
-                'ports': [
-                    {
-                        'name': 'tf-serving-grpc',
-                        'containerPort': grpc_port,
+    layer.caas_base.pod_spec_set(
+        {
+            'containers': [
+                {
+                    'name': 'tf-serving',
+                    'imageDetails': {
+                        'imagePath': image_info.registry_path,
+                        'username': image_info.username,
+                        'password': image_info.password,
                     },
-                    {
-                        'name': 'tf-serving-rest',
-                        'containerPort': rest_port,
-                    },
-                ],
-            },
-        ],
-    })
+                    'command': [
+                        '/usr/bin/tensorflow_model_server',
+                        f'--port={grpc_port}',
+                        f'--rest_api_port={rest_port}',
+                    ]
+                    + command_args,
+                    'ports': [
+                        {'name': 'tf-serving-grpc', 'containerPort': grpc_port},
+                        {'name': 'tf-serving-rest', 'containerPort': rest_port},
+                    ],
+                }
+            ]
+        }
+    )
 
     layer.status.maintenance('creating container')
     set_flag('charm.kubeflow-tf-serving.started')

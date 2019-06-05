@@ -22,45 +22,36 @@ def start_charm():
 
     image_info = layer.docker_resource.get_info('oci-image')
 
-    layer.caas_base.pod_spec_set({
-        'containers': [
-            {
-                'name': 'ambassador',
-                'imageDetails': {
-                    'imagePath': image_info.registry_path,
-                    'username': image_info.username,
-                    'password': image_info.password,
-                },
-                'command': [],
-                'ports': [
-                    {
-                        'name': 'ambassador',
-                        'containerPort': 80,
+    layer.caas_base.pod_spec_set(
+        {
+            'containers': [
+                {
+                    'name': 'ambassador',
+                    'imageDetails': {
+                        'imagePath': image_info.registry_path,
+                        'username': image_info.username,
+                        'password': image_info.password,
                     },
-                ],
-                'config': {
-                    'AMBASSADOR_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
-                    'AMBASSADOR_SINGLE_NAMESPACE': 'true',
-                },
-                'livenessProbe': {
-                    'httpGet': {
-                        'path': '/ambassador/v0/check_alive',
-                        'port': 8877,
+                    'command': [],
+                    'ports': [{'name': 'ambassador', 'containerPort': 80}],
+                    'config': {
+                        'AMBASSADOR_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
+                        'AMBASSADOR_SINGLE_NAMESPACE': 'true',
                     },
-                    'initialDelaySeconds': 30,
-                    'periodSeconds': 30,
-                },
-                'readinessProbe': {
-                    'httpGet': {
-                      'path': '/ambassador/v0/check_ready',
-                      'port': 8877,
+                    'livenessProbe': {
+                        'httpGet': {'path': '/ambassador/v0/check_alive', 'port': 8877},
+                        'initialDelaySeconds': 30,
+                        'periodSeconds': 30,
                     },
-                    'initialDelaySeconds': 30,
-                    'periodSeconds': 30,
-                },
-            },
-        ],
-    })
+                    'readinessProbe': {
+                        'httpGet': {'path': '/ambassador/v0/check_ready', 'port': 8877},
+                        'initialDelaySeconds': 30,
+                        'periodSeconds': 30,
+                    },
+                }
+            ]
+        }
+    )
 
     layer.status.maintenance('creating container')
     set_flag('charm.kubeflow-ambassador.started')

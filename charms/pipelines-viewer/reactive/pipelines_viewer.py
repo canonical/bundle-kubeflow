@@ -10,10 +10,7 @@ def charm_ready():
     layer.status.active('')
 
 
-@when(
-    'layer.docker-resource.oci-image.changed',
-    'config.changed',
-)
+@when('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
     clear_flag('charm.pipelines-viewer.started')
 
@@ -30,41 +27,40 @@ def start_charm():
 
     port = hookenv.config('port')
 
-    layer.caas_base.pod_spec_set({
-        'service': {'annotations': {
-            'getambassador.io/config': yaml.dump_all([
-                {
-                    'apiVersion': 'ambassador/v0',
-                    'kind':  'Mapping',
-                    'name':  'pipelines-viewer',
-                    'prefix': '/data',
-                    'rewrite': '/data',
-                    'service': f'{service_name}:{port}',
-                    'use_websocket': True,
-                    'timeout_ms': 30000,
-                },
-            ]),
-        }},
-        'containers': [
-            {
-                'name': 'pipelines-viewer',
-                'imageDetails': {
-                    'imagePath': image_info.registry_path,
-                    'username': image_info.username,
-                    'password': image_info.password,
-                },
-                'ports': [
-                    {
-                        'name': 'ui',
-                        'containerPort': port,
-                    },
-                ],
+    layer.caas_base.pod_spec_set(
+        {
+            'service': {
+                'annotations': {
+                    'getambassador.io/config': yaml.dump_all(
+                        [
+                            {
+                                'apiVersion': 'ambassador/v0',
+                                'kind': 'Mapping',
+                                'name': 'pipelines-viewer',
+                                'prefix': '/data',
+                                'rewrite': '/data',
+                                'service': f'{service_name}:{port}',
+                                'use_websocket': True,
+                                'timeout_ms': 30000,
+                            }
+                        ]
+                    )
+                }
             },
-        ],
-        'customResourceDefinitions': {
-            crd['metadata']['name']: crd['spec'],
-        },
-    })
+            'containers': [
+                {
+                    'name': 'pipelines-viewer',
+                    'imageDetails': {
+                        'imagePath': image_info.registry_path,
+                        'username': image_info.username,
+                        'password': image_info.password,
+                    },
+                    'ports': [{'name': 'ui', 'containerPort': port}],
+                }
+            ],
+            'customResourceDefinitions': {crd['metadata']['name']: crd['spec']},
+        }
+    )
 
     layer.status.maintenance('creating container')
     set_flag('charm.pipelines-viewer.started')

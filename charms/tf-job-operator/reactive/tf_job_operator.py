@@ -12,10 +12,7 @@ def charm_ready():
     layer.status.active('')
 
 
-@when(
-    'layer.docker-resource.oci-image.changed',
-    'config.changed',
-)
+@when('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
     clear_flag('charm.kubeflow-tf-job-operator.started')
 
@@ -33,11 +30,7 @@ def start_charm():
     crd = yaml.load(Path(f"files/crd-{config['job-version']}.yaml").read_text())
 
     if config['job-version'] == 'v1alpha2':
-        command = [
-            '/opt/kubeflow/tf-operator.v2',
-            '--alsologtostderr',
-            '-v=1',
-        ]
+        command = ['/opt/kubeflow/tf-operator.v2', '--alsologtostderr', '-v=1']
     else:
         command = [
             '/opt/mlkube/tf-operator',
@@ -46,46 +39,43 @@ def start_charm():
             '-v=1',
         ]
 
-    layer.caas_base.pod_spec_set({
-        'containers': [
-            {
-                'name': 'tf-job-operator',
-                'imageDetails': {
-                    'imagePath': image_info.registry_path,
-                    'username': image_info.username,
-                    'password': image_info.password,
-                },
-                'command': command,
-                'ports': [
-                    {
-                        'name': 'dummy',
-                        'containerPort': 9999,
+    layer.caas_base.pod_spec_set(
+        {
+            'containers': [
+                {
+                    'name': 'tf-job-operator',
+                    'imageDetails': {
+                        'imagePath': image_info.registry_path,
+                        'username': image_info.username,
+                        'password': image_info.password,
                     },
-                ],
-                'config': {
-                    'MY_POD_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
-                    'MY_POD_NAME': hookenv.service_name(),
-                },
-                'files': [
-                    {
-                        'name': 'configs',
-                        'mountPath': conf_dir,
-                        'files': {
-                            conf_file: yaml.dump({
-                                'grpcServerFilePath': (
-                                    '/opt/mlkube/grpc_tensorflow_server/'
-                                    'grpc_tensorflow_server.py'
-                                ),
-                            }),
-                        },
+                    'command': command,
+                    'ports': [{'name': 'dummy', 'containerPort': 9999}],
+                    'config': {
+                        'MY_POD_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
+                        'MY_POD_NAME': hookenv.service_name(),
                     },
-                ],
-            },
-        ],
-        'customResourceDefinitions': {
-            crd['metadata']['name']: crd['spec'],
-        },
-    })
+                    'files': [
+                        {
+                            'name': 'configs',
+                            'mountPath': conf_dir,
+                            'files': {
+                                conf_file: yaml.dump(
+                                    {
+                                        'grpcServerFilePath': (
+                                            '/opt/mlkube/grpc_tensorflow_server/'
+                                            'grpc_tensorflow_server.py'
+                                        )
+                                    }
+                                )
+                            },
+                        }
+                    ],
+                }
+            ],
+            'customResourceDefinitions': {crd['metadata']['name']: crd['spec']},
+        }
+    )
 
     layer.status.maintenance('creating container')
     set_flag('charm.kubeflow-tf-job-operator.started')

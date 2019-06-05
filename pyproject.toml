@@ -1,0 +1,5 @@
+[tool.black]
+line-length = 100
+target-version = ['py37']
+skip-string-normalization = true
+exclude = "(venv|spawner.py|mnist.py)"

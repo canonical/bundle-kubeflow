@@ -14,10 +14,10 @@ from charms.reactive import (
     when_not,
 )
 
-register_trigger(when='endpoint.ambassador.joined',
-                 clear_flag='charm.kubeflow-jupyterhub.started')
-register_trigger(when_not='endpoint.ambassador.joined',
-                 clear_flag='charm.kubeflow-jupyterhub.started')
+register_trigger(when='endpoint.ambassador.joined', clear_flag='charm.kubeflow-jupyterhub.started')
+register_trigger(
+    when_not='endpoint.ambassador.joined', clear_flag='charm.kubeflow-jupyterhub.started'
+)
 
 
 @when('charm.kubeflow-jupyterhub.started')
@@ -25,10 +25,7 @@ def charm_ready():
     layer.status.active('')
 
 
-@when_any(
-    'layer.docker-resource.oci-image.changed',
-    'config.changed',
-)
+@when_any('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
     clear_flag('charm.kubeflow-jupyterhub.started')
 
@@ -47,28 +44,30 @@ def start_charm():
 
     if is_flag_set('endpoint.ambassador.joined'):
         annotations = {
-            'getambassador.io/config': yaml.dump_all([
-                {
-                    'apiVersion': 'ambassador/v0',
-                    'kind':  'Mapping',
-                    'name':  'tf_hub',
-                    'prefix': '/hub',
-                    'rewrite': '/hub',
-                    'service': f'{service_name}:{hub_port}',
-                    'use_websocket': True,
-                    'timeout_ms': 30000,
-                },
-                {
-                    'apiVersion': 'ambassador/v0',
-                    'kind':  'Mapping',
-                    'name':  'tf_hub_user',
-                    'prefix': '/user',
-                    'rewrite': '/user',
-                    'service': f'{service_name}:{hub_port}',
-                    'use_websocket': True,
-                    'timeout_ms': 30000,
-                },
-            ]),
+            'getambassador.io/config': yaml.dump_all(
+                [
+                    {
+                        'apiVersion': 'ambassador/v0',
+                        'kind': 'Mapping',
+                        'name': 'tf_hub',
+                        'prefix': '/hub',
+                        'rewrite': '/hub',
+                        'service': f'{service_name}:{hub_port}',
+                        'use_websocket': True,
+                        'timeout_ms': 30000,
+                    },
+                    {
+                        'apiVersion': 'ambassador/v0',
+                        'kind': 'Mapping',
+                        'name': 'tf_hub_user',
+                        'prefix': '/user',
+                        'rewrite': '/user',
+                        'service': f'{service_name}:{hub_port}',
+                        'use_websocket': True,
+                        'timeout_ms': 30000,
+                    },
+                ]
+            )
         }
     else:
         annotations = {}
@@ -80,52 +79,48 @@ def start_charm():
         'oauthenticator',
     ]
 
-    layer.caas_base.pod_spec_set({
-        'service': {'annotations': annotations},
-        'containers': [
-            {
-                'name': 'jupyterhub',
-                'imageDetails': {
-                    'imagePath': image_info.registry_path,
-                    'username': image_info.username,
-                    'password': image_info.password,
-                },
-                # TODO: Move to init containers to pip install when juju supports it
-                'command': [
-                    'bash',
-                    '-c',
-                    f'pip install {" ".join(pip_installs)} && jupyterhub -f /etc/config/jupyterhub_config.py',
-                ],
-                'ports': [
-                    {
-                        'name': 'hub',
-                        'containerPort': hub_port,
+    layer.caas_base.pod_spec_set(
+        {
+            'service': {'annotations': annotations},
+            'containers': [
+                {
+                    'name': 'jupyterhub',
+                    'imageDetails': {
+                        'imagePath': image_info.registry_path,
+                        'username': image_info.username,
+                        'password': image_info.password,
                     },
-                    {
-                        'name': 'api',
-                        'containerPort': api_port,
+                    # TODO: Move to init containers to pip install when juju supports it
+                    'command': [
+                        'bash',
+                        '-c',
+                        f'pip install {" ".join(pip_installs)} && jupyterhub -f /etc/config/jupyterhub_config.py',
+                    ],
+                    'ports': [
+                        {'name': 'hub', 'containerPort': hub_port},
+                        {'name': 'api', 'containerPort': api_port},
+                    ],
+                    'config': {
+                        'K8S_SERVICE_NAME': service_name,
+                        'AUTHENTICATOR': config['authenticator'],
+                        'NOTEBOOK_STORAGE_SIZE': config['notebook-storage-size'],
+                        'NOTEBOOK_STORAGE_CLASS': config['notebook-storage-class'],
+                        'NOTEBOOK_IMAGE': config['notebook-image'],
                     },
-                ],
-                'config': {
-                    'K8S_SERVICE_NAME': service_name,
-                    'AUTHENTICATOR': config['authenticator'],
-                    'NOTEBOOK_STORAGE_SIZE': config['notebook-storage-size'],
-                    'NOTEBOOK_STORAGE_CLASS': config['notebook-storage-class'],
-                    'NOTEBOOK_IMAGE': config['notebook-image'],
-                },
-                'files': [
-                    {
-                        'name': 'configs',
-                        'mountPath': '/etc/config',
-                        'files': {
-                            Path(filename).name: Path(filename).read_text()
-                            for filename in glob('files/*')
-                        },
-                    },
-                ],
-            },
-        ],
-    })
+                    'files': [
+                        {
+                            'name': 'configs',
+                            'mountPath': '/etc/config',
+                            'files': {
+                                Path(filename).name: Path(filename).read_text()
+                                for filename in glob('files/*')
+                            },
+                        }
+                    ],
+                }
+            ],
+        }
+    )
 
     layer.status.maintenance('creating container')
     set_flag('charm.kubeflow-jupyterhub.started')

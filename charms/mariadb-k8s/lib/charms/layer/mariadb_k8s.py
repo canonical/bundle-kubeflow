@@ -20,10 +20,14 @@ def grant_exists(cursor, db_name, username, address):
 
 
 def create_grant(cursor, db_name, username, password, address):
-    cursor.execute("GRANT ALL PRIVILEGES ON %s.* TO %s@%s IDENTIFIED BY %s",
-                   db_name, username, address, password)
+    cursor.execute(
+        "GRANT ALL PRIVILEGES ON %s.* TO %s@%s IDENTIFIED BY %s",
+        db_name,
+        username,
+        address,
+        password,
+    )
 
 
 def cleanup_grant(cursor, username, address):
-    cursor.execute("DROP FROM mysql.user WHERE user=%s AND HOST=%s",
-                   username, address)
+    cursor.execute("DROP FROM mysql.user WHERE user=%s AND HOST=%s", username, address)
