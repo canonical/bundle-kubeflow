@@ -30,7 +30,7 @@ You'll also need to install the `microk8s` snap:
 
     sudo snap install microk8s --classic
 
-Next, you can run the commands in [deploy-microk8s.sh](scripts/deploy-microk8s.sh)
+Next, you can run the commands in [deploy-microk8s](scripts/deploy-microk8s)
 individually, or run the script as a whole.
 
 ### CDK
@@ -53,8 +53,16 @@ add the credentials to juju:
 
     Credential "kubeflow-test" added locally for cloud "aws".
 
-Next, you can run the commands in [deploy-aws.sh](scripts/deploy-aws.sh)
-individually, or run the script as a whole.
+Next, you can run the commands in these two scripts individually, or run the
+script as a whole:
+
+𝘚𝘦𝘵𝘴 𝘶𝘱 𝘊𝘋𝘒
+
+[manage-cdk](scripts/manage-cdk)
+
+𝘋𝘦𝘱𝘭𝘰𝘺𝘴 𝘵𝘰 𝘊𝘋𝘒
+
+[deploy-cdk](scripts/deploy-cdk)
 
 ## Using
 
