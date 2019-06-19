@@ -1,0 +1,37 @@
+options:
+  grpc-port:
+    type: int
+    default: 8085
+    description: The port that the GRPC service will listen to
+  http-port:
+    type: int
+    default: 8080
+    description: The port that the HTTP proxy service will listen to
+  config:
+    type: string
+    default: |
+      grpcServer:
+        host: modeldb-backend
+        port: 8085
+      database:
+        DBType: rdbms
+        RdbConfiguration:
+          RdbDatabaseName: mariadb
+          RdbDriver: "com.mysql.cj.jdbc.Driver"
+          RdbDialect: "org.hibernate.dialect.MySQL5Dialect"
+          RdbUrl: "jdbc:mysql://mariadb:3306"
+          RdbUsername: root
+          RdbPassword: ""
+      artifactStore_grpcServer:
+        host: modeldb-store
+        port: 8086
+      entities:
+        projectEntity: Project
+        experimentEntity: Experiment
+        experimentRunEntity: ExperimentRun
+        artifactStoreMappingEntity: ArtifactStoreMapping
+        jobEntity: Job
+      authService:
+        host: ~
+        port: ~
+    description: /config/config.yaml

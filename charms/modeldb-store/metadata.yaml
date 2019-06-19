@@ -1,0 +1,20 @@
+name: modeldb-store
+display-name: ModelDB Store
+summary: ModelDB
+description: ModelDB
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [ai, bigdata, kubeflow, machine-learning, tensorflow]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: vertaaiofficial/modeldb-artifact-store:kubeflow
+storage:
+  artifacts:
+    type: filesystem
+    description: Artifact storage location
+    location: /artifacts
+    multiple:
+      range: 0-1

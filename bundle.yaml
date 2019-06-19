@@ -154,6 +154,18 @@ applications:
     annotations:
       gui-x: '0'
       gui-y: '692'
+  modeldb-store:
+    charm: cs:~kubeflow-charmers/modeldb-store
+    source: ./charms/modeldb-store
+    scale: 1
+  modeldb-backend:
+    charm: cs:~kubeflow-charmers/modeldb-backend
+    source: ./charms/modeldb-backend
+    scale: 1
+  modeldb-ui:
+    charm: cs:~kubeflow-charmers/modeldb-ui
+    source: ./charms/modeldb-ui
+    scale: 1
 relations:
 - [ambassador, ambassador-auth]
 - [ambassador, argo-ui]
@@ -163,6 +175,8 @@ relations:
 - [ambassador, pipelines-viewer]
 - [ambassador, tensorboard]
 - [ambassador, tf-job-dashboard]
+- [modeldb-backend, mariadb]
+- [modeldb-backend, modeldb-ui]
 - [pipelines-api, mariadb]
 - [pipelines-api, minio]
 - [pipelines-api, pipelines-persistence]

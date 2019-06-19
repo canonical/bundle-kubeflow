@@ -1,0 +1,16 @@
+name: modeldb-ui
+display-name: ModelDB Frontend
+summary: ModelDB
+description: ModelDB
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [ai, bigdata, kubeflow, machine-learning, tensorflow]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: vertaaiofficial/modeldb-frontend:kubeflow
+requires:
+  modeldb-backend:
+    interface: http

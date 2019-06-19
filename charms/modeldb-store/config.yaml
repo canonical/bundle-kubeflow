@@ -1,0 +1,16 @@
+options:
+  port:
+    type: int
+    default: 8086
+    description: The port to listen to
+  config:
+    type: string
+    default: |
+      artifactStore_grpcServer:
+        port: 8086
+      artifactStoreConfig:
+        initializeBuckets: false
+        storageTypeName: nfs
+        nfsRootPath: /artifacts
+        bucket_names: []
+    description: /config/config.yaml
