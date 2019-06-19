@@ -12,8 +12,8 @@ applications:
     source: ./charms/ambassador-auth
     scale: 1
     annotations:
-      gui-x: '800'
-      gui-y: '346'
+      gui-x: '600'
+      gui-y: '-346'
   minio:
     charm: cs:~kubeflow-charmers/minio
     source: ./charms/minio
@@ -138,8 +138,8 @@ applications:
     source: ./charms/pipelines-dashboard
     scale: 1
     annotations:
-      gui-x: '600'
-      gui-y: '-346'
+      gui-x: '1000'
+      gui-y: '346'
   pipelines-viewer:
     charm: cs:~kubeflow-charmers/pipelines-viewer
     source: ./charms/pipelines-viewer
