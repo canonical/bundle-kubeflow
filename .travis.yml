@@ -23,6 +23,7 @@ install:
   - sudo microk8s.status --wait-ready --timeout 60
   - pip install pytest pyyaml requests sh cffi black==19.3b0
 script:
+  - git config --global --unset protocol.version 2
   # Run regular deploy script
   - ./scripts/deploy-microk8s.sh
 
