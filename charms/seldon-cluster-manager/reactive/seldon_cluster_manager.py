@@ -50,7 +50,11 @@ def start_charm(redis):
                         'ENGINE_CONTAINER_IMAGE_AND_VERSION': config['engine-image'],
                         'ENGINE_CONTAINER_IMAGE_PULL_POLICY': 'IfNotPresent',
                         'ENGINE_CONTAINER_SERVICE_ACCOUNT_NAME': 'default',
+                        'ENGINE_CONTAINER_USER': '8888',
+                        'ENGINE_SERVER_GRPC_PORT': '5001',
+                        'ENGINE_SERVER_PORT': '8000',
                         'JAVA_OPTS': config['java-opts'],
+                        'PREDICTIVE_UNIT_SERVICE_PORT': '8501',
                         'SELDON_CLUSTER_MANAGER_POD_NAMESPACE': model,
                         'SELDON_CLUSTER_MANAGER_REDIS_HOST': redis.all_joined_units[
                             0
