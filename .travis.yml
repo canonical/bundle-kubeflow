@@ -25,7 +25,7 @@ install:
 script:
   - git config --global --unset protocol.version 2
   # Run regular deploy script
-  - ./scripts/deploy-microk8s.sh
+  - ./scripts/deploy-microk8s create --build --ci
 
   # Make Ambassador available and run tests
   - microk8s.kubectl port-forward svc/ambassador -n kubeflow 8081:80 &

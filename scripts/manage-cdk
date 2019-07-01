@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+
+"""Deploys a CDK cluster."""
+
+import argparse
+import importlib
+from typing import List
+
+common = importlib.import_module('common', 'common.py')
+run = common.run
+require = common.require
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    subparser = parser.add_subparsers(dest='command', help='foo')
+    subparser.required = True
+    create_args = subparser.add_parser('create')
+    destroy_args = subparser.add_parser('destroy')
+
+    create_args.add_argument('--cloud', default='aws', help='Cloud to deploy onto')
+    create_args.add_argument('--region', default='us-east-1', help='Cloud region to deploy onto')
+    create_args.add_argument(
+        '--controller', default='cdkkf', help='Name to use for created controller'
+    )
+    create_args.add_argument('--model', default='default', help='Juju model name to spin up CDK in')
+
+    destroy_args.add_argument('controller', default='cdkkf', help='Name of controller to destroy')
+    destroy_args.add_argument(
+        'args', nargs='*', help='Arguments passed on to `juju destroy-controller`'
+    )
+
+    return parser.parse_args()
+
+
+def create(cloud: str, region: str, controller: str, model: str):
+    """Create CDK on given cloud."""
+
+    require('juju', 'juju-wait')
+
+    # Spin up CDK
+    run('juju', 'bootstrap', f'{cloud}/{region}', controller)
+    run('juju', 'deploy', 'cs:bundle/canonical-kubernetes')
+    run('juju', 'deploy', f'cs:~containers/{cloud}-integrator')
+    run('juju', 'trust', f'{cloud}-integrator')
+    run('juju', 'add-relation', f'{cloud}-integrator', 'kubernetes-master')
+    run('juju', 'add-relation', f'{cloud}-integrator', 'kubernetes-worker')
+
+    # Wait for cloud to finish booting up
+    run('juju', 'wait', '-e', f'{controller}:{model}', '-vw')
+
+    run('juju', 'expose', 'kubeapi-load-balancer')
+
+
+def destroy(controller: str, args: List[str]):
+    """Destroy given controller."""
+
+    require('juju')
+
+    run('juju', 'destroy-controller', *args, controller)
+
+
+if __name__ == '__main__':
+    parsed = parse_args()
+
+    if parsed.command == 'create':
+        create(parsed.cloud, parsed.region, parsed.controller, parsed.model)
+    elif parsed.command == 'destroy':
+        destroy(parsed.controller, parsed.args)

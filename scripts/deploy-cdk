@@ -1,0 +1,218 @@
+#!/usr/bin/env python3
+
+"""Deploys Kubeflow onto CDK."""
+
+import argparse
+import importlib
+import json
+import tempfile
+import textwrap
+import time
+from glob import glob
+from pathlib import Path
+
+common = importlib.import_module('common', 'common.py')
+run = common.run
+require = common.require
+get_output = common.get_output
+
+
+# `juju add-k8s` uses a naming scheme in the form of `ec2/$REGION` instead
+# of `aws/$REGION`.
+K8S_CLOUD_NAMES = {'aws': 'ec2'}
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    subparser = parser.add_subparsers(dest='command', help='Subcommand to run')
+    subparser.required = True
+    create_args = subparser.add_parser('create')
+    destroy_args = subparser.add_parser('destroy')
+
+    create_args.add_argument(
+        '--controller', default='cdkkf', help='Controller containing CDK deployment to use'
+    )
+    create_args.add_argument(
+        '--cdk-model', default='default', help='Juju model name of CDK deployment'
+    )
+    create_args.add_argument(
+        '--model', default='kubeflow', help='Model name to use for Kubeflow bundle'
+    )
+    create_args.add_argument(
+        '--channel', default='stable', help='Which channel to deploy Kubeflow bundle from'
+    )
+    create_args.add_argument(
+        '--build', action='store_true', help='Whether or not to build charms in bundle locally'
+    )
+    create_args.add_argument(
+        '--ci', action='store_true', help='Deploys bundle with bits appropriate for CI'
+    )
+
+    destroy_args.add_argument('--model', default='kubeflow', help='Name of model to destroy')
+    destroy_args.add_argument(
+        '--purge',
+        action='store_true',
+        default=False,
+        help='Delete all storage associated with model and ignore errors.',
+    )
+
+    return parser.parse_args()
+
+
+def create(controller: str, cdk_model: str, model: str, channel: str, build: bool, ci: bool):
+    """Create CDK on given cloud."""
+
+    require('juju', 'juju-wait', 'juju-helpers.juju-kubectl', 'juju-helpers.juju-bundle')
+
+    # There's a semantic difference here, so to make the code below a
+    # little more clear, this differentiates between the two. However,
+    # having the cloud name be named the same as the controller is handy.
+    cloud = controller
+
+    start = time.time()
+
+    with tempfile.NamedTemporaryFile() as kubeconfig:
+        # Copy details of cloud locally, and tell juju about it
+        run('juju', 'scp', '-m', cdk_model, 'kubernetes-master/0:~/config', kubeconfig.name)
+
+        deets = json.loads(run('juju', 'show-controller', controller, '--format=json'))
+
+        region = deets[controller]['details']['region']
+
+        try:
+            cloud_name = K8S_CLOUD_NAMES[deets[controller]['details']['cloud']]
+        except KeyError:
+            raise Exception("Couldn't determine cloud name for `juju add-k8s`!")
+
+        run(
+            'juju',
+            'add-k8s',
+            cloud,
+            '-c',
+            controller,
+            f'--region={cloud_name}/{region}',
+            '--storage',
+            'juju-operator-storage',
+            env={'KUBECONFIG': kubeconfig.name},
+        )
+        run('juju', 'add-model', model, cloud)
+
+        # Set up some storage for the new cloud, deploy Kubeflow, and wait for
+        # Kubeflow to boot up
+        if cloud_name == 'aws':
+            run('juju', 'kubectl', 'create', '-f', 'storage/aws-ebs.yml')
+            run(
+                'juju',
+                'create-storage-pool',
+                'k8s-ebs',
+                'kubernetes',
+                'storage-class=juju-ebs',
+                'storage-provisioner=kubernetes.io/aws-ebs',
+                'parameters.type=gp2',
+            )
+        else:
+            raise Exception(
+                f"Storage is required, but this script can't set up storage for `{cloud}`"
+            )
+
+        # Allow building local bundle.yaml, otherwise deploy from the charm store
+        if build:
+            args = ['juju', 'bundle', 'deploy', '--build'] + (
+                ['--', '--overlay', 'overlays/ci.yml'] if ci else []
+            )
+            run(*args)
+        else:
+            run('juju', 'deploy', 'kubeflow', '--channel', channel)
+
+        run('juju', 'wait', '-e', f'{controller}:{model}', '-vw')
+
+        # General Kubernetes setup.
+        for f in glob('charms/*/files/sa.yaml') + glob('charms/*/files/secret.yaml'):
+            run('juju', 'kubectl', 'create', '-f', f, check=False)
+
+        run(
+            'juju',
+            'kubectl',
+            'patch',
+            'sc',
+            'juju-operator-storage',
+            '-p',
+            Path('storage/is-default.yaml').read_text(),
+            check=False,
+        )
+
+        # Expose the Ambassador reverse proxy and print out a success message
+        status = json.load(run('juju', 'status', '-m', cdk_model, '--format=json'))
+        pub_ip = status['applications']['kubernetes-worker']['units']['kubernetes-worker/0'][
+            'public-address'
+        ]
+
+        pub_addr = f'${pub_ip}.xip.io'
+
+        run('juju', 'config', 'ambassador', f'juju-external-hostname={pub_addr}')
+        run('juju', 'expose', 'ambassador')
+
+        end = time.time()
+
+        config = json.loads(get_output('juju', 'kubectl', 'config', 'view', '-ojson'))
+
+        dashboard = config['clusters'][0]['cluster']['server']
+        username = config['users'][0]['user']['username']
+        password = config['users'][0]['user']['password']
+
+        print(
+            textwrap.dedent(
+                f"""
+        Congratulations, Kubeflow is now available at {pub_addr}. Took ${end - start:0.2f} seconds.
+
+        The Kubernetes dashboard is available at:
+
+            ${dashboard}/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview?namespace=${model}
+
+        The username and password are:
+
+        ${username}
+        ${password}
+
+        The central dashboard is available at http://${pub_addr}/
+
+        To tear down Kubeflow and associated infrastructure, run this command:
+
+            ./scripts/deploy-cdk destroy {controller}
+
+        For more information, see documentation at:
+
+        https://github.com/juju-solutions/bundle-kubeflow/blob/master/README.md
+
+        """
+            )
+        )
+
+
+def destroy(model: str, purge: bool):
+    """Destroy given controller."""
+
+    require('juju')
+
+    args = ['juju', 'destroy-model', model]
+
+    if purge:
+        args += [f'--yes', '--destroy-storage', '--force']
+
+    run(*args)
+
+
+if __name__ == '__main__':
+    parsed = parse_args()
+
+    if parsed.command == 'create':
+        create(
+            parsed.controller,
+            parsed.cdk_model,
+            parsed.model,
+            parsed.channel,
+            parsed.build,
+            parsed.ci,
+        )
+    elif parsed.command == 'destroy':
+        destroy(parsed.model, parsed.purge)
