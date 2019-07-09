@@ -95,8 +95,8 @@ def create(cloud: str, controller: str, model: str, channel: str, build: bool, c
     run('juju', 'wait', '-vw')
 
     # General Kubernetes setup.
-    for f in glob('charms/*/files/sa.yaml') + glob('charms/*/files/secret.yaml'):
-        run('juju', 'kubectl', 'create', '-f', f, check=False)
+    for f in glob('charms/*/resources/*.yaml'):
+        run('juju', 'kubectl', 'apply', '-f', f, check=False)
 
     run('juju', 'config', 'ambassador', 'juju-external-hostname=localhost')
     run('juju', 'expose', 'ambassador')

@@ -4,7 +4,10 @@
 
 import argparse
 import importlib
+import textwrap
 from typing import List
+
+import time
 
 common = importlib.import_module('common', 'common.py')
 run = common.run
@@ -38,9 +41,11 @@ def create(cloud: str, region: str, controller: str, model: str):
 
     require('juju', 'juju-wait')
 
+    start = time.time()
+
     # Spin up CDK
     run('juju', 'bootstrap', f'{cloud}/{region}', controller)
-    run('juju', 'deploy', 'cs:bundle/canonical-kubernetes')
+    run('juju', 'deploy', 'cs:bundle/canonical-kubernetes', '--overlay', 'overlays/cdk.yml')
     run('juju', 'deploy', f'cs:~containers/{cloud}-integrator')
     run('juju', 'trust', f'{cloud}-integrator')
     run('juju', 'add-relation', f'{cloud}-integrator', 'kubernetes-master')
@@ -50,6 +55,27 @@ def create(cloud: str, region: str, controller: str, model: str):
     run('juju', 'wait', '-e', f'{controller}:{model}', '-vw')
 
     run('juju', 'expose', 'kubeapi-load-balancer')
+
+    end = time.time()
+
+    print(
+        textwrap.dedent(
+            f"""
+        Congratulations, CDK has been deployed. Took {int(end - start)} seconds.
+
+        To deploy Kubeflow on top of CDK, run `./scripts/deploy-cdk create`.
+
+        To tear down CDK and associated infrastructure, run this command:
+
+            ./scripts/manage-cdk destroy {controller}
+
+        For more information, see documentation at:
+
+        https://github.com/juju-solutions/bundle-kubeflow/blob/master/README.md
+
+        """
+        )
+    )
 
 
 def destroy(controller: str, args: List[str]):
