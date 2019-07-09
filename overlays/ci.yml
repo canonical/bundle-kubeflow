@@ -5,3 +5,7 @@ applications:
   mariadb:
     options:
       root-password: foobar
+  pipelines-api:
+    options:
+      mysql-root-password: foobar
+      minio-secret-key: minio123

@@ -12,7 +12,7 @@ resources:
     type: oci-image
     description: 'Backing OCI image'
     auto-fetch: true
-    upstream-source: gcr.io/ml-pipeline/api-server:0.1.14
+    upstream-source: gcr.io/ml-pipeline/api-server:0.1.22
 requires:
   mysql:
     interface: mysql
