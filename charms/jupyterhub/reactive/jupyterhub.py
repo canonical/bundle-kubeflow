@@ -73,6 +73,7 @@ def start_charm():
         annotations = {}
 
     pip_installs = [
+        'kubernetes==9.0.0',
         'jhub-remote-user-authenticator',
         'jupyterhub-dummyauthenticator',
         'jupyterhub-kubespawner',
@@ -90,7 +91,6 @@ def start_charm():
                         'username': image_info.username,
                         'password': image_info.password,
                     },
-                    # TODO: Move to init containers to pip install when juju supports it
                     'command': [
                         'bash',
                         '-c',
