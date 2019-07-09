@@ -23,9 +23,10 @@ def test_running():
         ('jupyter-controller', 'Running'),
         ('jupyter-web', 'Running'),
         ('jupyterhub', 'Running'),
-        # ('katib-controller', 'Running'),
-        # ('katib-manager', 'Running'),
-        # ('katib-ui', 'Running'),
+        ('katib-controller', 'Running'),
+        ('katib-db', 'Running'),
+        ('katib-manager', 'Running'),
+        ('katib-ui', 'Running'),
         ('mariadb', 'Running'),
         ('minio', 'Running'),
         ('modeldb-backend', 'Running'),
@@ -52,11 +53,13 @@ def test_crd_created():
 
     names = sorted(i['metadata']['name'] for i in crds['items'])
     assert names == [
+        'experiments.kubeflow.org',
         'notebooks.kubeflow.org',
         'pytorchjobs.kubeflow.org',
         'scheduledworkflows.kubeflow.org',
         'seldondeployments.machinelearning.seldon.io',
         'tfjobs.kubeflow.org',
+        'trials.kubeflow.org',
         'viewers.kubeflow.org',
         'workflows.argoproj.io',
     ]
