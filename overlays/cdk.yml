@@ -1,0 +1,3 @@
+applications:
+  kubernetes-worker:
+    constraints: cores=4 mem=4G root-disk=100G zones=us-east-1a
