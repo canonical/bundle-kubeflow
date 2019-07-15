@@ -22,8 +22,8 @@ applications:
       gui-x: '800'
       gui-y: '692'
   mariadb:
-    charm: cs:~kubeflow-charmers/mariadb-k8s
-    source: ./charms/mariadb-k8s
+    charm: cs:~kubeflow-charmers/mariadb
+    source: ./charms/mariadb
     scale: 1
     annotations:
       gui-x: '800'

@@ -1,4 +1,4 @@
-name: mariadb-k8s
+name: mariadb
 display-name: MariaDB
 summary: MariaDB is a GPLed, community-developed fork of MySQL
 description: |

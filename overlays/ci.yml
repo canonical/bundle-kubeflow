@@ -2,3 +2,6 @@ applications:
   ambassador-auth:
     options:
       password: foobar
+  mariadb:
+    options:
+      root-password: foobar

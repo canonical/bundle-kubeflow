@@ -5,3 +5,11 @@ options:
       one will be generated automatically.
     type: string
     default: ''
+  database:
+    type: string
+    default: ''
+    description: If not empty, the database to create
+  port:
+    type: int
+    default: 3306
+    description: The port to listen to
