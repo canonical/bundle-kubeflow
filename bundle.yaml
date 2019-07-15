@@ -29,8 +29,8 @@ applications:
       gui-x: '800'
       gui-y: '0'
   redis:
-    charm: cs:~kubeflow-charmers/redis-k8s
-    source: ./charms/redis-k8s
+    charm: cs:~kubeflow-charmers/redis
+    source: ./charms/redis
     scale: 1
     annotations:
       gui-x: '-600'

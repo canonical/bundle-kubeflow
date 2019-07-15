@@ -1,4 +1,4 @@
-name: redis-k8s
+name: redis
 display-name: Redis
 summary: Redis is an open source, in-memory data structure store
 description: |
