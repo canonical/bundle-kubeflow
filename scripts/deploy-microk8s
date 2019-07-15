@@ -55,9 +55,13 @@ def create(cloud: str, controller: str, model: str, channel: str, build: bool, c
     # Don't need dashboard in CI, and it also causes problems:
     # https://github.com/ubuntu/microk8s/issues/513
     if ci:
-        run('microk8s.enable', 'dns', 'storage')
+        microk8s_services = ['dns', 'storage']
     else:
-        run('microk8s.enable', 'dns', 'storage', 'dashboard')
+        microk8s_services = ['dns', 'storage', 'dashboard']
+
+    for service in microk8s_services:
+        run('microk8s.enable', service)
+        run('microk8s.status', '--wait-ready')
 
     print('Waiting for microk8s to be ready...')
     for i in range(5):
