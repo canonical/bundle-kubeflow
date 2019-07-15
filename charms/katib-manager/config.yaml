@@ -1,0 +1,5 @@
+options:
+  mysql-root-password:
+    description: MySQL root password
+    type: string
+    default: ''
