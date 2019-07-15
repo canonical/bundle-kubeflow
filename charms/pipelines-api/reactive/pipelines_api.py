@@ -1,5 +1,6 @@
 import os
 
+import json
 import yaml
 from charms import layer
 from charms.reactive import set_flag, clear_flag, when, when_not, hookenv
@@ -69,8 +70,31 @@ def start_charm(mysql, minio):
                         'MINIO_SERVICE_SERVICE_HOST': minio.all_joined_units[0].application_name,
                         'MINIO_SERVICE_SERVICE_PORT': minio.all_joined_units[0].received['port'],
                         'POD_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
-                        'InitConnectionTimeout': 20,
                     },
+                    'files': [
+                        {
+                            'name': 'config',
+                            'mountPath': '/config',
+                            'files': {
+                                'config.json': json.dumps(
+                                    {
+                                        'DBConfig': {
+                                            'DriverName': 'mysql',
+                                            'DataSourceName': '',
+                                            'User': 'root',
+                                            'Password': hookenv.config('mysql-root-password'),
+                                        },
+                                        'ObjectStoreConfig': {
+                                            'AccessKey': hookenv.config('minio-access-key'),
+                                            'SecretAccessKey': hookenv.config('minio-secret-key'),
+                                            'BucketName': hookenv.config('minio-bucket-name'),
+                                        },
+                                        'InitConnectionTimeout': '5s',
+                                    }
+                                )
+                            },
+                        }
+                    ],
                 }
             ],
         }

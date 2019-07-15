@@ -7,3 +7,19 @@ options:
     type: int
     default: 8888
     description: The port that the HTTP service will listen to
+  mysql-root-password:
+    type: string
+    default: ''
+    description: MySQL root password
+  minio-access-key:
+    type: string
+    default: 'minio'
+    description: Minio AccessKey
+  minio-secret-key:
+    type: string
+    default: ''
+    description: Minio SecretKey
+  minio-bucket-name:
+    type: string
+    default: 'mlpipeline'
+    description: Minio BucketName
