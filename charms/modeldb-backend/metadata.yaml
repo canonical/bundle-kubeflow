@@ -1,0 +1,19 @@
+name: modeldb-backend
+display-name: ModelDB Backend
+summary: ModelDB
+description: ModelDB
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [ai, bigdata, kubeflow, machine-learning, tensorflow]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: vertaaiofficial/modeldb-backend:kubeflow
+requires:
+  mysql:
+    interface: mysql
+provides:
+  modeldb-backend:
+    interface: http
