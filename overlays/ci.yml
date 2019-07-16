@@ -2,6 +2,13 @@ applications:
   ambassador-auth:
     options:
       password: foobar
+  katib-db:
+    options:
+      root-password: foobar
+      database: katib
+  katib-manager:
+    options:
+      mysql-root-password: foobar
   mariadb:
     options:
       root-password: foobar
