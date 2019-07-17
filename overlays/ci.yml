@@ -12,6 +12,33 @@ applications:
   mariadb:
     options:
       root-password: foobar
+  modeldb-backend:
+    options:
+      config: |
+        grpcServer:
+          host: modeldb-backend
+          port: 8085
+        database:
+          DBType: rdbms
+          RdbConfiguration:
+            RdbDatabaseName: mariadb
+            RdbDriver: "com.mysql.cj.jdbc.Driver"
+            RdbDialect: "org.hibernate.dialect.MySQL5Dialect"
+            RdbUrl: "jdbc:mysql://mariadb:3306"
+            RdbUsername: root
+            RdbPassword: "foobar"
+        artifactStore_grpcServer:
+          host: modeldb-store
+          port: 8086
+        entities:
+          projectEntity: Project
+          experimentEntity: Experiment
+          experimentRunEntity: ExperimentRun
+          artifactStoreMappingEntity: ArtifactStoreMapping
+          jobEntity: Job
+        authService:
+          host: ~
+          port: ~
   pipelines-api:
     options:
       mysql-root-password: foobar
