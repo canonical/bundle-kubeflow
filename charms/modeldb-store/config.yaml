@@ -12,5 +12,5 @@ options:
         initializeBuckets: false
         storageTypeName: nfs
         nfsRootPath: /artifacts
-        bucket_names: []
+        bucket_names: [foo]
     description: /config/config.yaml
