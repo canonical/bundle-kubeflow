@@ -1,0 +1,13 @@
+name: cert-manager-cainjector
+display-name: Cert Manager CA Injector
+summary: Cert Manager CA Injector
+description: Cert Manager CA Injector
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [kubernetes, certificates]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: quay.io/jetstack/cert-manager-cainjector:v0.8.1
