@@ -3,7 +3,7 @@
 import yaml
 from sh import Command
 
-kubectl = Command('microk8s.kubectl').bake('-n', 'kubeflow')
+kubectl = Command('juju-kubectl')
 
 
 def test_running():
@@ -28,6 +28,7 @@ def test_running():
         ('katib-manager', 'Running'),
         ('katib-ui', 'Running'),
         ('mariadb', 'Running'),
+        ('metacontroller', 'Running'),
         ('minio', 'Running'),
         ('modeldb-backend', 'Running'),
         ('modeldb-store', 'Running'),
@@ -53,6 +54,9 @@ def test_crd_created():
 
     names = sorted(i['metadata']['name'] for i in crds['items'])
     assert names == [
+        'compositecontrollers.metacontroller.k8s.io',
+        'controllerrevisions.metacontroller.k8s.io',
+        'decoratorcontrollers.metacontroller.k8s.io',
         'experiments.kubeflow.org',
         'notebooks.kubeflow.org',
         'pytorchjobs.kubeflow.org',
@@ -62,6 +66,22 @@ def test_crd_created():
         'trials.kubeflow.org',
         'viewers.kubeflow.org',
         'workflows.argoproj.io',
+    ]
+
+
+def test_service_accounts_created():
+    crds = yaml.safe_load(kubectl.get('sa', '-oyaml').stdout)
+
+    names = sorted(i['metadata']['name'] for i in crds['items'])
+    assert names == [
+        'argo',
+        'argo-ui',
+        'default',
+        'jupyter',
+        'jupyter-notebook',
+        'meta-controller-service',
+        'ml-pipeline-scheduledworkflow',
+        'pipeline-runner',
     ]
 
 

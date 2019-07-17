@@ -1,0 +1,5 @@
+options:
+  debug-port:
+    type: int
+    default: 9999
+    description: Debug HTTP server port

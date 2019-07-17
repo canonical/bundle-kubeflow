@@ -86,6 +86,13 @@ applications:
     annotations:
       gui-x: '450'
       gui-y: '777'
+  metacontroller:
+    charm: cs:~kubeflow-charmers/metacontroller
+    source: ./charms/metacontroller
+    scale: 1
+    annotations:
+      gui-x: '-750'
+      gui-y: '-259'
   minio:
     charm: cs:~kubeflow-charmers/minio
     source: ./charms/minio
