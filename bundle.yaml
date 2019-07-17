@@ -105,22 +105,22 @@ applications:
     source: ./charms/modeldb-backend
     scale: 1
     annotations:
-      gui-x: '0'
-      gui-y: '0'
+      gui-x: '600'
+      gui-y: '-518'
   modeldb-store:
     charm: cs:~kubeflow-charmers/modeldb-store
     source: ./charms/modeldb-store
     scale: 1
     annotations:
-      gui-x: '0'
-      gui-y: '0'
+      gui-x: '150'
+      gui-y: '-777'
   modeldb-ui:
     charm: cs:~kubeflow-charmers/modeldb-ui
     source: ./charms/modeldb-ui
     scale: 1
     annotations:
-      gui-x: '0'
-      gui-y: '0'
+      gui-x: '450'
+      gui-y: '-777'
   pipelines-api:
     charm: cs:~kubeflow-charmers/pipelines-api
     source: ./charms/pipelines-api
