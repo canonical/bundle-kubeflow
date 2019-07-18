@@ -1,0 +1,13 @@
+name: seldon-core
+display-name: Seldon Core
+summary: Seldon Core
+description: Seldon Core
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [ai, bigdata, kubeflow, machine-learning, tensorflow]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: 'docker.io/seldonio/seldon-core-operator:0.4.1'

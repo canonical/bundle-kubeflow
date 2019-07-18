@@ -208,6 +208,14 @@ applications:
     annotations:
       gui-x: '-600'
       gui-y: '0'
+  # Blocked by https://bugs.launchpad.net/juju/+bug/1859201
+  # seldon-core:
+  #   charm: cs:~kubeflow-charmers/seldon-core
+  #   source: ./charms/seldon-core
+  #   scale: 1
+  #   annotations:
+  #     gui-x: '-450'
+  #     gui-y: '-777'
   tf-job-dashboard:
     charm: cs:~kubeflow-charmers/tf-job-dashboard
     source: ./charms/tf-job-dashboard
