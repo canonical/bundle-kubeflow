@@ -1,8 +1,1 @@
-options:
-  job-version:
-    type: string
-    default: 'v1alpha2'
-    description: |
-      Version of CRD and server to use for jobs.  Change to 'v1alpha1' for
-      use with older versions of Kubernetes.  Changing this after deployment
-      will cause the pod to be recreated.
+options: {}
