@@ -1,0 +1,17 @@
+name: metacontroller
+display-name: Metacontroller
+summary: Write and deploy custom controllers
+description: |
+  Metacontroller is an add-on for Kubernetes that makes it easy to write and
+  deploy custom controllers.
+
+  https://metacontroller.app/
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [kubernetes, crd, controllers]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: metacontroller/metacontroller:v0.3.0
