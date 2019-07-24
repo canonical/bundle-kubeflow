@@ -82,6 +82,8 @@ def test_service_accounts_created():
         'meta-controller-service',
         'ml-pipeline-scheduledworkflow',
         'pipeline-runner',
+        'tf-job-dashboard',
+        'tf-job-operator',
     ]
 
 
