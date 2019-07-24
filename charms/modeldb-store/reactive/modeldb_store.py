@@ -8,6 +8,11 @@ def charm_ready():
     layer.status.active('')
 
 
+@when('modeldb-store.available')
+def configure_http(http):
+    http.configure(port=hookenv.config('port'), hostname=hookenv.application_name())
+
+
 @when('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
     clear_flag('charm.modeldb-store.started')

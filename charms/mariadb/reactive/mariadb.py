@@ -1,12 +1,27 @@
 import pymysql
 from charmhelpers.core import hookenv
 from charms import layer
-from charms.reactive import set_flag, when, when_not, clear_flag
+from charms.reactive import set_flag, when, when_not, clear_flag, endpoint_from_name
 
 
 @when('charm.mariadb.started')
 def charm_ready():
     layer.status.active('')
+
+
+@when('charm.mariadb.started')
+def configure_mysql():
+    mysql = endpoint_from_name('mysql')
+
+    for i in range(len(mysql.relations)):
+        mysql.provide_database(
+            request_id=i,
+            database_name=hookenv.config('database'),
+            port=hookenv.config('port'),
+            host=hookenv.application_name(),
+            user='root',
+            password=hookenv.config('root-password'),
+        )
 
 
 @when('layer.docker-resource.oci-image.changed', 'config.changed')
