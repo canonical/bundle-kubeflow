@@ -1,3 +1,6 @@
+import os
+
+from charmhelpers.core import hookenv
 from charms import layer
 from charms.reactive import set_flag, clear_flag, when, when_not
 
@@ -27,8 +30,8 @@ def start_charm():
                     'args': [
                         'persistence_agent',
                         '--alsologtostderr=true',
-                        '--mlPipelineAPIServerName=pipelines-api',
-                        '--namespace=kubeflow',
+                        f'--mlPipelineAPIServerName={hookenv.service_name()}',
+                        f'--namespace={os.environ["JUJU_MODEL_NAME"]}',
                     ],
                     'imageDetails': {
                         'imagePath': image_info.registry_path,
