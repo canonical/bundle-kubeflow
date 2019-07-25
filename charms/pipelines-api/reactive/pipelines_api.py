@@ -1,6 +1,6 @@
+import json
 import os
 
-import json
 import yaml
 from charms import layer
 from charms.reactive import set_flag, clear_flag, when, when_not, hookenv

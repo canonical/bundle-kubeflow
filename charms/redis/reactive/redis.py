@@ -1,7 +1,6 @@
 from charmhelpers.core import hookenv
-from charms.reactive import set_flag, clear_flag, endpoint_from_flag, when, when_not
-
 from charms import layer
+from charms.reactive import set_flag, clear_flag, endpoint_from_flag, when, when_not
 
 
 @when('charm.redis.started')
