@@ -9,7 +9,7 @@ def charm_ready():
 
 @when('minio.available')
 def configure_minio(http):
-    http.configure(port=hookenv.config('port'))
+    http.configure(port=hookenv.config('port'), hostname=hookenv.application_name())
 
 
 @when('layer.docker-resource.oci-image.changed', 'config.changed')

@@ -2,8 +2,8 @@ import hashlib
 from base64 import b64encode
 
 import yaml
-from charmhelpers.core import hookenv
 from charmhelpers import fetch
+from charmhelpers.core import hookenv
 from charms import layer
 from charms.reactive import set_flag, clear_flag, when, when_not
 

@@ -32,7 +32,7 @@ def start_charm(mysql):
                         'password': image_info.password,
                     },
                     'ports': [{'name': 'probe', 'containerPort': 6789}],
-                    'config': {'MYSQL_ROOT_PASSWORD': hookenv.config('mysql-root-password')},
+                    'config': {'MYSQL_ROOT_PASSWORD': mysql.password()},
                     'livenessProbe': {
                         'exec': {'command': ["/bin/grpc_health_probe", "-addr=:6789"]},
                         'initialDelaySeconds': 10,

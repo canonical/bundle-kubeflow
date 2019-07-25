@@ -60,7 +60,7 @@ def configure_workload():
         }
     )
 
-    layer.status.active('ready')
+    layer.status.maintenance('creating container')
     set_flag('charm.mariadb.started')
 
 

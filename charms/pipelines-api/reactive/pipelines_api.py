@@ -1,6 +1,6 @@
+import json
 import os
 
-import json
 import yaml
 from charms import layer
 from charms.reactive import set_flag, clear_flag, when, when_not, hookenv
@@ -31,6 +31,8 @@ def start_charm(mysql, minio):
 
     grpc_port = hookenv.config('grpc-port')
     http_port = hookenv.config('http-port')
+
+    minio_info = minio.services()[0]['hosts'][0]
 
     layer.caas_base.pod_spec_set(
         {
@@ -65,10 +67,10 @@ def start_charm(mysql, minio):
                         {'name': 'http', 'containerPort': http_port},
                     ],
                     'config': {
-                        'MYSQL_SERVICE_HOST': 'mariadb',
-                        'MYSQL_SERVICE_PORT': 3306,
-                        'MINIO_SERVICE_SERVICE_HOST': minio.all_joined_units[0].application_name,
-                        'MINIO_SERVICE_SERVICE_PORT': minio.all_joined_units[0].received['port'],
+                        'MYSQL_SERVICE_HOST': mysql.host(),
+                        'MYSQL_SERVICE_PORT': mysql.port(),
+                        'MINIO_SERVICE_SERVICE_HOST': minio_info['hostname'],
+                        'MINIO_SERVICE_SERVICE_PORT': minio_info['port'],
                         'POD_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
                     },
                     'files': [
@@ -80,9 +82,9 @@ def start_charm(mysql, minio):
                                     {
                                         'DBConfig': {
                                             'DriverName': 'mysql',
-                                            'DataSourceName': '',
-                                            'User': 'root',
-                                            'Password': hookenv.config('mysql-root-password'),
+                                            'DataSourceName': mysql.database(),
+                                            'User': mysql.user(),
+                                            'Password': mysql.password(),
                                         },
                                         'ObjectStoreConfig': {
                                             'AccessKey': hookenv.config('minio-access-key'),

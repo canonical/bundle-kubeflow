@@ -6,13 +6,9 @@ applications:
     options:
       root-password: foobar
       database: katib
-  katib-manager:
-    options:
-      mysql-root-password: foobar
   mariadb:
     options:
       root-password: foobar
   pipelines-api:
     options:
-      mysql-root-password: foobar
       minio-secret-key: minio123

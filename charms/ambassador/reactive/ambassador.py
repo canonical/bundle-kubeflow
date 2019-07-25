@@ -1,8 +1,7 @@
 import os
 
-from charms.reactive import set_flag, clear_flag, when, when_not
-
 from charms import layer
+from charms.reactive import set_flag, clear_flag, when, when_not
 
 
 @when('charm.kubeflow-ambassador.started')
