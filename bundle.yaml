@@ -224,6 +224,7 @@ relations:
 - [ambassador, tf-job-dashboard]
 - [katib-manager, katib-db]
 - [modeldb-backend, mariadb]
+- [modeldb-backend, modeldb-store]
 - [modeldb-backend, modeldb-ui]
 - [pipelines-api, mariadb]
 - [pipelines-api, minio]

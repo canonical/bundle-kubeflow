@@ -1,6 +1,7 @@
+import yaml
 from charmhelpers.core import hookenv
 from charms import layer
-from charms.reactive import set_flag, clear_flag, when, when_not
+from charms.reactive import set_flag, clear_flag, when, when_not, when_any
 
 
 @when('charm.modeldb-backend.started')
@@ -13,20 +14,26 @@ def configure_http(http):
     http.configure(port=hookenv.config('http-port'), hostname=hookenv.application_name())
 
 
-@when('layer.docker-resource.oci-image.changed', 'config.changed')
+@when_any('layer.docker-resource.oci-image.changed', 'mysql.changed', 'config.changed')
 def update_image():
     clear_flag('charm.modeldb-backend.started')
 
 
-@when('layer.docker-resource.oci-image.available')
+@when('layer.docker-resource.oci-image.available', 'mysql.connected', 'modeldb-store.available')
 @when_not('charm.modeldb-backend.started')
-def start_charm():
+def start_charm(mysql, store):
     layer.status.maintenance('configuring container')
 
     image_info = layer.docker_resource.get_info('oci-image')
 
     grpc_port = hookenv.config('grpc-port')
     http_port = hookenv.config('http-port')
+
+    store_info = store.services()[0]['hosts'][0]
+
+    if not mysql.host():
+        hookenv.log('Waiting for mysql connection information.')
+        return
 
     layer.caas_base.pod_spec_set(
         {
@@ -42,8 +49,8 @@ def start_charm():
                     'args': [
                         '-c',
                         './wait-for-it.sh '
-                        'mariadb:3306 '
-                        '--timeout=30 '
+                        f'{mysql.host()}:{mysql.port()} '
+                        '--timeout=10 '
                         '&& '
                         'java '
                         '-jar '
@@ -55,7 +62,39 @@ def start_charm():
                         {
                             'name': 'config',
                             'mountPath': '/config-backend/',
-                            'files': {'config.yaml': hookenv.config('config')},
+                            'files': {
+                                'config.yaml': yaml.dump(
+                                    {
+                                        'grpcServer': {
+                                            'host': hookenv.service_name(),
+                                            'port': grpc_port,
+                                        },
+                                        'database': {
+                                            'DBType': 'rdbms',
+                                            'RdbConfiguration': {
+                                                'RdbDatabaseName': mysql.database(),
+                                                'RdbDriver': 'com.mysql.cj.jdbc.Driver',
+                                                'RdbDialect': 'org.hibernate.dialect.MySQL5Dialect',
+                                                'RdbUrl': f'jdbc:mysql://{mysql.host()}:{mysql.port()}',
+                                                'RdbUsername': mysql.user(),
+                                                'RdbPassword': mysql.password(),
+                                            },
+                                        },
+                                        'artifactStore_grpcServer': {
+                                            'host': store_info['hostname'],
+                                            'port': int(store_info['port']),
+                                        },
+                                        'entities': {
+                                            'projectEntity': 'Project',
+                                            'experimentEntity': 'Experiment',
+                                            'experimentRunEntity': 'ExperimentRun',
+                                            'artifactStoreMappingEntity': 'ArtifactStoreMapping',
+                                            'jobEntity': 'Job',
+                                        },
+                                        'authService': {'host': None, 'port': None},
+                                    }
+                                )
+                            },
                         }
                     ],
                 },

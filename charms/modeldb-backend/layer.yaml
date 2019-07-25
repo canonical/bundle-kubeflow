@@ -3,4 +3,5 @@ includes:
   - "layer:caas-base"
   - "layer:docker-resource"
   - "layer:status"
+  - "interface:mysql"
   - "interface:http"

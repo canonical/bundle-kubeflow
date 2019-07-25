@@ -7,8 +7,8 @@ options:
     default: ''
   database:
     type: string
-    default: ''
-    description: If not empty, the database to create
+    default: defaultdb
+    description: The database to create
   port:
     type: int
     default: 3306
