@@ -1,5 +1,6 @@
 import json
 import os
+from pathlib import Path
 
 import yaml
 from charms import layer
@@ -93,7 +94,8 @@ def start_charm(mysql, minio):
                                         },
                                         'InitConnectionTimeout': '5s',
                                     }
-                                )
+                                ),
+                                'sample_config.json': Path('files/sample_config.json').read_text(),
                             },
                         }
                     ],
