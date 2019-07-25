@@ -1,5 +1,4 @@
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -36,19 +35,21 @@ def get_output(*args):
         sys.exit(1)
 
 
-def require(*commands):
+def require(*commands: str):
     """Checks that required commands are available somewhere on $PATH."""
 
-    missing = [c for c in commands if shutil.which(c) is None]
+    # Allow syntax of `command:snap-package` to control the name of the
+    # snap package to tell the user to install.
+    commands = [c.rsplit(':', 1) for c in commands]
+
+    # Check that the commands exist.
+    missing = [c for c in commands if shutil.which(c[0]) is None]
 
     if missing:
         print('Some dependencies were not found. Please install them with:\n')
 
         for command in missing:
-            # The command might be e.g. `microk8s.enable`, and we want to tell
-            # the user to install the main snap name.
-            cmd = re.sub(r"\..*", "", command)
-            print(f'    sudo snap install {cmd} --classic')
+            print(f'    sudo snap install {command[-1]} --classic')
 
         print()
         sys.exit(1)

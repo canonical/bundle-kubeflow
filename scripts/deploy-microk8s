@@ -45,9 +45,9 @@ def create(cloud: str, controller: str, model: str, channel: str, build: bool, c
     require(
         'juju',
         'juju-wait',
-        'juju-helpers.juju-kubectl',
-        'juju-helpers.juju-bundle',
-        'microk8s.enable',
+        'juju-kubectl:juju-helpers',
+        'juju-bundle:juju-helpers',
+        'microk8s.enable:microk8s',
     )
 
     start = time.time()

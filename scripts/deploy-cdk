@@ -69,7 +69,7 @@ def parse_args():
 def create(controller: str, cdk_model: str, model: str, channel: str, build: bool, ci: bool):
     """Deploy Kubeflow to a CDK cluster."""
 
-    require('juju', 'juju-wait', 'juju-helpers.juju-kubectl', 'juju-helpers.juju-bundle')
+    require('juju', 'juju-wait', 'juju-kubectl:juju-helpers', 'juju-bundle:juju-helpers')
 
     # There's a semantic difference here, so to make the code below a
     # little more clear, this differentiates between the two. However,
