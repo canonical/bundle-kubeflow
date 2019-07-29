@@ -15,12 +15,14 @@ def update_image():
     clear_flag('charm.pipelines-persistence.started')
 
 
-@when('layer.docker-resource.oci-image.available')
+@when('layer.docker-resource.oci-image.available', 'pipelines-api.available')
 @when_not('charm.pipelines-persistence.started')
-def start_charm():
+def start_charm(api):
     layer.status.maintenance('configuring container')
 
     image_info = layer.docker_resource.get_info('oci-image')
+
+    api_host = api.services()[0]['hosts'][0]['hostname']
 
     layer.caas_base.pod_spec_set(
         {
@@ -30,7 +32,7 @@ def start_charm():
                     'args': [
                         'persistence_agent',
                         '--alsologtostderr=true',
-                        f'--mlPipelineAPIServerName={hookenv.service_name()}',
+                        f'--mlPipelineAPIServerName={api_host}',
                         f'--namespace={os.environ["JUJU_MODEL_NAME"]}',
                     ],
                     'imageDetails': {
