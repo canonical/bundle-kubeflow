@@ -37,3 +37,8 @@ script:
 after_failure:
   - microk8s.kubectl get pods --all-namespaces
   - juju status --format yaml
+  - juju kubectl get pods \
+      | grep CrashLoopBackOff \
+      | cut -d' ' -f1 \
+      | xargs -I[] bash -c "echo ==\> [] \<== && juju kubectl logs --tail 1000 --all-containers []"
+
