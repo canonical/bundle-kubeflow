@@ -10,7 +10,7 @@ resources:
     type: oci-image
     description: 'Backing OCI image'
     auto-fetch: true
-    upstream-source: argoproj/argoui:v2.2.0
+    upstream-source: argoproj/argoui:v2.3.0
 requires:
   ambassador:
     interface: ambassador

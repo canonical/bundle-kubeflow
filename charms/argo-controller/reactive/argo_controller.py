@@ -1,24 +1,28 @@
+import os
 from pathlib import Path
 
 import yaml
+from charmhelpers.core import hookenv
 from charms import layer
-from charms.reactive import clear_flag, set_flag, when, when_any, when_not
+from charms.reactive import clear_flag, set_flag, when, when_any, when_not, endpoint_from_name
 
 
-@when('charm.argo-controller.started')
+@when('charm.started')
 def charm_ready():
     layer.status.active('')
 
 
-@when_any('layer.docker-resource.oci-image.changed')
+@when_any('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
-    clear_flag('charm.argo-controller.started')
+    clear_flag('charm.started')
 
 
-@when('layer.docker-resource.oci-image.available')
-@when_not('charm.argo-controller.started')
+@when('layer.docker-resource.oci-image.available', 'minio.available')
+@when_not('charm.started')
 def start_charm():
     layer.status.maintenance('configuring container')
+
+    minio = endpoint_from_name('minio').services()[0]['hosts'][0]
 
     image_info = layer.docker_resource.get_info('oci-image')
 
@@ -30,19 +34,46 @@ def start_charm():
                 {
                     'name': 'argo-controller',
                     'command': ['workflow-controller'],
-                    'args': ['--configmap', 'argo-controller-configmap-config'],
+                    'args': [
+                        '--configmap',
+                        'argo-controller-configmap-config',
+                        '--executor-image',
+                        'argoproj/argoexec:v2.3.0',
+                    ],
                     'imageDetails': {
                         'imagePath': image_info.registry_path,
                         'username': image_info.username,
                         'password': image_info.password,
                     },
                     'ports': [{'name': 'dummy', 'containerPort': 9999}],
-                    'config': {'ARGO_NAMESPACE': 'kubeflow'},
+                    'config': {'ARGO_NAMESPACE': os.environ['JUJU_MODEL_NAME']},
                     'files': [
                         {
                             'name': 'configmap',
                             'mountPath': '/config-map.yaml',
-                            'files': {'config': Path('files/config-map.yaml').read_text()},
+                            'files': {
+                                'config': yaml.dump(
+                                    {
+                                        'containerRuntimeExecutor': hookenv.config('executor'),
+                                        'artifactRepository': {
+                                            's3': {
+                                                'bucket': hookenv.config('bucket'),
+                                                'keyPrefix': hookenv.config('key-prefix'),
+                                                'endpoint': f'{minio["hostname"]}:{minio["port"]}',
+                                                'insecure': True,
+                                                'accessKeySecret': {
+                                                    'name': 'mlpipeline-minio-artifact',
+                                                    'key': 'accesskey',
+                                                },
+                                                'secretKeySecret': {
+                                                    'name': 'mlpipeline-minio-artifact',
+                                                    'key': 'secretkey',
+                                                },
+                                            }
+                                        },
+                                    }
+                                )
+                            },
                         }
                     ],
                 }
@@ -52,4 +83,4 @@ def start_charm():
     )
 
     layer.status.maintenance('creating container')
-    set_flag('charm.argo-controller.started')
+    set_flag('charm.started')
