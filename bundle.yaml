@@ -222,6 +222,7 @@ relations:
 - [ambassador, pipelines-viewer]
 - [ambassador, tensorboard]
 - [ambassador, tf-job-dashboard]
+- [argo-controller, minio]
 - [katib-manager, katib-db]
 - [modeldb-backend, mariadb]
 - [modeldb-backend, modeldb-store]

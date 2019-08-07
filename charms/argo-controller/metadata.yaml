@@ -10,4 +10,7 @@ resources:
     type: oci-image
     description: 'Backing OCI image'
     auto-fetch: true
-    upstream-source: argoproj/workflow-controller:v2.2.0
+    upstream-source: argoproj/workflow-controller:v2.3.0
+requires:
+  minio:
+    interface: http

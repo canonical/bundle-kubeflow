@@ -1,1 +1,15 @@
-options: {}
+options:
+  bucket:
+    type: string
+    default: mlpipeline
+    description: S3 bucket name
+  key-prefix:
+    type: string
+    default: artifacts
+    description: S3 key prefix
+  executor:
+    type: string
+    default: docker
+    description: |
+      Runtime executor for workflow containers. One of `docker` or `kubelet`.
+      If your cluster is using containerd, this must be set to `kubelet`.
