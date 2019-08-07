@@ -2,7 +2,7 @@ import os
 
 from charmhelpers.core import hookenv
 from charms import layer
-from charms.reactive import set_flag, clear_flag, when, when_not
+from charms.reactive import set_flag, clear_flag, when, when_not, endpoint_from_name
 
 
 @when('charm.started')
@@ -25,13 +25,14 @@ def blocked():
     clear_flag('charm.started')
 
 
-@when('layer.docker-resource.oci-image.available')
-@when('endpoint.redis.available')
+@when('layer.docker-resource.oci-image.available', 'endpoint.redis.available')
 @when_not('charm.started')
-def start_charm(redis):
+def start_charm():
     layer.status.maintenance('configuring container')
 
     image_info = layer.docker_resource.get_info('oci-image')
+
+    redis = endpoint_from_name('redis')
 
     rest_port = hookenv.config('rest-port')
     grpc_port = hookenv.config('grpc-port')

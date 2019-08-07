@@ -1,6 +1,6 @@
 from charmhelpers.core import hookenv
 from charms import layer
-from charms.reactive import set_flag, clear_flag, when, when_not
+from charms.reactive import set_flag, clear_flag, when, when_not, endpoint_from_name
 
 
 @when('charm.started')
@@ -15,10 +15,12 @@ def update_image():
 
 @when('layer.docker-resource.oci-image.available', 'mysql.connected')
 @when_not('charm.started')
-def start_charm(mysql):
+def start_charm():
     layer.status.maintenance('configuring container')
 
     image_info = layer.docker_resource.get_info('oci-image')
+
+    mysql = endpoint_from_name('mysql')
 
     layer.caas_base.pod_spec_set(
         {

@@ -1,7 +1,7 @@
 import yaml
 from charmhelpers.core import hookenv
 from charms import layer
-from charms.reactive import set_flag, clear_flag, when, when_not, when_any
+from charms.reactive import set_flag, clear_flag, when, when_not, when_any, endpoint_from_name
 
 
 @when('charm.started')
@@ -21,15 +21,16 @@ def update_image():
 
 @when('layer.docker-resource.oci-image.available', 'mysql.connected', 'modeldb-store.available')
 @when_not('charm.started')
-def start_charm(mysql, store):
+def start_charm():
     layer.status.maintenance('configuring container')
 
     image_info = layer.docker_resource.get_info('oci-image')
 
+    mysql = endpoint_from_name('mysql')
+    store = endpoint_from_name('modeldb-store').services()[0]['hosts'][0]
+
     grpc_port = hookenv.config('grpc-port')
     http_port = hookenv.config('http-port')
-
-    store_info = store.services()[0]['hosts'][0]
 
     if not mysql.host():
         hookenv.log('Waiting for mysql connection information.')
@@ -81,8 +82,8 @@ def start_charm(mysql, store):
                                             },
                                         },
                                         'artifactStore_grpcServer': {
-                                            'host': store_info['hostname'],
-                                            'port': int(store_info['port']),
+                                            'host': store['hostname'],
+                                            'port': int(store['port']),
                                         },
                                         'entities': {
                                             'projectEntity': 'Project',
