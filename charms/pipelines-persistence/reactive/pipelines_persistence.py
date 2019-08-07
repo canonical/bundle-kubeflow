@@ -5,18 +5,18 @@ from charms import layer
 from charms.reactive import set_flag, clear_flag, when, when_not
 
 
-@when('charm.pipelines-persistence.started')
+@when('charm.started')
 def charm_ready():
     layer.status.active('')
 
 
 @when('layer.docker-resource.oci-image.changed')
 def update_image():
-    clear_flag('charm.pipelines-persistence.started')
+    clear_flag('charm.started')
 
 
 @when('layer.docker-resource.oci-image.available', 'pipelines-api.available')
-@when_not('charm.pipelines-persistence.started')
+@when_not('charm.started')
 def start_charm(api):
     layer.status.maintenance('configuring container')
 
@@ -47,4 +47,4 @@ def start_charm(api):
     )
 
     layer.status.maintenance('creating container')
-    set_flag('charm.pipelines-persistence.started')
+    set_flag('charm.started')

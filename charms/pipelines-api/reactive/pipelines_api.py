@@ -7,7 +7,7 @@ from charms import layer
 from charms.reactive import set_flag, clear_flag, when, when_not, hookenv
 
 
-@when('charm.pipelines-api.started')
+@when('charm.started')
 def charm_ready():
     layer.status.active('')
 
@@ -19,11 +19,11 @@ def configure_http(http):
 
 @when('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
-    clear_flag('charm.pipelines-api.started')
+    clear_flag('charm.started')
 
 
 @when('layer.docker-resource.oci-image.available', 'mysql.connected', 'minio.available')
-@when_not('charm.pipelines-api.started')
+@when_not('charm.started')
 def start_charm(mysql, minio):
     layer.status.maintenance('configuring container')
 
@@ -105,4 +105,4 @@ def start_charm(mysql, minio):
     )
 
     layer.status.maintenance('creating container')
-    set_flag('charm.pipelines-api.started')
+    set_flag('charm.started')

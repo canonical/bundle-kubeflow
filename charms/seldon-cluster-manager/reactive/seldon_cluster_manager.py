@@ -5,14 +5,14 @@ from charms import layer
 from charms.reactive import set_flag, clear_flag, when, when_not
 
 
-@when('charm.kubeflow-seldon-cluster-manager.started')
+@when('charm.started')
 def charm_ready():
     layer.status.active('')
 
 
 @when('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
-    clear_flag('charm.kubeflow-seldon-cluster-manager.started')
+    clear_flag('charm.started')
 
 
 @when_not('endpoint.redis.available')
@@ -22,12 +22,12 @@ def blocked():
         layer.status.waiting('waiting for redis')
     else:
         layer.status.blocked('missing relation to redis')
-    clear_flag('charm.kubeflow-seldon-cluster-manager.started')
+    clear_flag('charm.started')
 
 
 @when('layer.docker-resource.oci-image.available')
 @when('endpoint.redis.available')
-@when_not('charm.kubeflow-seldon-cluster-manager.started')
+@when_not('charm.started')
 def start_charm(redis):
     layer.status.maintenance('configuring container')
 
@@ -68,4 +68,4 @@ def start_charm(redis):
     )
 
     layer.status.maintenance('creating container')
-    set_flag('charm.kubeflow-seldon-cluster-manager.started')
+    set_flag('charm.started')

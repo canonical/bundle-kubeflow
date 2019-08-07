@@ -3,18 +3,18 @@ from charms import layer
 from charms.reactive import set_flag, clear_flag, when, when_not
 
 
-@when('charm.katib-manager.started')
+@when('charm.started')
 def charm_ready():
     layer.status.active('')
 
 
 @when('layer.docker-resource.oci-image.changed')
 def update_image():
-    clear_flag('charm.katib-manager.started')
+    clear_flag('charm.started')
 
 
 @when('layer.docker-resource.oci-image.available', 'mysql.connected')
-@when_not('charm.katib-manager.started')
+@when_not('charm.started')
 def start_charm(mysql):
     layer.status.maintenance('configuring container')
 
@@ -53,4 +53,4 @@ def start_charm(mysql):
     )
 
     layer.status.maintenance('creating container')
-    set_flag('charm.katib-manager.started')
+    set_flag('charm.started')

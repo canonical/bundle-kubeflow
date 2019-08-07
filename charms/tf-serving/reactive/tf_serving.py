@@ -4,18 +4,18 @@ from charms.reactive import set_flag, clear_flag
 from charms.reactive import when, when_not
 
 
-@when('charm.kubeflow-tf-serving.started')
+@when('charm.started')
 def charm_ready():
     layer.status.active('')
 
 
 @when('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
-    clear_flag('charm.kubeflow-tf-serving.started')
+    clear_flag('charm.started')
 
 
 @when('layer.docker-resource.oci-image.available')
-@when_not('charm.kubeflow-tf-serving.started')
+@when_not('charm.started')
 def start_charm():
     layer.status.maintenance('configuring container')
 
@@ -60,4 +60,4 @@ def start_charm():
     )
 
     layer.status.maintenance('creating container')
-    set_flag('charm.kubeflow-tf-serving.started')
+    set_flag('charm.started')

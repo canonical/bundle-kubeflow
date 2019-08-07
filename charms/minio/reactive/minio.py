@@ -2,7 +2,7 @@ from charms import layer
 from charms.reactive import set_flag, clear_flag, when, when_not, hookenv
 
 
-@when('charm.minio.started')
+@when('charm.started')
 def charm_ready():
     layer.status.active('')
 
@@ -14,11 +14,11 @@ def configure_minio(http):
 
 @when('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
-    clear_flag('charm.minio.started')
+    clear_flag('charm.started')
 
 
 @when('layer.docker-resource.oci-image.available')
-@when_not('charm.minio.started')
+@when_not('charm.started')
 def start_charm():
     layer.status.maintenance('configuring container')
 
@@ -46,4 +46,4 @@ def start_charm():
     )
 
     layer.status.maintenance('creating container')
-    set_flag('charm.minio.started')
+    set_flag('charm.started')
