@@ -22,12 +22,24 @@ get_output = common.get_output
 K8S_CLOUD_NAMES = {'aws': 'ec2'}
 
 
+def get_pub_addr(controller: str, model: str):
+    status = json.loads(
+        get_output('juju', 'status', '-m', f'{controller}:{model}', '--format=json')
+    )
+    pub_ip = status['applications']['kubernetes-worker']['units']['kubernetes-worker/0'][
+        'public-address'
+    ]
+
+    return f'{pub_ip}.xip.io'
+
+
 def parse_args():
     parser = argparse.ArgumentParser()
     subparser = parser.add_subparsers(dest='command', help='Subcommand to run')
     subparser.required = True
     create_args = subparser.add_parser('create')
     destroy_args = subparser.add_parser('destroy')
+    info_args = subparser.add_parser('info')
 
     create_args.add_argument(
         '--controller', default='cdkkf', help='Controller containing CDK deployment to use'
@@ -52,9 +64,7 @@ def parse_args():
         '--controller', default='cdkkf', help='The controller in which to destroy the cloud'
     )
 
-    destroy_args.add_argument(
-        '--cloud', default='cdkkf', help='The cloud to destroy'
-    )
+    destroy_args.add_argument('--cloud', default='cdkkf', help='The cloud to destroy')
     destroy_args.add_argument('--model', default='kubeflow', help='Name of model to destroy')
     destroy_args.add_argument(
         '--purge',
@@ -62,8 +72,28 @@ def parse_args():
         default=False,
         help='Remove model for realz\nDestroys storage, cloud, and ignores any charm errors.',
     )
+    info_args.add_argument('--controller', default='cdkkf', help='Juju controller name')
+    info_args.add_argument('--cdk-model', default='default', help='Juju model name')
 
     return parser.parse_args()
+
+
+def info(controller: str, model: str):
+    pub_addr = get_pub_addr(controller, model)
+
+    message = f"""
+    Kubeflow is available via the central dashboard at http://{pub_addr}/.
+
+    To tear down Kubeflow and associated infrastructure, run this command:
+
+        ./scripts/deploy-cdk destroy
+
+    For more information, see documentation at:
+
+    https://github.com/juju-solutions/bundle-kubeflow/blob/master/README.md
+    """
+
+    print(textwrap.dedent(message))
 
 
 def create(controller: str, cdk_model: str, model: str, channel: str, build: bool, ci: bool):
@@ -118,9 +148,7 @@ def create(controller: str, cdk_model: str, model: str, channel: str, build: boo
             'parameters.type=gp2',
         )
     else:
-        raise Exception(
-            f"Storage is required, but this script can't set up storage for `{cloud}`"
-        )
+        raise Exception(f"Storage is required, but this script can't set up storage for `{cloud}`")
 
     # Allow building local bundle.yaml, otherwise deploy from the charm store
     if build:
@@ -148,53 +176,16 @@ def create(controller: str, cdk_model: str, model: str, channel: str, build: boo
         check=False,
     )
 
-    # Expose the Ambassador reverse proxy and print out a success message
-    status = json.loads(get_output('juju', 'status', '-m', cdk_model, '--format=json'))
-    pub_ip = status['applications']['kubernetes-worker']['units']['kubernetes-worker/0'][
-        'public-address'
-    ]
-
-    pub_addr = f'{pub_ip}.xip.io'
+    pub_addr = get_pub_addr(controller, cdk_model)
 
     run('juju', 'config', 'ambassador', f'juju-external-hostname={pub_addr}')
     run('juju', 'expose', 'ambassador')
 
     end = time.time()
 
-    config = json.loads(get_output('juju', 'kubectl', 'config', 'view', '-ojson'))
+    print(f'\nCongratulations, Kubeflow is now available. Took {int(end - start)} seconds.')
 
-    dashboard = config['clusters'][0]['cluster']['server']
-    username = config['users'][0]['user']['username']
-    password = config['users'][0]['user']['password']
-
-    print(
-        textwrap.dedent(
-            f"""
-
-    Congratulations, Kubeflow is now available at {pub_addr}. Took {int(end - start)} seconds.
-
-    The Kubernetes dashboard is available at:
-
-        {dashboard}/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview?namespace={model}
-
-    The username and password are:
-
-        {username}
-        {password}
-
-    The central dashboard is available at http://{pub_addr}/
-
-    To tear down Kubeflow and associated infrastructure, run this command:
-
-        ./scripts/deploy-cdk destroy {controller}
-
-    For more information, see documentation at:
-
-    https://github.com/juju-solutions/bundle-kubeflow/blob/master/README.md
-
-    """
-        )
-    )
+    info(controller, cdk_model)
 
 
 def destroy(controller: str, cloud: str, model: str, purge: bool):
@@ -227,3 +218,5 @@ if __name__ == '__main__':
         )
     elif parsed.command == 'destroy':
         destroy(parsed.cloud, parsed.cloud, parsed.model, parsed.purge)
+    elif parsed.command == 'info':
+        info(parsed.controller, parsed.cdk_model)
