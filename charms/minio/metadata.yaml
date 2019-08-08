@@ -14,3 +14,7 @@ resources:
 provides:
   minio:
     interface: http
+storage:
+  minio-data:
+    type: filesystem
+    location: /data
