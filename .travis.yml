@@ -18,7 +18,6 @@ install:
   - sudo snap install juju --classic --channel $JUJU_CHANNEL
   - sudo snap install juju-wait --classic
   - sudo snap install juju-helpers --classic --edge
-  - sudo snap alias juju-helpers.juju-bundle juju-bundle
   - sudo snap install microk8s --classic
   - sudo microk8s.status --wait-ready --timeout 60
   - pip install pytest pyyaml requests sh cffi black==19.3b0
@@ -29,7 +28,7 @@ script:
   - ./scripts/deploy-microk8s create --build --ci
 
   # Make Ambassador available and run tests
-  - microk8s.kubectl port-forward svc/ambassador -n kubeflow 8081:80 &
+  - juju kubectl port-forward svc/ambassador 8081:80 &
 
   - pytest
 
