@@ -4,14 +4,16 @@
 
 import argparse
 import importlib
+import json
 import textwrap
 from typing import List
 
 import time
 
 common = importlib.import_module('common', 'common.py')
-run = common.run
+get_output = common.get_output
 require = common.require
+run = common.run
 
 
 def parse_args():
@@ -20,6 +22,7 @@ def parse_args():
     subparser.required = True
     create_args = subparser.add_parser('create')
     destroy_args = subparser.add_parser('destroy')
+    info_args = subparser.add_parser('info')
 
     create_args.add_argument('--cloud', default='aws', help='Cloud to deploy onto')
     create_args.add_argument('--region', default='us-east-1', help='Cloud region to deploy onto')
@@ -28,12 +31,52 @@ def parse_args():
     )
     create_args.add_argument('--model', default='default', help='Juju model name to spin up CDK in')
 
-    destroy_args.add_argument('controller', default='cdkkf', help='Name of controller to destroy')
+    destroy_args.add_argument('--controller', default='cdkkf', help='Name of controller to destroy')
     destroy_args.add_argument(
         'args', nargs='*', help='Arguments passed on to `juju destroy-controller`'
     )
 
+    info_args.add_argument('--controller', default='cdkkf', help='Juju controller name')
+    info_args.add_argument('--model', default='default', help='Juju model name')
+
     return parser.parse_args()
+
+
+def info(controller: str, model: str):
+    config = json.loads(
+        get_output('juju', 'kubectl', '-m', f'{controller}:{model}', 'config', 'view', '-ojson')
+    )
+
+    dashboard = config['clusters'][0]['cluster']['server']
+    username = config['users'][0]['user']['username']
+    password = config['users'][0]['user']['password']
+
+    print(
+        textwrap.dedent(
+            f"""
+
+        The Kubernetes dashboard is available at:
+
+            {dashboard}/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview
+
+        The username and password are:
+
+            {username}
+            {password}
+
+        To deploy Kubeflow on top of CDK, run `./scripts/deploy-cdk create`.
+
+        To tear down CDK and associated infrastructure, run this command:
+
+            ./scripts/manage-cdk destroy --controller {controller} --model {model}
+
+        For more information, see documentation at:
+
+        https://github.com/juju-solutions/bundle-kubeflow/blob/master/README.md
+
+        """
+        )
+    )
 
 
 def create(cloud: str, region: str, controller: str, model: str):
@@ -58,24 +101,9 @@ def create(cloud: str, region: str, controller: str, model: str):
 
     end = time.time()
 
-    print(
-        textwrap.dedent(
-            f"""
-        Congratulations, CDK has been deployed. Took {int(end - start)} seconds.
+    print(f'\nCongratulations, CDK is now available. Took {int(end - start)} seconds.')
 
-        To deploy Kubeflow on top of CDK, run `./scripts/deploy-cdk create`.
-
-        To tear down CDK and associated infrastructure, run this command:
-
-            ./scripts/manage-cdk destroy {controller}
-
-        For more information, see documentation at:
-
-        https://github.com/juju-solutions/bundle-kubeflow/blob/master/README.md
-
-        """
-        )
-    )
+    info(controller)
 
 
 def destroy(controller: str, args: List[str]):
@@ -93,3 +121,5 @@ if __name__ == '__main__':
         create(parsed.cloud, parsed.region, parsed.controller, parsed.model)
     elif parsed.command == 'destroy':
         destroy(parsed.controller, parsed.args)
+    elif parsed.command == 'info':
+        info(parsed.controller, parsed.model)

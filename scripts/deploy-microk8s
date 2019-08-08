@@ -9,7 +9,6 @@ import subprocess
 import textwrap
 import time
 from glob import glob
-from typing import List
 
 common = importlib.import_module('common', 'common.py')
 run = common.run
@@ -23,20 +22,65 @@ def parse_args():
     subparser.required = True
     create_args = subparser.add_parser('create')
     destroy_args = subparser.add_parser('destroy')
+    info_args = subparser.add_parser('info')
 
-    create_args.add_argument('--cloud', default='microk8s', help='')
-    create_args.add_argument('--controller', default='uk8s', help='')
-    create_args.add_argument('--model', default='kubeflow', help='')
-    create_args.add_argument('--channel', default='stable', help='')
-    create_args.add_argument('--build', action='store_true', default=False, help='')
-    create_args.add_argument('--ci', action='store_true', default=False, help='')
-
-    destroy_args.add_argument('controller', default='uk8s', help='The controller to destroy')
-    destroy_args.add_argument(
-        'args', nargs='*', help='Arguments passed on to `juju destroy-controller`'
+    create_args.add_argument('--cloud', default='microk8s', help='Juju cloud name')
+    create_args.add_argument('--controller', default='uk8s', help='Juju controller name')
+    create_args.add_argument('--model', default='kubeflow', help='Juju model name')
+    create_args.add_argument('--channel', default='stable', help='Kubeflow bundle channel')
+    create_args.add_argument(
+        '--build', action='store_true', default=False, help='Build charms locally'
+    )
+    create_args.add_argument(
+        '--ci',
+        action='store_true',
+        default=False,
+        help='Deploy bundle with CI-specific modifications',
     )
 
+    destroy_args.add_argument('--controller', default='uk8s', help='The controller to destroy')
+    destroy_args.add_argument(
+        '--purge',
+        action='store_true',
+        default=False,
+        help='Destroy controller and all associated models, storage, etc.',
+    )
+
+    info_args.add_argument(
+        '--controller', default='uk8s', help='The controller to display info for'
+    )
+    info_args.add_argument('--model', default='kubeflow', help='The model to display info for')
+
     return parser.parse_args()
+
+
+def info(controller: str, model: str):
+    status = json.loads(
+        get_output('juju', 'status', '-m', f'{controller}:{model}', '--format', 'json')
+    )
+    pub_ip = status['applications']['ambassador']['units']['ambassador/0']['address']
+
+    print(
+        textwrap.dedent(
+            f"""
+
+    The central dashboard is available at http://{pub_ip}/
+
+    Run `microk8s.kubectl proxy` to be able to access the dashboard at
+
+    http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview?namespace={model}
+
+    To tear down Kubeflow and associated infrastructure, run this command:
+
+        ./scripts/deploy-microk8s destroy --controller {controller} --model {model}
+
+    For more information, see documentation at:
+
+    https://github.com/juju-solutions/bundle-kubeflow/blob/master/README.md
+
+    """
+        )
+    )
 
 
 def create(cloud: str, controller: str, model: str, channel: str, build: bool, ci: bool):
@@ -75,13 +119,6 @@ def create(cloud: str, controller: str, model: str, channel: str, build: bool, c
 
     run('juju', 'bootstrap', cloud, controller)
     run('juju', 'add-model', model, cloud)
-    run(
-        'juju',
-        'create-storage-pool',
-        'operator-storage',
-        'kubernetes',
-        'storage-class=microk8s-hostpath',
-    )
 
     # Allow building local bundle.yaml, otherwise deploy from the charm store
     if build:
@@ -96,47 +133,33 @@ def create(cloud: str, controller: str, model: str, channel: str, build: bool, c
 
     # General Kubernetes setup.
     for f in glob('charms/*/resources/*.yaml'):
-        run('juju', 'kubectl', 'apply', '-f', f, check=False)
+        run('juju', 'kubectl', 'apply', '-f', f)
 
     run('juju', 'config', 'ambassador', 'juju-external-hostname=localhost')
-    run('juju', 'expose', 'ambassador')
-
-    status = json.loads(
-        get_output('juju', 'status', '-m', f'{controller}:{model}', '--format', 'json')
-    )
-    pub_ip = status['applications']['ambassador']['units']['ambassador/0']['address']
 
     end = time.time()
-    print(
-        textwrap.dedent(
-            f"""
-    Congratulations, Kubeflow is now available. Took {end - start:0.2f} seconds.
 
-    Run `microk8s.kubectl proxy` to be able to access the dashboard at
+    print(f'\nCongratulations, Kubeflow is now available. Took {int(end - start)} seconds.')
 
-    http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview?namespace={model}
-
-    The central dashboard is available at http://{pub_ip}/
-
-    To tear down Kubeflow and associated infrastructure, run this command:
-
-    ./scripts/deploy-microk8s destroy {controller}
-
-    For more information, see documentation at:
-
-    https://github.com/juju-solutions/bundle-kubeflow/blob/master/README.md
-
-    """
-        )
-    )
+    info(controller, model)
 
 
-def destroy(controller: str, args: List[str]):
+def destroy(controller: str, purge: bool):
     """Destroy given controller."""
 
     require('juju')
 
-    run('juju', 'destroy-controller', controller, *args)
+    if purge:
+        run(
+            'juju',
+            'destroy-controller',
+            controller,
+            '-y',
+            '--destroy-all-models',
+            '--destroy-storage',
+        )
+    else:
+        run('juju', 'destroy-controller', controller)
 
 
 if __name__ == '__main__':
@@ -147,4 +170,6 @@ if __name__ == '__main__':
             parsed.cloud, parsed.controller, parsed.model, parsed.channel, parsed.build, parsed.ci
         )
     elif parsed.command == 'destroy':
-        destroy(parsed.controller, parsed.args)
+        destroy(parsed.controller, parsed.purge)
+    elif parsed.command == 'info':
+        info(parsed.controller, parsed.model)

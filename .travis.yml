@@ -33,7 +33,8 @@ script:
 
   - pytest
 
-  - black . --check
+  # Check everything, and make sure the extensionless scripts are included
+  - black --check . ./scripts/*
 after_failure:
   - microk8s.kubectl get pods --all-namespaces
   - juju status --format yaml
