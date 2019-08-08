@@ -4,12 +4,12 @@ from charms import layer
 from charms.reactive import set_flag, when, when_not, clear_flag, endpoint_from_name
 
 
-@when('charm.mariadb.started')
+@when('charm.started')
 def charm_ready():
     layer.status.active('')
 
 
-@when('charm.mariadb.started')
+@when('charm.started')
 def configure_mysql():
     mysql = endpoint_from_name('mysql')
 
@@ -26,11 +26,11 @@ def configure_mysql():
 
 @when('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
-    clear_flag('charm.mariadb.started')
+    clear_flag('charm.started')
 
 
 @when('layer.docker-resource.oci-image.available')
-@when_not('charm.mariadb.started')
+@when_not('charm.started')
 def configure_workload():
     layer.status.maintenance('starting workload')
 
@@ -61,10 +61,10 @@ def configure_workload():
     )
 
     layer.status.maintenance('creating container')
-    set_flag('charm.mariadb.started')
+    set_flag('charm.started')
 
 
-@when('charm.mariadb.started')
+@when('charm.started')
 @when_not('charm.mariadb.configured')
 def configure_db():
     hookenv.log('Setting up mariadb')

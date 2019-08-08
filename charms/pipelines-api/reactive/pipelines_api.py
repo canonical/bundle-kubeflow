@@ -4,10 +4,10 @@ from pathlib import Path
 
 import yaml
 from charms import layer
-from charms.reactive import set_flag, clear_flag, when, when_not, hookenv
+from charms.reactive import set_flag, clear_flag, when, when_not, hookenv, endpoint_from_name
 
 
-@when('charm.pipelines-api.started')
+@when('charm.started')
 def charm_ready():
     layer.status.active('')
 
@@ -19,21 +19,22 @@ def configure_http(http):
 
 @when('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
-    clear_flag('charm.pipelines-api.started')
+    clear_flag('charm.started')
 
 
 @when('layer.docker-resource.oci-image.available', 'mysql.connected', 'minio.available')
-@when_not('charm.pipelines-api.started')
-def start_charm(mysql, minio):
+@when_not('charm.started')
+def start_charm():
     layer.status.maintenance('configuring container')
 
     image_info = layer.docker_resource.get_info('oci-image')
     service_name = hookenv.service_name()
 
+    mysql = endpoint_from_name('mysql')
+    minio = endpoint_from_name('minio').services()[0]['hosts'][0]
+
     grpc_port = hookenv.config('grpc-port')
     http_port = hookenv.config('http-port')
-
-    minio_info = minio.services()[0]['hosts'][0]
 
     layer.caas_base.pod_spec_set(
         {
@@ -70,8 +71,8 @@ def start_charm(mysql, minio):
                     'config': {
                         'MYSQL_SERVICE_HOST': mysql.host(),
                         'MYSQL_SERVICE_PORT': mysql.port(),
-                        'MINIO_SERVICE_SERVICE_HOST': minio_info['hostname'],
-                        'MINIO_SERVICE_SERVICE_PORT': minio_info['port'],
+                        'MINIO_SERVICE_SERVICE_HOST': minio['hostname'],
+                        'MINIO_SERVICE_SERVICE_PORT': minio['port'],
                         'POD_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
                     },
                     'files': [
@@ -105,4 +106,4 @@ def start_charm(mysql, minio):
     )
 
     layer.status.maintenance('creating container')
-    set_flag('charm.pipelines-api.started')
+    set_flag('charm.started')

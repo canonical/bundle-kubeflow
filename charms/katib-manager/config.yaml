@@ -1,1 +1,9 @@
-options: {}
+options:
+  manager-port:
+    type: int
+    default: 6789
+    description: Main manager port
+  restful-port:
+    type: int
+    default: 80
+    description: RESTful API port

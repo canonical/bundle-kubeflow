@@ -7,18 +7,18 @@ from charms import layer
 from charms.reactive import clear_flag, set_flag, when, when_any, when_not
 
 
-@when('charm.jupyter-web.started')
+@when('charm.started')
 def charm_ready():
     layer.status.active('')
 
 
 @when_any('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
-    clear_flag('charm.jupyter-web.started')
+    clear_flag('charm.started')
 
 
 @when('layer.docker-resource.oci-image.available')
-@when_not('charm.jupyter-web.started')
+@when_not('charm.started')
 def start_charm():
     layer.status.maintenance('configuring container')
 
@@ -71,4 +71,4 @@ def start_charm():
     )
 
     layer.status.maintenance('creating container')
-    set_flag('charm.jupyter-web.started')
+    set_flag('charm.started')

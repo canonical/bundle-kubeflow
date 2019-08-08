@@ -4,18 +4,18 @@ from charms import layer
 from charms.reactive import set_flag, clear_flag, when, when_not
 
 
-@when('charm.tensorboard.started')
+@when('charm.started')
 def charm_ready():
     layer.status.active('')
 
 
 @when('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
-    clear_flag('charm.tensorboard.started')
+    clear_flag('charm.started')
 
 
 @when('layer.docker-resource.oci-image.available')
-@when_not('charm.tensorboard.started')
+@when_not('charm.started')
 def start_charm():
     layer.status.maintenance('configuring container')
 
@@ -59,4 +59,4 @@ def start_charm():
     )
 
     layer.status.maintenance('creating container')
-    set_flag('charm.tensorboard.started')
+    set_flag('charm.started')

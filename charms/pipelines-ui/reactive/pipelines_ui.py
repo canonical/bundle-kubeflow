@@ -1,25 +1,27 @@
 import yaml
 from charms import layer
-from charms.reactive import set_flag, clear_flag, when, when_not, hookenv
+from charms.reactive import set_flag, clear_flag, when, when_not, hookenv, endpoint_from_name
 
 
-@when('charm.pipelines-ui.started')
+@when('charm.started')
 def charm_ready():
     layer.status.active('')
 
 
 @when('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
-    clear_flag('charm.pipelines-ui.started')
+    clear_flag('charm.started')
 
 
 @when('layer.docker-resource.oci-image.available', 'pipelines-api.available')
-@when_not('charm.pipelines-ui.started')
-def start_charm(api):
+@when_not('charm.started')
+def start_charm():
     layer.status.maintenance('configuring container')
 
     image_info = layer.docker_resource.get_info('oci-image')
     service_name = hookenv.service_name()
+
+    api = endpoint_from_name('pipelines-api').services()[0]
 
     ui_port = hookenv.config('ui-port')
     proxy_port = hookenv.config('proxy-port')
@@ -63,8 +65,8 @@ def start_charm(api):
                         'password': image_info.password,
                     },
                     'config': {
-                        'ML_PIPELINE_SERVICE_HOST': api.services()[0]['service_name'],
-                        'ML_PIPELINE_SERVICE_PORT': api.services()[0]['hosts'][0]['port'],
+                        'ML_PIPELINE_SERVICE_HOST': api['service_name'],
+                        'ML_PIPELINE_SERVICE_PORT': api['hosts'][0]['port'],
                     },
                     'ports': [
                         {'name': 'ui', 'containerPort': ui_port},
@@ -76,4 +78,4 @@ def start_charm(api):
     )
 
     layer.status.maintenance('creating container')
-    set_flag('charm.pipelines-ui.started')
+    set_flag('charm.started')

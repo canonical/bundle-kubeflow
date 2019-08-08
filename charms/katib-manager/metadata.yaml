@@ -6,11 +6,16 @@ maintainers: [Juju Developers <juju@lists.ubuntu.com>]
 tags: [ai, bigdata, kubeflow, machine-learning, tensorflow]
 series: [kubernetes]
 resources:
-  oci-image:
+  manager-image:
     type: oci-image
-    description: 'Backing OCI image'
+    description: 'Main manager image'
     auto-fetch: true
     upstream-source: gcr.io/kubeflow-images-public/katib/v1alpha2/katib-manager:v0.1.2-alpha-289-g14dad8b
+  restful-image:
+    type: oci-image
+    description: 'REST API proxy image'
+    auto-fetch: true
+    upstream-source: gcr.io/kubeflow-images-public/katib/v1alpha2/katib-manager-rest:v0.1.2-alpha-289-g14dad8b
 requires:
   mysql:
     interface: mysql
