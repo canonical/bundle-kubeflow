@@ -1,41 +1,17 @@
-import json
 import time
 from datetime import datetime
 from tempfile import NamedTemporaryFile
-from subprocess import run, CalledProcessError
 
 from kfp.compiler import Compiler
 
 from .pipelines.cowsay import sequential_pipeline
-from .session import get_session
-
-
-def get_pub_ip():
-    """Gets the public IP address that Ambassador is listening to."""
-    try:
-        status = json.loads(
-            run(
-                ['juju', 'status', '-m', 'default', '--format=json'],
-                check=True,
-                capture_output=True,
-            ).stdout
-        )
-        return status['applications']['kubernetes-worker']['units']['kubernetes-worker/0'][
-            'public-address'
-        ]
-    except CalledProcessError:
-        # Deployed on microk8s
-        status = json.loads(
-            run(['juju', 'status', '--format', 'json'], check=True, capture_output=True).stdout
-        )
-        return status['applications']['ambassador']['units']['ambassador/0']['address']
+from .utils import get_session, get_pub_addr
 
 
 def test_pipelines():
     sess = get_session()
-    pub_ip = get_pub_ip()
     now = datetime.now().strftime("%Y%m%d%H%M%S")
-    endpoint = f'http://{pub_ip}.xip.io/pipeline/apis/v1beta1'
+    endpoint = f'http://{get_pub_addr()}/pipeline/apis/v1beta1'
     pipeline_name = f'cowsay-{now}'
     run_name = f'Cow Say {now}'
     run_description = f"Automated testing run of pipeline {pipeline_name}"
