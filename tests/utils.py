@@ -1,5 +1,5 @@
 import json
-from subprocess import run, CalledProcessError
+from subprocess import run, CalledProcessError, PIPE
 
 import requests
 
@@ -19,9 +19,7 @@ def get_pub_addr():
     try:
         status = json.loads(
             run(
-                ['juju', 'status', '-m', 'default', '--format=json'],
-                check=True,
-                capture_output=True,
+                ['juju', 'status', '-m', 'default', '--format=json'], check=True, stdout=PIPE
             ).stdout
         )
         ip = status['applications']['kubernetes-worker']['units']['kubernetes-worker/0'][
@@ -30,7 +28,7 @@ def get_pub_addr():
     except CalledProcessError:
         # Deployed on microk8s
         status = json.loads(
-            run(['juju', 'status', '--format', 'json'], check=True, capture_output=True).stdout
+            run(['juju', 'status', '--format', 'json'], check=True, stdout=PIPE).stdout
         )
         ip = status['applications']['ambassador']['units']['ambassador/0']['address']
 
