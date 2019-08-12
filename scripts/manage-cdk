@@ -103,7 +103,7 @@ def create(cloud: str, region: str, controller: str, model: str):
 
     print(f'\nCongratulations, CDK is now available. Took {int(end - start)} seconds.')
 
-    info(controller)
+    info(controller, model)
 
 
 def destroy(controller: str, args: List[str]):
