@@ -1,4 +1,12 @@
 # Overlay for CDK model
 applications:
+  kubernetes-master:
+    constraints: cores=2 mem=4G root-disk=16G zones=us-east-1a
+  kubeapi-load-balancer:
+    constraints: root-disk=8G zones=us-east-1a
+  easyrsa:
+    constraints: root-disk=8G zones=us-east-1a
   kubernetes-worker:
     constraints: cores=4 mem=4G root-disk=100G zones=us-east-1a
+  etcd:
+    constraints: root-disk=8G zones=us-east-1a
