@@ -30,6 +30,7 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
+            'omitServiceFrontend': True,
             'containers': [
                 {
                     'name': 'argo-controller',
@@ -45,7 +46,6 @@ def start_charm():
                         'username': image_info.username,
                         'password': image_info.password,
                     },
-                    'ports': [{'name': 'dummy', 'containerPort': 9999}],
                     'config': {'ARGO_NAMESPACE': os.environ['JUJU_MODEL_NAME']},
                     'files': [
                         {
