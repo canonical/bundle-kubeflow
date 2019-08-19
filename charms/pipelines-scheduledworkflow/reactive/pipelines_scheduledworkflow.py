@@ -26,6 +26,7 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
+            'omitServiceFrontend': True,
             'containers': [
                 {
                     'name': 'pipelines-scheduledworkflow',
@@ -34,7 +35,6 @@ def start_charm():
                         'username': image_info.username,
                         'password': image_info.password,
                     },
-                    'ports': [{'name': 'dummy', 'containerPort': 9999}],
                 }
             ],
             'customResourceDefinitions': {crd['metadata']['name']: crd['spec']},

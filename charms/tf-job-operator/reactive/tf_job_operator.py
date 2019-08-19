@@ -31,6 +31,7 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
+            'omitServiceFrontend': True,
             'containers': [
                 {
                     'name': 'tf-job-operator',
@@ -45,7 +46,6 @@ def start_charm():
                         '-v=1',
                         '--monitoring-port=8443',
                     ],
-                    'ports': [{'name': 'dummy', 'containerPort': 9999}],
                     'serviceAccountName': 'tf-job-operator',
                     'config': {
                         'MY_POD_NAMESPACE': os.environ['JUJU_MODEL_NAME'],

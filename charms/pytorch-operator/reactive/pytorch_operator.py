@@ -33,6 +33,7 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
+            'omitServiceFrontend': True,
             'containers': [
                 {
                     'name': 'pytorch-operator',
@@ -42,7 +43,6 @@ def start_charm():
                         'password': image_info.password,
                     },
                     'command': ['/pytorch-operator.v1beta1', '--alsologtostderr', '-v=1'],
-                    'ports': [{'name': 'dummy', 'containerPort': 9999}],
                     'config': {
                         'MY_POD_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
                         'MY_POD_NAME': hookenv.service_name(),
