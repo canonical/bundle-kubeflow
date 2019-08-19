@@ -117,6 +117,13 @@ def create(controller: str, cdk_model: str, model: str, channel: str, build: boo
     except KeyError:
         raise Exception("Couldn't determine cloud name for `juju add-k8s`!")
 
+    # Set up some storage for the new cloud, deploy Kubeflow, and wait for
+    # Kubeflow to boot up
+    if cloud_name == 'ec2':
+        run('juju', 'kubectl', 'apply', '-f', 'storage/aws-ebs.yml')
+    else:
+        raise Exception(f"Storage is required, but this script can't set up storage for `{cloud}`")
+
     with tempfile.NamedTemporaryFile() as kubeconfig:
         # Copy details of cloud locally, and tell juju about it
         run('juju', 'scp', '-m', cdk_model, 'kubernetes-master/0:~/config', kubeconfig.name)
@@ -133,22 +140,6 @@ def create(controller: str, cdk_model: str, model: str, channel: str, build: boo
         )
 
     run('juju', 'add-model', model, cloud)
-
-    # Set up some storage for the new cloud, deploy Kubeflow, and wait for
-    # Kubeflow to boot up
-    if cloud_name == 'ec2':
-        run('juju', 'kubectl', 'apply', '-f', 'storage/aws-ebs.yml')
-        run(
-            'juju',
-            'create-storage-pool',
-            'k8s-ebs',
-            'kubernetes',
-            'storage-class=juju-ebs',
-            'storage-provisioner=kubernetes.io/aws-ebs',
-            'parameters.type=gp2',
-        )
-    else:
-        raise Exception(f"Storage is required, but this script can't set up storage for `{cloud}`")
 
     # Allow building local bundle.yaml, otherwise deploy from the charm store
     if build:
@@ -172,17 +163,6 @@ def create(controller: str, cdk_model: str, model: str, channel: str, build: boo
     # General Kubernetes setup.
     for f in glob('charms/*/resources/*.yaml'):
         run('juju', 'kubectl', 'apply', '-f', f)
-
-    run(
-        'juju',
-        'kubectl',
-        'patch',
-        'sc',
-        'juju-operator-storage',
-        '-p',
-        Path('storage/is-default.yml').read_text(),
-        check=False,
-    )
 
     pub_addr = get_pub_addr(controller, cdk_model)
 
