@@ -49,6 +49,6 @@ def cow_task(text):
 
 
 @dsl.pipeline(name='Fortune Cow', description='Talk to a fortunate cow.')
-def sequential_pipeline(url='https://helloacm.com/api/fortune/'):
+def cowsay_pipeline(url='https://helloacm.com/api/fortune/'):
     fortune = fortune_task(url)
     cowsay = cow_task(fortune.output)
