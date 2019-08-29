@@ -30,8 +30,10 @@ You'll also need to install the `microk8s` snap:
 
     sudo snap install microk8s --classic
 
-Next, you can run the commands in [deploy-microk8s](scripts/deploy-microk8s)
+Next, you can run the commands in [scripts/deploy-microk8s][deploy-microk8s]
 individually, or run the script as a whole.
+
+[deploy-microk8s]: https://github.com/juju-solutions/bundle-kubeflow/blob/master/scripts/deploy-microk8s
 
 ### CDK
 
@@ -56,13 +58,12 @@ add the credentials to juju:
 Next, you can run the commands in these two scripts individually, or run the
 script as a whole:
 
-𝘚𝘦𝘵𝘴 𝘶𝘱 𝘊𝘋𝘒
+[scripts/manage-cdk][manage-cdk]
 
-[manage-cdk](scripts/manage-cdk)
+[scripts/deploy-cdk][deploy-cdk]
 
-𝘋𝘦𝘱𝘭𝘰𝘺𝘴 𝘵𝘰 𝘊𝘋𝘒
-
-[deploy-cdk](scripts/deploy-cdk)
+[manage-cdk]: https://github.com/juju-solutions/bundle-kubeflow/blob/master/scripts/manage-cdk
+[deploy-cdk]: https://github.com/juju-solutions/bundle-kubeflow/blob/master/scripts/deploy-cdk
 
 ## Using
 
