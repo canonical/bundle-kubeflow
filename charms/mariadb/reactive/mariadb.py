@@ -1,17 +1,26 @@
 import pymysql
-from charmhelpers.core import hookenv
+import random
+import string
+from charmhelpers.core import hookenv, unitdata
 from charms import layer
 from charms.reactive import set_flag, when, when_not, clear_flag, endpoint_from_name
 
+
+def gen_random_password(size=10):
+    chars = string.ascii_letters + string.digits + string.punctuation
+    return ''.join(random.choice(chars) for _ in range(size))
+    
 
 @when('charm.started')
 def charm_ready():
     layer.status.active('')
 
 
-@when('charm.started')
+@when('charm.mariadb.configured')
+@when('clients.database.requested')
 def configure_mysql():
     mysql = endpoint_from_name('mysql')
+    root_password = db.get('root_password')
 
     for i in range(len(mysql.relations)):
         mysql.provide_database(
@@ -20,7 +29,7 @@ def configure_mysql():
             port=hookenv.config('port'),
             host=hookenv.application_name(),
             user='root',
-            password=hookenv.config('root-password'),
+            password=root_password,
         )
 
 
@@ -40,8 +49,10 @@ def configure_workload():
     root_password = hookenv.config('root-password')
 
     if not root_password:
-        layer.status.blocked('Setting a root password is required!')
-        return False
+        root_password = gen_random_password()
+
+    db = unitdata.kv()
+    db.set('root_password',root_password)
 
     layer.caas_base.pod_spec_set(
         {
@@ -69,7 +80,7 @@ def configure_workload():
 def configure_db():
     hookenv.log('Setting up mariadb')
 
-    root_password = hookenv.config('root-password')
+    root_password = db.get('root_password')
     database = hookenv.config('database')
     service = hookenv.service_name()
 
