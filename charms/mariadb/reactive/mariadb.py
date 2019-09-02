@@ -20,6 +20,7 @@ def charm_ready():
 @when('clients.database.requested')
 def configure_mysql():
     mysql = endpoint_from_name('mysql')
+    db = unitdata.kv()
     root_password = db.get('root_password')
 
     for i in range(len(mysql.relations)):
@@ -80,6 +81,7 @@ def configure_workload():
 def configure_db():
     hookenv.log('Setting up mariadb')
 
+    db = unitdata.kv()
     root_password = db.get('root_password')
     database = hookenv.config('database')
     service = hookenv.service_name()
