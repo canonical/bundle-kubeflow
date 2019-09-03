@@ -1,4 +1,9 @@
 # Overlay for CDK model
 applications:
+  kubernetes-master:
+    options:
+      channel: 1.15/stable
   kubernetes-worker:
     constraints: cores=4 mem=4G root-disk=100G
+    options:
+      channel: 1.15/stable

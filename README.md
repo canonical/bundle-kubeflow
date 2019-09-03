@@ -23,19 +23,31 @@ to get started:
 
     sudo snap install juju --classic
     sudo snap install juju-wait --classic
+    sudo snap install juju-helpers --classic
 
-### microk8s
+Next, check out this repository locally:
+
+    git clone https://github.com/juju-solutions/bundle-kubeflow.git
+    cd bundle-kubeflow
+
+The below commands will assume you are running them from the `bundle-kubeflow`
+directory.
+
+Then, follow the instructions from one of the subsections below to deploy
+Kubeflow to either [microk8s](#setup-microk8s) or [CDK](#setup-cdk).
+
+### Setup microk8s
 
 You'll also need to install the `microk8s` snap:
 
     sudo snap install microk8s --classic
 
-Next, you can run the commands in [scripts/deploy-microk8s][deploy-microk8s]
-individually, or run the script as a whole.
+Next, you can run these commands to set up microk8s:
 
-[deploy-microk8s]: https://github.com/juju-solutions/bundle-kubeflow/blob/master/scripts/deploy-microk8s
+    python3 scripts/cli.py microk8s setup --controller uk8s
+    python3 scripts/cli.py deploy-to uk8s
 
-### CDK
+### Setup CDK
 
 You'll also need to install the `kubectl` snap:
 
@@ -55,15 +67,10 @@ add the credentials to juju:
 
     Credential "kubeflow-test" added locally for cloud "aws".
 
-Next, you can run the commands in these two scripts individually, or run the
-script as a whole:
+Next, you can run these commands to set up microk8s:
 
-[scripts/manage-cdk][manage-cdk]
-
-[scripts/deploy-cdk][deploy-cdk]
-
-[manage-cdk]: https://github.com/juju-solutions/bundle-kubeflow/blob/master/scripts/manage-cdk
-[deploy-cdk]: https://github.com/juju-solutions/bundle-kubeflow/blob/master/scripts/deploy-cdk
+    python3 scripts/cli.py cdk setup --controller cdkkf
+    python3 scripts/cli.py deploy-to cdkkf
 
 ## Using
 
@@ -101,3 +108,5 @@ You can submit a model to be served with TensorFlow Serving:
     # For a model.conf:
     juju deploy cs:~kubeflow-charmers/kubeflow-tf-serving --storage models=storage-class,, --config model-conf=/path/to/model.conf
 
+[cdk]: https://jaas.ai/canonical-kubernetes
+[microk8s]: https://microk8s.io/
