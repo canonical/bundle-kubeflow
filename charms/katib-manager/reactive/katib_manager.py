@@ -8,7 +8,7 @@ def charm_ready():
     layer.status.active('')
 
 
-@when('layer.docker-resource.oci-image.changed')
+@when('layer.docker-resource.oci-image.changed', 'config.changed', 'mysql.changed')
 def update_image():
     clear_flag('charm.started')
 
@@ -16,7 +16,7 @@ def update_image():
 @when(
     'layer.docker-resource.manager-image.available',
     'layer.docker-resource.restful-image.available',
-    'mysql.connected',
+    'mysql.available',
 )
 @when_not('charm.started')
 def start_charm():
@@ -67,4 +67,5 @@ def start_charm():
     )
 
     layer.status.maintenance('creating container')
+    clear_flag('mysql.changed')
     set_flag('charm.started')
