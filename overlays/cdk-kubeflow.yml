@@ -1,5 +1,0 @@
-# Overlay for Kubeflow model deployed to CDK
-applications:
-  argo-controller:
-    options:
-      executor: kubelet
