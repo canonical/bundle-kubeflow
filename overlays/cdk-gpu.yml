@@ -1,4 +1,6 @@
 applications:
   kubernetes-worker:
-    constraints: instance-type=p2.xlarge root-disk=16G
-    num_units: 1
+    to: ["0"]
+machines:
+  0:
+    constraints: root-disk=100G instance-type=p2.xlarge
