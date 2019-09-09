@@ -9,7 +9,7 @@ options:
     description: S3 key prefix
   executor:
     type: string
-    default: docker
+    default: kubelet
     description: |
       Runtime executor for workflow containers. One of `docker` or `kubelet`.
       If your cluster is using containerd, this must be set to `kubelet`.

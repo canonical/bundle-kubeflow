@@ -143,17 +143,9 @@ def create(controller: str, cdk_model: str, model: str, channel: str, build: boo
 
     # Allow building local bundle.yaml, otherwise deploy from the charm store
     if build:
-        args = [
-            'juju',
-            'bundle',
-            'deploy',
-            '--build',
-            '--',
-            '--overlay',
-            'overlays/cdk-kubeflow.yml',
-        ]
+        args = ['juju', 'bundle', 'deploy', '--build']
         if ci:
-            args += ['--overlay', 'overlays/ci.yml']
+            args += ['--', '--overlay', 'overlays/ci.yml']
         run(*args)
     else:
         run('juju', 'deploy', 'kubeflow', '--channel', channel)
