@@ -17,12 +17,12 @@ def configure_http(http):
     http.configure(port=hookenv.config('http-port'), hostname=hookenv.application_name())
 
 
-@when('layer.docker-resource.oci-image.changed', 'config.changed')
+@when('layer.docker-resource.oci-image.changed', 'config.changed', 'mysql.changed')
 def update_image():
     clear_flag('charm.started')
 
 
-@when('layer.docker-resource.oci-image.available', 'mysql.connected', 'minio.available')
+@when('layer.docker-resource.oci-image.available', 'mysql.available', 'minio.available')
 @when_not('charm.started')
 def start_charm():
     layer.status.maintenance('configuring container')
@@ -106,4 +106,5 @@ def start_charm():
     )
 
     layer.status.maintenance('creating container')
+    clear_flag('mysql.changed')
     set_flag('charm.started')

@@ -13,9 +13,9 @@ def charm_ready():
 def configure_mysql():
     mysql = endpoint_from_name('mysql')
 
-    for i in range(len(mysql.relations)):
+    for rel_id in mysql.relations.keys():
         mysql.provide_database(
-            request_id=i,
+            request_id=rel_id,
             database_name=hookenv.config('database'),
             port=hookenv.config('port'),
             host=hookenv.application_name(),
