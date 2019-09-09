@@ -184,7 +184,7 @@ def train_task(
     )
 
     score = model.evaluate(test_x, test_y)
-    print('Test loss & accuracy: %s, %s' % score)
+    print('Test loss & accuracy: %s' % (score, ))
 
     model_name = 'model.h5'
 
