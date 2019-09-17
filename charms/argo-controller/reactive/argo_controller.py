@@ -55,6 +55,7 @@ def start_charm():
                                 'config': yaml.dump(
                                     {
                                         'containerRuntimeExecutor': hookenv.config('executor'),
+                                        'kubeletInsecure': hookenv.config('kubelet-insecure'),
                                         'artifactRepository': {
                                             's3': {
                                                 'bucket': hookenv.config('bucket'),
