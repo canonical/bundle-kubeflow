@@ -13,3 +13,9 @@ options:
     description: |
       Runtime executor for workflow containers. One of `docker` or `kubelet`.
       If your cluster is using containerd, this must be set to `kubelet`.
+  kubelet-insecure:
+    type: bool
+    default: false
+    description: |
+      If true, Argo will skip checking kubelet's TLS certificate. Has no effect
+      with other executors.
