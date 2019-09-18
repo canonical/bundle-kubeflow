@@ -12,4 +12,4 @@ resources:
     type: oci-image
     description: 'Backing OCI image'
     auto-fetch: true
-    upstream-source: gcr.io/ml-pipeline/scheduledworkflow:0.1.14
+    upstream-source: gcr.io/ml-pipeline/scheduledworkflow:0.1.23
