@@ -1,3 +1,5 @@
+import os
+
 import yaml
 from charms import layer
 from charms.reactive import set_flag, clear_flag, when, when_not, hookenv, endpoint_from_name
@@ -13,7 +15,7 @@ def update_image():
     clear_flag('charm.started')
 
 
-@when('layer.docker-resource.oci-image.available', 'pipelines-api.available')
+@when('layer.docker-resource.oci-image.available', 'pipelines-api.available', 'minio.available')
 @when_not('charm.started')
 def start_charm():
     layer.status.maintenance('configuring container')
@@ -22,6 +24,7 @@ def start_charm():
     service_name = hookenv.service_name()
 
     api = endpoint_from_name('pipelines-api').services()[0]
+    minio = endpoint_from_name('minio').services()[0]['hosts'][0]
 
     ui_port = hookenv.config('ui-port')
     proxy_port = hookenv.config('proxy-port')
@@ -67,6 +70,9 @@ def start_charm():
                     'config': {
                         'ML_PIPELINE_SERVICE_HOST': api['service_name'],
                         'ML_PIPELINE_SERVICE_PORT': api['hosts'][0]['port'],
+                        'MINIO_HOST': minio['hostname'],
+                        'MINIO_PORT': minio['port'],
+                        'MINIO_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
                     },
                     'ports': [
                         {'name': 'ui', 'containerPort': ui_port},

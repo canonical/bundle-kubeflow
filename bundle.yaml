@@ -230,6 +230,7 @@ relations:
 - [pipelines-api, mariadb]
 - [pipelines-api, minio]
 - [pipelines-api, pipelines-persistence]
-- [pipelines-api, pipelines-ui]
+- [pipelines-api:pipelines-api, pipelines-ui:pipelines-api]
+- [pipelines-ui:minio, minio:minio]
 - [redis, seldon-api-frontend]
 - [redis, seldon-cluster-manager]
