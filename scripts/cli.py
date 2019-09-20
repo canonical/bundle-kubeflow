@@ -41,7 +41,7 @@ def run(*args, env: dict = None, check=True):
 
 
 def get_output(*args: str):
-    return subprocess.run(args, capture_output=True, check=True).stdout
+    return subprocess.run(args, check=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE).stdout
 
 
 def juju(*args, env=None):
