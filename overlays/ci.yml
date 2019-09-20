@@ -5,7 +5,6 @@ applications:
   katib-db:
     options:
       root-password: foobar
-      database: katib
   mariadb:
     options:
       root-password: foobar
