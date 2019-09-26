@@ -42,7 +42,12 @@ You'll also need to install the `microk8s` snap:
 
     sudo snap install microk8s --classic
 
-Next, you can run these commands to set up microk8s:
+Next, you will need to add yourself to the `microk8s` group:
+
+    sudo usermod -aG microk8s $USER
+    newgrp microk8s
+
+Finally, you can run these commands to set up microk8s:
 
     python3 scripts/cli.py microk8s setup --controller uk8s
     python3 scripts/cli.py deploy-to uk8s
