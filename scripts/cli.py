@@ -41,7 +41,9 @@ def run(*args, env: dict = None, check=True):
 
 
 def get_output(*args: str):
-    return subprocess.run(args, check=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE).stdout
+    return subprocess.run(
+        args, check=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    ).stdout
 
 
 def juju(*args, env=None):
@@ -137,7 +139,6 @@ def get_pub_ip(controller: str, model: str):
             'public-address'
         ]
     except Exception as err:
-        print(err)
         status = json.loads(
             get_output('juju', 'status', '-m', f'{controller}:{model}', '--format=json')
         )
