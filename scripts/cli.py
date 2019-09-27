@@ -68,9 +68,14 @@ def _info(controller: str, model: str):
 
         The central dashboard is available at http://{pub_ip}/
 
+        To display the login credentials, run these commands:
+
+            juju config ambassador-auth username
+            juju config ambassador-auth password
+
         To tear down Kubeflow and associated infrastructure, run this command:
 
-            juju kubeflow remove-from {controller}
+            python3 scripts/cli.py remove-from {controller}
 
         For more information, see documentation at:
 
@@ -119,7 +124,7 @@ def _subtrate_info_cdk(controller):
 
         To tear down CDK and associated infrastructure, run this command:
 
-            juju kubeflow cdk teardown
+            python3 scripts/cli.py cdk teardown
 
         For more information, see documentation at:
 
@@ -176,7 +181,9 @@ def cli(debug):
 @click.option('--channel', default='stable')
 @click.option('--build/--no-build', default=False)
 @click.option('-o', '--overlays', multiple=True)
-@click.password_option(envvar='KUBEFLOW_AUTH_PASSWORD')
+@click.password_option(
+    envvar='KUBEFLOW_AUTH_PASSWORD', prompt='Enter a password to set for the Kubeflow dashboard'
+)
 def deploy_to(controller, cloud, model, channel, build, overlays, password):
     password_overlay = {
         "applications": {
