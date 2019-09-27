@@ -38,8 +38,12 @@ def start_charm():
 
     port = hookenv.config('port')
 
-    username = hookenv.config('username') or 'admin'
+    username = hookenv.config('username')
     password = hookenv.config('password')
+
+    if not username:
+        layer.status.blocked('Setting a username is required!')
+        return False
 
     if not password:
         layer.status.blocked('Setting a password is required!')
