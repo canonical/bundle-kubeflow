@@ -5,7 +5,7 @@ options:
     description: Port to listen to
   username:
     type: string
-    default: ''
+    default: 'admin'
     description: HTTP Basic Auth username
   password:
     type: string
