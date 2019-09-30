@@ -1,7 +1,7 @@
 import pymysql
 from charmhelpers.core import hookenv
 from charms import layer
-from charms.reactive import set_flag, when, when_not, clear_flag, endpoint_from_name
+from charms.reactive import set_flag, when, when_any, when_not, clear_flag, endpoint_from_name
 
 
 @when('charm.started')
@@ -24,7 +24,7 @@ def configure_mysql():
         )
 
 
-@when('layer.docker-resource.oci-image.changed', 'config.changed')
+@when_any('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
     clear_flag('charm.started')
 
