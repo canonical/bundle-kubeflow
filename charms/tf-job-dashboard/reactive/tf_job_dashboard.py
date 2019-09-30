@@ -3,7 +3,15 @@ import os
 import yaml
 from charmhelpers.core import hookenv
 from charms import layer
-from charms.reactive import clear_flag, is_flag_set, register_trigger, set_flag, when, when_not
+from charms.reactive import (
+    clear_flag,
+    is_flag_set,
+    register_trigger,
+    set_flag,
+    when,
+    when_any,
+    when_not,
+)
 
 register_trigger(when='endpoint.ambassador.joined', clear_flag='charm.started')
 register_trigger(when_not='endpoint.ambassador.joined', clear_flag='charm.started')
@@ -14,7 +22,7 @@ def charm_ready():
     layer.status.active('')
 
 
-@when('layer.docker-resource.oci-image.changed', 'config.changed')
+@when_any('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
     clear_flag('charm.started')
 

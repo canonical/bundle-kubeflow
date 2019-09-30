@@ -1,6 +1,6 @@
 from charmhelpers.core import hookenv
 from charms import layer
-from charms.reactive import set_flag, clear_flag, when, when_not
+from charms.reactive import set_flag, clear_flag, when, when_any, when_not
 
 
 @when('charm.started')
@@ -13,7 +13,7 @@ def configure_http(http):
     http.configure(port=hookenv.config('port'), hostname=hookenv.application_name())
 
 
-@when('layer.docker-resource.oci-image.changed', 'config.changed')
+@when_any('layer.docker-resource.oci-image.changed', 'config.changed')
 def update_image():
     clear_flag('charm.started')
 
