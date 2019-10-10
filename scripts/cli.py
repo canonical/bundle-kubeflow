@@ -199,7 +199,11 @@ def deploy_to(controller, cloud, model, channel, build, overlays, password):
 
     if not cloud:
         clouds = json.loads(get_output('juju', 'list-clouds', '-c', controller, '--format=json'))
-        clouds = [name for name, details in clouds.items() if details['type'] == 'k8s']
+        clouds = [
+            name
+            for name, details in clouds.items()
+            if details['type'] == 'k8s' and details['defined'] == 'public'
+        ]
         if not clouds:
             click.secho(f'No Kubernetes clouds found on controller {controller}', color='red')
             sys.exit(1)
@@ -215,6 +219,9 @@ def deploy_to(controller, cloud, model, channel, build, overlays, password):
 
     juju('add-model', model, cloud)
 
+    juju('kubectl', 'apply', '-f', 'resources/katib-configmap.yaml')
+    juju('kubectl', 'apply', '-f', 'resources/trial-template.yaml')
+
     with tempfile.NamedTemporaryFile('w+') as f:
         overlays = [f'--overlay={o}' for o in overlays]
 
@@ -228,11 +235,6 @@ def deploy_to(controller, cloud, model, channel, build, overlays, password):
             juju('deploy', 'kubeflow', '--channel', channel, *overlays)
 
     juju('wait', '-wv')
-
-    # General Kubernetes setup.
-    resources = Path(os.path.realpath(__file__)).parent / '../charms/*/resources/*.yaml'
-    for f in glob(str(resources)):
-        juju('kubectl', 'apply', '-f', f)
 
     pub_addr = get_pub_addr(cloud, controller, model)
     juju('config', 'ambassador', f'juju-external-hostname={pub_addr}')
@@ -275,7 +277,7 @@ def microk8s():
 
 @microk8s.command()
 @click.option('--controller')
-@click.option('-s', '--services', default=['dns', 'storage', 'dashboard'], multiple=True)
+@click.option('-s', '--services', default=['dns', 'storage', 'rbac', 'dashboard'], multiple=True)
 @click.option('--model-defaults', default=[], multiple=True)
 def setup(controller, services, model_defaults):
     if not controller:
