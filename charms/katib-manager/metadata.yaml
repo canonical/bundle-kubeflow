@@ -10,12 +10,12 @@ resources:
     type: oci-image
     description: 'Main manager image'
     auto-fetch: true
-    upstream-source: gcr.io/kubeflow-images-public/katib/v1alpha2/katib-manager:v0.1.2-alpha-289-g14dad8b
+    upstream-source: gcr.io/kubeflow-images-public/katib/v1alpha3/katib-manager
   restful-image:
     type: oci-image
     description: 'REST API proxy image'
     auto-fetch: true
-    upstream-source: gcr.io/kubeflow-images-public/katib/v1alpha2/katib-manager-rest:v0.1.2-alpha-289-g14dad8b
+    upstream-source: gcr.io/kubeflow-images-public/katib/v1alpha3/katib-manager-rest
 requires:
   mysql:
     interface: mysql
