@@ -26,7 +26,14 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
-            'omitServiceFrontend': True,
+            'version': 2,
+            'serviceAccount': {
+                'global': True,
+                'rules': [
+                    {'apiGroups': ['*'], 'resources': ['*'], 'verbs': ['*']},
+                    {'nonResourceURLs': ['*'], 'verbs': ['*']},
+                ],
+            },
             'containers': [
                 {
                     'name': 'pipelines-scheduledworkflow',
@@ -37,8 +44,12 @@ def start_charm():
                     },
                 }
             ],
-            'customResourceDefinitions': {crd['metadata']['name']: crd['spec']},
-        }
+        },
+        k8s_resources={
+            'kubernetesResources': {
+                'customResourceDefinitions': {crd['metadata']['name']: crd['spec']}
+            }
+        },
     )
 
     layer.status.maintenance('creating container')
