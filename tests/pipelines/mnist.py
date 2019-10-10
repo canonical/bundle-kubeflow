@@ -37,6 +37,8 @@ def ensure_bucket_task(endpoint: str, bucket: str) -> str:
     except (BucketAlreadyExists, BucketAlreadyOwnedByYou):
         pass
 
+    return 'DONE!'
+
 
 @func_to_container_op
 def load_task(
@@ -347,6 +349,8 @@ def test_task(endpoint: str, bucket: str, model_file: str, examples_file: str) -
         print(f'Got accuracy of {accuracy:0.2f} in mnist model')
     else:
         raise Exception(f'Low accuracy in mnist model: {accuracy}')
+
+    return 'DONE!'
 
 
 @dsl.pipeline(
