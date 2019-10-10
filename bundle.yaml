@@ -50,12 +50,8 @@ applications:
       gui-x: '450'
       gui-y: '259'
   katib-db:
-    charm: cs:~kubeflow-charmers/mariadb
-    source: ./charms/mariadb
+    charm: cs:~charmed-osm/mariadb-k8s
     scale: 1
-    annotations:
-      gui-x: '0'
-      gui-y: '1036'
     options:
       database: katib
   katib-manager:
@@ -72,13 +68,6 @@ applications:
     annotations:
       gui-x: '-150'
       gui-y: '259'
-  mariadb:
-    charm: cs:~kubeflow-charmers/mariadb
-    source: ./charms/mariadb
-    scale: 1
-    annotations:
-      gui-x: '450'
-      gui-y: '777'
   metacontroller:
     charm: cs:~kubeflow-charmers/metacontroller
     source: ./charms/metacontroller
@@ -100,6 +89,9 @@ applications:
     annotations:
       gui-x: '600'
       gui-y: '-518'
+  modeldb-db:
+    charm: cs:~charmed-osm/mariadb-k8s
+    scale: 1
   modeldb-store:
     charm: cs:~kubeflow-charmers/modeldb-store
     source: ./charms/modeldb-store
@@ -128,6 +120,9 @@ applications:
     annotations:
       gui-x: '-300'
       gui-y: '518'
+  pipelines-db:
+    charm: cs:~charmed-osm/mariadb-k8s
+    scale: 1
   pipelines-persistence:
     charm: cs:~kubeflow-charmers/pipelines-persistence
     source: ./charms/pipelines-persistence
@@ -216,10 +211,10 @@ relations:
 - [ambassador, tf-job-dashboard]
 - [argo-controller, minio]
 - [katib-manager, katib-db]
-- [modeldb-backend, mariadb]
+- [modeldb-backend, modeldb-db]
 - [modeldb-backend, modeldb-store]
 - [modeldb-backend, modeldb-ui]
-- [pipelines-api, mariadb]
+- [pipelines-api, pipelines-db]
 - [pipelines-api, minio]
 - [pipelines-api, pipelines-persistence]
 - [pipelines-api:pipelines-api, pipelines-ui:pipelines-api]

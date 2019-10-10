@@ -93,8 +93,8 @@ def start_charm():
                                         'DBConfig': {
                                             'DriverName': 'mysql',
                                             'DataSourceName': mysql.database(),
-                                            'User': mysql.user(),
-                                            'Password': mysql.password(),
+                                            'User': 'root',
+                                            'Password': mysql.root_password(),
                                         },
                                         'ObjectStoreConfig': {
                                             'AccessKey': hookenv.config('minio-access-key'),

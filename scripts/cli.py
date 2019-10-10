@@ -188,8 +188,9 @@ def deploy_to(controller, cloud, model, channel, build, overlays, password):
     password_overlay = {
         "applications": {
             "ambassador-auth": {"options": {"password": password}},
-            "katib-db": {"options": {"root-password": get_random_pass()}},
-            "mariadb": {"options": {"root-password": get_random_pass()}},
+            "katib-db": {"options": {"root_password": get_random_pass()}},
+            "modeldb-db": {"options": {"root_password": get_random_pass()}},
+            "pipelines-db": {"options": {"root_password": get_random_pass()}},
             "pipelines-api": {"options": {"minio-secret-key": "minio123"}},
         }
     }

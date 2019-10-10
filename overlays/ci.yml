@@ -2,9 +2,6 @@ applications:
   ambassador-auth:
     options:
       password: foobar
-  katib-db:
-    options:
-      root-password: foobar
   mariadb:
     options:
       root-password: foobar

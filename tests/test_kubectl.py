@@ -23,7 +23,6 @@ def test_running():
         ('jupyter-controller', 'Running'),
         ('jupyter-web', 'Running'),
         ('katib-controller', 'Running'),
-        ('katib-db', 'Running'),
         ('katib-manager', 'Running'),
         ('katib-ui', 'Running'),
         ('mariadb', 'Running'),
