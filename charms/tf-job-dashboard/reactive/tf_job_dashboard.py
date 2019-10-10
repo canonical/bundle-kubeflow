@@ -3,18 +3,7 @@ import os
 import yaml
 from charmhelpers.core import hookenv
 from charms import layer
-from charms.reactive import (
-    clear_flag,
-    is_flag_set,
-    register_trigger,
-    set_flag,
-    when,
-    when_any,
-    when_not,
-)
-
-register_trigger(when='endpoint.ambassador.joined', clear_flag='charm.started')
-register_trigger(when_not='endpoint.ambassador.joined', clear_flag='charm.started')
+from charms.reactive import clear_flag, set_flag, when_any, when, when_not
 
 
 @when('charm.started')
@@ -36,28 +25,65 @@ def start_charm():
 
     port = hookenv.config('port')
 
-    if is_flag_set('endpoint.ambassador.joined'):
-        annotations = {
-            'getambassador.io/config': yaml.dump_all(
-                [
-                    {
-                        'apiVersion': 'ambassador/v0',
-                        'kind': 'Mapping',
-                        'name': 'tf_dashboard',
-                        'prefix': '/tfjobs/',
-                        'rewrite': '/tfjobs/',
-                        'service': f'{hookenv.service_name()}:{port}',
-                        'timeout_ms': 30000,
-                    }
-                ]
-            )
-        }
-    else:
-        annotations = {}
-
     layer.caas_base.pod_spec_set(
         {
-            'service': {'annotations': annotations},
+            'version': 2,
+            'serviceAccount': {
+                'rules': [
+                    {
+                        'apiGroups': ['tensorflow.org', 'kubeflow.org'],
+                        'resources': ['tfjobs', 'tfjobs/status'],
+                        'verbs': ['*'],
+                    },
+                    {
+                        'apiGroups': ['apiextensions.k8s.io'],
+                        'resources': ['customresourcedefinitions'],
+                        'verbs': ['*'],
+                    },
+                    {
+                        'apiGroups': ['storage.k8s.io'],
+                        'resources': ['storageclasses'],
+                        'verbs': ['*'],
+                    },
+                    {'apiGroups': ['batch'], 'resources': ['jobs'], 'verbs': ['*']},
+                    {
+                        'apiGroups': [''],
+                        'resources': [
+                            'configmaps',
+                            'pods',
+                            'services',
+                            'endpoints',
+                            'persistentvolumeclaims',
+                            'events',
+                            'pods/log',
+                            'namespaces',
+                        ],
+                        'verbs': ['*'],
+                    },
+                    {
+                        'apiGroups': ['apps', 'extensions'],
+                        'resources': ['deployments'],
+                        'verbs': ['*'],
+                    },
+                ]
+            },
+            'service': {
+                'annotations': {
+                    'getambassador.io/config': yaml.dump_all(
+                        [
+                            {
+                                'apiVersion': 'ambassador/v0',
+                                'kind': 'Mapping',
+                                'name': 'tf_dashboard',
+                                'prefix': '/tfjobs/',
+                                'rewrite': '/tfjobs/',
+                                'service': f'{hookenv.service_name()}:{port}',
+                                'timeout_ms': 30000,
+                            }
+                        ]
+                    )
+                }
+            },
             'containers': [
                 {
                     'name': 'tf-job-dashboard',
