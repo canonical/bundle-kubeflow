@@ -46,6 +46,21 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
+            'version': 2,
+            'serviceAccount': {
+                'rules': [
+                    {
+                        'apiGroups': ['argoproj.io'],
+                        'resources': ['workflows'],
+                        'verbs': ['create', 'get', 'list', 'watch', 'update', 'patch', 'delete'],
+                    },
+                    {
+                        'apiGroups': ['kubeflow.org'],
+                        'resources': ['scheduledworkflows'],
+                        'verbs': ['create', 'get', 'list', 'update', 'patch', 'delete'],
+                    },
+                ]
+            },
             'service': {
                 'annotations': {
                     'getambassador.io/config': yaml.dump_all(
@@ -110,7 +125,49 @@ def start_charm():
                     ],
                 }
             ],
-        }
+        },
+        k8s_resources={
+            'serviceAccounts': [
+                {
+                    'name': 'pipeline-runner',
+                    'rules': [
+                        {'apiGroups': [''], 'resources': ['secrets'], 'verbs': ['get']},
+                        {
+                            'apiGroups': [''],
+                            'resources': ['configmaps'],
+                            'verbs': ['get', 'watch', 'list'],
+                        },
+                        {
+                            'apiGroups': [''],
+                            'resources': ['persistentvolumeclaims'],
+                            'verbs': ['create', 'delete', 'get'],
+                        },
+                        {
+                            'apiGroups': ['snapshot.storage.k8s.io'],
+                            'resources': ['volumesnapshots'],
+                            'verbs': ['create', 'delete', 'get'],
+                        },
+                        {
+                            'apiGroups': ['argoproj.io'],
+                            'resources': ['workflows'],
+                            'verbs': ['get', 'list', 'watch', 'update', 'patch'],
+                        },
+                        {
+                            'apiGroups': [''],
+                            'resources': ['pods', 'pods/exec', 'pods/log', 'services'],
+                            'verbs': ['*'],
+                        },
+                        {
+                            'apiGroups': ['', 'apps', 'extensions'],
+                            'resources': ['deployments', 'replicasets'],
+                            'verbs': ['*'],
+                        },
+                        {'apiGroups': ['kubeflow.org'], 'resources': ['*'], 'verbs': ['*']},
+                        {'apiGroups': ['batch'], 'resources': ['jobs'], 'verbs': ['*']},
+                    ],
+                }
+            ]
+        },
     )
 
     layer.status.maintenance('creating container')
