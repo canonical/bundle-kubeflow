@@ -22,7 +22,6 @@ def test_running():
         ('argo-ui', 'Running'),
         ('jupyter-controller', 'Running'),
         ('jupyter-web', 'Running'),
-        ('jupyterhub', 'Running'),
         ('katib-controller', 'Running'),
         ('katib-db', 'Running'),
         ('katib-manager', 'Running'),

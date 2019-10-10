@@ -42,13 +42,6 @@ applications:
     annotations:
       gui-x: '-300'
       gui-y: '0'
-  jupyterhub:
-    charm: cs:~kubeflow-charmers/jupyterhub
-    source: ./charms/jupyterhub
-    scale: 1
-    annotations:
-      gui-x: '-450'
-      gui-y: '259'
   katib-controller:
     charm: cs:~kubeflow-charmers/katib-controller
     source: ./charms/katib-controller
@@ -216,7 +209,6 @@ relations:
 - [ambassador, ambassador-auth]
 - [ambassador, argo-ui]
 - [ambassador, jupyter-web]
-- [ambassador, jupyterhub]
 - [ambassador, katib-ui]
 - [ambassador, pipelines-ui]
 - [ambassador, pipelines-viewer]
