@@ -14,3 +14,6 @@ resources:
 requires:
   minio:
     interface: http
+deployment:
+  type: stateless
+  service: omit

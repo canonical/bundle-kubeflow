@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from base64 import b64encode
 
 import yaml
 from charmhelpers.core import hookenv
@@ -29,18 +30,38 @@ def start_charm():
     crd = yaml.safe_load(Path("files/crd-v1alpha1.yaml").read_text())
 
     layer.caas_base.pod_spec_set(
-        {
-            'omitServiceFrontend': True,
+        spec={
+            'version': 2,
+            'serviceAccount': {
+                'global': True,
+                'rules': [
+                    {
+                        'apiGroups': [''],
+                        'resources': ['pods', 'pods/exec'],
+                        'verbs': ['create', 'get', 'list', 'watch', 'update', 'patch'],
+                    },
+                    {
+                        'apiGroups': [''],
+                        'resources': ['configmaps'],
+                        'verbs': ['get', 'watch', 'list'],
+                    },
+                    {
+                        'apiGroups': [''],
+                        'resources': ['persistentvolumeclaims'],
+                        'verbs': ['create', 'delete'],
+                    },
+                    {
+                        'apiGroups': ['argoproj.io'],
+                        'resources': ['workflows'],
+                        'verbs': ['get', 'list', 'watch', 'update', 'patch'],
+                    },
+                ],
+            },
             'containers': [
                 {
                     'name': 'argo-controller',
                     'command': ['workflow-controller'],
-                    'args': [
-                        '--configmap',
-                        'argo-controller-configmap-config',
-                        '--executor-image',
-                        'argoproj/argoexec:v2.3.0',
-                    ],
+                    'args': ['--configmap', 'argo-controller-configmap-config'],
                     'imageDetails': {
                         'imagePath': image_info.registry_path,
                         'username': image_info.username,
@@ -54,6 +75,7 @@ def start_charm():
                             'files': {
                                 'config': yaml.dump(
                                     {
+                                        'executorImage': 'argoproj/argoexec:v2.3.0',
                                         'containerRuntimeExecutor': hookenv.config('executor'),
                                         'kubeletInsecure': hookenv.config('kubelet-insecure'),
                                         'artifactRepository': {
@@ -79,8 +101,26 @@ def start_charm():
                     ],
                 }
             ],
-            'customResourceDefinitions': {crd['metadata']['name']: crd['spec']},
-        }
+        },
+        k8s_resources={
+            'kubernetesResources': {
+                'customResourceDefinitions': {crd['metadata']['name']: crd['spec']},
+                'secrets': [
+                    {
+                        'name': 'mlpipeline-minio-artifact',
+                        'type': 'Opaque',
+                        'data': {
+                            'accesskey': b64encode(
+                                hookenv.config('repo-access-key').encode('utf-8')
+                            ),
+                            'secretkey': b64encode(
+                                hookenv.config('repo-secret-key').encode('utf-8')
+                            ),
+                        },
+                    }
+                ],
+            }
+        },
     )
 
     layer.status.maintenance('creating container')
