@@ -46,6 +46,25 @@ def get_output(*args: str):
     ).stdout
 
 
+def wait_for(*args: str, wait_msg: str, fail_msg: str):
+    for _ in range(12):
+        try:
+            subprocess.run(
+                args,
+                check=True,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            break
+        except subprocess.CalledProcessError:
+            click.echo(wait_msg)
+            time.sleep(5)
+    else:
+        click.secho(fail_msg, _fg='red')
+        sys.exit(1)
+
+
 def juju(*args, env=None):
     run('juju', *args, env=env)
 
@@ -283,19 +302,24 @@ def setup(controller, services, model_defaults):
     for service in services:
         click.secho(f'Running microk8s.enable {service}', fg='green')
         run('microk8s.enable', service)
-        for _ in range(12):
-            try:
-                get_output('microk8s.status', '--wait_ready')
-                break
-            except subprocess.CalledProcessError:
-                click.echo('Waiting for microk8s to become ready...')
-                time.sleep(5)
-        else:
-            click.secho(f'Couldn\'t enable {service}!', _fg='red')
-            sys.exit(1)
+        wait_for(
+            'microk8s.status',
+            '--wait-ready',
+            wait_msg='Waiting for microk8s to become ready...',
+            fail_msg=f'Couldn\'t enable {service}!',
+        )
         click.echo('\n')
 
     model_defaults = [f'--model-default={md}' for md in model_defaults]
+
+    wait_for(
+        'microk8s.kubectl',
+        'get',
+        'StorageClass',
+        'microk8s-hostpath',
+        wait_msg='Waiting for storage to come up before bootstrapping',
+        fail_msg='Waited too long for storage to come up!',
+    )
 
     juju('bootstrap', 'microk8s', controller, *model_defaults)
 
