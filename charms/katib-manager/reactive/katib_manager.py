@@ -42,7 +42,12 @@ def start_charm():
                         'password': manager_image.password,
                     },
                     'ports': [{'name': 'manager', 'containerPort': manager_port}],
-                    'config': {'MYSQL_ROOT_PASSWORD': mysql.password()},
+                    'config': {
+                        'DB_NAME': 'mysql',
+                        'DB_PASSWORD': mysql.root_password(),
+                        'MYSQL_HOST': mysql.host(),
+                        'MYSQL_PORT': mysql.port(),
+                    },
                     'livenessProbe': {
                         'exec': {'command': ["/bin/grpc_health_probe", f"-addr=:{manager_port}"]},
                         'initialDelaySeconds': 10,

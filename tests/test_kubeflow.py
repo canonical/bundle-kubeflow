@@ -31,7 +31,6 @@ def validate_statuses(model):
         "argo-ui/0",
         "jupyter-controller/0",
         "jupyter-web/0",
-        "jupyterhub/0",
         "katib-controller/0",
         "katib-manager/0",
         "katib-db/0",
@@ -78,15 +77,6 @@ def validate_ambassador():
     for endpoint, text in checks.items():
         resp = sess.get(f"http://{get_pub_addr()}{endpoint}")
         assert resp.content.startswith(text)
-
-
-def validate_jupyterhub_api():
-    """Validates that JupyterHub is up and responding via Ambassador."""
-
-    sess = get_session()
-
-    resp = sess.get(f"http://{get_pub_addr()}/hub/api/")
-    assert list(resp.json().keys()) == ["version"]
 
 
 def validate_tf_dashboard():

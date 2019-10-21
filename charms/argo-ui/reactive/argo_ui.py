@@ -28,6 +28,22 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
+            'version': 2,
+            'serviceAccount': {
+                'rules': [
+                    {
+                        'apiGroups': [''],
+                        'resources': ['pods', 'pods/exec', 'pods/log'],
+                        'verbs': ['get', 'list', 'watch'],
+                    },
+                    {'apiGroups': [''], 'resources': ['secrets'], 'verbs': ['get']},
+                    {
+                        'apiGroups': ['argoproj.io'],
+                        'resources': ['workflows'],
+                        'verbs': ['get', 'list', 'watch'],
+                    },
+                ]
+            },
             'service': {
                 'annotations': {
                     'getambassador.io/config': yaml.dump_all(

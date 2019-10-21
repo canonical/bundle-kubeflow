@@ -26,10 +26,31 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
-            'omitServiceFrontend': True,
+            'version': 2,
+            'serviceAccount': {
+                'rules': [
+                    {
+                        'apiGroups': ['apps'],
+                        'resources': ['statefulsets', 'deployments'],
+                        'verbs': ['*'],
+                    },
+                    {'apiGroups': [''], 'resources': ['pods'], 'verbs': ['get', 'list', 'watch']},
+                    {'apiGroups': [''], 'resources': ['services'], 'verbs': ['*']},
+                    {
+                        'apiGroups': ['kubeflow.org'],
+                        'resources': ['notebooks', 'notebooks/status'],
+                        'verbs': ['*'],
+                    },
+                    {
+                        'apiGroups': ['networking.istio.io'],
+                        'resources': ['virtualservices'],
+                        'verbs': ['*'],
+                    },
+                ]
+            },
             'containers': [
                 {
-                    'name': 'jupyterhub',
+                    'name': 'jupyter-controller',
                     'command': ['/manager'],
                     'imageDetails': {
                         'imagePath': image_info.registry_path,
@@ -38,8 +59,12 @@ def start_charm():
                     },
                 }
             ],
-            'customResourceDefinitions': {crd['metadata']['name']: crd['spec']},
-        }
+        },
+        {
+            'kubernetesResources': {
+                'customResourceDefinitions': {crd['metadata']['name']: crd['spec']}
+            }
+        },
     )
 
     layer.status.maintenance('creating container')

@@ -23,6 +23,13 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
+            'version': 2,
+            'serviceAccount': {
+                'rules': [
+                    {'apiGroups': [''], 'resources': ['configmaps'], 'verbs': ['*']},
+                    {'apiGroups': ['kubeflow.org'], 'resources': ['studyjobs'], 'verbs': ['*']},
+                ]
+            },
             'service': {
                 'annotations': {
                     'getambassador.io/config': yaml.dump_all(

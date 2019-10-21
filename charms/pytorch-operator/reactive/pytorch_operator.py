@@ -33,7 +33,44 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
-            'omitServiceFrontend': True,
+            'version': 2,
+            'serviceAccount': {
+                'rules': [
+                    {
+                        'apiGroups': ['kubeflow.org'],
+                        'resources': ['pytorchjobs', 'pytorchjobs/status'],
+                        'verbs': ['*'],
+                    },
+                    {
+                        'apiGroups': ['apiextensions.k8s.io'],
+                        'resources': ['customresourcedefinitions'],
+                        'verbs': ['*'],
+                    },
+                    {
+                        'apiGroups': ['storage.k8s.io'],
+                        'resources': ['storageclasses'],
+                        'verbs': ['*'],
+                    },
+                    {'apiGroups': ['batch'], 'resources': ['jobs'], 'verbs': ['*']},
+                    {
+                        'apiGroups': [''],
+                        'resources': [
+                            'configmaps',
+                            'pods',
+                            'services',
+                            'endpoints',
+                            'persistentvolumeclaims',
+                            'events',
+                        ],
+                        'verbs': ['*'],
+                    },
+                    {
+                        'apiGroups': ['apps', 'extensions'],
+                        'resources': ['deployments'],
+                        'verbs': ['*'],
+                    },
+                ]
+            },
             'containers': [
                 {
                     'name': 'pytorch-operator',
@@ -42,11 +79,13 @@ def start_charm():
                         'username': image_info.username,
                         'password': image_info.password,
                     },
-                    'command': ['/pytorch-operator.v1beta1', '--alsologtostderr', '-v=1'],
-                    'config': {
-                        'MY_POD_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
-                        'MY_POD_NAME': hookenv.service_name(),
-                    },
+                    'command': [
+                        '/pytorch-operator.v1',
+                        '--alsologtostderr',
+                        '-v=1',
+                        '--monitoring-port=8443',
+                    ],
+                    'config': {'KUBEFLOW_NAMESPACE': os.environ['JUJU_MODEL_NAME']},
                     'files': [
                         {
                             'name': 'configs',
@@ -56,8 +95,12 @@ def start_charm():
                     ],
                 }
             ],
-            'customResourceDefinitions': {crd['metadata']['name']: crd['spec']},
-        }
+        },
+        {
+            'kubernetesResources': {
+                'customResourceDefinitions': {crd['metadata']['name']: crd['spec']}
+            }
+        },
     )
 
     layer.status.maintenance('creating container')

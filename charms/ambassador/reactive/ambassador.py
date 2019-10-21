@@ -23,6 +23,48 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
+            'version': 2,
+            'serviceAccount': {
+                'global': True,
+                'rules': [
+                    {
+                        'apiGroups': [''],
+                        'resources': [
+                            'endpoints',
+                            'namespaces',
+                            'secrets',
+                            'services',
+                            'configmaps',
+                        ],
+                        'verbs': ['get', 'list', 'watch'],
+                    },
+                    {
+                        'apiGroups': ['getambassador.io'],
+                        'resources': ['*'],
+                        'verbs': ['get', 'list', 'watch'],
+                    },
+                    {
+                        'apiGroups': ['apiextensions.k8s.io'],
+                        'resources': ['customresourcedefinitions'],
+                        'verbs': ['get', 'list', 'watch'],
+                    },
+                    {
+                        'apiGroups': ['networking.internal.knative.dev'],
+                        'resources': ['clusteringresses', 'ingresses'],
+                        'verbs': ['get', 'list', 'watch'],
+                    },
+                    {
+                        'apiGroups': ['networking.internal.knative.dev'],
+                        'resources': ['ingresses/status', 'clusteringresses/status'],
+                        'verbs': ['update'],
+                    },
+                    {
+                        'apiGroups': ['extensions'],
+                        'resources': ['ingresses'],
+                        'verbs': ['get', 'list', 'watch'],
+                    },
+                ],
+            },
             'containers': [
                 {
                     'name': 'ambassador',
@@ -48,7 +90,7 @@ def start_charm():
                         'periodSeconds': 30,
                     },
                 }
-            ]
+            ],
         }
     )
 
