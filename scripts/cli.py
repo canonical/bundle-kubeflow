@@ -92,9 +92,11 @@ def _info(controller: str, model: str):
             juju config ambassador-auth username
             juju config ambassador-auth password
 
-        To tear down Kubeflow and associated infrastructure, run this command:
+        To tear down Kubeflow, run this command:
 
-            python3 scripts/cli.py remove-from {controller}
+            # Run `juju destroy-model --help` for a full listing of options,
+            # such as how to release storage instead of destroying it.
+            juju destroy-model {controller}:{model} --destroy-storage
 
         For more information, see documentation at:
 
@@ -143,7 +145,9 @@ def _subtrate_info_cdk(controller):
 
         To tear down CDK and associated infrastructure, run this command:
 
-            python3 scripts/cli.py cdk teardown
+            # Run `juju destroy-controller --help` for a full listing of options,
+            # such as how to release storage instead of destroying it.
+            juju destroy-controller {controller} --destroy-storage
 
         For more information, see documentation at:
 
@@ -276,19 +280,6 @@ def info(controller, model):
     _info(controller, model)
 
 
-@cli.command(name='remove-from')
-@click.argument('CONTROLLER')
-@click.option('--model', default='kubeflow')
-@click.option('--purge/--no-purge', default=False)
-def remove_from(controller, model, purge):
-    args = ['destroy-model', f'{controller}:{model}']
-
-    if purge:
-        args += [f'--yes', '--destroy-storage', '--force']
-
-    juju(*args)
-
-
 @cli.group()
 def microk8s():
     pass
@@ -330,21 +321,6 @@ def setup(controller, services, model_defaults):
 @microk8s.command()
 def info():
     _subtrate_info_microk8s('kubeflow')
-
-
-@microk8s.command()
-@click.option('--controller')
-@click.option('--purge/--no-purge', default=False)
-def teardown(controller, purge):
-    if not controller:
-        controller = DEFAULT_CONTROLLERS['microk8s']
-
-    args = ['destroy-controller', controller]
-
-    if purge:
-        args += [f'--yes', '--destroy-all-models', '--destroy-storage']
-
-    juju(*args)
 
 
 @cli.group()
@@ -411,21 +387,6 @@ def setup(cloud, region, controller, channel, gpu):
 @click.option('--controller', default='cdkkf')
 def info(controller):
     _subtrate_info_cdk(controller)
-
-
-@cdk.command()
-@click.option('--controller')
-@click.option('--purge/--no-purge', default=False)
-def teardown(controller, purge):
-    if not controller:
-        controller = DEFAULT_CONTROLLERS['aws']
-
-    args = ['destroy-controller', controller]
-
-    if purge:
-        args += ['--yes', '--destroy-all-models', '--destroy-storage']
-
-    juju(*args)
 
 
 @cli.group()
