@@ -93,8 +93,8 @@ def kubeflow_info(controller: str, model: str):
 
         To display the login credentials, run these commands:
 
-            juju config ambassador-auth username
-            juju config ambassador-auth password
+            juju config kubeflow-gatekeeper username
+            juju config kubeflow-gatekeeper password
 
         To tear down Kubeflow, run this command:
 
@@ -234,11 +234,11 @@ def deploy_to(controller, cloud, model, channel, build, overlays, password):
     # way of generating random passwords.
     password_overlay = {
         "applications": {
-            "ambassador-auth": {"options": {"password": password}},
             "katib-db": {"options": {"root_password": get_random_pass()}},
+            "kubeflow-gatekeeper": {"options": {"password": password}},
             "modeldb-db": {"options": {"root_password": get_random_pass()}},
-            "pipelines-db": {"options": {"root_password": get_random_pass()}},
             "pipelines-api": {"options": {"minio-secret-key": "minio123"}},
+            "pipelines-db": {"options": {"root_password": get_random_pass()}},
         }
     }
 
@@ -287,6 +287,26 @@ def deploy_to(controller, cloud, model, channel, build, overlays, password):
     pub_addr = get_pub_addr(cloud, controller, model)
     juju('config', 'ambassador', f'juju-external-hostname={pub_addr}')
     juju('expose', 'ambassador')
+
+    # Workaround for https://bugs.launchpad.net/juju/+bug/1849725
+    patch = {
+        'kind': 'Ingress',
+        'apiVersion': 'extensions/v1beta1',
+        'metadata': {'name': 'ambassador', 'namespace': model},
+        'spec': {'tls': [{'hosts': [pub_addr], 'secretName': 'ambassador-tls'}]},
+    }
+    result = subprocess.run(
+        ['kubectl', 'apply', '-f', '-'],
+        input=yaml.dump(patch).encode('utf-8'),
+        stderr=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+    )
+    try:
+        result.check_returncode()
+    except subprocess.CalledProcessError as err:
+        print("Couldn't set Ambassador up properly:")
+        print(err)
+        sys.exit(1)
 
     end = time.time()
 

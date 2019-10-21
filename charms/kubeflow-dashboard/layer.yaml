@@ -4,3 +4,4 @@ includes:
   - "layer:status"
   - "layer:docker-resource"
   - "interface:ambassador"
+  - "interface:http"

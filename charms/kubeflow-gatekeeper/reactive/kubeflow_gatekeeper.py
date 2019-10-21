@@ -1,4 +1,3 @@
-import hashlib
 from base64 import b64encode
 
 import yaml
@@ -42,7 +41,6 @@ def start_charm():
     service_name = hookenv.service_name()
 
     port = hookenv.config('port')
-
     username = hookenv.config('username')
     password = hookenv.config('password')
 
@@ -54,12 +52,11 @@ def start_charm():
         layer.status.blocked('Setting a password is required!')
         return False
 
-    h = hashlib.sha256()
-    h.update(password.encode('utf-8'))
-    password = bcrypt.hashpw(b64encode(h.digest().hex().encode('utf-8')), bcrypt.gensalt()).decode()
+    password = b64encode(bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())).decode()
 
     layer.caas_base.pod_spec_set(
         {
+            'version': 2,
             'service': {
                 'annotations': {
                     'getambassador.io/config': yaml.dump_all(
@@ -67,10 +64,9 @@ def start_charm():
                             {
                                 'apiVersion': 'ambassador/v0',
                                 'kind': 'AuthService',
-                                'name': 'authentication',
-                                'auth_service': f"{service_name}:{port}",
-                                'path_prefix': "/extauth",
-                                'allowed_headers': [],
+                                'name': 'basic-auth',
+                                'auth_service': f'{service_name}:{port}',
+                                'allowed_headers': ['x-from-login'],
                             }
                         ]
                     )
@@ -78,25 +74,33 @@ def start_charm():
             },
             'containers': [
                 {
-                    'name': 'ambassador',
+                    'name': 'kubeflow-gatekeeper',
                     'imageDetails': {
                         'imagePath': image_info.registry_path,
                         'username': image_info.username,
                         'password': image_info.password,
                     },
-                    'ports': [{'name': 'ambassador-auth', 'containerPort': port}],
-                    'files': [
-                        {
-                            'name': 'users',
-                            'mountPath': '/var/lib/ambassador/auth-httpbasic/',
-                            'files': {
-                                'users.yaml': yaml.dump({username: {'hashed_password': password}})
-                            },
-                        }
-                    ],
+                    'command': ['/opt/kubeflow/gatekeeper'],
+                    'args': [f'--username={username}', f'--pwhash={password}'],
+                    'config': {'USERNAME': username, 'PASSWORDHASH': password},
+                    'ports': [{'name': 'http', 'containerPort': port}],
                 }
             ],
-        }
+        },
+        {
+            'kubernetesResources': {
+                'customResources': {
+                    'profiles.kubeflow.org': [
+                        {
+                            'apiVersion': 'kubeflow.org/v1alpha1',
+                            'kind': 'Profile',
+                            'metadata': {'name': username},
+                            'spec': {'owner': {'kind': 'User', 'name': username}},
+                        }
+                    ]
+                }
+            }
+        },
     )
 
     layer.status.maintenance('creating container')

@@ -1,8 +1,8 @@
 options:
   port:
     type: int
-    default: 5000
-    description: Port to listen to
+    default: 8085
+    description: HTTP port
   username:
     type: string
     default: 'admin'
