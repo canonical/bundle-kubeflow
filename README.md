@@ -5,6 +5,7 @@
 This bundle deploys KubeFlow to a Juju K8s model. The individual charms that
 make up this bundle can be found under `charms/`.
 
+
 ## Deploying
 
 ### Setup
@@ -77,6 +78,7 @@ Next, you can run these commands to set up microk8s:
     python3 scripts/cli.py cdk setup --controller cdkkf
     python3 scripts/cli.py deploy-to cdkkf
 
+
 ## Using
 
 ### Main Dashboard
@@ -113,5 +115,30 @@ You can submit a model to be served with TensorFlow Serving:
     # For a model.conf:
     juju deploy cs:~kubeflow-charmers/kubeflow-tf-serving --storage models=storage-class,, --config model-conf=/path/to/model.conf
 
-[cdk]: https://jaas.ai/canonical-kubernetes
-[microk8s]: https://microk8s.io/
+
+## Removing
+
+### Kubeflow model
+
+To remove Kubeflow from your Kubernetes cluster, first run this command to
+remove Kubeflow itself:
+
+    juju destroy-model kubeflow --destroy-storage
+
+If you encounter errors while destroying the model, you can run this command
+to force deletion:
+
+    juju destroy-model kubeflow --yes --destroy-storage --force
+
+Alternatively, to simply release storage instead of deleting it, run with this
+flag:
+
+    juju destroy-model kubeflow --release-storage
+
+### Kubeflow controller
+
+You can destroy the controller itself with this command:
+
+    # For microk8s
+    juju destroy-controller $(juju show-controller | head -n1 | sed 's/://g') --destroy-storage
+
