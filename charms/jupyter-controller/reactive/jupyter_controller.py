@@ -62,7 +62,26 @@ def start_charm():
         },
         {
             'kubernetesResources': {
-                'customResourceDefinitions': {crd['metadata']['name']: crd['spec']}
+                'customResourceDefinitions': {crd['metadata']['name']: crd['spec']},
+                'serviceAccounts': [
+                    {
+                        'name': 'jupyter-notebook',
+                        'rules': [
+                            {
+                                'apiGroups': [''],
+                                'resources': ['pods', 'pods/log', 'secrets', 'services'],
+                                'verbs': ['*'],
+                            },
+                            {
+                                'apiGroups': ['', 'apps', 'extensions'],
+                                'resources': ['deployments', 'replicasets'],
+                                'verbs': ['*'],
+                            },
+                            {'apiGroups': ['kubeflow.org'], 'resources': ['*'], 'verbs': ['*']},
+                            {'apiGroups': ['batch'], 'resources': ['jobs'], 'verbs': ['*']},
+                        ],
+                    }
+                ],
             }
         },
     )
