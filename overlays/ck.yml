@@ -1,4 +1,4 @@
-# Overlay for CDK model
+# Overlay for Charmed Kubernetes model
 applications:
   kubernetes-worker:
     constraints: cores=4 mem=4G root-disk=100G
