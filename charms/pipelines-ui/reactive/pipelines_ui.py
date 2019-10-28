@@ -3,6 +3,7 @@ import os
 import yaml
 from charms import layer
 from charms.reactive import (
+    hook,
     set_flag,
     clear_flag,
     when,
@@ -11,6 +12,11 @@ from charms.reactive import (
     hookenv,
     endpoint_from_name,
 )
+
+
+@hook('upgrade-charm')
+def upgrade_charm():
+    clear_flag('charm.started')
 
 
 @when('charm.started')

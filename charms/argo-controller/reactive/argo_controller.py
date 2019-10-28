@@ -5,7 +5,12 @@ from base64 import b64encode
 import yaml
 from charmhelpers.core import hookenv
 from charms import layer
-from charms.reactive import clear_flag, set_flag, when, when_any, when_not, endpoint_from_name
+from charms.reactive import hook, clear_flag, set_flag, when, when_any, when_not, endpoint_from_name
+
+
+@hook('upgrade-charm')
+def upgrade_charm():
+    clear_flag('charm.started')
 
 
 @when('charm.started')

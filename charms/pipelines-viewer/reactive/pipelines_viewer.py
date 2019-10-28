@@ -2,7 +2,12 @@ from pathlib import Path
 
 import yaml
 from charms import layer
-from charms.reactive import set_flag, clear_flag, when, when_any, when_not, hookenv
+from charms.reactive import hook, set_flag, clear_flag, when, when_any, when_not, hookenv
+
+
+@hook('upgrade-charm')
+def upgrade_charm():
+    clear_flag('charm.started')
 
 
 @when('charm.started')
