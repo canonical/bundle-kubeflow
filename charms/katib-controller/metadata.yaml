@@ -17,3 +17,4 @@ requires:
 provides:
   katib-controller:
     interface: http
+min-juju-version: 2.7-rc1

@@ -23,3 +23,4 @@ resources:
 provides:
   db:
     interface: redis
+min-juju-version: 2.7-rc1

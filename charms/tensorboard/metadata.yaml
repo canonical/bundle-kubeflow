@@ -21,3 +21,4 @@ storage:
     location: /logs
     multiple:
       range: 0-1
+min-juju-version: 2.7-rc1
