@@ -35,7 +35,8 @@ The below commands will assume you are running them from the `bundle-kubeflow`
 directory.
 
 Then, follow the instructions from one of the subsections below to deploy
-Kubeflow to either [microk8s](#setup-microk8s) or [CDK](#setup-cdk).
+Kubeflow to either [microk8s](#setup-microk8s) or
+[Charmed Kubernetes](#setup-charmed-kubernetes).
 
 ### Setup microk8s
 
@@ -53,7 +54,7 @@ Finally, you can run these commands to set up microk8s:
     python3 scripts/cli.py microk8s setup --controller uk8s
     python3 scripts/cli.py deploy-to uk8s
 
-### Setup CDK
+### Setup Charmed Kubernetes
 
 You'll also need to install the `kubectl` snap:
 
@@ -73,10 +74,10 @@ add the credentials to juju:
 
     Credential "kubeflow-test" added locally for cloud "aws".
 
-Next, you can run these commands to set up microk8s:
+Next, you can run these commands to set up Charmed Kubernetes:
 
-    python3 scripts/cli.py cdk setup --controller cdkkf
-    python3 scripts/cli.py deploy-to cdkkf
+    python3 scripts/cli.py ck setup --controller ckkf
+    python3 scripts/cli.py deploy-to ckkf
 
 
 ## Using

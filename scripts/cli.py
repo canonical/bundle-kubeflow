@@ -7,15 +7,26 @@ import sys
 import tempfile
 import textwrap
 import time
-from glob import glob
 from pathlib import Path
 from typing import Optional
 
 import click
 import yaml
 
+DEFAULT_CONTROLLERS = {'microk8s': 'uk8s', 'aws': 'ckkf'}
 
-DEFAULT_CONTROLLERS = {'microk8s': 'uk8s', 'aws': 'cdkkf'}
+
+def juju(*args, env=None):
+    run('juju', *args, env=env)
+
+
+def juju_debug(*args, env=None):
+    run('juju', '--debug', *args, env=env)
+
+
+#############
+# UTILITIES #
+#############
 
 
 def run(*args, env: dict = None, check=True):
@@ -41,12 +52,16 @@ def run(*args, env: dict = None, check=True):
 
 
 def get_output(*args: str):
+    """Gets output from subcommand without echoing stdout."""
+
     return subprocess.run(
         args, check=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
     ).stdout
 
 
 def wait_for(*args: str, wait_msg: str, fail_msg: str):
+    """Waits for subcommand to run successfully, with timeout."""
+
     for _ in range(12):
         try:
             subprocess.run(
@@ -65,20 +80,9 @@ def wait_for(*args: str, wait_msg: str, fail_msg: str):
         sys.exit(1)
 
 
-def juju(*args, env=None):
-    run('juju', *args, env=env)
+def kubeflow_info(controller: str, model: str):
+    """Displays info about the deploy Kubeflow instance."""
 
-
-def juju_debug(*args, env=None):
-    run('juju', '--debug', *args, env=env)
-
-
-#############
-# UTILITIES #
-#############
-
-
-def _info(controller: str, model: str):
     pub_ip = get_pub_addr(None, controller, model)
 
     print(
@@ -107,7 +111,9 @@ def _info(controller: str, model: str):
     )
 
 
-def _subtrate_info_microk8s(model):
+def microk8s_info(model):
+    """Displays info about MicroK8s."""
+
     print(
         textwrap.dedent(
             f"""
@@ -119,7 +125,9 @@ def _subtrate_info_microk8s(model):
     )
 
 
-def _subtrate_info_cdk(controller):
+def ck_info(controller):
+    """Displays info about Charmed Kubernetes."""
+
     config = json.loads(
         get_output('juju', 'kubectl', '-m', f'{controller}:default', 'config', 'view', '-ojson')
     )
@@ -134,16 +142,16 @@ def _subtrate_info_cdk(controller):
 
         The Kubernetes dashboard is available at:
 
-            {dashboard}/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview
+            {dashboard}/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#!/overview
 
         The username and password are:
 
             {username}
             {password}
 
-        To deploy Kubeflow on top of CDK, run `juju kubeflow deploy-to {controller}`.
+        To deploy Kubeflow on top of Charmed Kubernetes, run `juju kubeflow deploy-to {controller}`.
 
-        To tear down CDK and associated infrastructure, run this command:
+        To tear down Charmed Kubernetes and associated infrastructure, run this command:
 
             # Run `juju destroy-controller --help` for a full listing of options,
             # such as how to release storage instead of destroying it.
@@ -159,6 +167,12 @@ def _subtrate_info_cdk(controller):
 
 
 def get_pub_ip(controller: str, model: str):
+    """Gets the public IP address that Ambassador will be listening to.
+
+    For local deployments such as MicroK8s, we can just use the Pod IP. Otherwise, we
+    have to use the public IP of one of the worker nodes.
+    """
+
     try:
         status = json.loads(
             get_output('juju', 'status', '-m', f'{controller}:default', '--format=json')
@@ -166,7 +180,7 @@ def get_pub_ip(controller: str, model: str):
         return status['applications']['kubernetes-worker']['units']['kubernetes-worker/0'][
             'public-address'
         ]
-    except Exception as err:
+    except subprocess.CalledProcessError:
         status = json.loads(
             get_output('juju', 'status', '-m', f'{controller}:{model}', '--format=json')
         )
@@ -174,6 +188,12 @@ def get_pub_ip(controller: str, model: str):
 
 
 def get_pub_addr(cloud: Optional[str], controller: str, model: str):
+    """Gets the hostname that Ambassador will respond to.
+
+    For local deployments such as MicroK8s, it's just `localhost`, otherwise
+    we just use the xip.io service with the IP address.
+    """
+
     if cloud == 'microk8s':
         return 'localhost'
     else:
@@ -181,6 +201,8 @@ def get_pub_addr(cloud: Optional[str], controller: str, model: str):
 
 
 def get_random_pass():
+    """Generates decently long random password."""
+
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=30))
 
 
@@ -208,6 +230,8 @@ def cli(debug):
     envvar='KUBEFLOW_AUTH_PASSWORD', prompt='Enter a password to set for the Kubeflow dashboard'
 )
 def deploy_to(controller, cloud, model, channel, build, overlays, password):
+    # Dynamically-generated overlay, since there isn't a better
+    # way of generating random passwords.
     password_overlay = {
         "applications": {
             "ambassador-auth": {"options": {"password": password}},
@@ -220,6 +244,7 @@ def deploy_to(controller, cloud, model, channel, build, overlays, password):
 
     start = time.time()
 
+    # If a specific cloud wasn't passed in, try to figure out which one to use
     if not cloud:
         clouds = json.loads(get_output('juju', 'list-clouds', '-c', controller, '--format=json'))
         clouds = [
@@ -270,14 +295,14 @@ def deploy_to(controller, cloud, model, channel, build, overlays, password):
         color='green',
     )
 
-    _info(controller, model)
+    kubeflow_info(controller, model)
 
 
 @cli.command()
 @click.argument('CONTROLLER')
 @click.option('--model', default='kubeflow')
 def info(controller, model):
-    _info(controller, model)
+    kubeflow_info(controller, model)
 
 
 @cli.group()
@@ -320,15 +345,15 @@ def setup(controller, services, model_defaults):
 
 @microk8s.command()
 def info():
-    _subtrate_info_microk8s('kubeflow')
+    microk8s_info('kubeflow')
 
 
 @cli.group()
-def cdk():
+def ck():
     pass
 
 
-@cdk.command()
+@ck.command()
 @click.option('--cloud', default='aws')
 @click.option('--region', default='us-east-1')
 @click.option('--controller')
@@ -346,15 +371,15 @@ def setup(cloud, region, controller, channel, gpu):
         '--channel',
         channel,
         '--overlay',
-        'overlays/cdk.yml',
+        'overlays/ck.yml',
         '--overlay',
-        f'overlays/cdk-{cloud}.yml',
+        f'overlays/ck-{cloud}.yml',
     ]
 
     if gpu:
-        deploy_args += ['--overlay', 'overlays/cdk-gpu.yml']
+        deploy_args += ['--overlay', 'overlays/ck-gpu.yml']
 
-    # Spin up CDK
+    # Spin up Charmed Kubernetes
     juju('bootstrap', f'{cloud}/{region}', controller)
     juju('deploy', *deploy_args)
 
@@ -378,15 +403,18 @@ def setup(cloud, region, controller, channel, gpu):
 
     end = time.time()
 
-    print(f'\nCongratulations, CDK is now available. Took {int(end - start)} seconds.')
+    print(
+        '\nCongratulations, Charmed Kubernetes is now available. '
+        f'Took {int(end - start)} seconds.'
+    )
 
-    _subtrate_info_cdk(controller)
+    ck_info(controller)
 
 
-@cdk.command()
-@click.option('--controller', default='cdkkf')
+@ck.command()
+@click.option('--controller', default='ckkf')
 def info(controller):
-    _subtrate_info_cdk(controller)
+    ck_info(controller)
 
 
 @cli.group()
