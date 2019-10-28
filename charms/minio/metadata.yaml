@@ -19,3 +19,4 @@ storage:
     type: filesystem
     location: /data
     minimum-size: 10G
+min-juju-version: 2.7-rc1

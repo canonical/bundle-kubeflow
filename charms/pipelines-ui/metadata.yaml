@@ -20,3 +20,4 @@ requires:
     interface: http
   minio:
     interface: http
+min-juju-version: 2.7-rc1

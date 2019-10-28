@@ -14,3 +14,4 @@ resources:
 deployment:
   type: stateless
   service: omit
+min-juju-version: 2.7-rc1

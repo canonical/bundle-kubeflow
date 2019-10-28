@@ -19,3 +19,4 @@ requires:
 provides:
   modeldb-backend:
     interface: http
+min-juju-version: 2.7-rc1
