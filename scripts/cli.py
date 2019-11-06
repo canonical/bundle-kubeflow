@@ -246,10 +246,10 @@ def deploy_to(controller, cloud, model, channel, build, overlays, password):
 
     # If a specific cloud wasn't passed in, try to figure out which one to use
     if not cloud:
-        clouds = json.loads(get_output('juju', 'list-clouds', '-c', controller, '--format=json'))
+        output = get_output('juju', 'list-clouds', '-c', controller, '--format=json', '--all')
         clouds = [
             name
-            for name, details in clouds.items()
+            for name, details in json.loads(output).items()
             if details['type'] == 'k8s' and details['defined'] == 'public'
         ]
         if not clouds:
