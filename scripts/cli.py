@@ -267,9 +267,6 @@ def deploy_to(controller, cloud, model, channel, build, overlays, password):
 
     juju('add-model', model, cloud)
 
-    juju('kubectl', 'apply', '-f', 'resources/katib-configmap.yaml')
-    juju('kubectl', 'apply', '-f', 'resources/trial-template.yaml')
-
     with tempfile.NamedTemporaryFile('w+') as f:
         overlays = [f'--overlay={o}' for o in overlays]
 
