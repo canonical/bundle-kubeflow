@@ -1,11 +1,13 @@
+import json
 import os
 from glob import glob
 from pathlib import Path
 from subprocess import run
 
 import yaml
+
 from charms import layer
-from charms.reactive import hook, set_flag, clear_flag, when, when_not
+from charms.reactive import clear_flag, hook, set_flag, when, when_not
 
 
 @hook('upgrade-charm')
@@ -21,6 +23,55 @@ def charm_ready():
 @when('layer.docker-resource.oci-image.changed')
 def update_image():
     clear_flag('charm.started')
+
+
+KATIB_CONFIG = {
+    'metrics-collector-sidecar': json.dumps(
+        {
+            "StdOut": {
+                "image": "gcr.io/kubeflow-images-public/katib/v1alpha3/file-metrics-collector"
+            },
+            "File": {
+                "image": "gcr.io/kubeflow-images-public/katib/v1alpha3/file-metrics-collector"
+            },
+            "TensorFlowEvent": {
+                "image": "gcr.io/kubeflow-images-public/katib/v1alpha3/tfevent-metrics-collector"
+            },
+        }
+    ),
+    'suggestion': json.dumps(
+        {
+            "random": {"image": "gcr.io/kubeflow-images-public/katib/v1alpha3/suggestion-hyperopt"},
+            "grid": {"image": "gcr.io/kubeflow-images-public/katib/v1alpha3/suggestion-chocolate"},
+            "hyperband": {
+                "image": "gcr.io/kubeflow-images-public/katib/v1alpha3/suggestion-hyperband"
+            },
+            "bayesianoptimization": {
+                "image": "gcr.io/kubeflow-images-public/katib/v1alpha3/suggestion-skopt"
+            },
+            "tpe": {"image": "gcr.io/kubeflow-images-public/katib/v1alpha3/suggestion-hyperopt"},
+            "nasrl": {"image": "gcr.io/kubeflow-images-public/katib/v1alpha3/suggestion-nasrl"},
+        }
+    ),
+}
+
+TRIAL_TEMPLATE = {
+    'defaultTrialTemplate.yaml': json.dumps(
+        {
+            "apiVersion": "batch/v1",
+            "kind": "Job",
+            "metadata": {"name": "{{.Trial}}", "namespace": "{{.NameSpace}}"},
+            "spec": {
+                "template": {
+                    "spec": {
+                        "containers": [{"name": "{{.Trial}}", "image": "alpine"}],
+                        "restartPolicy": "Never",
+                    }
+                }
+            },
+        }
+    )
+}
 
 
 @when('layer.docker-resource.oci-image.available')
@@ -135,7 +186,8 @@ def start_charm():
         k8s_resources={
             'kubernetesResources': {
                 'customResourceDefinitions': {crd['metadata']['name']: crd['spec'] for crd in crds}
-            }
+            },
+            'configMaps': {'katib-config': KATIB_CONFIG, 'trial-template': TRIAL_TEMPLATE},
         },
     )
 
