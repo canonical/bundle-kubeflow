@@ -149,7 +149,7 @@ def ck_info(controller):
             {username}
             {password}
 
-        To deploy Kubeflow on top of Charmed Kubernetes, run `juju kubeflow deploy-to {controller}`.
+        To deploy Kubeflow on top of Charmed Kubernetes, run `python3 scripts/cli.py deploy-to {controller}`.
 
         To tear down Charmed Kubernetes and associated infrastructure, run this command:
 
