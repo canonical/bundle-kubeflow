@@ -177,14 +177,24 @@ def get_pub_ip(controller: str, model: str):
         status = json.loads(
             get_output('juju', 'status', '-m', f'{controller}:default', '--format=json')
         )
-        return status['applications']['kubernetes-worker']['units']['kubernetes-worker/0'][
-            'public-address'
-        ]
+        units = status['applications']['kubernetes-worker']['units']
+        worker = list(sorted(units.items()))[0][1]
+        return worker['public-address']
     except subprocess.CalledProcessError:
+        pass
+
+    try:
         status = json.loads(
             get_output('juju', 'status', '-m', f'{controller}:{model}', '--format=json')
         )
-        return status['applications']['ambassador']['units']['ambassador/0']['address']
+    except subprocess.CalledProcessError:
+        click.echo(f"Couldn't determine public IP address for {controller}.")
+        click.echo("Run `juju list-controllers` to view available controllers.")
+        sys.exit(1)
+
+    units = status['applications']['ambassador']['units']
+    unit = list(sorted(units.items()))[0][1]
+    return unit['address']
 
 
 def get_pub_addr(cloud: Optional[str], controller: str, model: str):
