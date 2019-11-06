@@ -396,8 +396,6 @@ def setup(cloud, region, controller, channel, gpu):
             '-c',
             controller,
             f'--region={cloud}/{region}',
-            '--storage',
-            'juju-operator-storage',
             env={'KUBECONFIG': kubeconfig.name},
         )
 
