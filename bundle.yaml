@@ -84,6 +84,17 @@ applications:
     annotations:
       gui-x: '-750'
       gui-y: '-259'
+  metadata-controller:
+    charm: cs:~kubeflow-charmers/metadata-controller
+    source: ./charms/metadata-controller
+    scale: 1
+  metadata-db:
+    charm: cs:~charmed-osm/mariadb-k8s
+    scale: 1
+  metadata-ui:
+    charm: cs:~kubeflow-charmers/metadata-ui
+    source: ./charms/metadata-ui
+    scale: 1
   minio:
     charm: cs:~kubeflow-charmers/minio
     source: ./charms/minio
@@ -206,6 +217,7 @@ relations:
 - [ambassador, argo-ui]
 - [ambassador, jupyter-web]
 - [ambassador, katib-ui]
+- [ambassador, metadata-ui]
 - [ambassador, pipelines-ui]
 - [ambassador, pipelines-viewer]
 - [ambassador, tensorboard]
@@ -213,6 +225,8 @@ relations:
 - [argo-controller, minio]
 - [katib-manager, katib-db]
 - [kubeflow-profiles, kubeflow-dashboard]
+- [metadata-controller, metadata-db]
+- [metadata-controller, metadata-ui]
 - [modeldb-backend, modeldb-db]
 - [modeldb-backend, modeldb-store]
 - [modeldb-backend, modeldb-ui]
