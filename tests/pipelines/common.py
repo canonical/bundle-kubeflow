@@ -25,15 +25,4 @@ def attach_output_volume(op):
         k8s_client.V1VolumeMount(name='outputs', mount_path='/tmp/outputs')
     )
 
-    # Allow access to minio secrets
-    op.add_volume(
-        k8s_client.V1Volume(
-            name='minio-secrets',
-            secret=k8s_client.V1SecretVolumeSource(secret_name='mlpipeline-minio-artifact'),
-        )
-    )
-    op.container.add_volume_mount(
-        k8s_client.V1VolumeMount(name='minio-secrets', mount_path='/secrets')
-    )
-
     return op

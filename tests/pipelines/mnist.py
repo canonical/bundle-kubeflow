@@ -1,15 +1,11 @@
-"""Trains a CNN on the MNIST dataset
-
-See https://github.com/kubeflow/pipelines/issues/1907 for the why of the `-> str` annotations
-"""
+"""Trains a Convolutional Neural Network on the MNIST dataset."""
 
 from functools import partial
-from typing import NamedTuple
 
-from kfp import dsl, components
+from kfp import components, dsl
+from kfp.components import InputBinaryFile, OutputBinaryFile, OutputTextFile
 
 from .common import attach_output_volume
-
 
 func_to_container_op = partial(
     components.func_to_container_op,
@@ -18,37 +14,14 @@ func_to_container_op = partial(
 
 
 @func_to_container_op
-def ensure_bucket_task(endpoint: str, bucket: str) -> str:
-    """Ensures that the data bucket has been created."""
-
-    from pathlib import Path
-    from minio import Minio
-    from minio.error import BucketAlreadyOwnedByYou, BucketAlreadyExists
-
-    mclient = Minio(
-        endpoint,
-        access_key=Path('/secrets/accesskey').read_text(),
-        secret_key=Path('/secrets/secretkey').read_text(),
-        secure=False,
-    )
-
-    try:
-        mclient.make_bucket(bucket)
-    except (BucketAlreadyExists, BucketAlreadyOwnedByYou):
-        pass
-
-    return 'DONE!'
-
-
-@func_to_container_op
 def load_task(
-    endpoint: str,
-    bucket: str,
     train_images: str,
     train_labels: str,
     test_images: str,
     test_labels: str,
-) -> NamedTuple('Data', [('filename', str)]):
+    traintest_output: OutputBinaryFile(str),
+    validation_output: OutputBinaryFile(str),
+):
     """Transforms MNIST data from upstream format into numpy array."""
 
     from gzip import GzipFile
@@ -56,16 +29,7 @@ def load_task(
     from tensorflow.python.keras.utils import get_file
     import numpy as np
     import struct
-    from minio import Minio
-
-    mclient = Minio(
-        endpoint,
-        access_key=Path('/secrets/accesskey').read_text(),
-        secret_key=Path('/secrets/secretkey').read_text(),
-        secure=False,
-    )
-
-    filename = 'mnist.npz'
+    from tensorflow.python.keras.utils import to_categorical
 
     def load(path):
         """Ensures that a file is downloaded locally, then unzips and reads it."""
@@ -83,61 +47,52 @@ def load_task(
         rows = struct.unpack('>i', b[8:12])[0]
         cols = struct.unpack('>i', b[12:16])[0]
 
-        return np.frombuffer(b[16:], dtype=np.uint8).reshape((count, rows, cols))
+        data = np.frombuffer(b[16:], dtype=np.uint8)
+        return data.reshape((count, rows, cols)).astype('float32') / 255
+
+    train_x = parse_images(load(train_images))
+    train_y = to_categorical(parse_labels(load(train_labels)))
+    test_x = parse_images(load(test_images))
+    test_y = to_categorical(parse_labels(load(test_labels)))
+
+    # For example purposes, we don't need the entire training set, just enough
+    # to get reasonable accuracy
+    train_x = train_x[:1000, :, :]
+    train_y = train_y[:1000]
 
     np.savez_compressed(
-        f'/output/{filename}',
+        traintest_output,
         **{
-            'train_x': parse_images(load(train_images)),
-            'train_y': parse_labels(load(train_labels)),
-            'test_x': parse_images(load(test_images)),
-            'test_y': parse_labels(load(test_labels)),
+            'train_x': train_x,
+            'train_y': train_y,
+            'test_x': test_x[100:, :, :],
+            'test_y': test_y[100:],
         },
     )
 
-    mclient.fput_object(bucket, filename, f'/output/{filename}')
-
-    return filename,
+    np.savez_compressed(
+        validation_output,
+        **{'val_x': test_x[:100, :, :].reshape(100, 28, 28, 1), 'val_y': test_y[:100]},
+    )
 
 
 @func_to_container_op
 def train_task(
-    endpoint: str, bucket: str, data: str, epochs: int, batch_size: int
-) -> NamedTuple('Model', [('filename', str), ('examples', str)]):
+    data: InputBinaryFile(str), epochs: int, batch_size: int, model_path: OutputBinaryFile(str)
+):
     """Train CNN model on MNIST dataset."""
 
-    from pathlib import Path
-    from tempfile import TemporaryFile
     from tensorflow.python import keras
-    from tensorflow.python.keras import backend as K
-    from tensorflow.python.keras import Sequential
+    from tensorflow.python.keras import Sequential, backend as K
     from tensorflow.python.keras.layers import Conv2D, MaxPooling2D, Dropout, Flatten, Dense
-    from tensorflow.python.keras.utils import to_categorical
     import numpy as np
-    from minio import Minio
 
-    mclient = Minio(
-        endpoint,
-        access_key=Path('/secrets/accesskey').read_text(),
-        secret_key=Path('/secrets/secretkey').read_text(),
-        secure=False,
-    )
+    mnistdata = np.load(data)
 
-    with TemporaryFile('w+b') as outp:
-        with mclient.get_object(bucket, data) as inp:
-            outp.write(inp.read())
-        outp.seek(0)
-        mnistdata = np.load(outp)
-
-        train_x = mnistdata['train_x']
-        train_y = to_categorical(mnistdata['train_y'])
-        test_x = mnistdata['test_x']
-        test_y = to_categorical(mnistdata['test_y'])
-
-    # For example purposes, we don't need the entire training set, just enough
-    # to get reasonable accuracy
-    train_x = train_x[:10000, :, :]
-    train_y = train_y[:10000]
+    train_x = mnistdata['train_x']
+    train_y = mnistdata['train_y']
+    test_x = mnistdata['test_x']
+    test_y = mnistdata['test_y']
 
     num_classes = 10
     img_w = 28
@@ -151,11 +106,6 @@ def train_task(
         train_x.shape = (-1, img_h, img_w, 1)
         test_x.shape = (-1, img_h, img_w, 1)
         input_shape = (img_h, img_w, 1)
-
-    train_x = train_x.astype('float32')
-    test_x = test_x.astype('float32')
-    train_x /= 255
-    test_x /= 255
 
     model = Sequential(
         [
@@ -186,27 +136,9 @@ def train_task(
     )
 
     score = model.evaluate(test_x, test_y)
-    print('Test loss & accuracy: %s' % (score, ))
+    print('Test loss & accuracy: %s' % (score,))
 
-    model_name = 'model.h5'
-
-    model.save(f'/output/{model_name}')
-
-    mclient.fput_object(bucket, model_name, f'/output/{model_name}')
-
-    examples = 'examples.npz'
-
-    np.savez_compressed(
-        f'/output/{examples}',
-        **{
-            'X': test_x[:10, :, :, :],
-            'y': test_y[:10],
-        },
-    )
-
-    mclient.fput_object(bucket, examples, f'/output/{examples}')
-
-    return model_name, examples
+    model.save(model_path)
 
 
 def serve_sidecar():
@@ -249,34 +181,24 @@ while p.poll() is None:
 
 
 @func_to_container_op
-def test_task(endpoint: str, bucket: str, model_file: str, examples_file: str) -> str:
+def test_task(
+    model_file: InputBinaryFile(str),
+    examples_file: InputBinaryFile(str),
+    confusion_matrix: OutputTextFile(str),
+    results: OutputTextFile(str),
+):
     """Connects to served model and tests example MNIST images."""
 
-    from minio import Minio
-    from pathlib import Path
-    from retrying import retry
+    import time
+
+    import numpy as np
+    import requests
     from tensorflow.python.keras.backend import get_session
     from tensorflow.python.keras.saving import load_model
     from tensorflow.python.saved_model.simple_save import simple_save
-    import numpy as np
-    import requests
-
-    mclient = Minio(
-        endpoint,
-        access_key=Path('/secrets/accesskey').read_text(),
-        secret_key=Path('/secrets/secretkey').read_text(),
-        secure=False,
-    )
-
-    print('Downloading model')
-
-    mclient.fget_object(bucket, model_file, '/models/model.h5')
-    mclient.fget_object(bucket, examples_file, '/models/examples.npz')
-
-    print('Downloaded model, converting it to serving format')
 
     with get_session() as sess:
-        model = load_model('/models/model.h5')
+        model = load_model(model_file)
         simple_save(
             sess,
             '/output/mnist/1/',
@@ -286,11 +208,14 @@ def test_task(endpoint: str, bucket: str, model_file: str, examples_file: str) -
 
     model_url = 'http://localhost:9001/v1/models/mnist'
 
-    @retry(stop_max_delay=30 * 1000)
-    def wait_for_model():
-        requests.get(f'{model_url}/versions/1').raise_for_status()
-
-    wait_for_model()
+    for _ in range(60):
+        try:
+            requests.get(f'{model_url}/versions/1').raise_for_status()
+            break
+        except requests.RequestException:
+            time.sleep(5)
+    else:
+        raise Exception("Waited too long for sidecar to come up!")
 
     response = requests.get(f'{model_url}/metadata')
     response.raise_for_status()
@@ -332,25 +257,19 @@ def test_task(endpoint: str, bucket: str, model_file: str, examples_file: str) -
         },
     }
 
-    examples = np.load('/models/examples.npz')
-    assert examples['X'].shape == (10, 28, 28, 1)
-    assert examples['y'].shape == (10, 10)
+    examples = np.load(examples_file)
+    assert examples['val_x'].shape == (100, 28, 28, 1)
+    assert examples['val_y'].shape == (100, 10)
 
-    response = requests.post(
-        f'{model_url}:predict', json={'instances': examples['X'].tolist()}
-    )
+    response = requests.post(f'{model_url}:predict', json={'instances': examples['val_x'].tolist()})
     response.raise_for_status()
 
     predicted = np.argmax(response.json()['predictions'], axis=1).tolist()
-    actual = np.argmax(examples['y'], axis=1).tolist()
-    accuracy = sum(1 for (p, a) in zip(predicted, actual) if p == a) / len(predicted)
+    actual = np.argmax(examples['val_y'], axis=1).tolist()
+    zipped = list(zip(predicted, actual))
+    accuracy = sum(1 for (p, a) in zipped if p == a) / len(predicted)
 
-    if accuracy >= 0.8:
-        print(f'Got accuracy of {accuracy:0.2f} in mnist model')
-    else:
-        raise Exception(f'Low accuracy in mnist model: {accuracy}')
-
-    return 'DONE!'
+    print(f"Accuracy: {accuracy:0.2f}")
 
 
 @dsl.pipeline(
@@ -362,32 +281,17 @@ def mnist_pipeline(
     train_labels='https://people.canonical.com/~knkski/train-labels-idx1-ubyte.gz',
     test_images='https://people.canonical.com/~knkski/t10k-images-idx3-ubyte.gz',
     test_labels='https://people.canonical.com/~knkski/t10k-labels-idx1-ubyte.gz',
-    storage_endpoint='minio:9000',
-    bucket='mnist',
-    train_epochs=2,
-    train_batch_size=128,
+    train_epochs: int = 2,
+    train_batch_size: int = 128,
 ):
-    # Ensure minio bucket is created
-    ensure_bucket = ensure_bucket_task(storage_endpoint, bucket)
-
     # Load mnist data and transform it into numpy array
-    load = load_task(
-        storage_endpoint, bucket, train_images, train_labels, test_images, test_labels
-    ).after(ensure_bucket)
-    load.output_artifact_paths['mnist.npz'] = '/output/mnist.npz'
+    load = load_task(train_images, train_labels, test_images, test_labels)
 
     # Train model on transformed mnist dataset
-    train = train_task(
-        storage_endpoint, bucket, load.outputs['filename'], train_epochs, train_batch_size
-    ).after(load)
-    train.output_artifact_paths['model'] = '/output/model.hdf5'
+    train = train_task(load.outputs['traintest_output'], train_epochs, train_batch_size)
 
     serve = serve_sidecar()
-    test = (
-        test_task(storage_endpoint, bucket, train.outputs['filename'], train.outputs['examples'])
-        .after(train)
-        .add_sidecar(serve)
-    )
+    test_task(train.outputs['model_path'], load.outputs['validation_output']).add_sidecar(serve)
 
     # Ensure that each step has volumes attached to where ever data gets written to
     dsl.get_pipeline_conf().add_op_transformer(attach_output_volume)
