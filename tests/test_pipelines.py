@@ -11,7 +11,6 @@ COWSAY_PARAMS = [{"name": "url", "value": "https://helloacm.com/api/fortune/"}]
 
 
 MNIST_PARAMS = [
-    {'name': 'storage-endpoint', 'value': 'minio:9000'},
     {
         'name': 'test-images',
         'value': 'https://people.canonical.com/~knkski/t10k-images-idx3-ubyte.gz',
