@@ -1,7 +1,10 @@
+import os
+
 import yaml
+
 from charmhelpers.core import hookenv
 from charms import layer
-from charms.reactive import hook, set_flag, clear_flag, when, when_not
+from charms.reactive import clear_flag, hook, set_flag, when, when_not
 
 
 @hook('upgrade-charm')
@@ -61,7 +64,8 @@ def start_charm():
                         'username': image_info.username,
                         'password': image_info.password,
                     },
-                    'ports': [{'name': 'port', 'containerPort': 80}],
+                    'ports': [{'name': 'http', 'containerPort': 80}],
+                    'config': {'KATIB_CORE_NAMESPACE': os.environ['JUJU_MODEL_NAME']},
                 }
             ],
         }

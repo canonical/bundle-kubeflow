@@ -18,22 +18,16 @@ def update_image():
     clear_flag('charm.started')
 
 
-@when(
-    'layer.docker-resource.manager-image.available',
-    'layer.docker-resource.restful-image.available',
-    'mysql.available',
-)
+@when('layer.docker-resource.oci-image.available', 'mysql.available')
 @when_not('charm.started')
 def start_charm():
     layer.status.maintenance('configuring container')
 
-    manager_image = layer.docker_resource.get_info('manager-image')
-    restful_image = layer.docker_resource.get_info('restful-image')
+    image_info = layer.docker_resource.get_info('oci-image')
 
     mysql = endpoint_from_name('mysql')
 
-    manager_port = hookenv.config('manager-port')
-    restful_port = hookenv.config('restful-port')
+    port = hookenv.config('manager-port')
 
     layer.caas_base.pod_spec_set(
         {
@@ -42,11 +36,11 @@ def start_charm():
                     'name': 'katib-manager',
                     'command': ["./katib-manager"],
                     'imageDetails': {
-                        'imagePath': manager_image.registry_path,
-                        'username': manager_image.username,
-                        'password': manager_image.password,
+                        'imagePath': image_info.registry_path,
+                        'username': image_info.username,
+                        'password': image_info.password,
                     },
-                    'ports': [{'name': 'manager', 'containerPort': manager_port}],
+                    'ports': [{'name': 'manager', 'containerPort': port}],
                     'config': {
                         'DB_NAME': 'mysql',
                         'DB_PASSWORD': mysql.root_password(),
@@ -54,24 +48,16 @@ def start_charm():
                         'MYSQL_PORT': mysql.port(),
                     },
                     'livenessProbe': {
-                        'exec': {'command': ["/bin/grpc_health_probe", f"-addr=:{manager_port}"]},
+                        'exec': {'command': ["/bin/grpc_health_probe", f"-addr=:{port}"]},
                         'initialDelaySeconds': 10,
                     },
                     'readinessProbe': {
-                        'exec': {'command': ["/bin/grpc_health_probe", f"-addr=:{manager_port}"]},
+                        'exec': {'command': ["/bin/grpc_health_probe", f"-addr=:{port}"]},
                         'initialDelaySeconds': 5,
+                        'periodSeconds': 60,
+                        'failureThreshold': 5,
                     },
-                },
-                {
-                    'name': 'katib-manager-rest',
-                    'command': ["./katib-manager-rest"],
-                    'imageDetails': {
-                        'imagePath': restful_image.registry_path,
-                        'username': restful_image.username,
-                        'password': restful_image.password,
-                    },
-                    'ports': [{'name': 'restful', 'containerPort': restful_port}],
-                },
+                }
             ]
         }
     )
