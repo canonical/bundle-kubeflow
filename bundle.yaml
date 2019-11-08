@@ -7,13 +7,6 @@ applications:
     annotations:
       gui-x: '0'
       gui-y: '0'
-  ambassador-auth:
-    charm: cs:~kubeflow-charmers/ambassador-auth
-    source: ./charms/ambassador-auth
-    scale: 1
-    annotations:
-      gui-x: '450'
-      gui-y: '-259'
   argo-controller:
     charm: cs:~kubeflow-charmers/argo-controller
     source: ./charms/argo-controller
@@ -68,6 +61,22 @@ applications:
     annotations:
       gui-x: '-150'
       gui-y: '259'
+  kubeflow-dashboard:
+    charm: cs:~kubeflow-charmers/kubeflow-dashboard
+    source: ./charms/kubeflow-dashboard
+    scale: 1
+  kubeflow-gatekeeper:
+    charm: cs:~kubeflow-charmers/kubeflow-gatekeeper
+    source: ./charms/kubeflow-gatekeeper
+    scale: 1
+  kubeflow-login:
+    charm: cs:~kubeflow-charmers/kubeflow-login
+    source: ./charms/kubeflow-login
+    scale: 1
+  kubeflow-profiles:
+    charm: cs:~kubeflow-charmers/kubeflow-profiles
+    source: ./charms/kubeflow-profiles
+    scale: 1
   metacontroller:
     charm: cs:~kubeflow-charmers/metacontroller
     source: ./charms/metacontroller
@@ -112,13 +121,6 @@ applications:
     scale: 1
     annotations:
       gui-x: '300'
-      gui-y: '518'
-  pipelines-dashboard:
-    charm: cs:~kubeflow-charmers/pipelines-dashboard
-    source: ./charms/pipelines-dashboard
-    scale: 1
-    annotations:
-      gui-x: '-300'
       gui-y: '518'
   pipelines-db:
     charm: cs:~charmed-osm/mariadb-k8s
@@ -201,7 +203,6 @@ applications:
       gui-x: '-300'
       gui-y: '-518'
 relations:
-- [ambassador, ambassador-auth]
 - [ambassador, argo-ui]
 - [ambassador, jupyter-web]
 - [ambassador, katib-ui]
@@ -211,6 +212,7 @@ relations:
 - [ambassador, tf-job-dashboard]
 - [argo-controller, minio]
 - [katib-manager, katib-db]
+- [kubeflow-profiles, kubeflow-dashboard]
 - [modeldb-backend, modeldb-db]
 - [modeldb-backend, modeldb-store]
 - [modeldb-backend, modeldb-ui]

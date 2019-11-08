@@ -1,0 +1,24 @@
+name: kubeflow-profiles
+display-name: Kubeflow Profiles
+summary: Kubeflow Profiles and Access Management
+description: Kubeflow Profiles and Access Management
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [ai, bigdata, kubeflow, machine-learning, tensorflow]
+series: [kubernetes]
+resources:
+  profile-image:
+    type: oci-image
+    description: Profile controller image
+    auto-fetch: true
+    upstream-source: gcr.io/kubeflow-images-public/profile-controller:v20190619-v0-219-gbd3daa8c-dirty-1ced0e
+  kfam-image:
+    type: oci-image
+    description: Access Management image
+    auto-fetch: true
+    upstream-source: gcr.io/kubeflow-images-public/kfam:v20190612-v0-170-ga06cdb79-dirty-a33ee4
+requires:
+  ambassador:
+    interface: ambassador
+provides:
+  kubeflow-profiles:
+    interface: http
