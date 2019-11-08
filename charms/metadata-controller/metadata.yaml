@@ -1,0 +1,20 @@
+name: kubeflow-metadata
+display-name: Kubeflow Metadata
+summary: Kubeflow Metadata
+description: Kubeflow Metadata
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [ai, bigdata, kubeflow, machine-learning, tensorflow]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: gcr.io/kubeflow-images-public/metadata:v0.1.8
+requires:
+  mysql:
+    interface: mysql
+provides:
+  metadata-controller:
+    interface: http
+min-juju-version: 2.7-rc1
