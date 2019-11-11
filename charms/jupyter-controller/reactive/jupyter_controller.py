@@ -33,6 +33,7 @@ def start_charm():
         {
             'version': 2,
             'serviceAccount': {
+                'global': True,
                 'rules': [
                     {
                         'apiGroups': ['apps'],
@@ -51,7 +52,7 @@ def start_charm():
                         'resources': ['virtualservices'],
                         'verbs': ['*'],
                     },
-                ]
+                ],
             },
             'containers': [
                 {

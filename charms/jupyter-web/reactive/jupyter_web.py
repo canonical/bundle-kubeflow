@@ -34,6 +34,44 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
+            'version': 2,
+            'serviceAccount': {
+                'global': True,
+                'rules': [
+                    {
+                        'apiGroups': [''],
+                        'resources': ['namespaces'],
+                        'verbs': ['get', 'list', 'create', 'delete'],
+                    },
+                    {
+                        'apiGroups': ['kubeflow.org'],
+                        'resources': ['notebooks', 'poddefaults'],
+                        'verbs': ['get', 'list', 'create', 'delete'],
+                    },
+                    {
+                        'apiGroups': [''],
+                        'resources': ['persistentvolumeclaims'],
+                        'verbs': ['create', 'delete', 'get', 'list'],
+                    },
+                    {
+                        'apiGroups': ['storage.k8s.io'],
+                        'resources': ['storageclasses'],
+                        'verbs': ['get', 'list', 'watch'],
+                    },
+                    {
+                        'apiGroups': [''],
+                        'resources': ['pods', 'pods/log', 'secrets', 'services'],
+                        'verbs': ['*'],
+                    },
+                    {
+                        'apiGroups': ['', 'apps', 'extensions'],
+                        'resources': ['deployments', 'replicasets'],
+                        'verbs': ['*'],
+                    },
+                    {'apiGroups': ['kubeflow.org'], 'resources': ['*'], 'verbs': ['*']},
+                    {'apiGroups': ['batch'], 'resources': ['jobs'], 'verbs': ['*']},
+                ],
+            },
             'service': {
                 'annotations': {
                     'getambassador.io/config': yaml.dump_all(
