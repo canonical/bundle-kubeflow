@@ -1,0 +1,78 @@
+bundle: kubernetes
+applications:
+  ambassador:
+    charm: cs:~kubeflow-charmers/ambassador
+    source: ./charms/ambassador
+    scale: 1
+  argo-controller:
+    charm: cs:~kubeflow-charmers/argo-controller
+    source: ./charms/argo-controller
+    scale: 1
+  argo-ui:
+    charm: cs:~kubeflow-charmers/argo-ui
+    source: ./charms/argo-ui
+    scale: 1
+  jupyter-controller:
+    charm: cs:~kubeflow-charmers/jupyter-controller
+    source: ./charms/jupyter-controller
+    scale: 1
+  jupyter-web:
+    charm: cs:~kubeflow-charmers/jupyter-web
+    source: ./charms/jupyter-web
+    scale: 1
+  kubeflow-dashboard:
+    charm: cs:~kubeflow-charmers/kubeflow-dashboard
+    source: ./charms/kubeflow-dashboard
+    scale: 1
+  kubeflow-gatekeeper:
+    charm: cs:~kubeflow-charmers/kubeflow-gatekeeper
+    source: ./charms/kubeflow-gatekeeper
+    scale: 1
+  kubeflow-login:
+    charm: cs:~kubeflow-charmers/kubeflow-login
+    source: ./charms/kubeflow-login
+    scale: 1
+  kubeflow-profiles:
+    charm: cs:~kubeflow-charmers/kubeflow-profiles
+    source: ./charms/kubeflow-profiles
+    scale: 1
+  minio:
+    charm: cs:~kubeflow-charmers/minio
+    source: ./charms/minio
+    scale: 1
+  pipelines-api:
+    charm: cs:~kubeflow-charmers/pipelines-api
+    source: ./charms/pipelines-api
+    scale: 1
+  pipelines-db:
+    charm: cs:~charmed-osm/mariadb-k8s
+    scale: 1
+  pipelines-persistence:
+    charm: cs:~kubeflow-charmers/pipelines-persistence
+    source: ./charms/pipelines-persistence
+    scale: 1
+  pipelines-scheduledworkflow:
+    charm: cs:~kubeflow-charmers/pipelines-scheduledworkflow
+    source: ./charms/pipelines-scheduledworkflow
+    scale: 1
+  pipelines-ui:
+    charm: cs:~kubeflow-charmers/pipelines-ui
+    source: ./charms/pipelines-ui
+    scale: 1
+  pipelines-viewer:
+    charm: cs:~kubeflow-charmers/pipelines-viewer
+    source: ./charms/pipelines-viewer
+    scale: 1
+relations:
+- [ambassador, argo-ui]
+- [ambassador, jupyter-web]
+- [ambassador, metadata-ui]
+- [ambassador, pipelines-ui]
+- [ambassador, pipelines-viewer]
+- [argo-controller, minio]
+- [kubeflow-profiles, kubeflow-dashboard]
+- [pipelines-api, pipelines-db]
+- [pipelines-api, minio]
+- [pipelines-api, pipelines-persistence]
+- [pipelines-api:pipelines-api, pipelines-ui:pipelines-api]
+- [pipelines-ui:minio, minio:minio]
