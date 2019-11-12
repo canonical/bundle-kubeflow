@@ -83,13 +83,13 @@ def wait_for(*args: str, wait_msg: str, fail_msg: str):
 def kubeflow_info(controller: str, model: str):
     """Displays info about the deploy Kubeflow instance."""
 
-    pub_ip = get_pub_addr(None, controller, model)
+    pub_ip = get_pub_addr(controller)
 
     print(
         textwrap.dedent(
             f"""
 
-        The central dashboard is available at http://{pub_ip}/
+        The central dashboard is available at https://{pub_ip}/
 
         To display the login credentials, run these commands:
 
@@ -166,48 +166,23 @@ def ck_info(controller):
     )
 
 
-def get_pub_ip(controller: str, model: str):
-    """Gets the public IP address that Ambassador will be listening to.
-
-    For local deployments such as MicroK8s, we can just use the Pod IP. Otherwise, we
-    have to use the public IP of one of the worker nodes.
-    """
-
-    try:
-        status = json.loads(
-            get_output('juju', 'status', '-m', f'{controller}:default', '--format=json')
-        )
-        units = status['applications']['kubernetes-worker']['units']
-        worker = list(sorted(units.items()))[0][1]
-        return worker['public-address']
-    except subprocess.CalledProcessError:
-        pass
-
-    try:
-        status = json.loads(
-            get_output('juju', 'status', '-m', f'{controller}:{model}', '--format=json')
-        )
-    except subprocess.CalledProcessError:
-        click.echo(f"Couldn't determine public IP address for {controller}.")
-        click.echo("Run `juju list-controllers` to view available controllers.")
-        sys.exit(1)
-
-    units = status['applications']['ambassador']['units']
-    unit = list(sorted(units.items()))[0][1]
-    return unit['address']
-
-
-def get_pub_addr(cloud: Optional[str], controller: str, model: str):
+def get_pub_addr(controller: str):
     """Gets the hostname that Ambassador will respond to.
 
     For local deployments such as MicroK8s, it's just `localhost`, otherwise
     we just use the xip.io service with the IP address.
     """
 
-    if cloud == 'microk8s':
+    try:
+        status = json.loads(
+            get_output('juju', 'status', '-m', f'{controller}:default', '--format=json')
+        )
+    except subprocess.CalledProcessError:
         return 'localhost'
-    else:
-        return f'{get_pub_ip(controller, model)}.xip.io'
+
+    units = status['applications']['kubernetes-worker']['units']
+    worker = list(sorted(units.items()))[0][1]
+    return worker['public-address'] + '.xip.io'
 
 
 def get_random_pass():
@@ -291,7 +266,7 @@ def deploy_to(controller, cloud, model, channel, build, overlays, password):
 
     juju('wait', '-wv')
 
-    pub_addr = get_pub_addr(cloud, controller, model)
+    pub_addr = get_pub_addr(controller)
     juju('config', 'ambassador', f'juju-external-hostname={pub_addr}')
     juju('expose', 'ambassador')
 
@@ -302,17 +277,22 @@ def deploy_to(controller, cloud, model, channel, build, overlays, password):
         'metadata': {'name': 'ambassador', 'namespace': model},
         'spec': {'tls': [{'hosts': [pub_addr], 'secretName': 'ambassador-tls'}]},
     }
-    result = subprocess.run(
-        ['kubectl', 'apply', '-f', '-'],
-        input=yaml.dump(patch).encode('utf-8'),
-        stderr=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-    )
-    try:
-        result.check_returncode()
-    except subprocess.CalledProcessError as err:
-        print("Couldn't set Ambassador up properly:")
-        print(err)
+
+    # Wait for up to a minute for Juju to finish setting up the Ingress
+    # so that we can patch it, and fail if it takes too long.
+    for _ in range(12):
+        try:
+            subprocess.run(
+                ['juju', 'kubectl', 'apply', '-f', '-'],
+                input=yaml.dump(patch).encode('utf-8'),
+                stderr=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+            ).check_returncode()
+            break
+        except subprocess.CalledProcessError:
+            time.sleep(5)
+    else:
+        print("Couldn't set Ambassador up properly")
         sys.exit(1)
 
     end = time.time()
