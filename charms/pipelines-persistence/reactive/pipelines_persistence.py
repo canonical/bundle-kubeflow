@@ -30,7 +30,22 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
-            'omitServiceFrontend': True,
+            'version': 2,
+            'serviceAccount': {
+                'global': True,
+                'rules': [
+                    {
+                        'apiGroups': ['argoproj.io'],
+                        'resources': ['workflows'],
+                        'verbs': ['get', 'list', 'watch'],
+                    },
+                    {
+                        'apiGroups': ['kubeflow.org'],
+                        'resources': ['scheduledworkflows'],
+                        'verbs': ['get', 'list', 'watch'],
+                    },
+                ],
+            },
             'containers': [
                 {
                     'name': 'pipelines-persistence',
