@@ -1,18 +1,20 @@
 import json
 import os
+from glob import glob
 from pathlib import Path
 
 import yaml
+
 from charms import layer
 from charms.reactive import (
-    hook,
-    set_flag,
     clear_flag,
+    endpoint_from_name,
+    hook,
+    hookenv,
+    set_flag,
     when,
     when_any,
     when_not,
-    hookenv,
-    endpoint_from_name,
 )
 
 
@@ -127,7 +129,15 @@ def start_charm():
                                 ),
                                 'sample_config.json': Path('files/sample_config.json').read_text(),
                             },
-                        }
+                        },
+                        {
+                            'name': 'samples',
+                            'mountPath': '/samples',
+                            'files': {
+                                Path(sample).name: Path(sample).read_text()
+                                for sample in glob('files/*.yaml')
+                            },
+                        },
                     ],
                 }
             ],
