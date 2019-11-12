@@ -35,6 +35,7 @@ def start_charm():
         {
             'version': 2,
             'serviceAccount': {
+                'global': True,
                 'rules': [
                     {
                         'apiGroups': [''],
@@ -47,7 +48,7 @@ def start_charm():
                         'resources': ['workflows'],
                         'verbs': ['get', 'list', 'watch'],
                     },
-                ]
+                ],
             },
             'service': {
                 'annotations': {
