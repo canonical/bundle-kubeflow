@@ -88,6 +88,16 @@ Most interactions will go through the central dashboard, which is available via
 Ambassador at `/`. The deploy scripts will print out the address you can point
 your browser to when they are done deploying.
 
+### Pipelines
+
+Pipelines are available either by the main dashboard, or from within notebooks
+via the [fairing](https://github.com/kubeflow/fairing) library.
+
+Note that until https://github.com/kubeflow/pipelines/issues/1654 is resolved,
+you will have to attach volumes to any locations that output artifacts are
+written to, see the `attach_output_volume` function in
+`pipline-samples/sequential.py` for an example.
+
 ### Argo UI
 
 You can view pipelines from the Pipeline Dashboard available on the central
