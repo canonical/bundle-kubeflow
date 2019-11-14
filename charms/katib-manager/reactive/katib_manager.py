@@ -27,7 +27,7 @@ def start_charm():
 
     mysql = endpoint_from_name('mysql')
 
-    port = hookenv.config('manager-port')
+    port = hookenv.config('port')
 
     layer.caas_base.pod_spec_set(
         {
