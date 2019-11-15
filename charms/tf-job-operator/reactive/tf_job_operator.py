@@ -88,7 +88,6 @@ def start_charm():
                         '-v=1',
                         '--monitoring-port=8443',
                     ],
-                    'serviceAccountName': 'tf-job-operator',
                     'config': {
                         'MY_POD_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
                         'MY_POD_NAME': hookenv.service_name(),

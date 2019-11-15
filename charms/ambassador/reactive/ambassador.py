@@ -84,15 +84,17 @@ def start_charm():
                         'AMBASSADOR_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
                         'AMBASSADOR_SINGLE_NAMESPACE': 'true',
                     },
-                    'livenessProbe': {
-                        'httpGet': {'path': '/ambassador/v0/check_alive', 'port': 8877},
-                        'initialDelaySeconds': 30,
-                        'periodSeconds': 30,
-                    },
-                    'readinessProbe': {
-                        'httpGet': {'path': '/ambassador/v0/check_ready', 'port': 8877},
-                        'initialDelaySeconds': 30,
-                        'periodSeconds': 30,
+                    'kubernetes': {
+                        'livenessProbe': {
+                            'httpGet': {'path': '/ambassador/v0/check_alive', 'port': 8877},
+                            'initialDelaySeconds': 30,
+                            'periodSeconds': 30,
+                        },
+                        'readinessProbe': {
+                            'httpGet': {'path': '/ambassador/v0/check_ready', 'port': 8877},
+                            'initialDelaySeconds': 30,
+                            'periodSeconds': 30,
+                        },
                     },
                 }
             ],
