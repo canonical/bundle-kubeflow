@@ -80,7 +80,7 @@ def start_charm():
                         'BASE_HREF': '/argo/',
                     },
                     'ports': [{'name': 'http-ui', 'containerPort': port}],
-                    'readinessProbe': {'httpGet': {'path': '/', 'port': port}},
+                    'kubernetes': {'readinessProbe': {'httpGet': {'path': '/', 'port': port}}},
                 }
             ],
         }

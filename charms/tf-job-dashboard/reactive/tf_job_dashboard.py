@@ -99,7 +99,6 @@ def start_charm():
                     },
                     'command': ['/opt/tensorflow_k8s/dashboard/backend'],
                     'ports': [{'name': 'http', 'containerPort': port}],
-                    'serviceAccountName': 'tf-job-dashboard',
                     'config': {'KUBEFLOW_NAMESPACE': os.environ['JUJU_MODEL_NAME']},
                 }
             ],

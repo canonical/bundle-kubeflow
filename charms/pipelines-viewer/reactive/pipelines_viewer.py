@@ -79,8 +79,12 @@ def start_charm():
                     'ports': [{'name': 'ui', 'containerPort': port}],
                 }
             ],
-            'customResourceDefinitions': {crd['metadata']['name']: crd['spec']},
-        }
+        },
+        {
+            'kubernetesResources': {
+                'customResourceDefinitions': {crd['metadata']['name']: crd['spec']}
+            }
+        },
     )
 
     layer.status.maintenance('creating container')
