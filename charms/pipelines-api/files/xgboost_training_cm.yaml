@@ -62,10 +62,6 @@ spec:
       volumeMounts:
       - mountPath: /secret/gcp-credentials
         name: gcp-credentials-user-gcp-sa
-      - mountPath: /output
-        name: output
-      - mountPath: /tmp
-        name: tmp
     inputs:
       parameters:
       - name: output
@@ -84,17 +80,13 @@ spec:
     outputs:
       artifacts:
       - name: mlpipeline-ui-metadata
-        path: /output/mlpipeline-ui-metadata.json
+        path: /mlpipeline-ui-metadata.json
       - name: mlpipeline-metrics
-        path: /output/mlpipeline-metrics.json
+        path: /mlpipeline-metrics.json
     volumes:
     - name: gcp-credentials-user-gcp-sa
       secret:
         secretName: user-gcp-sa
-    - emptyDir: {}
-      name: output
-    - emptyDir: {}
-      name: tmp
   - container:
       args:
       - kfp_component.google.dataproc
@@ -137,10 +129,6 @@ spec:
       volumeMounts:
       - mountPath: /secret/gcp-credentials
         name: gcp-credentials-user-gcp-sa
-      - mountPath: /output
-        name: output
-      - mountPath: /tmp
-        name: tmp
     inputs:
       parameters:
       - name: cluster-name
@@ -178,19 +166,13 @@ spec:
     outputs:
       artifacts:
       - name: mlpipeline-ui-metadata
-        path: /output/mlpipeline-ui-metadata.json
-      - name: mlpipeline-metrics
-        path: /output/mlpipeline-metrics.json
+        path: /mlpipeline-ui-metadata.json
       - name: dataproc-create-cluster-cluster-name
         path: /tmp/kfp/output/dataproc/cluster_name.txt
     volumes:
     - name: gcp-credentials-user-gcp-sa
       secret:
         secretName: user-gcp-sa
-    - emptyDir: {}
-      name: output
-    - emptyDir: {}
-      name: tmp
   - container:
       args:
       - kfp_component.google.dataproc
@@ -223,10 +205,6 @@ spec:
       volumeMounts:
       - mountPath: /secret/gcp-credentials
         name: gcp-credentials-user-gcp-sa
-      - mountPath: /output
-        name: output
-      - mountPath: /tmp
-        name: tmp
     inputs:
       parameters:
       - name: cluster-name
@@ -247,20 +225,10 @@ spec:
       labels:
         add-pod-env: 'true'
     name: dataproc-delete-cluster
-    outputs:
-      artifacts:
-      - name: mlpipeline-ui-metadata
-        path: /output/mlpipeline-ui-metadata.json
-      - name: mlpipeline-metrics
-        path: /output/mlpipeline-metrics.json
     volumes:
     - name: gcp-credentials-user-gcp-sa
       secret:
         secretName: user-gcp-sa
-    - emptyDir: {}
-      name: output
-    - emptyDir: {}
-      name: tmp
   - container:
       args:
       - kfp_component.google.dataproc
@@ -302,10 +270,6 @@ spec:
       volumeMounts:
       - mountPath: /secret/gcp-credentials
         name: gcp-credentials-user-gcp-sa
-      - mountPath: /output
-        name: output
-      - mountPath: /tmp
-        name: tmp
     inputs:
       parameters:
       - name: cluster-name
@@ -345,19 +309,13 @@ spec:
     outputs:
       artifacts:
       - name: mlpipeline-ui-metadata
-        path: /output/mlpipeline-ui-metadata.json
-      - name: mlpipeline-metrics
-        path: /output/mlpipeline-metrics.json
+        path: /mlpipeline-ui-metadata.json
       - name: dataproc-submit-pyspark-job-job-id
         path: /tmp/kfp/output/dataproc/job_id.txt
     volumes:
     - name: gcp-credentials-user-gcp-sa
       secret:
         secretName: user-gcp-sa
-    - emptyDir: {}
-      name: output
-    - emptyDir: {}
-      name: tmp
   - container:
       args:
       - kfp_component.google.dataproc
@@ -400,10 +358,6 @@ spec:
       volumeMounts:
       - mountPath: /secret/gcp-credentials
         name: gcp-credentials-user-gcp-sa
-      - mountPath: /output
-        name: output
-      - mountPath: /tmp
-        name: tmp
     inputs:
       parameters:
       - name: cluster-name
@@ -444,19 +398,13 @@ spec:
     outputs:
       artifacts:
       - name: mlpipeline-ui-metadata
-        path: /output/mlpipeline-ui-metadata.json
-      - name: mlpipeline-metrics
-        path: /output/mlpipeline-metrics.json
+        path: /mlpipeline-ui-metadata.json
       - name: dataproc-submit-pyspark-job-2-job-id
         path: /tmp/kfp/output/dataproc/job_id.txt
     volumes:
     - name: gcp-credentials-user-gcp-sa
       secret:
         secretName: user-gcp-sa
-    - emptyDir: {}
-      name: output
-    - emptyDir: {}
-      name: tmp
   - container:
       args:
       - kfp_component.google.dataproc
@@ -502,10 +450,6 @@ spec:
       volumeMounts:
       - mountPath: /secret/gcp-credentials
         name: gcp-credentials-user-gcp-sa
-      - mountPath: /output
-        name: output
-      - mountPath: /tmp
-        name: tmp
     inputs:
       parameters:
       - name: cluster-name
@@ -548,19 +492,13 @@ spec:
     outputs:
       artifacts:
       - name: mlpipeline-ui-metadata
-        path: /output/mlpipeline-ui-metadata.json
-      - name: mlpipeline-metrics
-        path: /output/mlpipeline-metrics.json
+        path: /mlpipeline-ui-metadata.json
       - name: dataproc-submit-spark-job-job-id
         path: /tmp/kfp/output/dataproc/job_id.txt
     volumes:
     - name: gcp-credentials-user-gcp-sa
       secret:
         secretName: user-gcp-sa
-    - emptyDir: {}
-      name: output
-    - emptyDir: {}
-      name: tmp
   - container:
       args:
       - kfp_component.google.dataproc
@@ -605,10 +543,6 @@ spec:
       volumeMounts:
       - mountPath: /secret/gcp-credentials
         name: gcp-credentials-user-gcp-sa
-      - mountPath: /output
-        name: output
-      - mountPath: /tmp
-        name: tmp
     inputs:
       parameters:
       - name: cluster-name
@@ -649,19 +583,13 @@ spec:
     outputs:
       artifacts:
       - name: mlpipeline-ui-metadata
-        path: /output/mlpipeline-ui-metadata.json
-      - name: mlpipeline-metrics
-        path: /output/mlpipeline-metrics.json
+        path: /mlpipeline-ui-metadata.json
       - name: dataproc-submit-spark-job-2-job-id
         path: /tmp/kfp/output/dataproc/job_id.txt
     volumes:
     - name: gcp-credentials-user-gcp-sa
       secret:
         secretName: user-gcp-sa
-    - emptyDir: {}
-      name: output
-    - emptyDir: {}
-      name: tmp
   - dag:
       tasks:
       - arguments:
@@ -804,10 +732,6 @@ spec:
       volumeMounts:
       - mountPath: /secret/gcp-credentials
         name: gcp-credentials-user-gcp-sa
-      - mountPath: /output
-        name: output
-      - mountPath: /tmp
-        name: tmp
     inputs:
       parameters:
       - name: output
@@ -833,17 +757,13 @@ spec:
     outputs:
       artifacts:
       - name: mlpipeline-ui-metadata
-        path: /output/mlpipeline-ui-metadata.json
+        path: /mlpipeline-ui-metadata.json
       - name: mlpipeline-metrics
-        path: /output/mlpipeline-metrics.json
+        path: /mlpipeline-metrics.json
     volumes:
     - name: gcp-credentials-user-gcp-sa
       secret:
         secretName: user-gcp-sa
-    - emptyDir: {}
-      name: output
-    - emptyDir: {}
-      name: tmp
   - dag:
       tasks:
       - arguments:

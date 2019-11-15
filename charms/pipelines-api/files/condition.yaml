@@ -132,29 +132,15 @@ spec:
       - sh
       - -c
       image: python:alpine3.6
-      volumeMounts:
-      - mountPath: /output
-        name: output
-      - mountPath: /tmp
-        name: tmp
     name: flip-coin
     outputs:
       artifacts:
-      - name: mlpipeline-ui-metadata
-        path: /output/mlpipeline-ui-metadata.json
-      - name: mlpipeline-metrics
-        path: /output/mlpipeline-metrics.json
       - name: flip-coin-output
         path: /tmp/output
       parameters:
       - name: flip-coin-output
         valueFrom:
           path: /tmp/output
-    volumes:
-    - emptyDir: {}
-      name: output
-    - emptyDir: {}
-      name: tmp
   - container:
       args:
       - python -c "import random; print(random.randint($0, $1))" | tee $2
@@ -165,29 +151,15 @@ spec:
       - sh
       - -c
       image: python:alpine3.6
-      volumeMounts:
-      - mountPath: /output
-        name: output
-      - mountPath: /tmp
-        name: tmp
     name: generate-random-number
     outputs:
       artifacts:
-      - name: mlpipeline-ui-metadata
-        path: /output/mlpipeline-ui-metadata.json
-      - name: mlpipeline-metrics
-        path: /output/mlpipeline-metrics.json
       - name: generate-random-number-output
         path: /tmp/output
       parameters:
       - name: generate-random-number-output
         valueFrom:
           path: /tmp/output
-    volumes:
-    - emptyDir: {}
-      name: output
-    - emptyDir: {}
-      name: tmp
   - container:
       args:
       - python -c "import random; print(random.randint($0, $1))" | tee $2
@@ -198,126 +170,48 @@ spec:
       - sh
       - -c
       image: python:alpine3.6
-      volumeMounts:
-      - mountPath: /output
-        name: output
-      - mountPath: /tmp
-        name: tmp
     name: generate-random-number-2
     outputs:
       artifacts:
-      - name: mlpipeline-ui-metadata
-        path: /output/mlpipeline-ui-metadata.json
-      - name: mlpipeline-metrics
-        path: /output/mlpipeline-metrics.json
       - name: generate-random-number-2-output
         path: /tmp/output
       parameters:
       - name: generate-random-number-2-output
         valueFrom:
           path: /tmp/output
-    volumes:
-    - emptyDir: {}
-      name: output
-    - emptyDir: {}
-      name: tmp
   - container:
       command:
       - echo
       - heads and {{inputs.parameters.generate-random-number-output}} > 5!
       image: alpine:3.6
-      volumeMounts:
-      - mountPath: /output
-        name: output
-      - mountPath: /tmp
-        name: tmp
     inputs:
       parameters:
       - name: generate-random-number-output
     name: print
-    outputs:
-      artifacts:
-      - name: mlpipeline-ui-metadata
-        path: /output/mlpipeline-ui-metadata.json
-      - name: mlpipeline-metrics
-        path: /output/mlpipeline-metrics.json
-    volumes:
-    - emptyDir: {}
-      name: output
-    - emptyDir: {}
-      name: tmp
   - container:
       command:
       - echo
       - heads and {{inputs.parameters.generate-random-number-output}} <= 5!
       image: alpine:3.6
-      volumeMounts:
-      - mountPath: /output
-        name: output
-      - mountPath: /tmp
-        name: tmp
     inputs:
       parameters:
       - name: generate-random-number-output
     name: print-2
-    outputs:
-      artifacts:
-      - name: mlpipeline-ui-metadata
-        path: /output/mlpipeline-ui-metadata.json
-      - name: mlpipeline-metrics
-        path: /output/mlpipeline-metrics.json
-    volumes:
-    - emptyDir: {}
-      name: output
-    - emptyDir: {}
-      name: tmp
   - container:
       command:
       - echo
       - tails and {{inputs.parameters.generate-random-number-2-output}} > 15!
       image: alpine:3.6
-      volumeMounts:
-      - mountPath: /output
-        name: output
-      - mountPath: /tmp
-        name: tmp
     inputs:
       parameters:
       - name: generate-random-number-2-output
     name: print-3
-    outputs:
-      artifacts:
-      - name: mlpipeline-ui-metadata
-        path: /output/mlpipeline-ui-metadata.json
-      - name: mlpipeline-metrics
-        path: /output/mlpipeline-metrics.json
-    volumes:
-    - emptyDir: {}
-      name: output
-    - emptyDir: {}
-      name: tmp
   - container:
       command:
       - echo
       - tails and {{inputs.parameters.generate-random-number-2-output}} <= 15!
       image: alpine:3.6
-      volumeMounts:
-      - mountPath: /output
-        name: output
-      - mountPath: /tmp
-        name: tmp
     inputs:
       parameters:
       - name: generate-random-number-2-output
     name: print-4
-    outputs:
-      artifacts:
-      - name: mlpipeline-ui-metadata
-        path: /output/mlpipeline-ui-metadata.json
-      - name: mlpipeline-metrics
-        path: /output/mlpipeline-metrics.json
-    volumes:
-    - emptyDir: {}
-      name: output
-    - emptyDir: {}
-      name: tmp

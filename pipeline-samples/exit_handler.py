@@ -16,26 +16,7 @@
 
 import kfp
 from kfp import dsl
-from kubernetes import client as k8s_client
 
-
-def attach_output_volume(op):
-    op.output_artifact_paths = {
-        'mlpipeline-ui-metadata': '/output/mlpipeline-ui-metadata.json',
-        'mlpipeline-metrics': '/output/mlpipeline-metrics.json',
-    }
-
-    op.add_volume(k8s_client.V1Volume(name='output', empty_dir=k8s_client.V1EmptyDirVolumeSource()))
-    op.container.add_volume_mount(k8s_client.V1VolumeMount(name='output', mount_path='/output'))
-
-    op.add_volume(
-        k8s_client.V1Volume(name='tmp', empty_dir=k8s_client.V1EmptyDirVolumeSource())
-    )
-    op.container.add_volume_mount(
-        k8s_client.V1VolumeMount(name='tmp', mount_path='/tmp')
-    )
-
-    return op
 
 def gcs_download_op(url):
     return dsl.ContainerOp(
@@ -71,7 +52,6 @@ def download_and_print(url='gs://ml-pipeline-playground/shakespeare1.txt'):
         download_task = gcs_download_op(url)
         echo_task = echo_op(download_task.output)
 
-    dsl.get_pipeline_conf().add_op_transformer(attach_output_volume)
 
 if __name__ == '__main__':
     kfp.compiler.Compiler().compile(download_and_print, __file__ + '.zip')

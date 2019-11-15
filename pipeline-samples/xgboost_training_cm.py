@@ -21,26 +21,6 @@ from kfp import dsl
 from kfp import gcp
 import os
 import subprocess
-from kubernetes import client as k8s_client
-
-
-def attach_output_volume(op):
-    op.output_artifact_paths = {
-        'mlpipeline-ui-metadata': '/output/mlpipeline-ui-metadata.json',
-        'mlpipeline-metrics': '/output/mlpipeline-metrics.json',
-    }
-
-    op.add_volume(k8s_client.V1Volume(name='output', empty_dir=k8s_client.V1EmptyDirVolumeSource()))
-    op.container.add_volume_mount(k8s_client.V1VolumeMount(name='output', mount_path='/output'))
-
-    op.add_volume(
-        k8s_client.V1Volume(name='tmp', empty_dir=k8s_client.V1EmptyDirVolumeSource())
-    )
-    op.container.add_volume_mount(
-        k8s_client.V1VolumeMount(name='tmp', mount_path='/tmp')
-    )
-
-    return op
 
 confusion_matrix_op = components.load_component_from_url('https://raw.githubusercontent.com/kubeflow/pipelines/02c991dd265054b040265b3dfa1903d5b49df859/components/local/confusion_matrix/component.yaml')
 
@@ -319,8 +299,6 @@ def xgb_train_pipeline(
 
     dsl.get_pipeline_conf().add_op_transformer(
         gcp.use_gcp_secret('user-gcp-sa'))
-
-    dsl.get_pipeline_conf().add_op_transformer(attach_output_volume)
 
 if __name__ == '__main__':
     kfp.compiler.Compiler().compile(xgb_train_pipeline, __file__ + '.zip')
