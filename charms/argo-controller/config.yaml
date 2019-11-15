@@ -17,13 +17,13 @@ options:
     description: Artifact repository secret key
   executor:
     type: string
-    default: kubelet
+    default: pns
     description: |
-      Runtime executor for workflow containers. One of `docker` or `kubelet`.
-      If your cluster is using containerd, this must be set to `kubelet`.
+      Runtime executor for workflow containers. Cannot be `docker` on containerd,
+      for a full list of executors, see https://github.com/argoproj/argo/tree/master/workflow/executor
   kubelet-insecure:
     type: boolean
-    default: true
+    default: false
     description: |
       If true, Argo will skip checking kubelet's TLS certificate. Has no effect
       with other executors.

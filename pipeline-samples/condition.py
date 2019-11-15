@@ -15,26 +15,6 @@
 
 import kfp
 from kfp import dsl
-from kubernetes import client as k8s_client
-
-
-def attach_output_volume(op):
-    op.output_artifact_paths = {
-        'mlpipeline-ui-metadata': '/output/mlpipeline-ui-metadata.json',
-        'mlpipeline-metrics': '/output/mlpipeline-metrics.json',
-    }
-
-    op.add_volume(k8s_client.V1Volume(name='output', empty_dir=k8s_client.V1EmptyDirVolumeSource()))
-    op.container.add_volume_mount(k8s_client.V1VolumeMount(name='output', mount_path='/output'))
-
-    op.add_volume(
-        k8s_client.V1Volume(name='tmp', empty_dir=k8s_client.V1EmptyDirVolumeSource())
-    )
-    op.container.add_volume_mount(
-        k8s_client.V1VolumeMount(name='tmp', mount_path='/tmp')
-    )
-
-    return op
 
 
 def random_num_op(low, high):
@@ -88,8 +68,6 @@ def flipcoin_pipeline():
             print_op('tails and %s > 15!' % random_num_tail.output)
         with dsl.Condition(random_num_tail.output <= 15):
             print_op('tails and %s <= 15!' % random_num_tail.output)
-
-    dsl.get_pipeline_conf().add_op_transformer(attach_output_volume)
 
 
 if __name__ == '__main__':
