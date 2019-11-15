@@ -171,34 +171,6 @@ applications:
     annotations:
       gui-x: '0'
       gui-y: '-518'
-  redis:
-    charm: cs:~kubeflow-charmers/redis
-    source: ./charms/redis
-    scale: 1
-    annotations:
-      gui-x: '750'
-      gui-y: '259'
-  seldon-api-frontend:
-    charm: cs:~kubeflow-charmers/seldon-api-frontend
-    source: ./charms/seldon-api-frontend
-    scale: 1
-    annotations:
-      gui-x: '600'
-      gui-y: '0'
-  seldon-cluster-manager:
-    charm: cs:~kubeflow-charmers/seldon-cluster-manager
-    source: ./charms/seldon-cluster-manager
-    scale: 1
-    annotations:
-      gui-x: '900'
-      gui-y: '518'
-  tensorboard:
-    charm: cs:~kubeflow-charmers/tensorboard
-    source: ./charms/tensorboard
-    scale: 1
-    annotations:
-      gui-x: '-450'
-      gui-y: '-259'
   tf-job-dashboard:
     charm: cs:~kubeflow-charmers/tf-job-dashboard
     source: ./charms/tf-job-dashboard
