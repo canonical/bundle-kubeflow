@@ -13,7 +13,7 @@ def charm_ready():
     layer.status.active('')
 
 
-@when('metadata-controller.available')
+@when('metadata-api.available')
 def configure_http(http):
     http.configure(port=hookenv.config('port'), hostname=hookenv.application_name())
 
@@ -40,7 +40,7 @@ def start_charm():
             'version': 2,
             'containers': [
                 {
-                    'name': 'metadata',
+                    'name': 'metadata-api',
                     'command': [
                         "./server/server",
                         f"--http_port={port}",

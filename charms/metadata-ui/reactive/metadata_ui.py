@@ -1,5 +1,3 @@
-import os
-
 import yaml
 from charms import layer
 from charms.reactive import (
@@ -29,7 +27,7 @@ def update_image():
     clear_flag('charm.started')
 
 
-@when('layer.docker-resource.oci-image.available', 'metadata-controller.available')
+@when('layer.docker-resource.oci-image.available', 'metadata-api.available')
 @when_not('charm.started')
 def start_charm():
     layer.status.maintenance('configuring container')
@@ -37,7 +35,7 @@ def start_charm():
     image_info = layer.docker_resource.get_info('oci-image')
     service_name = hookenv.service_name()
 
-    api = endpoint_from_name('metadata-controller').services()[0]
+    api = endpoint_from_name('metadata-api').services()[0]
 
     port = hookenv.config('port')
 
