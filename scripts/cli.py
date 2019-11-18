@@ -231,7 +231,13 @@ def deploy_to(controller, cloud, model, channel, build, overlays, password):
 
     # If a specific cloud wasn't passed in, try to figure out which one to use
     if not cloud:
-        output = get_output('juju', 'list-clouds', '-c', controller, '--format=json', '--all')
+        try:
+            output = get_output('juju', 'list-clouds', '-c', controller, '--format=json', '--all')
+        except subprocess.CalledProcessError as err:
+            if err.stderr is not None:
+                click.secho('STDERR: ' + err.stderr.decode('utf-8'), color='red')
+            click.secho(str(err))
+            sys.exit(1)
         clouds = [
             name
             for name, details in json.loads(output).items()
