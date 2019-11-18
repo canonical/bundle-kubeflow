@@ -192,7 +192,6 @@ relations:
 - [ambassador, metadata-ui]
 - [ambassador, pipelines-ui]
 - [ambassador, pipelines-viewer]
-- [ambassador, tensorboard]
 - [ambassador, tf-job-dashboard]
 - [argo-controller, minio]
 - [katib-manager, katib-db]
@@ -207,5 +206,3 @@ relations:
 - [pipelines-api, pipelines-persistence]
 - [pipelines-api:pipelines-api, pipelines-ui:pipelines-api]
 - [pipelines-ui:minio, minio:minio]
-- [redis, seldon-api-frontend]
-- [redis, seldon-cluster-manager]
