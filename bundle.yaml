@@ -84,9 +84,9 @@ applications:
     annotations:
       gui-x: '-750'
       gui-y: '-259'
-  metadata-controller:
-    charm: cs:~kubeflow-charmers/metadata-controller
-    source: ./charms/metadata-controller
+  metadata:
+    charm: cs:~kubeflow-charmers/metadata-api
+    source: ./charms/metadata-api
     scale: 1
   metadata-db:
     charm: cs:~charmed-osm/mariadb-k8s
@@ -196,8 +196,8 @@ relations:
 - [argo-controller, minio]
 - [katib-manager, katib-db]
 - [kubeflow-profiles, kubeflow-dashboard]
-- [metadata-controller, metadata-db]
-- [metadata-controller, metadata-ui]
+- [metadata, metadata-db]
+- [metadata, metadata-ui]
 - [modeldb-backend, modeldb-db]
 - [modeldb-backend, modeldb-store]
 - [modeldb-backend, modeldb-ui]

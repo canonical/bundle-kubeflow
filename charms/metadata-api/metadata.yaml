@@ -1,7 +1,7 @@
-name: kubeflow-metadata
-display-name: Kubeflow Metadata
-summary: Kubeflow Metadata
-description: Kubeflow Metadata
+name: metadata-api
+display-name: Metadata API
+summary: Metadata API
+description: Metadata API
 maintainers: [Juju Developers <juju@lists.ubuntu.com>]
 tags: [ai, bigdata, kubeflow, machine-learning, tensorflow]
 series: [kubernetes]
@@ -15,6 +15,6 @@ requires:
   mysql:
     interface: mysql
 provides:
-  metadata-controller:
+  metadata-api:
     interface: http
 min-juju-version: 2.7-rc1
