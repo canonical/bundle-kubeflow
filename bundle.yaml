@@ -12,48 +12,51 @@ applications:
     source: ./charms/argo-controller
     scale: 1
     annotations:
-      gui-x: '300'
-      gui-y: '-518'
+      gui-x: '600'
+      gui-y: '0'
   argo-ui:
     charm: cs:~kubeflow-charmers/argo-ui
     source: ./charms/argo-ui
     scale: 1
     annotations:
-      gui-x: '150'
-      gui-y: '-259'
+      gui-x: '300'
+      gui-y: '0'
   jupyter-controller:
     charm: cs:~kubeflow-charmers/jupyter-controller
     source: ./charms/jupyter-controller
     scale: 1
     annotations:
-      gui-x: '-600'
-      gui-y: '0'
+      gui-x: '450'
+      gui-y: '-259'
   jupyter-web:
     charm: cs:~kubeflow-charmers/jupyter-web
     source: ./charms/jupyter-web
     scale: 1
     annotations:
-      gui-x: '-300'
-      gui-y: '0'
+      gui-x: '150'
+      gui-y: '-259'
   katib-controller:
     charm: cs:~kubeflow-charmers/katib-controller
     source: ./charms/katib-controller
     scale: 1
     annotations:
-      gui-x: '450'
+      gui-x: '-450'
       gui-y: '259'
   katib-db:
     charm: cs:~charmed-osm/mariadb-k8s
     scale: 1
     options:
       database: katib
+    annotations:
+      gui-x: '-600'
+      gui-y: '518'
   katib-manager:
     charm: cs:~kubeflow-charmers/katib-manager
     source: ./charms/katib-manager
     scale: 1
     annotations:
-      gui-x: '-150'
-      gui-y: '777'
+      gui-x: '-750'
+      gui-y: '259'
   katib-ui:
     charm: cs:~kubeflow-charmers/katib-ui
     source: ./charms/katib-ui
@@ -65,66 +68,90 @@ applications:
     charm: cs:~kubeflow-charmers/kubeflow-dashboard
     source: ./charms/kubeflow-dashboard
     scale: 1
+    annotations:
+      gui-x: '750'
+      gui-y: '259'
   kubeflow-gatekeeper:
     charm: cs:~kubeflow-charmers/kubeflow-gatekeeper
     source: ./charms/kubeflow-gatekeeper
     scale: 1
+    annotations:
+      gui-x: '600'
+      gui-y: '-518'
   kubeflow-login:
     charm: cs:~kubeflow-charmers/kubeflow-login
     source: ./charms/kubeflow-login
     scale: 1
+    annotations:
+      gui-x: '750'
+      gui-y: '-259'
   kubeflow-profiles:
     charm: cs:~kubeflow-charmers/kubeflow-profiles
     source: ./charms/kubeflow-profiles
     scale: 1
+    annotations:
+      gui-x: '600'
+      gui-y: '518'
   metacontroller:
     charm: cs:~kubeflow-charmers/metacontroller
     source: ./charms/metacontroller
     scale: 1
     annotations:
-      gui-x: '-750'
-      gui-y: '-259'
+      gui-x: '-300'
+      gui-y: '518'
   metadata:
     charm: cs:~kubeflow-charmers/metadata-api
     source: ./charms/metadata-api
     scale: 1
+    annotations:
+      gui-x: '-750'
+      gui-y: '-259'
   metadata-db:
     charm: cs:~charmed-osm/mariadb-k8s
     scale: 1
+    annotations:
+      gui-x: '-600'
+      gui-y: '-518'
   metadata-ui:
     charm: cs:~kubeflow-charmers/metadata-ui
     source: ./charms/metadata-ui
     scale: 1
+    annotations:
+      gui-x: '-450'
+      gui-y: '-259'
   minio:
     charm: cs:~kubeflow-charmers/minio
     source: ./charms/minio
     scale: 1
     annotations:
-      gui-x: '600'
-      gui-y: '518'
+      gui-x: '450'
+      gui-y: '259'
   modeldb-backend:
     charm: cs:~kubeflow-charmers/modeldb-backend
     source: ./charms/modeldb-backend
     scale: 1
     annotations:
-      gui-x: '600'
+      gui-x: '0'
       gui-y: '-518'
   modeldb-db:
     charm: cs:~charmed-osm/mariadb-k8s
     scale: 1
+    annotations:
+      gui-x: '300'
+      gui-y: '-518'
   modeldb-store:
     charm: cs:~kubeflow-charmers/modeldb-store
     source: ./charms/modeldb-store
     scale: 1
     annotations:
-      gui-x: '150'
+      gui-x: '-150'
       gui-y: '-777'
   modeldb-ui:
     charm: cs:~kubeflow-charmers/modeldb-ui
     source: ./charms/modeldb-ui
     scale: 1
     annotations:
-      gui-x: '450'
+      gui-x: '150'
       gui-y: '-777'
   pipelines-api:
     charm: cs:~kubeflow-charmers/pipelines-api
@@ -136,6 +163,9 @@ applications:
   pipelines-db:
     charm: cs:~charmed-osm/mariadb-k8s
     scale: 1
+    annotations:
+      gui-x: '0'
+      gui-y: '518'
   pipelines-persistence:
     charm: cs:~kubeflow-charmers/pipelines-persistence
     source: ./charms/pipelines-persistence
@@ -148,8 +178,8 @@ applications:
     source: ./charms/pipelines-scheduledworkflow
     scale: 1
     annotations:
-      gui-x: '0'
-      gui-y: '518'
+      gui-x: '-150'
+      gui-y: '777'
   pipelines-ui:
     charm: cs:~kubeflow-charmers/pipelines-ui
     source: ./charms/pipelines-ui
@@ -162,15 +192,15 @@ applications:
     source: ./charms/pipelines-viewer
     scale: 1
     annotations:
-      gui-x: '300'
+      gui-x: '-300'
       gui-y: '0'
   pytorch-operator:
     charm: cs:~kubeflow-charmers/pytorch-operator
     source: ./charms/pytorch-operator
     scale: 1
     annotations:
-      gui-x: '0'
-      gui-y: '-518'
+      gui-x: '-600'
+      gui-y: '0'
   tf-job-dashboard:
     charm: cs:~kubeflow-charmers/tf-job-dashboard
     source: ./charms/tf-job-dashboard
