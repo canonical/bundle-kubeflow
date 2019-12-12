@@ -144,38 +144,16 @@ def train_task(
 def serve_sidecar():
     """Serves tensorflow model as sidecar to testing container."""
 
-    # See https://github.com/argoproj/argo/issues/1570 for why we
-    # need the wrapper script
-    code = """\
-import os
-import signal
-import subprocess
-import time
-
-p = subprocess.Popen([
-    '/usr/bin/tensorflow_model_server',
-    '--model_name=mnist',
-    '--model_base_path=/output/mnist',
-    '--port=9000',
-    '--rest_api_port=9001',
-])
-
-start = time.time()
-
-while p.poll() is None:
-    # Kill process after 30 seconds due to https://github.com/argoproj/argo/issues/1570
-    if time.time() - start >= 30:
-        print('Waited long enough for tests to complete.')
-        os.kill(p.pid, signal.SIGKILL)
-        break
-    time.sleep(0.1)
-    """
-
     return dsl.Sidecar(
         name='tensorflow-serve',
         image='tensorflow/serving:1.14.0',
-        command='sh',
-        args=['-c', f'apt update && apt install -y python3 && python3 -c "{code}"'],
+        command='/usr/bin/tensorflow_model_server',
+        args=[
+            '--model_name=mnist',
+            '--model_base_path=/output/mnist',
+            '--port=9000',
+            '--rest_api_port=9001',
+        ],
         mirror_volume_mounts=True,
     )
 
