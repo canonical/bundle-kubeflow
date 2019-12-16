@@ -12,21 +12,21 @@ COWSAY_PARAMS = [{"name": "url", "value": "https://helloacm.com/api/fortune/"}]
 
 MNIST_PARAMS = [
     {
-        'name': 'test-images',
+        'name': 'test_images',
         'value': 'https://people.canonical.com/~knkski/t10k-images-idx3-ubyte.gz',
     },
     {
-        'name': 'test-labels',
+        'name': 'test_labels',
         'value': 'https://people.canonical.com/~knkski/t10k-labels-idx1-ubyte.gz',
     },
-    {'name': 'train-batch-size', 'value': '128'},
-    {'name': 'train-epochs', 'value': '2'},
+    {'name': 'train_batch_size', 'value': '128'},
+    {'name': 'train_epochs', 'value': '2'},
     {
-        'name': 'train-images',
+        'name': 'train_images',
         'value': 'https://people.canonical.com/~knkski/train-images-idx3-ubyte.gz',
     },
     {
-        'name': 'train-labels',
+        'name': 'train_labels',
         'value': 'https://people.canonical.com/~knkski/train-labels-idx1-ubyte.gz',
     },
 ]
