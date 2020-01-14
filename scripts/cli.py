@@ -266,15 +266,15 @@ def deploy_to(controller, cloud, model, channel, build, overlays, password):
 
         # Allow building local bundle.yaml, otherwise deploy from the charm store
         if build:
-            juju('bundle', 'deploy', '--build', '--', *overlays)
+            juju('bundle', 'deploy', '--build', '--', '-m', model, *overlays)
         else:
-            juju('deploy', 'kubeflow', '--channel', channel, *overlays)
+            juju('deploy', '-m', model, 'kubeflow', '--channel', channel, *overlays)
 
-    juju('wait', '-wv')
+    juju('wait', '-wv', '-m', model)
 
     pub_addr = get_pub_addr(controller)
-    juju('config', 'ambassador', f'juju-external-hostname={pub_addr}')
-    juju('expose', 'ambassador')
+    juju('config', '-m', model, 'ambassador', f'juju-external-hostname={pub_addr}')
+    juju('expose', '-m', model, 'ambassador')
 
     # Workaround for https://bugs.launchpad.net/juju/+bug/1849725
     patch = {
@@ -289,7 +289,7 @@ def deploy_to(controller, cloud, model, channel, build, overlays, password):
     for _ in range(12):
         try:
             subprocess.run(
-                ['juju', 'kubectl', 'apply', '-f', '-'],
+                ['juju', 'kubectl', 'apply', '-n', model, '-f', '-'],
                 input=yaml.dump(patch).encode('utf-8'),
                 stderr=subprocess.PIPE,
                 stdout=subprocess.PIPE,
