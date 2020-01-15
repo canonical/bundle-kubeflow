@@ -16,4 +16,4 @@ resources:
 requires:
   ambassador:
     interface: ambassador
-min-juju-version: 2.7-rc1
+min-juju-version: 2.7.0
