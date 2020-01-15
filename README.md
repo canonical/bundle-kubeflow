@@ -14,8 +14,11 @@ If you are on macOS or Windows, you will need to use an Ubuntu VM. You
 can [install multipass][multipass] and access an Ubuntu VM with these
 commands:
 
-    multipass launch --name kubeflow --mem 2G
+    multipass launch --name kubeflow --mem 16G
     multipass shell kubeflow
+
+16G is the recommended amount of memory to apportion the VM. Less than that
+may run into issues with pods not coming up properly.
 
 [multipass]: https://github.com/CanonicalLtd/multipass/releases
 
