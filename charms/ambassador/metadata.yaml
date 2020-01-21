@@ -10,7 +10,7 @@ resources:
     type: oci-image
     description: 'Backing OCI image'
     auto-fetch: true
-    upstream-source: 'quay.io/datawire/ambassador:0.37.0'
+    upstream-source: 'quay.io/datawire/ambassador:0.50.0'
 provides:
   ambassador:
     interface: ambassador

@@ -80,10 +80,7 @@ def start_charm():
                     },
                     'command': [],
                     'ports': [{'name': 'ambassador', 'containerPort': 80}],
-                    'config': {
-                        'AMBASSADOR_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
-                        'AMBASSADOR_SINGLE_NAMESPACE': 'true',
-                    },
+                    'config': {'AMBASSADOR_NAMESPACE': os.environ['JUJU_MODEL_NAME']},
                     'kubernetes': {
                         'livenessProbe': {
                             'httpGet': {'path': '/ambassador/v0/check_alive', 'port': 8877},
