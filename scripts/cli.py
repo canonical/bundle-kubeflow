@@ -89,7 +89,7 @@ def kubeflow_info(controller: str, model: str):
         textwrap.dedent(
             f"""
 
-        The central dashboard is available at https://{pub_ip}/
+        The central dashboard is available at http://{pub_ip}/
 
         To display the login credentials, run these commands:
 
