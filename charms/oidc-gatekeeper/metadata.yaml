@@ -1,0 +1,20 @@
+name: oidc-gatekeeper
+display-name: OIDC Gatekeeper
+summary: OIDC Gatekeeper
+description: |
+  An HTTP Server that an API Gateway (eg Ambassador, Envoy)
+  asks if an incoming request is authorized.
+
+  https://journal.arrikto.com/kubeflow-authentication-with-istio-dex-5eafdfac4782
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [kubernetes, oauth, oidc, authentication, gatekeeper]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: gcr.io/arrikto/kubeflow/oidc-authservice:28c59ef
+provides:
+  oidc-client:
+    interface: oidc-client

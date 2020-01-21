@@ -1,0 +1,17 @@
+name: dex-auth
+display-name: Dex
+summary: A federated OpenID Connect provider
+description: |
+  OpenID Connect Identity (OIDC) and OAuth 2.0 Provider with Pluggable Connectors
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [kubernetes, dex, oauth, oidc, authentication]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: quay.io/dexidp/dex:v2.21.0
+requires:
+  oidc-client:
+    interface: oidc-client
