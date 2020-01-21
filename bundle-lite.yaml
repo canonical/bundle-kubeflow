@@ -28,10 +28,6 @@ applications:
     charm: cs:~kubeflow-charmers/kubeflow-dashboard
     source: ./charms/kubeflow-dashboard
     scale: 1
-  kubeflow-gatekeeper:
-    charm: cs:~kubeflow-charmers/kubeflow-gatekeeper
-    source: ./charms/kubeflow-gatekeeper
-    scale: 1
   kubeflow-login:
     charm: cs:~kubeflow-charmers/kubeflow-login
     source: ./charms/kubeflow-login

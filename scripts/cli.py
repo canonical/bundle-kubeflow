@@ -228,7 +228,6 @@ def deploy_to(controller, cloud, model, channel, build, overlays, password):
                 }
             },
             "katib-db": {"options": {"root_password": get_random_pass()}},
-            "kubeflow-gatekeeper": {"options": {"password": password}},
             "modeldb-db": {"options": {"root_password": get_random_pass()}},
             "oidc-gatekeeper": {
                 "options": {
