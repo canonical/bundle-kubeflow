@@ -2,4 +2,8 @@ options:
   port:
     type: int
     default: 8082
-    description: The port to listen to
+    description: HTTP port
+  profile:
+    type: string
+    default: 'kf-admin-user'
+    description: Kubeflow Profile to create

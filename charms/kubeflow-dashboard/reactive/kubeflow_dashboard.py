@@ -43,6 +43,7 @@ def start_charm():
     profiles_service = profiles['service_name']
 
     port = hookenv.config('port')
+    profile = hookenv.config('profile')
 
     layer.caas_base.pod_spec_set(
         {
@@ -96,7 +97,21 @@ def start_charm():
                     'ports': [{'name': 'ui', 'containerPort': port}],
                 }
             ],
-        }
+        },
+        {
+            'kubernetesResources': {
+                'customResources': {
+                    'profiles.kubeflow.org': [
+                        {
+                            'apiVersion': 'kubeflow.org/v1alpha1',
+                            'kind': 'Profile',
+                            'metadata': {'name': profile},
+                            'spec': {'owner': {'kind': 'User', 'name': profile}},
+                        }
+                    ]
+                }
+            }
+        },
     )
 
     layer.status.maintenance('creating container')
