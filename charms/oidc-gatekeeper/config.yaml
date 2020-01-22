@@ -1,0 +1,26 @@
+options:
+  port:
+    type: int
+    default: 8080
+    description: Listening port
+  client-id:
+    type: string
+    default: 'authservice-oidc'
+    description: OpenID Connect client ID
+  client-name:
+    type: string
+    default: 'Ambassador Auth OIDC'
+    description: Human-friendly OpenID Connect client name
+  client-secret:
+    type: string
+    default: ''
+    description: OpenID Connect client secret
+  public-url:
+    type: string
+    default: ''
+    description: Publicly-accessible endpoint for cluster
+  oidc-scopes:
+    type: string
+    default: 'profile email groups'
+    description: OpenID Connect scopes
+  

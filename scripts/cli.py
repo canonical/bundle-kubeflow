@@ -89,12 +89,12 @@ def kubeflow_info(controller: str, model: str):
         textwrap.dedent(
             f"""
 
-        The central dashboard is available at https://{pub_ip}/
+        The central dashboard is available at http://{pub_ip}/
 
         To display the login credentials, run these commands:
 
-            juju config kubeflow-gatekeeper username
-            juju config kubeflow-gatekeeper password
+            juju config dex-auth static-username
+            juju config dex-auth static-password
 
         To tear down Kubeflow, run this command:
 
@@ -178,7 +178,7 @@ def get_pub_addr(controller: str):
             get_output('juju', 'status', '-m', f'{controller}:default', '--format=json')
         )
     except subprocess.CalledProcessError:
-        return 'localhost'
+        return os.environ.get('KUBEFLOW_URL') or 'localhost'
 
     units = status['applications']['kubernetes-worker']['units']
     worker = list(sorted(units.items()))[0][1]
@@ -217,11 +217,24 @@ def cli(debug):
 def deploy_to(controller, cloud, model, channel, build, overlays, password):
     # Dynamically-generated overlay, since there isn't a better
     # way of generating random passwords.
+    pub_addr = get_pub_addr(controller)
     password_overlay = {
         "applications": {
+            "dex-auth": {
+                "options": {
+                    "public-url": f'http://{pub_addr}:80',
+                    "static-username": "admin",
+                    "static-password": password,
+                }
+            },
             "katib-db": {"options": {"root_password": get_random_pass()}},
-            "kubeflow-gatekeeper": {"options": {"password": password}},
             "modeldb-db": {"options": {"root_password": get_random_pass()}},
+            "oidc-gatekeeper": {
+                "options": {
+                    "public-url": f'http://{pub_addr}:80',
+                    "client-secret": get_random_pass(),
+                }
+            },
             "pipelines-api": {"options": {"minio-secret-key": "minio123"}},
             "pipelines-db": {"options": {"root_password": get_random_pass()}},
         }
@@ -272,34 +285,8 @@ def deploy_to(controller, cloud, model, channel, build, overlays, password):
 
     juju('wait', '-wv', '-m', model)
 
-    pub_addr = get_pub_addr(controller)
-    juju('config', '-m', model, 'ambassador', f'juju-external-hostname={pub_addr}')
-    juju('expose', '-m', model, 'ambassador')
-
-    # Workaround for https://bugs.launchpad.net/juju/+bug/1849725
-    patch = {
-        'kind': 'Ingress',
-        'apiVersion': 'extensions/v1beta1',
-        'metadata': {'name': 'ambassador', 'namespace': model},
-        'spec': {'tls': [{'hosts': [pub_addr], 'secretName': 'ambassador-tls'}]},
-    }
-
-    # Wait for up to a minute for Juju to finish setting up the Ingress
-    # so that we can patch it, and fail if it takes too long.
-    for _ in range(12):
-        try:
-            subprocess.run(
-                ['juju', 'kubectl', 'apply', '-n', model, '-f', '-'],
-                input=yaml.dump(patch).encode('utf-8'),
-                stderr=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-            ).check_returncode()
-            break
-        except subprocess.CalledProcessError:
-            time.sleep(5)
-    else:
-        print("Couldn't set Ambassador up properly")
-        sys.exit(1)
+    juju('config', 'ambassador', f'juju-external-hostname={pub_addr}')
+    juju('expose', 'ambassador')
 
     end = time.time()
 

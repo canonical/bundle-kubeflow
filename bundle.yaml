@@ -21,6 +21,13 @@ applications:
     annotations:
       gui-x: '300'
       gui-y: '0'
+  dex-auth:
+    charm: cs:~kubeflow-charmers/dex-auth
+    source: ./charms/dex-auth
+    scale: 1
+    annotations:
+      gui-x: '600'
+      gui-y: '-518'
   jupyter-controller:
     charm: cs:~kubeflow-charmers/jupyter-controller
     source: ./charms/jupyter-controller
@@ -71,20 +78,13 @@ applications:
     annotations:
       gui-x: '750'
       gui-y: '259'
-  kubeflow-gatekeeper:
-    charm: cs:~kubeflow-charmers/kubeflow-gatekeeper
-    source: ./charms/kubeflow-gatekeeper
-    scale: 1
-    annotations:
-      gui-x: '600'
-      gui-y: '-518'
   kubeflow-login:
     charm: cs:~kubeflow-charmers/kubeflow-login
     source: ./charms/kubeflow-login
     scale: 1
     annotations:
-      gui-x: '750'
-      gui-y: '-259'
+      gui-x: '450'
+      gui-y: '777'
   kubeflow-profiles:
     charm: cs:~kubeflow-charmers/kubeflow-profiles
     source: ./charms/kubeflow-profiles
@@ -153,6 +153,13 @@ applications:
     annotations:
       gui-x: '150'
       gui-y: '-777'
+  oidc-gatekeeper:
+    charm: cs:~kubeflow-charmers/oidc-gatekeeper
+    source: ./charms/oidc-gatekeeper
+    scale: 1
+    annotations:
+      gui-x: '750'
+      gui-y: '-259'
   pipelines-api:
     charm: cs:~kubeflow-charmers/pipelines-api
     source: ./charms/pipelines-api
@@ -224,6 +231,7 @@ relations:
 - [ambassador, pipelines-viewer]
 - [ambassador, tf-job-dashboard]
 - [argo-controller, minio]
+- [dex-auth, oidc-gatekeeper]
 - [katib-manager, katib-db]
 - [kubeflow-profiles, kubeflow-dashboard]
 - [metadata, metadata-db]
