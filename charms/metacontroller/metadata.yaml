@@ -15,4 +15,4 @@ resources:
     description: 'Backing OCI image'
     auto-fetch: true
     upstream-source: metacontroller/metacontroller:v0.3.0
-min-juju-version: 2.7-rc1
+min-juju-version: 2.7.0
