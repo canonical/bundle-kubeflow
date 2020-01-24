@@ -1,5 +1,0 @@
-options:
-  port:
-    type: int
-    default: 6379
-    description: The port to listen to

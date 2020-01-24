@@ -1,9 +1,0 @@
-options:
-  rest-port:
-    type: int
-    default: 8080
-    description: REST API Port
-  grpc-port:
-    type: int
-    default: 5000
-    description: GRPC API Port
