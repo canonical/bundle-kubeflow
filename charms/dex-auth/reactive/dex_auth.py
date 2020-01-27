@@ -19,6 +19,12 @@ def charm_ready():
     layer.status.active("")
 
 
+@when("endpoint.oidc-client.changed")
+def update_relation():
+    clear_flag("charm.started")
+    clear_flag("endpoint.oidc-client.changed")
+
+
 @when_any("layer.docker-resource.oci-image.changed", "config.changed")
 def update_image():
     clear_flag("charm.started")
@@ -34,9 +40,13 @@ def start_charm():
     service_name = hookenv.service_name()
     connectors = yaml.safe_load(hookenv.config("connectors"))
     namespace = os.environ["JUJU_MODEL_NAME"]
-    oidc_client_info = endpoint_from_name('oidc-client').get_config()
     port = hookenv.config("port")
     public_url = hookenv.config("public-url")
+
+    oidc_client_info = endpoint_from_name('oidc-client').get_config()
+    if not oidc_client_info:
+        layer.status.blocked("No OIDC client information found")
+        return False
 
     # Allows setting a basic username/password combo
     static_username = hookenv.config("static-username")
