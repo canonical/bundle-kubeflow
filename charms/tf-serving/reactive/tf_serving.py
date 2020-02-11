@@ -40,6 +40,7 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
+            'version': 2,
             'containers': [
                 {
                     'name': 'tf-serving',
@@ -59,7 +60,7 @@ def start_charm():
                         {'name': 'tf-serving-rest', 'containerPort': rest_port},
                     ],
                 }
-            ]
+            ],
         }
     )
 
