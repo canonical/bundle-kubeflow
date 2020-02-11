@@ -5,5 +5,5 @@ options:
     description: HTTP port
   profile:
     type: string
-    default: 'kf-admin-user'
+    default: admin
     description: Kubeflow Profile to create
