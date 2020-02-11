@@ -1,8 +1,10 @@
+import os
 from pathlib import Path
 
 import yaml
+
 from charms import layer
-from charms.reactive import hook, set_flag, clear_flag, when, when_not
+from charms.reactive import clear_flag, hook, set_flag, when, when_not
 
 
 @hook('upgrade-charm')
@@ -35,8 +37,27 @@ def start_charm():
             'serviceAccount': {
                 'global': True,
                 'rules': [
-                    {'apiGroups': ['*'], 'resources': ['*'], 'verbs': ['*']},
-                    {'nonResourceURLs': ['*'], 'verbs': ['*']},
+                    #  {'apiGroups': ['*'], 'resources': ['*'], 'verbs': ['*']},
+                    #  {'nonResourceURLs': ['*'], 'verbs': ['*']},
+                    {
+                        'apiGroups': ['argoproj.io'],
+                        'resources': ['workflows'],
+                        'verbs': ['create', 'get', 'list', 'watch', 'update', 'patch', 'delete'],
+                    },
+                    {
+                        'apiGroups': ['kubeflow.org'],
+                        'resources': ['scheduledworkflows'],
+                        'verbs': [
+                            'get',
+                            'list',
+                            'watch',
+                            'create',
+                            'delete',
+                            'deletecollection',
+                            'patch',
+                            'update',
+                        ],
+                    },
                 ],
             },
             'containers': [
@@ -47,6 +68,7 @@ def start_charm():
                         'username': image_info.username,
                         'password': image_info.password,
                     },
+                    'config': {'POD_NAMESPACE': os.environ['JUJU_MODEL_NAME']},
                 }
             ],
         },
