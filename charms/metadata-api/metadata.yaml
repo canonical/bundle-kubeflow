@@ -10,7 +10,7 @@ resources:
     type: oci-image
     description: 'Backing OCI image'
     auto-fetch: true
-    upstream-source: gcr.io/kubeflow-images-public/metadata:v0.1.8
+    upstream-source: gcr.io/kubeflow-images-public/metadata:v0.1.11
 requires:
   mysql:
     interface: mysql

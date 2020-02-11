@@ -57,6 +57,20 @@ def start_charm():
                     },
                     'ports': [{'name': 'http', 'containerPort': port}],
                     'config': {'MYSQL_ROOT_PASSWORD': mysql.root_password()},
+                    'kubernetes': {
+                        'readinessProbe': {
+                            'httpGet': {
+                                'path': '/api/v1alpha1/artifact_types',
+                                'port': 'http',
+                                'httpHeaders': [
+                                    {'name': 'ContentType', 'value': 'application/json'}
+                                ],
+                            },
+                            'initialDelaySeconds': 3,
+                            'periodSeconds': 5,
+                            'timeoutSeconds': 2,
+                        }
+                    },
                 }
             ],
         }

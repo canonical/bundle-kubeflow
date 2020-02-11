@@ -92,7 +92,7 @@ applications:
     annotations:
       gui-x: '-300'
       gui-y: '518'
-  metadata:
+  metadata-api:
     charm: cs:~kubeflow-charmers/metadata-api
     source: ./charms/metadata-api
     scale: 1
@@ -228,8 +228,8 @@ relations:
 - [katib-manager, katib-db]
 - [kubeflow-profiles, jupyter-web]
 - [kubeflow-profiles, kubeflow-dashboard]
-- [metadata, metadata-db]
-- [metadata, metadata-ui]
+- [metadata-api, metadata-db]
+- [metadata-api:metadata-api, metadata-ui:metadata-api]
 - [modeldb-backend, modeldb-db]
 - [modeldb-backend, modeldb-store]
 - [modeldb-backend, modeldb-ui]
