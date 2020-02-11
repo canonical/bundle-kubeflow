@@ -27,7 +27,9 @@ def update_image():
     clear_flag('charm.started')
 
 
-@when('layer.docker-resource.oci-image.available', 'metadata-api.available')
+@when(
+    'layer.docker-resource.oci-image.available', 'metadata-api.available', 'metadata-grpc.available'
+)
 @when_not('charm.started')
 def start_charm():
     layer.status.maintenance('configuring container')
@@ -36,6 +38,7 @@ def start_charm():
     service_name = hookenv.service_name()
 
     api = endpoint_from_name('metadata-api').services()[0]
+    grpc = endpoint_from_name('metadata-grpc').services()[0]
 
     port = hookenv.config('port')
 
@@ -43,7 +46,6 @@ def start_charm():
         {
             'version': 2,
             'serviceAccount': {
-                'global': True,
                 'rules': [
                     {
                         'apiGroups': [''],
@@ -55,7 +57,7 @@ def start_charm():
                         'resources': ['viewers'],
                         'verbs': ['create', 'get', 'list', 'watch', 'delete'],
                     },
-                ],
+                ]
             },
             'service': {
                 'annotations': {
@@ -87,6 +89,8 @@ def start_charm():
                     'config': {
                         'METADATA_SERVICE_SERVICE_HOST': api['service_name'],
                         'METADATA_SERVICE_SERVICE_PORT': api['hosts'][0]['port'],
+                        'METADATA_ENVOY_SERVICE_SERVICE_HOST': grpc['service_name'],
+                        'METADATA_ENVOY_SERVICE_SERVICE_PORT': grpc['hosts'][0]['port'],
                     },
                 }
             ],

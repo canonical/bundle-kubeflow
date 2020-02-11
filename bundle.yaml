@@ -230,6 +230,7 @@ relations:
 - [kubeflow-profiles, kubeflow-dashboard]
 - [metadata-api, metadata-db]
 - [metadata-api:metadata-api, metadata-ui:metadata-api]
+- [metadata-grpc:metadata-grpc, metadata-ui:metadata-grpc]
 - [modeldb-backend, modeldb-db]
 - [modeldb-backend, modeldb-store]
 - [modeldb-backend, modeldb-ui]
