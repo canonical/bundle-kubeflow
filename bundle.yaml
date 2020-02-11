@@ -226,6 +226,7 @@ relations:
 - [argo-controller, minio]
 - [dex-auth, oidc-gatekeeper]
 - [katib-manager, katib-db]
+- [kubeflow-profiles, jupyter-web]
 - [kubeflow-profiles, kubeflow-dashboard]
 - [metadata, metadata-db]
 - [metadata, metadata-ui]
