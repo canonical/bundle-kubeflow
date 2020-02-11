@@ -122,6 +122,7 @@ def test_service_accounts_created():
         'pipelines-persistence-operator',
         'pipelines-scheduledworkflow',
         'pipelines-scheduledworkflow-operator',
+        'pipelines-ui',
         'pipelines-ui-operator',
         'pipelines-viewer',
         'pipelines-viewer-operator',
