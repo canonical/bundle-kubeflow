@@ -78,13 +78,6 @@ applications:
     annotations:
       gui-x: '750'
       gui-y: '259'
-  kubeflow-login:
-    charm: cs:~kubeflow-charmers/kubeflow-login
-    source: ./charms/kubeflow-login
-    scale: 1
-    annotations:
-      gui-x: '450'
-      gui-y: '777'
   kubeflow-profiles:
     charm: cs:~kubeflow-charmers/kubeflow-profiles
     source: ./charms/kubeflow-profiles
