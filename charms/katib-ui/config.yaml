@@ -1,1 +1,5 @@
-options: {}
+options:
+  port:
+    type: int
+    default: 8000
+    description: HTTP port
