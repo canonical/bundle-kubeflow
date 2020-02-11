@@ -112,6 +112,13 @@ applications:
     annotations:
       gui-x: '-750'
       gui-y: '-259'
+  metadata-grpc:
+    charm: cs:~kubeflow-charmers/metadata-grpc
+    source: ./charms/metadata-grpc
+    scale: 1
+    annotations:
+      gui-x: '-450'
+      gui-y: '-259'
   metadata-ui:
     charm: cs:~kubeflow-charmers/metadata-ui
     source: ./charms/metadata-ui
@@ -237,6 +244,8 @@ relations:
 - [kubeflow-profiles, kubeflow-dashboard]
 - [metadata-api, metadata-db]
 - [metadata-api:metadata-api, metadata-ui:metadata-api]
+- [metadata-grpc, metadata-db]
+- [metadata-grpc, metadata-envoy]
 - [metadata-grpc:metadata-grpc, metadata-ui:metadata-grpc]
 - [modeldb-backend, modeldb-db]
 - [modeldb-backend, modeldb-store]
