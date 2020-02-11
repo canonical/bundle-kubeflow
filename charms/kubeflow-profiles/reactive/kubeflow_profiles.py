@@ -57,6 +57,21 @@ def start_charm():
                         'password': profile_info.password,
                     },
                     'command': ['/manager'],
+                    'args': [
+                        '-userid-header',
+                        'kubeflow-userid',
+                        '-userid-prefix',
+                        '',
+                        '-workload-identity',
+                        '',
+                    ],
+                    'kubernetes': {
+                        'livenessProbe': {
+                            'httpGet': {'path': '/metrics', 'port': 8080},
+                            'initialDelaySeconds': 30,
+                            'periodSeconds': 30,
+                        }
+                    },
                 },
                 {
                     'name': 'kubeflow-kfam',
@@ -65,9 +80,23 @@ def start_charm():
                         'username': kfam_info.username,
                         'password': kfam_info.password,
                     },
-                    'command': ['/opt/kubeflow/access-management'],
-                    'args': ['-cluster-admin', 'admin'],
+                    'command': ['/access-management'],
+                    'args': [
+                        '-cluster-admin',
+                        'admin',
+                        '-userid-header',
+                        'kubeflow-userid',
+                        '-userid-prefix',
+                        '',
+                    ],
                     'ports': [{'name': 'http', 'containerPort': hookenv.config('port')}],
+                    'kubernetes': {
+                        'livenessProbe': {
+                            'httpGet': {'path': '/metrics', 'port': 8081},
+                            'initialDelaySeconds': 30,
+                            'periodSeconds': 30,
+                        }
+                    },
                 },
             ],
         },
