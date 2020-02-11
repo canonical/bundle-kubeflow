@@ -27,8 +27,6 @@ def start_charm():
 
     image_info = layer.docker_resource.get_info('oci-image')
 
-    crd = yaml.safe_load(Path("files/crd-v1alpha1.yaml").read_text())
-
     layer.caas_base.pod_spec_set(
         {
             'version': 2,
@@ -58,6 +56,7 @@ def start_charm():
                 {
                     'name': 'jupyter-controller',
                     'command': ['/manager'],
+                    'config': {'USE_ISTIO': 'false'},
                     'imageDetails': {
                         'imagePath': image_info.registry_path,
                         'username': image_info.username,
@@ -68,7 +67,10 @@ def start_charm():
         },
         {
             'kubernetesResources': {
-                'customResourceDefinitions': {crd['metadata']['name']: crd['spec']},
+                "customResourceDefinitions": {
+                    crd["metadata"]["name"]: crd["spec"]
+                    for crd in yaml.safe_load_all(Path("files/crds.yaml").read_text())
+                },
                 'serviceAccounts': [
                     {
                         'name': 'jupyter-notebook',
