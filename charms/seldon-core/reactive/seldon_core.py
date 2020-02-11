@@ -1,4 +1,6 @@
 import os
+import shutil
+from base64 import b64encode
 from pathlib import Path
 from subprocess import run
 
@@ -6,7 +8,7 @@ import yaml
 
 from charmhelpers.core import hookenv
 from charms import layer
-from charms.reactive import clear_flag, set_flag, when, when_not, when_any
+from charms.reactive import clear_flag, hook, set_flag, when, when_any, when_not
 
 
 @hook('upgrade-charm')
@@ -32,7 +34,6 @@ def start_charm():
     config = hookenv.config()
     image_info = layer.docker_resource.get_info('oci-image')
     model = os.environ['JUJU_MODEL_NAME']
-    crd = yaml.safe_load(Path("files/crd-v1alpha2.yaml").read_text())
 
     run(
         [
@@ -54,6 +55,8 @@ def start_charm():
         check=True,
     )
 
+    ca_bundle = b64encode(Path('cert.pem').read_bytes()).decode('utf-8')
+
     layer.caas_base.pod_spec_set(
         {
             'version': 2,
@@ -61,82 +64,84 @@ def start_charm():
                 'global': True,
                 'rules': [
                     {
+                        'apiGroups': [''],
+                        'resources': ['namespaces'],
+                        'verbs': ['get', 'list', 'watch'],
+                    },
+                    {
+                        'apiGroups': [''],
+                        'resources': ['services'],
+                        'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'],
+                    },
+                    {
                         'apiGroups': ['apps'],
                         'resources': ['deployments'],
-                        'verbs': ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete'],
+                        'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'],
                     },
                     {
                         'apiGroups': ['apps'],
                         'resources': ['deployments/status'],
-                        'verbs': ['get', 'update', 'patch'],
-                    },
-                    {
-                        'apiGroups': ['v1'],
-                        'resources': ['services'],
-                        'verbs': ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete'],
-                    },
-                    {
-                        'apiGroups': ['v1'],
-                        'resources': ['services/status'],
-                        'verbs': ['get', 'update', 'patch'],
-                    },
-                    {
-                        'apiGroups': ['networking.istio.io'],
-                        'resources': ['virtualservices'],
-                        'verbs': ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete'],
-                    },
-                    {
-                        'apiGroups': ['networking.istio.io'],
-                        'resources': ['virtualservices/status'],
-                        'verbs': ['get', 'update', 'patch'],
-                    },
-                    {
-                        'apiGroups': ['networking.istio.io'],
-                        'resources': ['destinationrules'],
-                        'verbs': ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete'],
-                    },
-                    {
-                        'apiGroups': ['networking.istio.io'],
-                        'resources': ['destinationrules/status'],
-                        'verbs': ['get', 'update', 'patch'],
+                        'verbs': ['get', 'patch', 'update'],
                     },
                     {
                         'apiGroups': ['autoscaling'],
                         'resources': ['horizontalpodautoscalers'],
-                        'verbs': ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete'],
+                        'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'],
                     },
                     {
                         'apiGroups': ['autoscaling'],
                         'resources': ['horizontalpodautoscalers/status'],
-                        'verbs': ['get', 'update', 'patch'],
+                        'verbs': ['get', 'patch', 'update'],
                     },
                     {
                         'apiGroups': ['machinelearning.seldon.io'],
                         'resources': ['seldondeployments'],
-                        'verbs': ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete'],
+                        'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'],
+                    },
+                    {
+                        'apiGroups': ['machinelearning.seldon.io'],
+                        'resources': ['seldondeployments/finalizers'],
+                        'verbs': ['get', 'patch', 'update'],
                     },
                     {
                         'apiGroups': ['machinelearning.seldon.io'],
                         'resources': ['seldondeployments/status'],
-                        'verbs': ['get', 'update', 'patch'],
+                        'verbs': ['get', 'patch', 'update'],
                     },
                     {
-                        'apiGroups': ['admissionregistration.k8s.io'],
-                        'resources': [
-                            'mutatingwebhookconfigurations',
-                            'validatingwebhookconfigurations',
-                        ],
-                        'verbs': ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete'],
+                        'apiGroups': ['networking.istio.io'],
+                        'resources': ['destinationrules'],
+                        'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'],
                     },
                     {
-                        'apiGroups': [''],
-                        'resources': ['secrets'],
-                        'verbs': ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete'],
+                        'apiGroups': ['networking.istio.io'],
+                        'resources': ['destinationrules/status'],
+                        'verbs': ['get', 'patch', 'update'],
                     },
                     {
-                        'apiGroups': [''],
+                        'apiGroups': ['networking.istio.io'],
+                        'resources': ['virtualservices'],
+                        'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'],
+                    },
+                    {
+                        'apiGroups': ['networking.istio.io'],
+                        'resources': ['virtualservices/status'],
+                        'verbs': ['get', 'patch', 'update'],
+                    },
+                    {
+                        'apiGroups': ['v1'],
+                        'resources': ['namespaces'],
+                        'verbs': ['get', 'list', 'watch'],
+                    },
+                    {
+                        'apiGroups': ['v1'],
                         'resources': ['services'],
-                        'verbs': ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete'],
+                        'verbs': ['create', 'delete', 'get', 'list', 'patch', 'update', 'watch'],
+                    },
+                    {
+                        'apiGroups': ['v1'],
+                        'resources': ['services/status'],
+                        'verbs': ['get', 'patch', 'update'],
                     },
                 ],
             },
@@ -144,6 +149,11 @@ def start_charm():
                 {
                     'name': 'seldon-core',
                     'command': ['/manager'],
+                    'args': [
+                        '--enable-leader-election',
+                        '--webhook-port',
+                        str(config['webhook-port']),
+                    ],
                     'imageDetails': {
                         'imagePath': image_info.registry_path,
                         'username': image_info.username,
@@ -155,27 +165,29 @@ def start_charm():
                     ],
                     'config': {
                         'POD_NAMESPACE': model,
-                        'SECRET_NAME': 'seldon-operator-webhook-server-secret',
+                        'CONTROLLER_NAME': '',
                         'AMBASSADOR_ENABLED': 'true',
                         'AMBASSADOR_SINGLE_NAMESPACE': 'false',
-                        'ENGINE_CONTAINER_IMAGE_AND_VERSION': 'docker.io/seldonio/engine:0.4.1',
+                        'ENGINE_CONTAINER_IMAGE_AND_VERSION': 'docker.io/seldonio/engine:1.0.1',
                         'ENGINE_CONTAINER_IMAGE_PULL_POLICY': 'IfNotPresent',
                         'ENGINE_CONTAINER_SERVICE_ACCOUNT_NAME': 'default',
                         'ENGINE_CONTAINER_USER': '8888',
+                        'ENGINE_LOG_MESSAGES_EXTERNALLY': 'false',
                         'PREDICTIVE_UNIT_SERVICE_PORT': '9000',
                         'ENGINE_SERVER_GRPC_PORT': '5001',
                         'ENGINE_SERVER_PORT': '8000',
                         'ENGINE_PROMETHEUS_PATH': 'prometheus',
                         'ISTIO_ENABLED': 'false',
                         'ISTIO_GATEWAY': 'kubeflow-gateway',
+                        'ISTIO_TLS_MODE': '',
                     },
                     'files': [
                         {
-                            'name': 'cert',
-                            'mountPath': '/tmp/cert',
+                            'name': 'certs',
+                            'mountPath': '/tmp/k8s-webhook-server/serving-certs',
                             'files': {
-                                'cert.pem': Path('cert.pem').read_text(),
-                                'key.pem': Path('key.pem').read_text(),
+                                'tls.crt': Path('cert.pem').read_text(),
+                                'tls.key': Path('key.pem').read_text(),
                             },
                         }
                     ],
@@ -184,7 +196,174 @@ def start_charm():
         },
         k8s_resources={
             'kubernetesResources': {
-                'customResourceDefinitions': {crd['metadata']['name']: crd['spec']}
+                'customResourceDefinitions': {
+                    crd['metadata']['name']: crd['spec']
+                    for crd in yaml.safe_load_all(Path("files/crds.yaml").read_text())
+                },
+                'mutatingWebhookConfigurations': {
+                    'seldon-mutating-webhook-configuration-kubeflow': [
+                        {
+                            'name': 'mseldondeployment.kb.io',
+                            'failurePolicy': 'Fail',
+                            'clientConfig': {
+                                'caBundle': ca_bundle,
+                                'service': {
+                                    'name': hookenv.service_name(),
+                                    'namespace': model,
+                                    'path': '/mutate-machinelearning-seldon-io-v1-seldondeployment',
+                                },
+                            },
+                            'namespaceSelector': {
+                                'matchExpressions': [
+                                    {'key': 'seldon.io/controller-id', 'operator': 'DoesNotExist'}
+                                ],
+                                'matchLabels': {'serving.kubeflow.org/inferenceservice': 'enabled'},
+                            },
+                            'rules': [
+                                {
+                                    'apiGroups': ['machinelearning.seldon.io'],
+                                    'apiVersions': ['v1'],
+                                    'operations': ['CREATE', 'UPDATE'],
+                                    'resources': ['seldondeployments'],
+                                }
+                            ],
+                        },
+                        {
+                            'clientConfig': {
+                                'caBundle': ca_bundle,
+                                'service': {
+                                    'name': hookenv.service_name(),
+                                    'namespace': model,
+                                    'path': '/mutate-machinelearning-seldon-io-v1alpha2-seldondeployment',
+                                },
+                            },
+                            'failurePolicy': 'Fail',
+                            'name': 'mseldondeployment.kb.io',
+                            'namespaceSelector': {
+                                'matchExpressions': [
+                                    {'key': 'seldon.io/controller-id', 'operator': 'DoesNotExist'}
+                                ],
+                                'matchLabels': {'serving.kubeflow.org/inferenceservice': 'enabled'},
+                            },
+                            'rules': [
+                                {
+                                    'apiGroups': ['machinelearning.seldon.io'],
+                                    'apiVersions': ['v1alpha2'],
+                                    'operations': ['CREATE', 'UPDATE'],
+                                    'resources': ['seldondeployments'],
+                                }
+                            ],
+                        },
+                        {
+                            'clientConfig': {
+                                'caBundle': ca_bundle,
+                                'service': {
+                                    'name': hookenv.service_name(),
+                                    'namespace': model,
+                                    'path': '/mutate-machinelearning-seldon-io-v1alpha3-seldondeployment',
+                                },
+                            },
+                            'failurePolicy': 'Fail',
+                            'name': 'mseldondeployment.kb.io',
+                            'namespaceSelector': {
+                                'matchExpressions': [
+                                    {'key': 'seldon.io/controller-id', 'operator': 'DoesNotExist'}
+                                ],
+                                'matchLabels': {'serving.kubeflow.org/inferenceservice': 'enabled'},
+                            },
+                            'rules': [
+                                {
+                                    'apiGroups': ['machinelearning.seldon.io'],
+                                    'apiVersions': ['v1alpha3'],
+                                    'operations': ['CREATE', 'UPDATE'],
+                                    'resources': ['seldondeployments'],
+                                }
+                            ],
+                        },
+                    ]
+                },
+                #  'validatingWebhookConfigurations': {
+                #      'seldon-validating-webhook-configuration-kubeflow': [
+                #          {
+                #              'clientConfig': {
+                #                  'caBundle': ca_bundle,
+                #                  'service': {
+                #                      'name': hookenv.service_name(),
+                #                      'namespace': model,
+                #                      'path': '/validate-machinelearning-seldon-io-v1-seldondeployment',
+                #                  },
+                #              },
+                #              'failurePolicy': 'Fail',
+                #              'name': 'vseldondeployment.kb.io',
+                #              'namespaceSelector': {
+                #                  'matchExpressions': [
+                #                      {'key': 'seldon.io/controller-id', 'operator': 'DoesNotExist'}
+                #                  ],
+                #                  'matchLabels': {'serving.kubeflow.org/inferenceservice': 'enabled'},
+                #              },
+                #              'rules': [
+                #                  {
+                #                      'apiGroups': ['machinelearning.seldon.io'],
+                #                      'apiVersions': ['v1'],
+                #                      'operations': ['CREATE', 'UPDATE'],
+                #                      'resources': ['seldondeployments'],
+                #                  }
+                #              ],
+                #          },
+                #          {
+                #              'clientConfig': {
+                #                  'caBundle': ca_bundle,
+                #                  'service': {
+                #                      'name': hookenv.service_name(),
+                #                      'namespace': model,
+                #                      'path': '/validate-machinelearning-seldon-io-v1alpha2-seldondeployment',
+                #                  },
+                #              },
+                #              'failurePolicy': 'Fail',
+                #              'name': 'vseldondeployment.kb.io',
+                #              'namespaceSelector': {
+                #                  'matchExpressions': [
+                #                      {'key': 'seldon.io/controller-id', 'operator': 'DoesNotExist'}
+                #                  ],
+                #                  'matchLabels': {'serving.kubeflow.org/inferenceservice': 'enabled'},
+                #              },
+                #              'rules': [
+                #                  {
+                #                      'apiGroups': ['machinelearning.seldon.io'],
+                #                      'apiVersions': ['v1alpha2'],
+                #                      'operations': ['CREATE', 'UPDATE'],
+                #                      'resources': ['seldondeployments'],
+                #                  }
+                #              ],
+                #          },
+                #          {
+                #              'clientConfig': {
+                #                  'caBundle': ca_bundle,
+                #                  'service': {
+                #                      'name': hookenv.service_name(),
+                #                      'namespace': model,
+                #                      'path': '/validate-machinelearning-seldon-io-v1alpha3-seldondeployment',
+                #                  },
+                #              },
+                #              'failurePolicy': 'Fail',
+                #              'name': 'vseldondeployment.kb.io',
+                #              'namespaceSelector': {
+                #                  'matchExpressions': [
+                #                      {'key': 'seldon.io/controller-id', 'operator': 'DoesNotExist'}
+                #                  ],
+                #                  'matchLabels': {'serving.kubeflow.org/inferenceservice': 'enabled'},
+                #              },
+                #              'rules': [
+                #                  {
+                #                      'apiGroups': ['machinelearning.seldon.io'],
+                #                      'apiVersions': ['v1alpha3'],
+                #                      'operations': ['CREATE', 'UPDATE'],
+                #                      'resources': ['seldondeployments'],
+                #                  }
+                #              ],
+                #          },
+                #      ]
+                #  },
             }
         },
     )

@@ -47,6 +47,7 @@ def test_running():
         ('pipelines-viewer', 'Running'),
         ('pipelines-visualization', 'Running'),
         ('pytorch-operator', 'Running'),
+        ('seldon-core', 'Running'),
         ('tf-job-operator', 'Running'),
     ]
 
@@ -64,6 +65,7 @@ def test_crd_created():
         'profiles.kubeflow.org',
         'pytorchjobs.kubeflow.org',
         'scheduledworkflows.kubeflow.org',
+        'seldondeployments.machinelearning.seldon.io',
         'servicerolebindings.rbac.istio.io',
         'serviceroles.rbac.istio.io',
         'suggestions.kubeflow.org',
@@ -130,6 +132,8 @@ def test_service_accounts_created():
         'pipelines-visualization-operator',
         'pytorch-operator',
         'pytorch-operator-operator',
+        'seldon-core',
+        'seldon-core-operator',
         'tf-job-operator',
         'tf-job-operator-operator',
     ]
