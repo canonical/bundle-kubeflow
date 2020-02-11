@@ -141,6 +141,8 @@ def train_task(
     model.save(model_path)
 
 
+
+
 def serve_sidecar():
     """Serves tensorflow model as sidecar to testing container."""
 
@@ -168,6 +170,7 @@ def test_task(
     """Connects to served model and tests example MNIST images."""
 
     import time
+    import json
 
     import numpy as np
     import requests
@@ -248,7 +251,37 @@ def test_task(
     accuracy = sum(1 for (p, a) in zipped if p == a) / len(predicted)
 
     print(f"Accuracy: {accuracy:0.2f}")
-
+    # TODO: Figure out how to access artifacts via pipelines UI
+    #  print("Generating confusion matrix")
+    #  labels = list(range(10))
+    #  cm = [[0] * 10 for _ in range(10)]
+    #  for pred, target in zipped:
+    #      cm[target][pred] += 1
+    #  for target in range(10):
+    #      for predicted in range(10):
+    #          count = cm[target][predicted]
+    #          confusion_matrix.write(f'{target},{predicted},{count}\n')
+    #
+    #  with open('/output/mlpipeline-ui-metadata.json', 'w') as f:
+    #      json.dump(
+    #          {
+    #              "version": 1,
+    #              "outputs": [
+    #                  {
+    #                      "type": "confusion_matrix",
+    #                      "format": "csv",
+    #                      "source": "minio://mlpipeline/cm.tgz",
+    #                      "schema": [
+    #                          {"name": "target", "type": "CATEGORY"},
+    #                          {"name": "predicted", "type": "CATEGORY"},
+    #                          {"name": "count", "type": "NUMBER"},
+    #                      ],
+    #                      "labels": list(map(str, labels)),
+    #                  }
+    #              ],
+    #          },
+    #          f,
+    #      )
 
 @dsl.pipeline(
     name='MNIST CNN Example',
