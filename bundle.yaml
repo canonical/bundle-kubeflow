@@ -209,13 +209,6 @@ applications:
   #   annotations:
   #     gui-x: '-450'
   #     gui-y: '-777'
-  tf-job-dashboard:
-    charm: cs:~kubeflow-charmers/tf-job-dashboard
-    source: ./charms/tf-job-dashboard
-    scale: 1
-    annotations:
-      gui-x: '-150'
-      gui-y: '-259'
   tf-job-operator:
     charm: cs:~kubeflow-charmers/tf-job-operator
     source: ./charms/tf-job-operator
@@ -230,7 +223,6 @@ relations:
 - [ambassador, metadata-ui]
 - [ambassador, pipelines-ui]
 - [ambassador, pipelines-viewer]
-- [ambassador, tf-job-dashboard]
 - [argo-controller, minio]
 - [dex-auth, oidc-gatekeeper]
 - [katib-manager, katib-db]

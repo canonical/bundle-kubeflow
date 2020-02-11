@@ -43,7 +43,6 @@ def test_running():
         ('pipelines-ui', 'Running'),
         ('pipelines-viewer', 'Running'),
         ('pytorch-operator', 'Running'),
-        ('tf-job-dashboard', 'Running'),
         ('tf-job-operator', 'Running'),
     ]
 
@@ -122,8 +121,6 @@ def test_service_accounts_created():
         'pipelines-viewer-operator',
         'pytorch-operator',
         'pytorch-operator-operator',
-        'tf-job-dashboard',
-        'tf-job-dashboard-operator',
         'tf-job-operator',
         'tf-job-operator-operator',
     ]
