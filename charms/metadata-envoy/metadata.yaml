@@ -1,0 +1,20 @@
+name: metadata-envoy
+display-name: Metadata Envoy API
+summary: Metadata Envoy API
+description: Metadata Envoy API
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [ai, bigdata, kubeflow, machine-learning, tensorflow]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: gcr.io/ml-pipeline/envoy:metadata-grpc
+requires:
+  metadata-grpc:
+    interface: http
+provides:
+  metadata-envoy:
+    interface: http
+min-juju-version: 2.7.0

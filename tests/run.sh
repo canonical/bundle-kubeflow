@@ -15,4 +15,4 @@ juju kubectl port-forward svc/pipelines-api 8888:8888 &
 (i=10; while ! curl localhost:8888 ; do ((--i)) || exit; sleep 1; done)
 
 # Run tests
-pytest -vvs
+pytest -vvs "$@"

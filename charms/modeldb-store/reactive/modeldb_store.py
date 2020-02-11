@@ -34,6 +34,7 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
+            'version': 2,
             'containers': [
                 {
                     'name': 'modeldb-store',
@@ -52,7 +53,7 @@ def start_charm():
                         }
                     ],
                 }
-            ]
+            ],
         }
     )
 

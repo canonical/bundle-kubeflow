@@ -12,7 +12,7 @@ resources:
     type: oci-image
     description: 'Backing OCI image'
     auto-fetch: true
-    upstream-source: gcr.io/ml-pipeline/frontend:0.1.23
+    upstream-source: gcr.io/ml-pipeline/frontend:0.2.0
 requires:
   ambassador:
     interface: ambassador

@@ -1,0 +1,19 @@
+name: pipelines-visualization
+display-name: Pipelines Visualization
+summary: Pipelines Visualization
+description: |
+  Platform for building and deploying portable, scalable machine learning (ML)
+  workflows based on Docker containers
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [ai, bigdata, kubeflow, machine-learning, tensorflow]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: gcr.io/ml-pipeline/visualization-server:0.2.0
+provides:
+  pipelines-visualization:
+    interface: http
+min-juju-version: 2.7.0

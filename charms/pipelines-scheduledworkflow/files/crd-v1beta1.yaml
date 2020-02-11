@@ -9,10 +9,10 @@ spec:
     listKind: ScheduledWorkflowList
     plural: scheduledworkflows
     shortNames:
-      - swf
+    - swf
     singular: scheduledworkflow
   scope: Namespaced
   versions:
-    - name: v1beta1
-      served: true
-      storage: true
+  - name: v1beta1
+    served: true
+    storage: true

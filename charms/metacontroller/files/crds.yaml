@@ -9,10 +9,10 @@ spec:
     kind: CompositeController
     plural: compositecontrollers
     shortNames:
-      - cc
-      - cctl
+    - cc
+    - cctl
     singular: compositecontroller
-  scope: Namespaced
+  scope: Cluster
   version: v1alpha1
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
@@ -38,8 +38,9 @@ spec:
     kind: DecoratorController
     plural: decoratorcontrollers
     shortNames:
-      - dec
-      - decorators
+    - dec
+    - decorators
     singular: decoratorcontroller
-  scope: Namespaced
+  scope: Cluster
   version: v1alpha1
+

@@ -40,11 +40,25 @@ def start_charm():
     api = endpoint_from_name('pipelines-api').services()[0]
     minio = endpoint_from_name('minio').services()[0]['hosts'][0]
 
-    ui_port = hookenv.config('ui-port')
-    proxy_port = hookenv.config('proxy-port')
+    port = hookenv.config('port')
 
     layer.caas_base.pod_spec_set(
         {
+            'version': 2,
+            'serviceAccount': {
+                'rules': [
+                    {
+                        'apiGroups': [''],
+                        'resources': ['pods', 'pods/log'],
+                        'verbs': ['create', 'get', 'list'],
+                    },
+                    {
+                        'apiGroups': ['kubeflow.org'],
+                        'resources': ['viewers'],
+                        'verbs': ['create', 'get', 'list', 'watch', 'delete'],
+                    },
+                ]
+            },
             'service': {
                 'annotations': {
                     'getambassador.io/config': yaml.dump_all(
@@ -55,20 +69,10 @@ def start_charm():
                                 'name': 'pipeline-ui',
                                 'prefix': '/pipeline',
                                 'rewrite': '/pipeline',
-                                'service': f'{service_name}:{ui_port}',
+                                'service': f'{service_name}:{port}',
                                 'use_websocket': True,
                                 'timeout_ms': 30000,
-                            },
-                            {
-                                'apiVersion': 'ambassador/v0',
-                                'kind': 'Mapping',
-                                'name': 'pipeline-ui-apis',
-                                'prefix': '/apis',
-                                'rewrite': '/apis',
-                                'service': f'{service_name}:{proxy_port}',
-                                'use_websocket': True,
-                                'timeout_ms': 30000,
-                            },
+                            }
                         ]
                     )
                 }
@@ -88,10 +92,7 @@ def start_charm():
                         'MINIO_PORT': minio['port'],
                         'MINIO_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
                     },
-                    'ports': [
-                        {'name': 'ui', 'containerPort': ui_port},
-                        {'name': 'api-proxy', 'containerPort': proxy_port},
-                    ],
+                    'ports': [{'name': 'ui', 'containerPort': port}],
                 }
             ],
         }

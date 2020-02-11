@@ -38,7 +38,13 @@ def update_image():
     clear_flag('charm.started')
 
 
-@when('layer.docker-resource.oci-image.available', 'mysql.available', 'minio.available')
+@when(
+    'layer.docker-resource.oci-image.available',
+    'kubeflow-profiles.available',
+    'minio.available',
+    'mysql.available',
+    'pipelines-visualization.available',
+)
 @when_not('charm.started')
 def start_charm():
     layer.status.maintenance('configuring container')
@@ -46,8 +52,10 @@ def start_charm():
     image_info = layer.docker_resource.get_info('oci-image')
     service_name = hookenv.service_name()
 
-    mysql = endpoint_from_name('mysql')
     minio = endpoint_from_name('minio').services()[0]['hosts'][0]
+    mysql = endpoint_from_name('mysql')
+    profiles = endpoint_from_name('kubeflow-profiles').services()[0]['hosts'][0]
+    viz = endpoint_from_name('pipelines-visualization').services()[0]['hosts'][0]
 
     grpc_port = hookenv.config('grpc-port')
     http_port = hookenv.config('http-port')
@@ -67,6 +75,7 @@ def start_charm():
                         'resources': ['scheduledworkflows'],
                         'verbs': ['create', 'get', 'list', 'update', 'patch', 'delete'],
                     },
+                    {'apiGroups': [''], 'resources': ['pods'], 'verbs': ['delete']},
                 ]
             },
             'service': {
@@ -99,13 +108,13 @@ def start_charm():
                         {'name': 'grpc', 'containerPort': grpc_port},
                         {'name': 'http', 'containerPort': http_port},
                     ],
-                    'config': {
-                        'MYSQL_SERVICE_HOST': mysql.host(),
-                        'MYSQL_SERVICE_PORT': mysql.port(),
-                        'MINIO_SERVICE_SERVICE_HOST': minio['hostname'],
-                        'MINIO_SERVICE_SERVICE_PORT': minio['port'],
-                        'POD_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
-                    },
+                    'command': [
+                        'apiserver',
+                        '--config=/config',
+                        '--sampleconfig=/config/sample_config.json',
+                        '-logtostderr=true',
+                    ],
+                    'config': {'POD_NAMESPACE': os.environ['JUJU_MODEL_NAME']},
                     'files': [
                         {
                             'name': 'config',
@@ -116,15 +125,27 @@ def start_charm():
                                         'DBConfig': {
                                             'DriverName': 'mysql',
                                             'DataSourceName': mysql.database(),
+                                            'Host': mysql.host(),
+                                            'Port': mysql.port(),
                                             'User': 'root',
                                             'Password': mysql.root_password(),
+                                            'DBName': 'mlpipeline',
                                         },
                                         'ObjectStoreConfig': {
+                                            'Host': minio['hostname'],
+                                            'Port': minio['port'],
                                             'AccessKey': hookenv.config('minio-access-key'),
                                             'SecretAccessKey': hookenv.config('minio-secret-key'),
                                             'BucketName': hookenv.config('minio-bucket-name'),
                                         },
                                         'InitConnectionTimeout': '5s',
+                                        "DefaultPipelineRunnerServiceAccount": "pipeline-runner",
+                                        "ML_PIPELINE_VISUALIZATIONSERVER_SERVICE_HOST": viz[
+                                            'hostname'
+                                        ],
+                                        "ML_PIPELINE_VISUALIZATIONSERVER_SERVICE_PORT": viz['port'],
+                                        'PROFILES_KFAM_SERVICE_HOST': profiles['hostname'],
+                                        'PROFILES_KFAM_SERVICE_PORT': profiles['port'],
                                     }
                                 ),
                                 'sample_config.json': Path('files/sample_config.json').read_text(),

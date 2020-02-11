@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import yaml
 
@@ -55,13 +56,7 @@ def start_charm():
                         'apiGroups': [''],
                         'resources': ['events', 'namespaces', 'nodes'],
                         'verbs': ['get', 'list', 'watch'],
-                    },
-                    {
-                        'apiGroups': ['', 'app.k8s.io'],
-                        'resources': ['applications', 'pods', 'pods/exec', 'pods/log'],
-                        'verbs': ['get', 'list', 'watch'],
-                    },
-                    {'apiGroups': [''], 'resources': ['secrets'], 'verbs': ['get']},
+                    }
                 ],
             },
             'service': {
@@ -90,26 +85,37 @@ def start_charm():
                         'password': image_info.password,
                     },
                     'config': {
-                        'USERID_HEADER': '',
+                        'USERID_HEADER': 'kubeflow-userid',
                         'USERID_PREFIX': '',
                         'PROFILES_KFAM_SERVICE_HOST': f'{profiles_service}.{model}',
                     },
                     'ports': [{'name': 'ui', 'containerPort': port}],
+                    'kubernetes': {
+                        'livenessProbe': {
+                            'httpGet': {'path': '/healthz', 'port': 8082},
+                            'initialDelaySeconds': 30,
+                            'periodSeconds': 30,
+                        }
+                    },
                 }
             ],
         },
         {
             'kubernetesResources': {
+                'customResourceDefinitions': {
+                    crd['metadata']['name']: crd['spec']
+                    for crd in yaml.safe_load_all(Path("files/crds.yaml").read_text())
+                },
                 'customResources': {
                     'profiles.kubeflow.org': [
                         {
-                            'apiVersion': 'kubeflow.org/v1alpha1',
+                            'apiVersion': 'kubeflow.org/v1beta1',
                             'kind': 'Profile',
                             'metadata': {'name': profile},
                             'spec': {'owner': {'kind': 'User', 'name': profile}},
                         }
                     ]
-                }
+                },
             }
         },
     )

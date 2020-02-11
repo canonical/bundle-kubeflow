@@ -63,7 +63,7 @@ def start_charm():
             'kubernetesResources': {
                 'customResourceDefinitions': {
                     crd['metadata']['name']: crd['spec']
-                    for crd in yaml.safe_load_all(Path("files/crd-v1beta1.yaml").read_text())
+                    for crd in yaml.safe_load_all(Path("files/crds.yaml").read_text())
                 }
             }
         },

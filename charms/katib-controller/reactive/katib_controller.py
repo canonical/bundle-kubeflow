@@ -1,6 +1,5 @@
 import json
 import os
-from glob import glob
 from pathlib import Path
 from subprocess import run
 
@@ -29,48 +28,38 @@ KATIB_CONFIG = {
     'metrics-collector-sidecar': json.dumps(
         {
             "StdOut": {
-                "image": "gcr.io/kubeflow-images-public/katib/v1alpha3/file-metrics-collector"
+                "image": "gcr.io/kubeflow-images-public/katib/v1alpha3/file-metrics-collector:v0.8.0"
             },
             "File": {
-                "image": "gcr.io/kubeflow-images-public/katib/v1alpha3/file-metrics-collector"
+                "image": "gcr.io/kubeflow-images-public/katib/v1alpha3/file-metrics-collector:v0.8.0"
             },
             "TensorFlowEvent": {
-                "image": "gcr.io/kubeflow-images-public/katib/v1alpha3/tfevent-metrics-collector"
+                "image": "gcr.io/kubeflow-images-public/katib/v1alpha3/tfevent-metrics-collector:v0.8.0"
             },
         }
     ),
     'suggestion': json.dumps(
         {
-            "random": {"image": "gcr.io/kubeflow-images-public/katib/v1alpha3/suggestion-hyperopt"},
-            "grid": {"image": "gcr.io/kubeflow-images-public/katib/v1alpha3/suggestion-chocolate"},
+            "random": {
+                "image": "gcr.io/kubeflow-images-public/katib/v1alpha3/suggestion-hyperopt:v0.8.0"
+            },
+            "grid": {
+                "image": "gcr.io/kubeflow-images-public/katib/v1alpha3/suggestion-chocolate:v0.8.0"
+            },
             "hyperband": {
-                "image": "gcr.io/kubeflow-images-public/katib/v1alpha3/suggestion-hyperband"
+                "image": "gcr.io/kubeflow-images-public/katib/v1alpha3/suggestion-hyperband:v0.8.0"
             },
             "bayesianoptimization": {
-                "image": "gcr.io/kubeflow-images-public/katib/v1alpha3/suggestion-skopt"
+                "image": "gcr.io/kubeflow-images-public/katib/v1alpha3/suggestion-skopt:v0.8.0"
             },
-            "tpe": {"image": "gcr.io/kubeflow-images-public/katib/v1alpha3/suggestion-hyperopt"},
-            "nasrl": {"image": "gcr.io/kubeflow-images-public/katib/v1alpha3/suggestion-nasrl"},
+            "tpe": {
+                "image": "gcr.io/kubeflow-images-public/katib/v1alpha3/suggestion-hyperopt:v0.8.0"
+            },
+            "nasrl": {
+                "image": "gcr.io/kubeflow-images-public/katib/v1alpha3/suggestion-nasrl:v0.8.0"
+            },
         }
     ),
-}
-
-TRIAL_TEMPLATE = {
-    'defaultTrialTemplate.yaml': json.dumps(
-        {
-            "apiVersion": "batch/v1",
-            "kind": "Job",
-            "metadata": {"name": "{{.Trial}}", "namespace": "{{.NameSpace}}"},
-            "spec": {
-                "template": {
-                    "spec": {
-                        "containers": [{"name": "{{.Trial}}", "image": "alpine"}],
-                        "restartPolicy": "Never",
-                    }
-                }
-            },
-        }
-    )
 }
 
 
@@ -80,8 +69,6 @@ def start_charm():
     layer.status.maintenance('configuring container')
 
     image_info = layer.docker_resource.get_info('oci-image')
-
-    crds = [yaml.load(Path(crd).read_text()) for crd in glob('files/*-crd.yaml')]
 
     run(
         [
@@ -145,10 +132,13 @@ def start_charm():
                         'resources': [
                             'experiments',
                             'experiments/status',
+                            'experiments/finalizers',
                             'trials',
                             'trials/status',
+                            'trials/finalizers',
                             'suggestions',
                             'suggestions/status',
+                            'suggestions/finalizers',
                         ],
                         'verbs': ['*'],
                     },
@@ -185,9 +175,19 @@ def start_charm():
         },
         k8s_resources={
             'kubernetesResources': {
-                'customResourceDefinitions': {crd['metadata']['name']: crd['spec'] for crd in crds}
+                'customResourceDefinitions': {
+                    crd['metadata']['name']: crd['spec']
+                    for crd in yaml.safe_load_all(Path("files/crds.yaml").read_text())
+                }
             },
-            'configMaps': {'katib-config': KATIB_CONFIG, 'trial-template': TRIAL_TEMPLATE},
+            'configMaps': {
+                'katib-config': KATIB_CONFIG,
+                'trial-template': {
+                    'defaultTrialTemplate.yaml': Path(
+                        'files/defaultTrialTemplate.yaml.tmpl'
+                    ).read_text()
+                },
+            },
         },
     )
 

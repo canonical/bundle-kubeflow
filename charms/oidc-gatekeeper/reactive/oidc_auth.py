@@ -68,6 +68,7 @@ def start_charm():
                                 "kind": "AuthService",
                                 "name": "oidc-gatekeeper-auth",
                                 "auth_service": f"{service_name}.{namespace}:{port}",
+                                "allowed_authorization_headers": ["kubeflow-userid"],
                             },
                         ]
                     )

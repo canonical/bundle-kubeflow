@@ -28,6 +28,9 @@ def start_charm():
     layer.status.maintenance('configuring container')
 
     image_info = layer.docker_resource.get_info('oci-image')
+    service_name = hookenv.service_name()
+
+    port = hookenv.config('port')
 
     layer.caas_base.pod_spec_set(
         {
@@ -35,7 +38,11 @@ def start_charm():
             'serviceAccount': {
                 'rules': [
                     {'apiGroups': [''], 'resources': ['configmaps'], 'verbs': ['*']},
-                    {'apiGroups': ['kubeflow.org'], 'resources': ['studyjobs'], 'verbs': ['*']},
+                    {
+                        'apiGroups': ['kubeflow.org'],
+                        'resources': ['experiments', 'trials'],
+                        'verbs': ['*'],
+                    },
                 ]
             },
             'service': {
@@ -48,7 +55,7 @@ def start_charm():
                                 'name': 'katib-ui',
                                 'prefix': '/katib/',
                                 'rewrite': '/katib/',
-                                'service': f'{hookenv.service_name()}:80',
+                                'service': f'{service_name}:{port}',
                                 'timeout_ms': 30000,
                             }
                         ]
@@ -59,12 +66,13 @@ def start_charm():
                 {
                     'name': 'katib-ui',
                     'command': ["./katib-ui"],
+                    'args': ['-port', str(port)],
                     'imageDetails': {
                         'imagePath': image_info.registry_path,
                         'username': image_info.username,
                         'password': image_info.password,
                     },
-                    'ports': [{'name': 'http', 'containerPort': 80}],
+                    'ports': [{'name': 'http', 'containerPort': port}],
                     'config': {'KATIB_CORE_NAMESPACE': os.environ['JUJU_MODEL_NAME']},
                 }
             ],

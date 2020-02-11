@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{.Trial}}
+  namespace: {{.NameSpace}}
+spec:
+  template:
+    spec:
+      containers:
+      - name: {{.Trial}}
+        image: docker.io/katib/mxnet-mnist-example
+        command:
+        - "python"
+        - "/mxnet/example/image-classification/train_mnist.py"
+        - "--batch-size=64"
+        {{- with .HyperParameters}}
+        {{- range .}}
+        - "{{.Name}}={{.Value}}"
+        {{- end}}
+        {{- end}}
+      restartPolicy:Never

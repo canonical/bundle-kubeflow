@@ -10,8 +10,10 @@ resources:
     type: oci-image
     description: 'Backing OCI image'
     auto-fetch: true
-    upstream-source: 'gcr.io/kubeflow-images-public/jupyter-web-app:v0.5.0'
+    upstream-source: gcr.io/kubeflow-images-public/jupyter-web-app:9419d4d
 requires:
   ambassador:
     interface: ambassador
+  kubeflow-profiles:
+    interface: http
 min-juju-version: 2.7.0

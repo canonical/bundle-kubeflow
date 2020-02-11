@@ -43,6 +43,7 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
+            'version': 2,
             'containers': [
                 {
                     'name': 'modeldb-backend',
@@ -118,7 +119,7 @@ def start_charm():
                     ],
                     'ports': [{'name': 'http-port', 'containerPort': http_port}],
                 },
-            ]
+            ],
         }
     )
 

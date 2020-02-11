@@ -57,7 +57,7 @@ def start_charm():
                     },
                     {
                         'apiGroups': ['argoproj.io'],
-                        'resources': ['workflows'],
+                        'resources': ['workflows', 'workflows/finalizers'],
                         'verbs': ['get', 'list', 'watch', 'update', 'patch'],
                     },
                 ],

@@ -10,4 +10,4 @@ resources:
     type: oci-image
     description: 'Backing OCI image'
     auto-fetch: true
-    upstream-source: 'docker.io/seldonio/seldon-core-operator:0.4.1'
+    upstream-source: 'docker.io/seldonio/seldon-core-operator:1.0.1'

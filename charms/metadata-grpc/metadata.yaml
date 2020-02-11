@@ -1,0 +1,20 @@
+name: metadata-grpc
+display-name: Metadata GRPC API
+summary: Metadata GRPC API
+description: Metadata GRPC API
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [ai, bigdata, kubeflow, machine-learning, tensorflow]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: gcr.io/tfx-oss-public/ml_metadata_store_server:0.15.1
+requires:
+  mysql:
+    interface: mysql
+provides:
+  metadata-grpc:
+    interface: http
+min-juju-version: 2.7.0

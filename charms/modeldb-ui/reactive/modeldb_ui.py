@@ -31,6 +31,7 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
+            'version': 2,
             'containers': [
                 {
                     'name': 'modeldb-ui',
@@ -45,7 +46,7 @@ def start_charm():
                         'BACKEND_API_PORT': backend['hosts'][0]['port'],
                     },
                 }
-            ]
+            ],
         }
     )
 

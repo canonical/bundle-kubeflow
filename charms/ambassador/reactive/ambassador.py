@@ -34,38 +34,17 @@ def start_charm():
                 'rules': [
                     {
                         'apiGroups': [''],
-                        'resources': [
-                            'endpoints',
-                            'namespaces',
-                            'secrets',
-                            'services',
-                            'configmaps',
-                        ],
+                        'resources': ['services'],
                         'verbs': ['get', 'list', 'watch'],
                     },
                     {
-                        'apiGroups': ['getambassador.io'],
-                        'resources': ['*'],
-                        'verbs': ['get', 'list', 'watch'],
+                        'apiGroups': [''],
+                        'resources': ['configmaps'],
+                        'verbs': ['create', 'update', 'patch', 'get', 'list', 'watch'],
                     },
                     {
-                        'apiGroups': ['apiextensions.k8s.io'],
-                        'resources': ['customresourcedefinitions'],
-                        'verbs': ['get', 'list', 'watch'],
-                    },
-                    {
-                        'apiGroups': ['networking.internal.knative.dev'],
-                        'resources': ['clusteringresses', 'ingresses'],
-                        'verbs': ['get', 'list', 'watch'],
-                    },
-                    {
-                        'apiGroups': ['networking.internal.knative.dev'],
-                        'resources': ['ingresses/status', 'clusteringresses/status'],
-                        'verbs': ['update'],
-                    },
-                    {
-                        'apiGroups': ['extensions'],
-                        'resources': ['ingresses'],
+                        'apiGroups': [''],
+                        'resources': ['secrets'],
                         'verbs': ['get', 'list', 'watch'],
                     },
                 ],

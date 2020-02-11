@@ -29,19 +29,14 @@ def start_charm():
 
     image_info = layer.docker_resource.get_info('oci-image')
 
-    crd = yaml.safe_load(Path('files/crd-v1beta2.yaml').read_text())
-    config = yaml.dump(
-        {'grpcServerFilePath': '/opt/mlkube/grpc_tensorflow_server/grpc_tensorflow_server.py'}
-    )
-
     layer.caas_base.pod_spec_set(
         {
             'version': 2,
             'serviceAccount': {
                 'rules': [
                     {
-                        'apiGroups': ['tensorflow.org', 'kubeflow.org'],
-                        'resources': ['tfjobs', 'tfjobs/status'],
+                        'apiGroups': ['kubeflow.org'],
+                        'resources': ['tfjobs', 'tfjobs/status', 'tfjobs/finalizers'],
                         'verbs': ['*'],
                     },
                     {
@@ -50,21 +45,8 @@ def start_charm():
                         'verbs': ['*'],
                     },
                     {
-                        'apiGroups': ['storage.k8s.io'],
-                        'resources': ['storageclasses'],
-                        'verbs': ['*'],
-                    },
-                    {'apiGroups': ['batch'], 'resources': ['jobs'], 'verbs': ['*']},
-                    {
                         'apiGroups': [''],
-                        'resources': [
-                            'configmaps',
-                            'pods',
-                            'services',
-                            'endpoints',
-                            'persistentvolumeclaims',
-                            'events',
-                        ],
+                        'resources': ['pods', 'services', 'endpoints', 'events'],
                         'verbs': ['*'],
                     },
                     {
@@ -82,29 +64,20 @@ def start_charm():
                         'username': image_info.username,
                         'password': image_info.password,
                     },
-                    'command': [
-                        '/opt/kubeflow/tf-operator.v1',
-                        '--alsologtostderr',
-                        '-v=1',
-                        '--monitoring-port=8443',
-                    ],
+                    'args': ['--alsologtostderr', '-v=1', '--monitoring-port=8443'],
                     'config': {
                         'MY_POD_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
                         'MY_POD_NAME': hookenv.service_name(),
                     },
-                    'files': [
-                        {
-                            'name': 'configs',
-                            'mountPath': '/etc/config',
-                            'files': {'controller_config_file.yaml': config},
-                        }
-                    ],
                 }
             ],
         },
         k8s_resources={
             'kubernetesResources': {
-                'customResourceDefinitions': {crd['metadata']['name']: crd['spec']}
+                'customResourceDefinitions': {
+                    crd['metadata']['name']: crd['spec']
+                    for crd in yaml.safe_load_all(Path("files/crds.yaml").read_text())
+                }
             }
         },
     )

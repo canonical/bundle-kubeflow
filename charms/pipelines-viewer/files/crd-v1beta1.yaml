@@ -9,10 +9,10 @@ spec:
     listKind: ViewerList
     plural: viewers
     shortNames:
-      - vi
+    - vi
     singular: viewer
   scope: Namespaced
   versions:
-    - name: v1beta1
-      served: true
-      storage: true
+  - name: v1beta1
+    served: true
+    storage: true

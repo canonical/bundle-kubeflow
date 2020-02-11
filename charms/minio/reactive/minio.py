@@ -31,6 +31,7 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
+            'version': 2,
             'containers': [
                 {
                     'name': 'minio',
@@ -46,7 +47,7 @@ def start_charm():
                         'MINIO_SECRET_KEY': hookenv.config('secret-key'),
                     },
                 }
-            ]
+            ],
         }
     )
 

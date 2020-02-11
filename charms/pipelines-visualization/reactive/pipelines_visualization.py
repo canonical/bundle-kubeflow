@@ -1,8 +1,6 @@
-import yaml
-
 from charmhelpers.core import hookenv
 from charms import layer
-from charms.reactive import clear_flag, hook, set_flag, when, when_any, when_not
+from charms.reactive import clear_flag, hook, set_flag, when, when_not
 
 
 @hook('upgrade-charm')
@@ -15,7 +13,12 @@ def charm_ready():
     layer.status.active('')
 
 
-@when_any('layer.docker-resource.oci-image.changed', 'config.changed')
+@when('pipelines-visualization.available')
+def configure_http(http):
+    http.configure(port=hookenv.config('port'), hostname=hookenv.application_name())
+
+
+@when('layer.docker-resource.oci-image.changed')
 def update_image():
     clear_flag('charm.started')
 
@@ -26,33 +29,15 @@ def start_charm():
     layer.status.maintenance('configuring container')
 
     image_info = layer.docker_resource.get_info('oci-image')
-    service_name = hookenv.service_name()
 
     port = hookenv.config('port')
 
     layer.caas_base.pod_spec_set(
         {
-            'service': {
-                'annotations': {
-                    'getambassador.io/config': yaml.dump_all(
-                        [
-                            {
-                                'apiVersion': 'ambassador/v0',
-                                'kind': 'Mapping',
-                                'name': 'kflogin-mapping',
-                                'prefix': '/kflogin',
-                                'rewrite': '/kflogin',
-                                'timeout_ms': 300000,
-                                'service': f'{service_name}:{port}',
-                                'use_websocket': True,
-                            }
-                        ]
-                    )
-                }
-            },
+            'version': 2,
             'containers': [
                 {
-                    'name': 'kubeflow-login',
+                    'name': 'pipelines-visualization',
                     'imageDetails': {
                         'imagePath': image_info.registry_path,
                         'username': image_info.username,
