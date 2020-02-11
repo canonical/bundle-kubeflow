@@ -1,8 +1,10 @@
+import os
 from pathlib import Path
 
 import yaml
+
 from charms import layer
-from charms.reactive import hook, set_flag, clear_flag, when, when_any, when_not, hookenv
+from charms.reactive import clear_flag, hook, hookenv, set_flag, when, when_any, when_not
 
 
 @hook('upgrade-charm')
@@ -76,7 +78,7 @@ def start_charm():
                         'username': image_info.username,
                         'password': image_info.password,
                     },
-                    'ports': [{'name': 'ui', 'containerPort': port}],
+                    'config': {'POD_NAMESPACE': os.environ['JUJU_MODEL_NAME']},
                 }
             ],
         },
