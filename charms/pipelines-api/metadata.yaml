@@ -12,11 +12,15 @@ resources:
     type: oci-image
     description: 'Backing OCI image'
     auto-fetch: true
-    upstream-source: gcr.io/ml-pipeline/api-server:0.1.25
+    upstream-source: gcr.io/ml-pipeline/api-server:0.2.0
 requires:
+  kubeflow-profiles:
+    interface: http
+  minio:
+    interface: http
   mysql:
     interface: mysql
-  minio:
+  pipelines-visualization:
     interface: http
 provides:
   pipelines-api:
