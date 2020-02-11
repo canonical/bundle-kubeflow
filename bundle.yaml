@@ -208,6 +208,13 @@ applications:
     annotations:
       gui-x: '-300'
       gui-y: '0'
+  pipelines-visualization:
+    charm: cs:~kubeflow-charmers/pipelines-visualization
+    source: ./charms/pipelines-visualization
+    scale: 1
+    annotations:
+      gui-x: '450'
+      gui-y: '777'
   pytorch-operator:
     charm: cs:~kubeflow-charmers/pytorch-operator
     source: ./charms/pytorch-operator
