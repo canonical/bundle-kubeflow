@@ -60,6 +60,7 @@ def start_charm():
                         'username': image_info.username,
                         'password': image_info.password,
                     },
+                    'config': {'POD_NAMESPACE': os.environ['JUJU_MODEL_NAME']},
                 }
             ],
         }
