@@ -31,10 +31,11 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
+            'version': 2,
             'containers': [
                 {
                     'name': 'katib-manager',
-                    'command': ["./katib-manager"],
+                    'command': ["./katib-db-manager"],
                     'imageDetails': {
                         'imagePath': image_info.registry_path,
                         'username': image_info.username,
@@ -43,22 +44,26 @@ def start_charm():
                     'ports': [{'name': 'manager', 'containerPort': port}],
                     'config': {
                         'DB_NAME': 'mysql',
+                        'DB_USER': 'root',
                         'DB_PASSWORD': mysql.root_password(),
-                        'MYSQL_HOST': mysql.host(),
-                        'MYSQL_PORT': mysql.port(),
+                        'KATIB_MYSQL_DB_HOST': mysql.host(),
+                        'KATIB_MYSQL_DB_PORT': mysql.port(),
+                        'KATIB_MYSQL_DB_DATABASE': 'katib',
                     },
-                    'livenessProbe': {
-                        'exec': {'command': ["/bin/grpc_health_probe", f"-addr=:{port}"]},
-                        'initialDelaySeconds': 10,
-                    },
-                    'readinessProbe': {
-                        'exec': {'command': ["/bin/grpc_health_probe", f"-addr=:{port}"]},
-                        'initialDelaySeconds': 5,
-                        'periodSeconds': 60,
-                        'failureThreshold': 5,
+                    'kubernetes': {
+                        'livenessProbe': {
+                            'exec': {'command': ["/bin/grpc_health_probe", f"-addr=:{port}"]},
+                            'initialDelaySeconds': 10,
+                        },
+                        'readinessProbe': {
+                            'exec': {'command': ["/bin/grpc_health_probe", f"-addr=:{port}"]},
+                            'initialDelaySeconds': 5,
+                            'periodSeconds': 60,
+                            'failureThreshold': 5,
+                        },
                     },
                 }
-            ]
+            ],
         }
     )
 
