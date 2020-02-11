@@ -31,6 +31,7 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
+            'version': 2,
             'service': {
                 'annotations': {
                     'getambassador.io/config': yaml.dump_all(
