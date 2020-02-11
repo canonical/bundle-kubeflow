@@ -105,6 +105,13 @@ applications:
     annotations:
       gui-x: '-600'
       gui-y: '-518'
+  metadata-envoy:
+    charm: cs:~kubeflow-charmers/metadata-envoy
+    source: ./charms/metadata-envoy
+    scale: 1
+    annotations:
+      gui-x: '-750'
+      gui-y: '-259'
   metadata-ui:
     charm: cs:~kubeflow-charmers/metadata-ui
     source: ./charms/metadata-ui

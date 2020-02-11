@@ -1,0 +1,9 @@
+options:
+  port:
+    type: int
+    default: 9090
+    description: HTTP port
+  admin-port:
+    type: int
+    default: 9091
+    description: Admin port
