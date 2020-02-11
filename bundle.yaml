@@ -97,8 +97,8 @@ applications:
     source: ./charms/metadata-api
     scale: 1
     annotations:
-      gui-x: '-750'
-      gui-y: '-259'
+      gui-x: '-300'
+      gui-y: '-518'
   metadata-db:
     charm: cs:~charmed-osm/mariadb-k8s
     scale: 1
@@ -124,7 +124,7 @@ applications:
     source: ./charms/metadata-ui
     scale: 1
     annotations:
-      gui-x: '-450'
+      gui-x: '-150'
       gui-y: '-259'
   minio:
     charm: cs:~kubeflow-charmers/minio
@@ -220,8 +220,8 @@ applications:
     source: ./charms/pytorch-operator
     scale: 1
     annotations:
-      gui-x: '-600'
-      gui-y: '0'
+      gui-x: '450'
+      gui-y: '-777'
   seldon-core:
     charm: cs:~kubeflow-charmers/seldon-core
     source: ./charms/seldon-core
@@ -234,8 +234,8 @@ applications:
     source: ./charms/tf-job-operator
     scale: 1
     annotations:
-      gui-x: '-300'
-      gui-y: '-518'
+      gui-x: '-600'
+      gui-y: '0'
 relations:
 - [ambassador, argo-ui]
 - [ambassador, jupyter-web]
