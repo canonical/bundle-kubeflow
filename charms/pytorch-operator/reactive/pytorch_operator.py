@@ -27,14 +27,9 @@ def update_image():
 def start_charm():
     layer.status.maintenance('configuring container')
 
-    config = hookenv.config()
     image_info = layer.docker_resource.get_info('oci-image')
 
-    crd = yaml.load(Path('files/crd-v1beta1.yaml').read_text())
-
-    conf_data = {}
-    if config['pytorch-default-image']:
-        conf_data['pytorchImage'] = config['pytorch-default-image']
+    crd = yaml.load(Path('files/crds.yaml').read_text())
 
     layer.caas_base.pod_spec_set(
         {
@@ -52,26 +47,8 @@ def start_charm():
                         'verbs': ['*'],
                     },
                     {
-                        'apiGroups': ['storage.k8s.io'],
-                        'resources': ['storageclasses'],
-                        'verbs': ['*'],
-                    },
-                    {'apiGroups': ['batch'], 'resources': ['jobs'], 'verbs': ['*']},
-                    {
                         'apiGroups': [''],
-                        'resources': [
-                            'configmaps',
-                            'pods',
-                            'services',
-                            'endpoints',
-                            'persistentvolumeclaims',
-                            'events',
-                        ],
-                        'verbs': ['*'],
-                    },
-                    {
-                        'apiGroups': ['apps', 'extensions'],
-                        'resources': ['deployments'],
+                        'resources': ['pods', 'services', 'endpoints', 'events'],
                         'verbs': ['*'],
                     },
                 ]
@@ -91,13 +68,6 @@ def start_charm():
                         '--monitoring-port=8443',
                     ],
                     'config': {'KUBEFLOW_NAMESPACE': os.environ['JUJU_MODEL_NAME']},
-                    'files': [
-                        {
-                            'name': 'configs',
-                            'mountPath': '/etc/config',
-                            'files': {'controller_config_file.yaml': yaml.dump(conf_data)},
-                        }
-                    ],
                 }
             ],
         },
