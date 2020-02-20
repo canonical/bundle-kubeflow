@@ -49,6 +49,7 @@ def start_charm():
                     },
                 ],
             },
+            'service': {'annotations': {'metallb.universe.tf/address-pool': 'default'}},
             'containers': [
                 {
                     'name': 'ambassador',
