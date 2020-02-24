@@ -14,4 +14,7 @@ resources:
 provides:
   ambassador:
     interface: ambassador
+deployment:
+  type: stateless
+  service: loadbalancer
 min-juju-version: 2.7.0

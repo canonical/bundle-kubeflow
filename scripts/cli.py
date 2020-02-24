@@ -54,7 +54,7 @@ def get_output(*args: str):
     """Gets output from subcommand without echoing stdout."""
 
     return subprocess.run(
-        args, check=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        args, check=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
     ).stdout
 
 
@@ -82,13 +82,13 @@ def wait_for(*args: str, wait_msg: str, fail_msg: str):
 def kubeflow_info(controller: str, model: str):
     """Displays info about the deploy Kubeflow instance."""
 
-    pub_ip = get_pub_addr(controller)
+    pub_addr = get_pub_addr(controller)
 
     print(
         textwrap.dedent(
             f"""
 
-        The central dashboard is available at http://{pub_ip}/
+        The central dashboard is available at http://{pub_addr}/
 
         To display the login credentials, run these commands:
 
@@ -166,22 +166,32 @@ def ck_info(controller):
 
 
 def get_pub_addr(controller: str):
-    """Gets the hostname that Ambassador will respond to.
+    """Gets the hostname that Ambassador will respond to."""
 
-    For local deployments such as MicroK8s, it's just `localhost`, otherwise
-    we just use the xip.io service with the IP address.
-    """
-
+    # Check if we've manually set a hostname on the ingress
     try:
-        status = json.loads(
-            get_output('juju', 'status', '-m', f'{controller}:default', '--format=json')
-        )
-    except subprocess.CalledProcessError:
-        return os.environ.get('KUBEFLOW_URL') or 'localhost'
+        output = get_output('juju', 'kubectl', 'get', 'ingress/ambassador', '-ojson')
+        return json.loads(output)['spec']['rules'][0]['host']
+    except (KeyError, subprocess.CalledProcessError) as err:
+        pass
 
-    units = status['applications']['kubernetes-worker']['units']
-    worker = list(sorted(units.items()))[0][1]
-    return worker['public-address'] + '.xip.io'
+    # Check if juju expose has created an ELB or similar
+    try:
+        output = get_output('juju', 'kubectl', 'get', 'svc/ambassador', '-ojson')
+        return json.loads(output)['status']['loadBalancer']['ingress'][0]['hostname']
+    except (KeyError, subprocess.CalledProcessError) as err:
+        pass
+
+    # Otherwise, see if we've set up metallb with a custom service
+    try:
+        output = get_output('juju', 'kubectl', 'get', 'svc/ambassador', '-ojson')
+        pub_ip = json.loads(output)['status']['loadBalancer']['ingress'][0]['ip']
+        return '%s.xip.io' % pub_ip
+    except (KeyError, subprocess.CalledProcessError) as err:
+        pass
+
+    # If all else fails, just use localhost
+    return 'localhost'
 
 
 def get_random_pass():
@@ -208,32 +218,21 @@ def cli(debug):
 @click.option('--cloud')
 @click.option('--model', default='kubeflow')
 @click.option('--channel', default='stable')
+@click.option('--public-address')
 @click.option('--build/--no-build', default=False)
 @click.option('-o', '--overlays', multiple=True)
 @click.password_option(
-    envvar='KUBEFLOW_AUTH_PASSWORD', prompt='Enter a password to set for the Kubeflow dashboard'
+    envvar='KUBEFLOW_AUTH_PASSWORD', prompt='Enter a password to set for the Kubeflow dashboard',
 )
-def deploy_to(controller, cloud, model, channel, build, overlays, password):
+def deploy_to(controller, cloud, model, channel, public_address, build, overlays, password):
     # Dynamically-generated overlay, since there isn't a better
     # way of generating random passwords.
-    pub_addr = get_pub_addr(controller)
     password_overlay = {
         "applications": {
-            "dex-auth": {
-                "options": {
-                    "public-url": f'http://{pub_addr}:80',
-                    "static-username": "admin",
-                    "static-password": password,
-                }
-            },
+            "dex-auth": {"options": {"static-username": "admin", "static-password": password,}},
             "katib-db": {"options": {"root_password": get_random_pass()}},
             "modeldb-db": {"options": {"root_password": get_random_pass()}},
-            "oidc-gatekeeper": {
-                "options": {
-                    "public-url": f'http://{pub_addr}:80',
-                    "client-secret": get_random_pass(),
-                }
-            },
+            "oidc-gatekeeper": {"options": {"client-secret": get_random_pass(),}},
             "pipelines-api": {"options": {"minio-secret-key": "minio123"}},
             "pipelines-db": {"options": {"root_password": get_random_pass()}},
         }
@@ -284,6 +283,10 @@ def deploy_to(controller, cloud, model, channel, build, overlays, password):
 
     juju('wait', '-wv', '-m', model)
 
+    pub_addr = public_address or get_pub_addr(controller)
+    juju('config', 'dex-auth', f'public-url=http://{pub_addr}:80')
+    juju('config', 'oidc-gatekeeper', f'public-url=http://{pub_addr}:80')
+
     juju('config', 'ambassador', f'juju-external-hostname={pub_addr}')
     juju('expose', 'ambassador')
 
@@ -311,7 +314,12 @@ def microk8s():
 
 @microk8s.command()
 @click.option('--controller')
-@click.option('-s', '--services', default=['dns', 'storage', 'rbac', 'dashboard'], multiple=True)
+@click.option(
+    '-s',
+    '--services',
+    default=['dns', 'storage', 'rbac', 'dashboard', 'ingress', 'metallb'],
+    multiple=True,
+)
 @click.option('--model-defaults', default=[], multiple=True)
 def setup(controller, services, model_defaults):
     if not controller:
@@ -388,7 +396,9 @@ def setup(cloud, region, controller, channel, gpu):
 
     with tempfile.NamedTemporaryFile() as kubeconfig:
         # Copy details of cloud locally, and tell juju about it
-        juju('scp', '-m', f'{controller}:default', 'kubernetes-master/0:~/config', kubeconfig.name)
+        juju(
+            'scp', '-m', f'{controller}:default', 'kubernetes-master/0:~/config', kubeconfig.name,
+        )
         juju(
             'add-k8s',
             controller,
