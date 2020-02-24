@@ -3,7 +3,7 @@ language: python
 python: 3.7
 sudo: required
 install:
-  - pip install black==19.3b0
+  - pip install black==19.10b0
 script:
   # Check everything, and make sure the extensionless scripts are included
   - black --check . ./scripts/*
