@@ -21,6 +21,20 @@ applications:
     annotations:
       gui-x: '300'
       gui-y: '0'
+  cert-manager-controller:
+    charm: cs:~kubeflow-charmers/cert-manager-controller
+    source: ./charms/cert-manager-controller
+    scale: 1
+    annotations:
+      gui-x: '-450'
+      gui-y: '777'
+  cert-manager-webhook:
+    charm: cs:~kubeflow-charmers/cert-manager-webhook
+    source: ./charms/cert-manager-webhook
+    scale: 1
+    annotations:
+      gui-x: '-600'
+      gui-y: '518'
   dex-auth:
     charm: cs:~kubeflow-charmers/dex-auth
     source: ./charms/dex-auth
@@ -55,8 +69,8 @@ applications:
     options:
       database: katib
     annotations:
-      gui-x: '-600'
-      gui-y: '518'
+      gui-x: '-750'
+      gui-y: '0'
   katib-manager:
     charm: cs:~kubeflow-charmers/katib-manager
     source: ./charms/katib-manager
@@ -244,6 +258,7 @@ relations:
 - [ambassador, pipelines-ui]
 - [ambassador, pipelines-viewer]
 - [argo-controller, minio]
+- [cert-manager-controller, cert-manager-webhook]
 - [dex-auth, oidc-gatekeeper]
 - [katib-manager, katib-db]
 - [kubeflow-profiles, jupyter-web]

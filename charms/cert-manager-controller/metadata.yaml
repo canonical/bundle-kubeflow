@@ -1,0 +1,16 @@
+name: cert-manager-controller
+display-name: Cert Manager Controller
+summary: Cert Manager Controller
+description: Cert Manager Controller
+maintainers: [Juju Developers <juju@lists.ubuntu.com>]
+tags: [kubernetes, certificates]
+series: [kubernetes]
+resources:
+  oci-image:
+    type: oci-image
+    description: 'Backing OCI image'
+    auto-fetch: true
+    upstream-source: quay.io/jetstack/cert-manager-controller:v0.11.0
+requires:
+  cert-manager-webhook:
+    interface: http
