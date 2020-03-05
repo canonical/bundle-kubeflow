@@ -15,12 +15,12 @@ import yaml
 DEFAULT_CONTROLLERS = {'microk8s': 'uk8s', 'aws': 'ckkf'}
 
 
-def juju(*args, env=None):
-    run('juju', *args, env=env)
+def juju(*args, env=None, die=True):
+    run('juju', *args, env=env, die=die)
 
 
-def juju_debug(*args, env=None):
-    run('juju', '--debug', *args, env=env)
+def juju_debug(*args, env=None, die=True):
+    run('juju', '--debug', *args, env=env, die=die)
 
 
 #############
@@ -28,7 +28,7 @@ def juju_debug(*args, env=None):
 #############
 
 
-def run(*args, env: dict = None, check=True):
+def run(*args, env: dict = None, check=True, die=True):
     """Runs command and exits script gracefully on errors."""
 
     click.secho(f'+ {" ".join(args)}', color='green')
@@ -44,10 +44,13 @@ def run(*args, env: dict = None, check=True):
         try:
             result.check_returncode()
         except subprocess.CalledProcessError as err:
-            if result.stderr:
-                click.secho(result.stderr.decode('utf-8'), color='red')
-            click.secho(str(err), color='red')
-            sys.exit(1)
+            if die:
+                if result.stderr:
+                    click.secho(result.stderr.decode('utf-8'), color='red')
+                click.secho(str(err), color='red')
+                sys.exit(1)
+            else:
+                raise
 
 
 def get_output(*args: str):
@@ -229,10 +232,10 @@ def deploy_to(controller, cloud, model, channel, public_address, build, overlays
     # way of generating random passwords.
     password_overlay = {
         "applications": {
-            "dex-auth": {"options": {"static-username": "admin", "static-password": password,}},
+            "dex-auth": {"options": {"static-username": "admin", "static-password": password}},
             "katib-db": {"options": {"root_password": get_random_pass()}},
             "modeldb-db": {"options": {"root_password": get_random_pass()}},
-            "oidc-gatekeeper": {"options": {"client-secret": get_random_pass(),}},
+            "oidc-gatekeeper": {"options": {"client-secret": get_random_pass()}},
             "pipelines-api": {"options": {"minio-secret-key": "minio123"}},
             "pipelines-db": {"options": {"root_password": get_random_pass()}},
         }
@@ -281,6 +284,42 @@ def deploy_to(controller, cloud, model, channel, public_address, build, overlays
         else:
             juju('deploy', '-m', model, 'kubeflow', '--channel', channel, *overlays)
 
+    for _ in range(12):
+        try:
+            juju(
+                'kubectl',
+                'wait',
+                '--for=condition=ready',
+                'pod/cert-manager-webhook-operator-0',
+                die=False,
+            )
+            break
+        except subprocess.CalledProcessError:
+            time.sleep(5)
+    else:
+        print("Waited too long for cert manager webhook operator pod to appear.")
+        sys.exit(1)
+
+    juju(
+        'kubectl',
+        'patch',
+        'role',
+        'cert-manager-webhook-operator',
+        '-p',
+        json.dumps(
+            {
+                'apiVersion': 'rbac.authorization.k8s.io/v1',
+                'kind': 'Role',
+                'metadata': {'name': 'cert-manager-webhook-operator'},
+                'rules': [
+                    {'apiGroups': [''], 'resources': ['pods'], 'verbs': ['get', 'list']},
+                    {'apiGroups': [''], 'resources': ['pods/exec'], 'verbs': ['create']},
+                    {'apiGroups': [''], 'resources': ['secrets'], 'verbs': ['get', 'list']},
+                ],
+            }
+        ),
+    )
+
     juju('wait', '-wv', '-m', model)
 
     pub_addr = public_address or get_pub_addr(controller)
@@ -317,7 +356,7 @@ def microk8s():
 @click.option(
     '-s',
     '--services',
-    default=['dns', 'storage', 'rbac', 'dashboard', 'ingress', 'metallb'],
+    default=['dns', 'storage', 'rbac', 'dashboard', 'ingress', 'metallb:10.64.140.43-10.64.140.49'],
     multiple=True,
 )
 @click.option('--model-defaults', default=[], multiple=True)

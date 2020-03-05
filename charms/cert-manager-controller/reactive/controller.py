@@ -215,7 +215,7 @@ def start_charm():
                     "args": [
                         "--v=2",
                         f"--cluster-resource-namespace={namespace}",
-                        "--leader-election-namespace=kube-system",
+                        "--leader-elect=false",
                         f"--webhook-namespace={namespace}",
                         "--webhook-ca-secret=cert-manager-webhook-ca",
                         "--webhook-serving-secret=cert-manager-webhook-tls",
