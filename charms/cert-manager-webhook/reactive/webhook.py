@@ -1,12 +1,12 @@
 import os
+import time
 from base64 import b64decode
 from pathlib import Path
-from subprocess import run
 
-from kubernetes import client, config
 from charmhelpers.core import hookenv
 from charms import layer
 from charms.reactive import clear_flag, hook, set_flag, when, when_any, when_not
+from kubernetes import client, config
 
 
 @hook("upgrade-charm")
@@ -53,10 +53,16 @@ def start_charm():
 
     config.load_incluster_config()
     v1 = client.CoreV1Api()
-    try:
-        secret = v1.read_namespaced_secret(name="cert-manager-webhook-tls", namespace=namespace)
-    except client.rest.ApiException as err:
-        layer.status.blocked('Waiting for certificate to be created')
+    layer.status.maintenance('Waiting for secrets/cert-manager-webhook-tls to be created')
+    for _ in range(30):
+        try:
+            secret = v1.read_namespaced_secret(name="cert-manager-webhook-tls", namespace=namespace)
+            break
+        except client.rest.ApiException as err:
+            hookenv.log(err)
+            time.sleep(10)
+    else:
+        layer.status.blocked('cert-manager-webhook-tls certificate not found.')
         return False
 
     layer.caas_base.pod_spec_set(
@@ -74,7 +80,8 @@ def start_charm():
                             "clusterissuers",
                         ],
                         "verbs": ["create"],
-                    }
+                    },
+                    {"apiGroups": [""], "resources": ["configmaps"], "verbs": ["get"]},
                 ],
             },
             "containers": [
