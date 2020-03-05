@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 from uuid import uuid4
+from hashlib import sha256
+
 import bcrypt
 import yaml
 
@@ -73,6 +75,26 @@ def start_charm():
             ],
         }
 
+    config = yaml.dump(
+        {
+            "issuer": f"{public_url}/dex",
+            "storage": {"type": "kubernetes", "config": {"inCluster": True}},
+            "web": {"http": f"0.0.0.0:{port}"},
+            "logger": {"level": "debug", "format": "text"},
+            "oauth2": {"skipApprovalScreen": True},
+            "staticClients": oidc_client_info,
+            "connectors": connectors,
+            **static_config,
+        }
+    )
+
+    # Kubernetes won't automatically restart the pod when the configmap changes
+    # unless we manually add the hash somewhere into the Deployment spec, so that
+    # it changes whenever the configmap changes.
+    config_hash = sha256()
+    config_hash.update(config.encode('utf-8'))
+    pod_name = f"dex-auth-{config_hash.hexdigest()[:48]}"
+
     layer.caas_base.pod_spec_set(
         {
             "version": 2,
@@ -107,7 +129,7 @@ def start_charm():
             },
             "containers": [
                 {
-                    "name": "dex-auth",
+                    "name": pod_name,
                     "imageDetails": {
                         "imagePath": image_info.registry_path,
                         "username": image_info.username,
@@ -119,23 +141,7 @@ def start_charm():
                         {
                             "name": "config",
                             "mountPath": "/etc/dex/cfg",
-                            "files": {
-                                "config.yaml": yaml.dump(
-                                    {
-                                        "issuer": f"{public_url}/dex",
-                                        "storage": {
-                                            "type": "kubernetes",
-                                            "config": {"inCluster": True},
-                                        },
-                                        "web": {"http": f"0.0.0.0:{port}"},
-                                        "logger": {"level": "debug", "format": "text"},
-                                        "oauth2": {"skipApprovalScreen": True},
-                                        "staticClients": oidc_client_info,
-                                        "connectors": connectors,
-                                        **static_config,
-                                    }
-                                )
-                            },
+                            "files": {"config.yaml": config},
                         }
                     ],
                 }
