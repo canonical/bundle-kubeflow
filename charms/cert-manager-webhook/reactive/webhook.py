@@ -57,7 +57,11 @@ def start_charm():
     for _ in range(30):
         try:
             secret = v1.read_namespaced_secret(name="cert-manager-webhook-tls", namespace=namespace)
-            break
+            if secret.data.get('tls.crt'):
+                break
+            else:
+                hookenv.config('Got empty certificate, waiting for real one')
+                time.sleep(10)
         except client.rest.ApiException as err:
             hookenv.log(err)
             time.sleep(10)
