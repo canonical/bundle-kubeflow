@@ -60,7 +60,7 @@ def start_charm():
             if secret.data.get('tls.crt'):
                 break
             else:
-                hookenv.config('Got empty certificate, waiting for real one')
+                hookenv.log('Got empty certificate, waiting for real one')
                 time.sleep(10)
         except client.rest.ApiException as err:
             hookenv.log(err)
