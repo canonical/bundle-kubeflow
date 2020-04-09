@@ -1,0 +1,88 @@
+name: MicroK8s Test
+
+on:
+  - pull_request
+
+jobs:
+  build:
+    name: Test On AWS
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        microk8s: [stable, edge]
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        sudo snap install juju --classic
+        sudo snap install juju-wait --classic
+
+    - name: Bootstrap onto AWS
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: |
+        juju autoload-credentials --client aws
+        juju bootstrap aws/us-east-1 uk8saws
+        juju deploy ubuntu --constraints 'cores=4 mem=16G root-disk=60G'
+        juju wait -vw
+        juju status
+        juju status --format yaml
+
+    - name: Copy code to AWS instance
+      run: |
+        set -eux
+        juju scp -- -r $(pwd)/ ubuntu/0:~/
+
+    - name: Install test dependencies
+      run: |
+        juju ssh ubuntu/0 <<EOF
+          set -eux
+          sudo snap install charm --classic
+          sudo snap install jq
+          sudo snap install juju --classic
+          sudo snap install juju-helpers --classic --edge
+          sudo snap install juju-wait --classic
+          sudo snap install kubectl --classic
+          sudo snap install microk8s --classic --channel ${{ matrix.microk8s }}
+          sudo snap install yq
+          sudo apt update
+          sudo apt install -y libssl-dev
+          sudo pip3 install pytest sh kfp requests pyyaml
+          sudo usermod -a -G microk8s ubuntu
+        EOF
+
+    - name: Deploy Kubeflow
+      run: |
+        juju ssh ubuntu/0 <<EOF
+          set -eux
+          cd bundle-kubeflow
+          git clone git://git.launchpad.net/canonical-osm
+          cp -r canonical-osm/charms/interfaces/juju-relation-mysql mysql
+          python3 ./scripts/cli.py microk8s setup
+          KUBEFLOW_AUTH_PASSWORD=foobar python3 ./scripts/cli.py deploy-to uk8s --build
+        EOF
+    
+    - name: Test Kubeflow
+      run: |
+        juju ssh ubuntu/0 <<EOF
+          set -eux
+          cd bundle-kubeflow
+          ./tests/run.sh
+        EOF
+
+    - name: Print failing logs
+      run: |
+        juju ssh ubuntu/0 <<EOF
+          for pod in $(microk8s.kubectl get pods --field-selector=status.phase=Running -nkubeflow -oname); do
+            echo $pod
+            microk8s.kubectl logs --tail 1000 --all-containers -nkubeflow $pod
+          done
+        EOF
+      if: failure()
+
+    - name: Destroy controller
+      run: juju destroy-controller -y uk8saws --destroy-all-models --destroy-storage
+      if: always()
