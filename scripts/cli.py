@@ -323,6 +323,15 @@ def deploy_to(controller, cloud, model, channel, public_address, build, overlays
     juju('wait', '-wv', '-m', model)
 
     juju(
+        "kubectl",
+        "wait",
+        f"--namespace={model}",
+        "--for=condition=Ready",
+        "pod",
+        "--timeout=-1s",
+        "--all",
+    )
+    juju(
         'kubectl',
         'delete',
         'mutatingwebhookconfigurations/katib-mutating-webhook-config',
