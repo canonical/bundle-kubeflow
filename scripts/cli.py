@@ -270,7 +270,7 @@ def deploy_to(controller, cloud, model, channel, public_address, build, overlays
         else:
             cloud = clouds[0]
 
-    juju('add-model', model, cloud)
+    juju('add-model', model, cloud, '--config', 'update-status-hook-interval=30s')
 
     with tempfile.NamedTemporaryFile('w+') as f:
         overlays = [f'--overlay={o}' for o in overlays]

@@ -232,16 +232,6 @@ def start_charm():
                     crd["metadata"]["name"]: crd["spec"]
                     for crd in yaml.safe_load_all(Path("resources/crds.yaml").read_text())
                 },
-                'customResources': {
-                    'issuers.cert-manager.io': [
-                        {
-                            'apiVersion': 'cert-manager.io/v1alpha2',
-                            'kind': 'Issuer',
-                            'metadata': {'name': 'self-signed'},
-                            'spec': {'selfSigned': {}},
-                        }
-                    ]
-                },
             }
         },
     )

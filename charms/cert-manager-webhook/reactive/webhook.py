@@ -54,19 +54,17 @@ def start_charm():
     config.load_incluster_config()
     v1 = client.CoreV1Api()
     layer.status.maintenance('Waiting for secrets/cert-manager-webhook-tls to be created')
-    for _ in range(30):
-        try:
-            secret = v1.read_namespaced_secret(name="cert-manager-webhook-tls", namespace=namespace)
-            if secret.data.get('tls.crt'):
-                break
-            else:
-                hookenv.log('Got empty certificate, waiting for real one')
-                time.sleep(10)
-        except client.rest.ApiException as err:
-            hookenv.log(err)
-            time.sleep(10)
-    else:
-        layer.status.blocked('cert-manager-webhook-tls certificate not found.')
+    try:
+        secret = v1.read_namespaced_secret(name="cert-manager-webhook-tls", namespace=namespace)
+        if not secret.data.get('tls.crt'):
+            hookenv.log('Got empty certificate, waiting for real one')
+            return False
+    except client.rest.ApiException as err:
+        hookenv.log("Got error while talking to Kubernetes API:")
+        hookenv.log(err)
+        hookenv.log(err.status)
+        hookenv.log(err.reason)
+        hookenv.log(err.body)
         return False
 
     layer.caas_base.pod_spec_set(
