@@ -378,12 +378,15 @@ def setup(controller, services, model_defaults):
     model_defaults = [f'--model-default={md}' for md in model_defaults]
 
     wait_for(
-        'microk8s.kubectl',
-        'get',
-        'StorageClass',
-        'microk8s-hostpath',
-        wait_msg='Waiting for storage to come up before bootstrapping',
-        fail_msg='Waited too long for storage to come up!',
+        "microk8s.kubectl",
+        "wait",
+        "--for=condition=available",
+        "-nkube-system",
+        "deployment/coredns",
+        "deployment/hostpath-provisioner",
+        "--timeout=10m",
+        wait_msg='Waiting for DNS and storage plugins to finish setting up',
+        fail_msg='Waited too long for addons to come up!',
     )
 
     juju('bootstrap', 'microk8s', controller, *model_defaults)
