@@ -356,7 +356,7 @@ def microk8s():
 @click.option(
     '-s',
     '--services',
-    default=['dns', 'storage', 'rbac', 'dashboard', 'ingress', 'metallb:10.64.140.43-10.64.140.49'],
+    default=['dns', 'storage', 'dashboard', 'ingress', 'metallb:10.64.140.43-10.64.140.49'],
     multiple=True,
 )
 @click.option('--model-defaults', default=[], multiple=True)
