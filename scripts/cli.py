@@ -322,6 +322,13 @@ def deploy_to(controller, cloud, model, channel, public_address, build, overlays
 
     juju('wait', '-wv', '-m', model)
 
+    juju(
+        'kubectl',
+        'delete',
+        'mutatingwebhookconfigurations/katib-mutating-webhook-config',
+        'validatingwebhookconfigurations/katib-validating-webhook-config',
+    )
+
     pub_addr = public_address or get_pub_addr(controller)
     juju('config', 'dex-auth', f'public-url=http://{pub_addr}:80')
     juju('config', 'oidc-gatekeeper', f'public-url=http://{pub_addr}:80')
