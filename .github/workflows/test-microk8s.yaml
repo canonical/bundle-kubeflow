@@ -24,21 +24,22 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: |
-        juju autoload-credentials --client aws
-        juju bootstrap aws/us-east-1 uk8saws
-        juju deploy ubuntu --constraints 'cores=4 mem=16G root-disk=60G'
-        juju wait -vw
-        juju status
-        juju status --format yaml
+        set -eux
+        /snap/bin/juju autoload-credentials --client aws
+        /snap/bin/juju bootstrap aws/us-east-1 uk8saws
+        /snap/bin/juju deploy ubuntu --constraints 'cores=4 mem=16G root-disk=60G'
+        /snap/bin/juju wait -vw
+        /snap/bin/juju status
+        /snap/bin/juju status --format yaml
 
     - name: Copy code to AWS instance
       run: |
         set -eux
-        juju scp -- -r $(pwd)/ ubuntu/0:~/
+        /snap/bin/juju scp -- -r $(pwd)/ ubuntu/0:~/
 
     - name: Install test dependencies
       run: |
-        juju ssh ubuntu/0 <<EOF
+        /snap/bin/juju ssh ubuntu/0 <<EOF
           set -eux
           sudo snap install charm --classic
           sudo snap install jq
@@ -56,7 +57,7 @@ jobs:
 
     - name: Deploy Kubeflow
       run: |
-        juju ssh ubuntu/0 <<EOF
+        /snap/bin/juju ssh ubuntu/0 <<EOF
           set -eux
           cd bundle-kubeflow
           git clone git://git.launchpad.net/canonical-osm
@@ -67,22 +68,25 @@ jobs:
     
     - name: Test Kubeflow
       run: |
-        juju ssh ubuntu/0 <<EOF
+        /snap/bin/juju ssh ubuntu/0 <<EOF
           set -eux
           cd bundle-kubeflow
-          ./tests/run.sh
+          # The pods can sometimes stay in Pending for a little while longer,
+          # so run the tests first that don't check pod states.
+          ./tests/run.sh -k 'not kubectl'
+          ./tests/run.sh -k 'kubectl'
         EOF
 
     - name: Print failing logs
       run: |
-        juju ssh ubuntu/0 <<EOF
-          for pod in $(microk8s.kubectl get pods --field-selector=status.phase=Running -nkubeflow -oname); do
-            echo $pod
-            microk8s.kubectl logs --tail 1000 --all-containers -nkubeflow $pod
-          done
+        /snap/bin/juju ssh ubuntu/0 <<EOF
+          set -eux
+          microk8s.kubectl get pods -A
+          cd bundle-kubeflow
+          ./tests/dump-pipeline-logs.sh
         EOF
       if: failure()
 
     - name: Destroy controller
-      run: juju destroy-controller -y uk8saws --destroy-all-models --destroy-storage
+      run: /snap/bin/juju destroy-controller -y uk8saws --destroy-all-models --destroy-storage
       if: always()

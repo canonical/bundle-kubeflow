@@ -71,7 +71,7 @@ applications:
     annotations:
       gui-x: '-750'
       gui-y: '0'
-  katib-manager:
+  katib-db-manager:
     charm: cs:~kubeflow-charmers/katib-manager
     source: ./charms/katib-manager
     scale: 1
@@ -260,7 +260,7 @@ relations:
 - [argo-controller, minio]
 - [cert-manager-controller, cert-manager-webhook]
 - [dex-auth, oidc-gatekeeper]
-- [katib-manager, katib-db]
+- [katib-db-manager, katib-db]
 - [kubeflow-profiles, jupyter-web]
 - [kubeflow-profiles, kubeflow-dashboard]
 - [metadata-api, metadata-db]

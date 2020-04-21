@@ -5,6 +5,7 @@ from kfp import Client
 
 from .pipelines.cowsay import cowsay_pipeline
 from .pipelines.mnist import mnist_pipeline
+from .pipelines.katib import katib_pipeline
 
 
 COWSAY_PARAMS = [{"name": "url", "value": "https://helloacm.com/api/fortune/"}]
@@ -31,10 +32,21 @@ MNIST_PARAMS = [
     },
 ]
 
+KATIB_PARAMS = [
+    {
+        'name': 'example',
+        'value': 'https://raw.githubusercontent.com/kubeflow/katib/master/examples/v1alpha3/grid-example.yaml',
+    }
+]
+
 
 @pytest.mark.parametrize(
     'name,params,fn',
-    [('mnist', MNIST_PARAMS, mnist_pipeline), ('cowsay', COWSAY_PARAMS, cowsay_pipeline)],
+    [
+        ('mnist', MNIST_PARAMS, mnist_pipeline),
+        ('cowsay', COWSAY_PARAMS, cowsay_pipeline),
+        ('katib', KATIB_PARAMS, katib_pipeline),
+    ],
 )
 def test_pipelines(name: str, params: list, fn: Callable):
     """Runs each pipeline that it's been parameterized for, and waits for it to succeed."""

@@ -270,7 +270,7 @@ def deploy_to(controller, cloud, model, channel, public_address, build, overlays
         else:
             cloud = clouds[0]
 
-    juju('add-model', model, cloud)
+    juju('add-model', model, cloud, '--config', 'update-status-hook-interval=30s')
 
     with tempfile.NamedTemporaryFile('w+') as f:
         overlays = [f'--overlay={o}' for o in overlays]
@@ -322,6 +322,22 @@ def deploy_to(controller, cloud, model, channel, public_address, build, overlays
 
     juju('wait', '-wv', '-m', model)
 
+    juju(
+        "kubectl",
+        "wait",
+        f"--namespace={model}",
+        "--for=condition=Ready",
+        "pod",
+        "--timeout=-1s",
+        "--all",
+    )
+    juju(
+        'kubectl',
+        'delete',
+        'mutatingwebhookconfigurations/katib-mutating-webhook-config',
+        'validatingwebhookconfigurations/katib-validating-webhook-config',
+    )
+
     pub_addr = public_address or get_pub_addr(controller)
     juju('config', 'dex-auth', f'public-url=http://{pub_addr}:80')
     juju('config', 'oidc-gatekeeper', f'public-url=http://{pub_addr}:80')
@@ -356,7 +372,7 @@ def microk8s():
 @click.option(
     '-s',
     '--services',
-    default=['dns', 'storage', 'rbac', 'dashboard', 'ingress', 'metallb:10.64.140.43-10.64.140.49'],
+    default=['dns', 'storage', 'dashboard', 'ingress', 'metallb:10.64.140.43-10.64.140.49'],
     multiple=True,
 )
 @click.option('--model-defaults', default=[], multiple=True)
@@ -378,12 +394,15 @@ def setup(controller, services, model_defaults):
     model_defaults = [f'--model-default={md}' for md in model_defaults]
 
     wait_for(
-        'microk8s.kubectl',
-        'get',
-        'StorageClass',
-        'microk8s-hostpath',
-        wait_msg='Waiting for storage to come up before bootstrapping',
-        fail_msg='Waited too long for storage to come up!',
+        "microk8s.kubectl",
+        "wait",
+        "--for=condition=available",
+        "-nkube-system",
+        "deployment/coredns",
+        "deployment/hostpath-provisioner",
+        "--timeout=10m",
+        wait_msg='Waiting for DNS and storage plugins to finish setting up',
+        fail_msg='Waited too long for addons to come up!',
     )
 
     juju('bootstrap', 'microk8s', controller, *model_defaults)
