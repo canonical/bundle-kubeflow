@@ -1,9 +1,17 @@
 import os
+import subprocess
+import sys
+from hashlib import sha256
 from pathlib import Path
 from uuid import uuid4
-from hashlib import sha256
 
-import bcrypt
+try:
+    import bcrypt
+except ImportError:
+    subprocess.check_call(["apt", "update"])
+    subprocess.check_call(["apt", "install", "-y", "python3-bcrypt"])
+    import bcrypt
+
 import yaml
 
 from charmhelpers.core import hookenv
@@ -36,6 +44,10 @@ def update_image():
 @when_not("charm.started")
 def start_charm():
     layer.status.maintenance("configuring container")
+
+    if not hookenv.is_leader():
+        layer.status.blocked("this unit is not a leader")
+        return False
 
     image_info = layer.docker_resource.get_info("oci-image")
 
