@@ -284,42 +284,6 @@ def deploy_to(controller, cloud, model, channel, public_address, build, overlays
         else:
             juju('deploy', '-m', model, 'kubeflow', '--channel', channel, *overlays)
 
-    for _ in range(12):
-        try:
-            juju(
-                'kubectl',
-                'wait',
-                '--for=condition=ready',
-                'pod/cert-manager-webhook-operator-0',
-                die=False,
-            )
-            break
-        except subprocess.CalledProcessError:
-            time.sleep(5)
-    else:
-        print("Waited too long for cert manager webhook operator pod to appear.")
-        sys.exit(1)
-
-    juju(
-        'kubectl',
-        'patch',
-        'role',
-        'cert-manager-webhook-operator',
-        '-p',
-        json.dumps(
-            {
-                'apiVersion': 'rbac.authorization.k8s.io/v1',
-                'kind': 'Role',
-                'metadata': {'name': 'cert-manager-webhook-operator'},
-                'rules': [
-                    {'apiGroups': [''], 'resources': ['pods'], 'verbs': ['get', 'list']},
-                    {'apiGroups': [''], 'resources': ['pods/exec'], 'verbs': ['create']},
-                    {'apiGroups': [''], 'resources': ['secrets'], 'verbs': ['get', 'list']},
-                ],
-            }
-        ),
-    )
-
     juju('wait', '-wv', '-m', model)
 
     juju(
