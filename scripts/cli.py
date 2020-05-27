@@ -322,6 +322,28 @@ def deploy_to(controller, cloud, model, channel, public_address, build, overlays
 
     juju('wait', '-wv', '-m', model)
 
+    with tempfile.NamedTemporaryFile(mode='w+') as f:
+        yaml.dump(
+            {
+                'apiVersion': 'v1',
+                'kind': 'Service',
+                'metadata': {
+                    'labels': {'juju-app': 'pipelines-api'},
+                    'name': 'ml-pipeline',
+                },
+                'spec': {
+                    'ports': [
+                        {'name': 'grpc', 'port': 8887, 'protocol': 'TCP', 'targetPort': 8887},
+                        {'name': 'http', 'port': 8888, 'protocol': 'TCP', 'targetPort': 8888},
+                    ],
+                    'selector': {'juju-app': 'pipelines-api'},
+                    'type': 'ClusterIP',
+                },
+            },
+            f,
+        )
+        juju('kubectl', 'apply', '-f', f.name)
+
     juju(
         "kubectl",
         "wait",
