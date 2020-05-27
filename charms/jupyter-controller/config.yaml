@@ -1,1 +1,5 @@
-options: {}
+options:
+  enable-culling:
+    type: boolean
+    default: true
+    description: Enables culling of idle Jupyter pods
