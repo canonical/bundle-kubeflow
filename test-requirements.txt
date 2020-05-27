@@ -6,3 +6,4 @@ requests==2.25.1
 pyyaml==5.4
 selenium==3.141.0
 flaky==3.7.0
+charmcraft==0.7.0
