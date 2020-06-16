@@ -52,10 +52,25 @@ def start_charm():
     image_info = layer.docker_resource.get_info('oci-image')
     service_name = hookenv.service_name()
 
-    minio = endpoint_from_name('minio').services()[0]['hosts'][0]
     mysql = endpoint_from_name('mysql')
-    profiles = endpoint_from_name('kubeflow-profiles').services()[0]['hosts'][0]
-    viz = endpoint_from_name('pipelines-visualization').services()[0]['hosts'][0]
+
+    try:
+        minio = endpoint_from_name('minio').services()[0]['hosts'][0]
+    except IndexError:
+        layer.status.blocked('Waiting for minio relation.')
+        return False
+
+    try:
+        profiles = endpoint_from_name('kubeflow-profiles').services()[0]['hosts'][0]
+    except IndexError:
+        layer.status.blocked('Waiting for profiles relation.')
+        return False
+
+    try:
+        viz = endpoint_from_name('pipelines-visualization').services()[0]['hosts'][0]
+    except IndexError:
+        layer.status.blocked('Waiting for visualization relation.')
+        return False
 
     grpc_port = hookenv.config('grpc-port')
     http_port = hookenv.config('http-port')
