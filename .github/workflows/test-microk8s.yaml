@@ -43,7 +43,7 @@ jobs:
           set -eux
           sudo snap install charm --classic
           sudo snap install jq
-          sudo snap install juju --classic
+          sudo snap install juju --classic --channel 2.7/stable
           sudo snap install juju-helpers --classic --edge
           sudo snap install juju-wait --classic
           sudo snap install kubectl --classic
