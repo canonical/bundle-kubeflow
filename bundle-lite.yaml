@@ -8,10 +8,6 @@ applications:
     charm: cs:~kubeflow-charmers/argo-controller
     source: ./charms/argo-controller
     scale: 1
-  argo-ui:
-    charm: cs:~kubeflow-charmers/argo-ui
-    source: ./charms/argo-ui
-    scale: 1
   dex-auth:
     charm: cs:~kubeflow-charmers/dex-auth
     source: ./charms/dex-auth
@@ -27,10 +23,6 @@ applications:
   kubeflow-dashboard:
     charm: cs:~kubeflow-charmers/kubeflow-dashboard
     source: ./charms/kubeflow-dashboard
-    scale: 1
-  kubeflow-login:
-    charm: cs:~kubeflow-charmers/kubeflow-login
-    source: ./charms/kubeflow-login
     scale: 1
   kubeflow-profiles:
     charm: cs:~kubeflow-charmers/kubeflow-profiles
@@ -67,17 +59,34 @@ applications:
     charm: cs:~kubeflow-charmers/pipelines-viewer
     source: ./charms/pipelines-viewer
     scale: 1
+  pipelines-visualization:
+    charm: cs:~kubeflow-charmers/pipelines-visualization
+    source: ./charms/pipelines-visualization
+    scale: 1
+  pytorch-operator:
+    charm: cs:~kubeflow-charmers/pytorch-operator
+    source: ./charms/pytorch-operator
+    scale: 1
+  seldon-core:
+    charm: cs:~kubeflow-charmers/seldon-core
+    source: ./charms/seldon-core
+    scale: 1
+  tf-job-operator:
+    charm: cs:~kubeflow-charmers/tf-job-operator
+    source: ./charms/tf-job-operator
+    scale: 1
 relations:
-- [ambassador, argo-ui]
 - [ambassador, jupyter-web]
-- [ambassador, metadata-ui]
 - [ambassador, pipelines-ui]
 - [ambassador, pipelines-viewer]
 - [argo-controller, minio]
 - [dex-auth, oidc-gatekeeper]
+- [kubeflow-profiles, jupyter-web]
 - [kubeflow-profiles, kubeflow-dashboard]
 - [pipelines-api, pipelines-db]
-- [pipelines-api, minio]
 - [pipelines-api, pipelines-persistence]
+- [pipelines-api:kubeflow-profiles, kubeflow-profiles:kubeflow-profiles]
+- [pipelines-api:minio, minio:minio]
 - [pipelines-api:pipelines-api, pipelines-ui:pipelines-api]
+- [pipelines-api:pipelines-visualization, pipelines-visualization:pipelines-visualization]
 - [pipelines-ui:minio, minio:minio]
