@@ -10,7 +10,7 @@ make up this bundle can be found under `charms/`.
 
 ### Setup
 
-Setting up this bundle requires a Ubuntu VM.
+Setting up this bundle requires a Ubuntu installation or VM.
 
 > If you are on macOS or Windows, you will need to use an Ubuntu VM. You
 > can [install multipass][multipass] and access an Ubuntu VM with these
