@@ -1,12 +1,14 @@
 """Runs tests by inspecting microk8s with kubectl."""
 
+import pytest
 import yaml
 from sh import Command
 
 kubectl = Command('juju-kubectl')
 
 
-def test_running():
+@pytest.mark.full
+def test_running_full():
     pods = yaml.safe_load(kubectl.get('pods', '-oyaml').stdout)
 
     statuses = sorted(
@@ -53,7 +55,64 @@ def test_running():
     ]
 
 
-def test_crd_created():
+@pytest.mark.lite
+def test_running_lite():
+    pods = yaml.safe_load(kubectl.get('pods', '-oyaml').stdout)
+
+    statuses = sorted(
+        (i['metadata']['labels']['juju-app'], i['status']['phase'])
+        for i in pods['items']
+        if 'juju-app' in i['metadata']['labels']
+    )
+
+    assert statuses == [
+        ('ambassador', 'Running'),
+        ('argo-controller', 'Running'),
+        ('dex-auth', 'Running'),
+        ('jupyter-controller', 'Running'),
+        ('jupyter-web', 'Running'),
+        ('kubeflow-dashboard', 'Running'),
+        ('kubeflow-profiles', 'Running'),
+        ('minio', 'Running'),
+        ('oidc-gatekeeper', 'Running'),
+        ('pipelines-api', 'Running'),
+        ('pipelines-db', 'Running'),
+        ('pipelines-persistence', 'Running'),
+        ('pipelines-scheduledworkflow', 'Running'),
+        ('pipelines-ui', 'Running'),
+        ('pipelines-viewer', 'Running'),
+        ('pipelines-visualization', 'Running'),
+        ('pytorch-operator', 'Running'),
+        ('seldon-core', 'Running'),
+        ('tf-job-operator', 'Running'),
+    ]
+
+
+@pytest.mark.edge
+def test_running_edge():
+    pods = yaml.safe_load(kubectl.get('pods', '-oyaml').stdout)
+
+    statuses = sorted(
+        (i['metadata']['labels']['juju-app'], i['status']['phase'])
+        for i in pods['items']
+        if 'juju-app' in i['metadata']['labels']
+    )
+
+    assert statuses == [
+        ('argo-controller', 'Running'),
+        ('minio', 'Running'),
+        ('pipelines-api', 'Running'),
+        ('pipelines-db', 'Running'),
+        ('pipelines-persistence', 'Running'),
+        ('pipelines-scheduledworkflow', 'Running'),
+        ('pytorch-operator', 'Running'),
+        ('seldon-core', 'Running'),
+        ('tf-job-operator', 'Running'),
+    ]
+
+
+@pytest.mark.full
+def test_crd_created_full():
     crds = yaml.safe_load(kubectl.get('crd', '-oyaml').stdout)
 
     names = sorted(i['metadata']['name'] for i in crds['items'])
@@ -86,7 +145,50 @@ def test_crd_created():
     ]
 
 
-def test_service_accounts_created():
+@pytest.mark.lite
+def test_crd_created_lite():
+    crds = yaml.safe_load(kubectl.get('crd', '-oyaml').stdout)
+
+    names = sorted(i['metadata']['name'] for i in crds['items'])
+    assert names == [
+        'authcodes.dex.coreos.com',
+        'authrequests.dex.coreos.com',
+        'connectors.dex.coreos.com',
+        'notebooks.kubeflow.org',
+        'oauth2clients.dex.coreos.com',
+        'offlinesessionses.dex.coreos.com',
+        'passwords.dex.coreos.com',
+        'poddefaults.kubeflow.org',
+        'profiles.kubeflow.org',
+        'pytorchjobs.kubeflow.org',
+        'refreshtokens.dex.coreos.com',
+        'scheduledworkflows.kubeflow.org',
+        'seldondeployments.machinelearning.seldon.io',
+        'servicerolebindings.rbac.istio.io',
+        'serviceroles.rbac.istio.io',
+        'signingkeies.dex.coreos.com',
+        'tfjobs.kubeflow.org',
+        'viewers.kubeflow.org',
+        'workflows.argoproj.io',
+    ]
+
+
+@pytest.mark.edge
+def test_crd_created_edge():
+    crds = yaml.safe_load(kubectl.get('crd', '-oyaml').stdout)
+
+    names = sorted(i['metadata']['name'] for i in crds['items'])
+    assert names == [
+        'pytorchjobs.kubeflow.org',
+        'scheduledworkflows.kubeflow.org',
+        'seldondeployments.machinelearning.seldon.io',
+        'tfjobs.kubeflow.org',
+        'workflows.argoproj.io',
+    ]
+
+
+@pytest.mark.full
+def test_service_accounts_created_full():
     crds = yaml.safe_load(kubectl.get('sa', '-oyaml').stdout)
 
     names = sorted(i['metadata']['name'] for i in crds['items'])
@@ -142,6 +244,79 @@ def test_service_accounts_created():
         'pipelines-viewer',
         'pipelines-viewer-operator',
         'pipelines-visualization-operator',
+        'pytorch-operator',
+        'pytorch-operator-operator',
+        'seldon-core',
+        'seldon-core-operator',
+        'tf-job-operator',
+        'tf-job-operator-operator',
+    ]
+
+
+@pytest.mark.lite
+def test_service_accounts_created_lite():
+    crds = yaml.safe_load(kubectl.get('sa', '-oyaml').stdout)
+
+    names = sorted(i['metadata']['name'] for i in crds['items'])
+    assert names == [
+        'ambassador',
+        'ambassador-operator',
+        'argo-controller',
+        'argo-controller-operator',
+        'default',
+        'dex-auth',
+        'dex-auth-operator',
+        'jupyter-controller',
+        'jupyter-controller-operator',
+        'jupyter-notebook',
+        'jupyter-web',
+        'jupyter-web-operator',
+        'kubeflow-dashboard',
+        'kubeflow-dashboard-operator',
+        'kubeflow-profiles',
+        'kubeflow-profiles-operator',
+        'minio-operator',
+        'oidc-gatekeeper-operator',
+        'pipeline-runner',
+        'pipelines-api',
+        'pipelines-api-operator',
+        'pipelines-db-operator',
+        'pipelines-persistence',
+        'pipelines-persistence-operator',
+        'pipelines-scheduledworkflow',
+        'pipelines-scheduledworkflow-operator',
+        'pipelines-ui',
+        'pipelines-ui-operator',
+        'pipelines-viewer',
+        'pipelines-viewer-operator',
+        'pipelines-visualization-operator',
+        'pytorch-operator',
+        'pytorch-operator-operator',
+        'seldon-core',
+        'seldon-core-operator',
+        'tf-job-operator',
+        'tf-job-operator-operator',
+    ]
+
+
+@pytest.mark.edge
+def test_service_accounts_created_edge():
+    crds = yaml.safe_load(kubectl.get('sa', '-oyaml').stdout)
+
+    names = sorted(i['metadata']['name'] for i in crds['items'])
+    assert names == [
+        'argo-controller',
+        'argo-controller-operator',
+        'default',
+        'minio-operator',
+        'pipeline-runner',
+        'pipelines-api',
+        'pipelines-api-operator',
+        'pipelines-db-operator',
+        'pipelines-persistence',
+        'pipelines-persistence-operator',
+        'pipelines-scheduledworkflow',
+        'pipelines-scheduledworkflow-operator',
         'pytorch-operator',
         'pytorch-operator-operator',
         'seldon-core',
