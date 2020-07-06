@@ -186,13 +186,7 @@ similar to the `mnist.yaml` example [found here][mnist-example].
 
 ### TensorFlow Serving
 
-You can submit a model to be served with TensorFlow Serving:
-
-    # For a single model
-    juju deploy cs:~kubeflow-charmers/kubeflow-tf-serving --storage models=storage-class,, --config model=/path/to/base/dir/model-name
-
-    # For a model.conf:
-    juju deploy cs:~kubeflow-charmers/kubeflow-tf-serving --storage models=storage-class,, --config model-conf=/path/to/model.conf
+See https://github.com/juju-solutions/charm-tf-serving
 
 
 ## Removing
