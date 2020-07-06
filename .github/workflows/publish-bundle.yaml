@@ -24,4 +24,6 @@ jobs:
         CHARMSTORE_CREDENTIAL: ${{ secrets.CHARMSTORE_CREDENTIAL }}
       run: |
         echo $CHARMSTORE_CREDENTIAL > ~/.go-cookies
+        git clone git://git.launchpad.net/canonical-osm
+        cp -r canonical-osm/charms/interfaces/juju-relation-mysql mysql
         juju-bundle publish --url cs:~kubeflow-charmers/kubeflow --serial --prune
