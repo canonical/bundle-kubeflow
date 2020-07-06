@@ -390,8 +390,8 @@ def microk8s():
     default=['dns', 'storage', 'dashboard', 'ingress', 'metallb:10.64.140.43-10.64.140.49'],
     multiple=True,
 )
-@click.option('--model-defaults', default=[], multiple=True)
-def setup(controller, services, model_defaults):
+@click.option('--test-mode/--no-test-mode', default=False)
+def setup(controller, services, test_mode):
     if not controller:
         controller = DEFAULT_CONTROLLERS['microk8s']
 
@@ -406,8 +406,6 @@ def setup(controller, services, model_defaults):
         )
         click.echo('\n')
 
-    model_defaults = [f'--model-default={md}' for md in model_defaults]
-
     wait_for(
         "microk8s.kubectl",
         "wait",
@@ -420,7 +418,10 @@ def setup(controller, services, model_defaults):
         fail_msg='Waited too long for addons to come up!',
     )
 
-    juju('bootstrap', 'microk8s', controller, *model_defaults)
+    args = []
+    if test_mode:
+        args += ['--config', 'test-mode=true', '--model-default', 'test-mode=true']
+    juju('bootstrap', 'microk8s', controller, *args)
 
 
 @microk8s.command()
@@ -438,8 +439,9 @@ def ck():
 @click.option('--region', default='us-east-1')
 @click.option('--controller')
 @click.option('--channel', default='stable')
+@click.option('--test-mode/--no-test-mode', default=False)
 @click.option('--gpu/--no-gpu', default=False)
-def setup(cloud, region, controller, channel, gpu):
+def setup(cloud, region, controller, channel, test_mode, gpu):
     if not controller:
         controller = DEFAULT_CONTROLLERS[cloud]
 
@@ -460,7 +462,10 @@ def setup(cloud, region, controller, channel, gpu):
         deploy_args += ['--overlay', 'overlays/ck-gpu.yml']
 
     # Spin up Charmed Kubernetes
-    juju('bootstrap', f'{cloud}/{region}', controller)
+    args = []
+    if test_mode:
+        args += ['--config', 'test-mode=true', '--model-default', 'test-mode=true']
+    juju('bootstrap', f'{cloud}/{region}', controller, *args)
     juju('deploy', *deploy_args)
 
     juju('wait', '-wv')

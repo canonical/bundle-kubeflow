@@ -37,7 +37,7 @@ jobs:
         set -eux
         git clone git://git.launchpad.net/canonical-osm
         cp -r canonical-osm/charms/interfaces/juju-relation-mysql mysql
-        sudo python3 ./scripts/cli.py microk8s setup
+        sudo python3 ./scripts/cli.py microk8s setup --test-mode 
         KUBEFLOW_AUTH_PASSWORD=foobar sudo -E python3 ./scripts/cli.py deploy-to uk8s --build --bundle ${{ matrix.bundle }}
 
     - name: Test Kubeflow
@@ -80,7 +80,7 @@ jobs:
       run: |
         set -eux
         /snap/bin/juju autoload-credentials --client aws
-        /snap/bin/juju bootstrap aws/us-east-1 uk8saws
+        /snap/bin/juju bootstrap aws/us-east-1 uk8saws --config test-mode=true --model-default test-mode=true
         /snap/bin/juju deploy ubuntu --constraints 'cores=4 mem=16G root-disk=60G'
         /snap/bin/juju wait -vw
         /snap/bin/juju status
@@ -116,7 +116,7 @@ jobs:
           cd bundle-kubeflow
           git clone git://git.launchpad.net/canonical-osm
           cp -r canonical-osm/charms/interfaces/juju-relation-mysql mysql
-          python3 ./scripts/cli.py microk8s setup
+          python3 ./scripts/cli.py microk8s setup --test-mode
           KUBEFLOW_AUTH_PASSWORD=foobar python3 ./scripts/cli.py deploy-to uk8s --build
         EOF
 
