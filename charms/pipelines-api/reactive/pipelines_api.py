@@ -65,18 +65,6 @@ def start_charm():
         layer.status.blocked('Waiting for minio relation.')
         return False
 
-    try:
-        profiles = endpoint_from_name('kubeflow-profiles').services()[0]['hosts'][0]
-    except IndexError:
-        layer.status.blocked('Waiting for profiles relation.')
-        return False
-
-    try:
-        viz = endpoint_from_name('pipelines-visualization').services()[0]['hosts'][0]
-    except IndexError:
-        layer.status.blocked('Waiting for visualization relation.')
-        return False
-
     grpc_port = hookenv.config('grpc-port')
     http_port = hookenv.config('http-port')
 
