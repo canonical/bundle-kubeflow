@@ -1,4 +1,4 @@
-name: Publish bundle to charm store
+name: Publish
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - master
 
 jobs:
-  build:
-    name: Publish bundle
+  full:
+    name: full
     runs-on: ubuntu-latest
 
     steps:
@@ -16,6 +16,7 @@ jobs:
 
     - name: Install dependencies
       run: |
+        set -eux
         sudo snap install charm --classic
         sudo snap install juju-helpers --classic --channel edge
 
@@ -23,7 +24,56 @@ jobs:
       env:
         CHARMSTORE_CREDENTIAL: ${{ secrets.CHARMSTORE_CREDENTIAL }}
       run: |
+        set -eux
         echo $CHARMSTORE_CREDENTIAL > ~/.go-cookies
         git clone git://git.launchpad.net/canonical-osm
         cp -r canonical-osm/charms/interfaces/juju-relation-mysql mysql
-        juju-bundle publish --url cs:~kubeflow-charmers/kubeflow --serial --prune
+        juju-bundle publish -b bundle.yaml --url cs:~kubeflow-charmers/kubeflow --serial --prune
+
+  lite:
+    name: lite
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        set -eux
+        sudo snap install charm --classic
+        sudo snap install juju-helpers --classic --channel edge
+
+    - name: Publish bundle
+      env:
+        CHARMSTORE_CREDENTIAL: ${{ secrets.CHARMSTORE_CREDENTIAL }}
+      run: |
+        set -eux
+        echo $CHARMSTORE_CREDENTIAL > ~/.go-cookies
+        git clone git://git.launchpad.net/canonical-osm
+        cp -r canonical-osm/charms/interfaces/juju-relation-mysql mysql
+        juju-bundle publish -b bundle-lite.yaml --url cs:~kubeflow-charmers/kubeflow-lite
+
+  edge:
+    name: edge
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        set -eux
+        sudo snap install charm --classic
+        sudo snap install juju-helpers --classic --channel edge
+
+    - name: Publish bundle
+      env:
+        CHARMSTORE_CREDENTIAL: ${{ secrets.CHARMSTORE_CREDENTIAL }}
+      run: |
+        set -eux
+        echo $CHARMSTORE_CREDENTIAL > ~/.go-cookies
+        git clone git://git.launchpad.net/canonical-osm
+        cp -r canonical-osm/charms/interfaces/juju-relation-mysql mysql
+        juju-bundle publish -b bundle-edge.yaml --url cs:~kubeflow-charmers/kubeflow-edge
