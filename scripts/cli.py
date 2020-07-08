@@ -220,6 +220,7 @@ def cli(debug):
 @click.argument('CONTROLLER')
 @click.option('--cloud')
 @click.option('--model', default='kubeflow')
+@click.option('--bundle', default='full')
 @click.option('--channel', default='stable')
 @click.option('--public-address')
 @click.option('--build/--no-build', default=False)
@@ -227,19 +228,44 @@ def cli(debug):
 @click.password_option(
     envvar='KUBEFLOW_AUTH_PASSWORD', prompt='Enter a password to set for the Kubeflow dashboard',
 )
-def deploy_to(controller, cloud, model, channel, public_address, build, overlays, password):
+def deploy_to(controller, cloud, model, bundle, channel, public_address, build, overlays, password):
     # Dynamically-generated overlay, since there isn't a better
     # way of generating random passwords.
-    password_overlay = {
-        "applications": {
-            "dex-auth": {"options": {"static-username": "admin", "static-password": password}},
-            "katib-db": {"options": {"root_password": get_random_pass()}},
-            "modeldb-db": {"options": {"root_password": get_random_pass()}},
-            "oidc-gatekeeper": {"options": {"client-secret": get_random_pass()}},
-            "pipelines-api": {"options": {"minio-secret-key": "minio123"}},
-            "pipelines-db": {"options": {"root_password": get_random_pass()}},
+    if bundle == 'full':
+        bundle_yaml = 'bundle.yaml'
+        bundle_url = 'kubeflow'
+        password_overlay = {
+            "applications": {
+                "dex-auth": {"options": {"static-username": "admin", "static-password": password}},
+                "katib-db": {"options": {"root_password": get_random_pass()}},
+                "modeldb-db": {"options": {"root_password": get_random_pass()}},
+                "oidc-gatekeeper": {"options": {"client-secret": get_random_pass()}},
+                "pipelines-api": {"options": {"minio-secret-key": "minio123"}},
+                "pipelines-db": {"options": {"root_password": get_random_pass()}},
+            }
         }
-    }
+    elif bundle == 'lite':
+        bundle_yaml = 'bundle-lite.yaml'
+        bundle_url = 'kubeflow-lite'
+        password_overlay = {
+            "applications": {
+                "dex-auth": {"options": {"static-username": "admin", "static-password": password}},
+                "oidc-gatekeeper": {"options": {"client-secret": get_random_pass()}},
+                "pipelines-api": {"options": {"minio-secret-key": "minio123"}},
+                "pipelines-db": {"options": {"root_password": get_random_pass()}},
+            }
+        }
+    elif bundle == 'edge':
+        bundle_yaml = 'bundle-edge.yaml'
+        bundle_url = 'kubeflow-edge'
+        password_overlay = {
+            "applications": {
+                "pipelines-api": {"options": {"minio-secret-key": "minio123"}},
+                "pipelines-db": {"options": {"root_password": get_random_pass()}},
+            }
+        }
+    else:
+        raise Exception(f"Unknown bundle {bundle}")
 
     start = time.time()
 
@@ -270,7 +296,7 @@ def deploy_to(controller, cloud, model, channel, public_address, build, overlays
         else:
             cloud = clouds[0]
 
-    juju('add-model', model, cloud, '--config', 'update-status-hook-interval=30s')
+    juju('add-model', model, cloud)
 
     with tempfile.NamedTemporaryFile('w+') as f:
         overlays = [f'--overlay={o}' for o in overlays]
@@ -280,33 +306,34 @@ def deploy_to(controller, cloud, model, channel, public_address, build, overlays
 
         # Allow building local bundle.yaml, otherwise deploy from the charm store
         if build:
-            juju('bundle', 'deploy', '--build', '--', '-m', model, *overlays)
+            juju('bundle', 'deploy', '-b', bundle_yaml, '--build', '--', '-m', model, *overlays)
         else:
-            juju('deploy', '-m', model, 'kubeflow', '--channel', channel, *overlays)
+            juju('deploy', bundle_url, '-m', model, '--channel', channel, *overlays)
 
     juju('wait', '-wv', '-m', model)
 
-    with tempfile.NamedTemporaryFile(mode='w+') as f:
-        yaml.dump(
-            {
-                'apiVersion': 'v1',
-                'kind': 'Service',
-                'metadata': {
-                    'labels': {'juju-app': 'pipelines-api'},
-                    'name': 'ml-pipeline',
+    if bundle in ('full', 'lite'):
+        with tempfile.NamedTemporaryFile(mode='w+') as f:
+            yaml.dump(
+                {
+                    'apiVersion': 'v1',
+                    'kind': 'Service',
+                    'metadata': {
+                        'labels': {'juju-app': 'pipelines-api'},
+                        'name': 'ml-pipeline',
+                    },
+                    'spec': {
+                        'ports': [
+                            {'name': 'grpc', 'port': 8887, 'protocol': 'TCP', 'targetPort': 8887},
+                            {'name': 'http', 'port': 8888, 'protocol': 'TCP', 'targetPort': 8888},
+                        ],
+                        'selector': {'juju-app': 'pipelines-api'},
+                        'type': 'ClusterIP',
+                    },
                 },
-                'spec': {
-                    'ports': [
-                        {'name': 'grpc', 'port': 8887, 'protocol': 'TCP', 'targetPort': 8887},
-                        {'name': 'http', 'port': 8888, 'protocol': 'TCP', 'targetPort': 8888},
-                    ],
-                    'selector': {'juju-app': 'pipelines-api'},
-                    'type': 'ClusterIP',
-                },
-            },
-            f,
-        )
-        juju('kubectl', 'apply', '-f', f.name)
+                f,
+            )
+            juju('kubectl', 'apply', '-f', f.name)
 
     juju(
         "kubectl",
@@ -317,19 +344,21 @@ def deploy_to(controller, cloud, model, channel, public_address, build, overlays
         "--timeout=-1s",
         "--all",
     )
-    juju(
-        'kubectl',
-        'delete',
-        'mutatingwebhookconfigurations/katib-mutating-webhook-config',
-        'validatingwebhookconfigurations/katib-validating-webhook-config',
-    )
 
-    pub_addr = public_address or get_pub_addr(controller)
-    juju('config', 'dex-auth', f'public-url=http://{pub_addr}:80')
-    juju('config', 'oidc-gatekeeper', f'public-url=http://{pub_addr}:80')
+    if bundle == 'full':
+        juju(
+            'kubectl',
+            'delete',
+            'mutatingwebhookconfigurations/katib-mutating-webhook-config',
+            'validatingwebhookconfigurations/katib-validating-webhook-config',
+        )
 
-    juju('config', 'ambassador', f'juju-external-hostname={pub_addr}')
-    juju('expose', 'ambassador')
+        pub_addr = public_address or get_pub_addr(controller)
+        juju('config', 'dex-auth', f'public-url=http://{pub_addr}:80')
+        juju('config', 'oidc-gatekeeper', f'public-url=http://{pub_addr}:80')
+
+        juju('config', 'ambassador', f'juju-external-hostname={pub_addr}')
+        juju('expose', 'ambassador')
 
     end = time.time()
 
@@ -361,8 +390,8 @@ def microk8s():
     default=['dns', 'storage', 'dashboard', 'ingress', 'metallb:10.64.140.43-10.64.140.49'],
     multiple=True,
 )
-@click.option('--model-defaults', default=[], multiple=True)
-def setup(controller, services, model_defaults):
+@click.option('--test-mode/--no-test-mode', default=False)
+def setup(controller, services, test_mode):
     if not controller:
         controller = DEFAULT_CONTROLLERS['microk8s']
 
@@ -377,8 +406,6 @@ def setup(controller, services, model_defaults):
         )
         click.echo('\n')
 
-    model_defaults = [f'--model-default={md}' for md in model_defaults]
-
     wait_for(
         "microk8s.kubectl",
         "wait",
@@ -391,7 +418,10 @@ def setup(controller, services, model_defaults):
         fail_msg='Waited too long for addons to come up!',
     )
 
-    juju('bootstrap', 'microk8s', controller, *model_defaults)
+    args = []
+    if test_mode:
+        args += ['--config', 'test-mode=true', '--model-default', 'test-mode=true']
+    juju('bootstrap', 'microk8s', controller, *args)
 
 
 @microk8s.command()
@@ -409,8 +439,9 @@ def ck():
 @click.option('--region', default='us-east-1')
 @click.option('--controller')
 @click.option('--channel', default='stable')
+@click.option('--test-mode/--no-test-mode', default=False)
 @click.option('--gpu/--no-gpu', default=False)
-def setup(cloud, region, controller, channel, gpu):
+def setup(cloud, region, controller, channel, test_mode, gpu):
     if not controller:
         controller = DEFAULT_CONTROLLERS[cloud]
 
@@ -431,7 +462,10 @@ def setup(cloud, region, controller, channel, gpu):
         deploy_args += ['--overlay', 'overlays/ck-gpu.yml']
 
     # Spin up Charmed Kubernetes
-    juju('bootstrap', f'{cloud}/{region}', controller)
+    args = []
+    if test_mode:
+        args += ['--config', 'test-mode=true', '--model-default', 'test-mode=true']
+    juju('bootstrap', f'{cloud}/{region}', controller, *args)
     juju('deploy', *deploy_args)
 
     juju('wait', '-wv')

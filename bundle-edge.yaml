@@ -1,0 +1,43 @@
+bundle: kubernetes
+applications:
+  argo-controller:
+    charm: cs:~kubeflow-charmers/argo-controller
+    source: ./charms/argo-controller
+    scale: 1
+  minio:
+    charm: cs:~kubeflow-charmers/minio
+    source: ./charms/minio
+    scale: 1
+  pipelines-api:
+    charm: cs:~kubeflow-charmers/pipelines-api
+    source: ./charms/pipelines-api
+    scale: 1
+  pipelines-db:
+    charm: cs:~charmed-osm/mariadb-k8s
+    scale: 1
+  pipelines-persistence:
+    charm: cs:~kubeflow-charmers/pipelines-persistence
+    source: ./charms/pipelines-persistence
+    scale: 1
+  pipelines-scheduledworkflow:
+    charm: cs:~kubeflow-charmers/pipelines-scheduledworkflow
+    source: ./charms/pipelines-scheduledworkflow
+    scale: 1
+  pytorch-operator:
+    charm: cs:~kubeflow-charmers/pytorch-operator
+    source: ./charms/pytorch-operator
+    scale: 1
+  seldon-core:
+    charm: cs:~kubeflow-charmers/seldon-core
+    source: ./charms/seldon-core
+    scale: 1
+  tf-job-operator:
+    charm: cs:~kubeflow-charmers/tf-job-operator
+    source: ./charms/tf-job-operator
+    scale: 1
+relations:
+- [argo-controller, minio]
+- [pipelines-api, pipelines-db]
+- [pipelines-api, pipelines-persistence]
+- [pipelines-api:kubeflow-profiles, kubeflow-profiles:kubeflow-profiles]
+- [pipelines-api:minio, minio:minio]

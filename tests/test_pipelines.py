@@ -43,9 +43,19 @@ KATIB_PARAMS = [
 @pytest.mark.parametrize(
     'name,params,fn',
     [
-        ('mnist', MNIST_PARAMS, mnist_pipeline),
-        ('cowsay', COWSAY_PARAMS, cowsay_pipeline),
-        ('katib', KATIB_PARAMS, katib_pipeline),
+        pytest.param(
+            'mnist',
+            MNIST_PARAMS,
+            mnist_pipeline,
+            marks=[pytest.mark.full, pytest.mark.lite, pytest.mark.edge],
+        ),
+        pytest.param(
+            'cowsay',
+            COWSAY_PARAMS,
+            cowsay_pipeline,
+            marks=[pytest.mark.full, pytest.mark.lite, pytest.mark.edge],
+        ),
+        pytest.param('katib', KATIB_PARAMS, katib_pipeline, marks=[pytest.mark.full]),
     ],
 )
 def test_pipelines(name: str, params: list, fn: Callable):

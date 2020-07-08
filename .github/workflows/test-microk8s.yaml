@@ -1,11 +1,65 @@
 name: MicroK8s Test
 
 on:
+  - push
   - pull_request
 
 jobs:
-  build:
-    name: Test On AWS
+  actions:
+    name: Github Actions
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        microk8s: [stable, edge]
+        bundle: [lite, edge]
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+
+    - name: Install test dependencies
+      run: |
+        set -eux
+        sudo snap install charm --classic
+        sudo snap install jq
+        sudo snap install juju --classic --channel 2.7/stable
+        sudo snap install juju-helpers --classic --edge
+        sudo snap install juju-wait --classic
+        sudo snap install kubectl --classic
+        sudo snap install microk8s --classic --channel ${{ matrix.microk8s }}
+        sudo snap install yq
+        sudo apt update
+        sudo apt install -y libssl-dev python3-setuptools
+        sudo pip3 install pytest sh kfp requests pyyaml
+        sudo usermod -a -G microk8s $USER
+
+    - name: Deploy Kubeflow
+      run: |
+        set -eux
+        git clone git://git.launchpad.net/canonical-osm
+        cp -r canonical-osm/charms/interfaces/juju-relation-mysql mysql
+        sudo python3 ./scripts/cli.py microk8s setup --test-mode 
+        KUBEFLOW_AUTH_PASSWORD=foobar sudo -E python3 ./scripts/cli.py deploy-to uk8s --build --bundle ${{ matrix.bundle }}
+
+    - name: Test Kubeflow
+      run: |
+        set -eux
+        # The pods can sometimes stay in Pending for a little while longer,
+        # so run the tests first that don't check pod states.
+        sudo ./tests/run.sh -k 'not kubectl' -m ${{ matrix.bundle }}
+        sudo ./tests/run.sh -k 'kubectl' -m ${{ matrix.bundle }}
+
+    - name: Debug failures
+      run: |
+        set -eux
+        sudo microk8s.kubectl get pods -A
+        sudo juju status
+        sudo ./tests/dump-pipeline-logs.sh
+      if: failure()
+
+  # Runs tests on AWS that are too big for github actions
+  # Tests that are small enough are above in `actions:`
+  aws:
+    name: AWS
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -26,7 +80,7 @@ jobs:
       run: |
         set -eux
         /snap/bin/juju autoload-credentials --client aws
-        /snap/bin/juju bootstrap aws/us-east-1 uk8saws
+        /snap/bin/juju bootstrap aws/us-east-1 uk8saws --config test-mode=true --model-default test-mode=true
         /snap/bin/juju deploy ubuntu --constraints 'cores=4 mem=16G root-disk=60G'
         /snap/bin/juju wait -vw
         /snap/bin/juju status
@@ -62,10 +116,10 @@ jobs:
           cd bundle-kubeflow
           git clone git://git.launchpad.net/canonical-osm
           cp -r canonical-osm/charms/interfaces/juju-relation-mysql mysql
-          python3 ./scripts/cli.py microk8s setup
+          python3 ./scripts/cli.py microk8s setup --test-mode
           KUBEFLOW_AUTH_PASSWORD=foobar python3 ./scripts/cli.py deploy-to uk8s --build
         EOF
-    
+
     - name: Test Kubeflow
       run: |
         /snap/bin/juju ssh ubuntu/0 <<EOF
@@ -73,8 +127,8 @@ jobs:
           cd bundle-kubeflow
           # The pods can sometimes stay in Pending for a little while longer,
           # so run the tests first that don't check pod states.
-          ./tests/run.sh -k 'not kubectl'
-          ./tests/run.sh -k 'kubectl'
+          ./tests/run.sh -k 'not kubectl' -m full
+          ./tests/run.sh -k 'kubectl' -m full
         EOF
 
     - name: Print failing logs

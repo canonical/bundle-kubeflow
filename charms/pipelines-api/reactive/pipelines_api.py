@@ -33,17 +33,22 @@ def configure_http(http):
     http.configure(port=hookenv.config('http-port'), hostname=hookenv.application_name())
 
 
-@when_any('layer.docker-resource.oci-image.changed', 'config.changed', 'mysql.changed')
+@when_any(
+    'layer.docker-resource.oci-image.changed',
+    'config.changed',
+    'kubeflow-profiles.changed',
+    'minio.changed',
+    'mysql.changed',
+    'pipelines-visualization.changed',
+)
 def update_image():
     clear_flag('charm.started')
 
 
 @when(
     'layer.docker-resource.oci-image.available',
-    'kubeflow-profiles.available',
     'minio.available',
     'mysql.available',
-    'pipelines-visualization.available',
 )
 @when_not('charm.started')
 def start_charm():
@@ -60,20 +65,44 @@ def start_charm():
         layer.status.blocked('Waiting for minio relation.')
         return False
 
-    try:
-        profiles = endpoint_from_name('kubeflow-profiles').services()[0]['hosts'][0]
-    except IndexError:
-        layer.status.blocked('Waiting for profiles relation.')
-        return False
-
-    try:
-        viz = endpoint_from_name('pipelines-visualization').services()[0]['hosts'][0]
-    except IndexError:
-        layer.status.blocked('Waiting for visualization relation.')
-        return False
-
     grpc_port = hookenv.config('grpc-port')
     http_port = hookenv.config('http-port')
+
+    config_json = {
+        'DBConfig': {
+            'DriverName': 'mysql',
+            'DataSourceName': mysql.database(),
+            'Host': mysql.host(),
+            'Port': mysql.port(),
+            'User': 'root',
+            'Password': mysql.root_password(),
+            'DBName': 'mlpipeline',
+        },
+        'ObjectStoreConfig': {
+            'Host': minio['hostname'],
+            'Port': minio['port'],
+            'AccessKey': hookenv.config('minio-access-key'),
+            'SecretAccessKey': hookenv.config('minio-secret-key'),
+            'BucketName': hookenv.config('minio-bucket-name'),
+        },
+        'InitConnectionTimeout': '5s',
+        "DefaultPipelineRunnerServiceAccount": "pipeline-runner",
+    }
+
+    profiles = endpoint_from_name('kubeflow-profiles')
+    if profiles and profiles.services():
+        profiles = profiles.services()[0]['hosts'][0]
+        config_json["PROFILES_KFAM_SERVICE_HOST"] = profiles['hostname']
+        config_json["PROFILES_KFAM_SERVICE_PORT"] = profiles['port']
+
+    viz = endpoint_from_name('pipelines-visualization')
+    if viz and viz.services():
+        viz = viz.services()[0]['hosts'][0]
+        config_json["ML_PIPELINE_VISUALIZATIONSERVER_SERVICE_HOST"] = viz['hostname']
+        config_json["ML_PIPELINE_VISUALIZATIONSERVER_SERVICE_PORT"] = viz['port']
+    else:
+        config_json["ML_PIPELINE_VISUALIZATIONSERVER_SERVICE_HOST"] = 'foobar'
+        config_json["ML_PIPELINE_VISUALIZATIONSERVER_SERVICE_PORT"] = '1234'
 
     layer.caas_base.pod_spec_set(
         {
@@ -135,34 +164,7 @@ def start_charm():
                             'name': 'config',
                             'mountPath': '/config',
                             'files': {
-                                'config.json': json.dumps(
-                                    {
-                                        'DBConfig': {
-                                            'DriverName': 'mysql',
-                                            'DataSourceName': mysql.database(),
-                                            'Host': mysql.host(),
-                                            'Port': mysql.port(),
-                                            'User': 'root',
-                                            'Password': mysql.root_password(),
-                                            'DBName': 'mlpipeline',
-                                        },
-                                        'ObjectStoreConfig': {
-                                            'Host': minio['hostname'],
-                                            'Port': minio['port'],
-                                            'AccessKey': hookenv.config('minio-access-key'),
-                                            'SecretAccessKey': hookenv.config('minio-secret-key'),
-                                            'BucketName': hookenv.config('minio-bucket-name'),
-                                        },
-                                        'InitConnectionTimeout': '5s',
-                                        "DefaultPipelineRunnerServiceAccount": "pipeline-runner",
-                                        "ML_PIPELINE_VISUALIZATIONSERVER_SERVICE_HOST": viz[
-                                            'hostname'
-                                        ],
-                                        "ML_PIPELINE_VISUALIZATIONSERVER_SERVICE_PORT": viz['port'],
-                                        'PROFILES_KFAM_SERVICE_HOST': profiles['hostname'],
-                                        'PROFILES_KFAM_SERVICE_PORT': profiles['port'],
-                                    }
-                                ),
+                                'config.json': json.dumps(config_json),
                                 'sample_config.json': Path('files/sample_config.json').read_text(),
                             },
                         },
