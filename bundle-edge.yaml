@@ -39,5 +39,4 @@ relations:
 - [argo-controller, minio]
 - [pipelines-api, pipelines-db]
 - [pipelines-api, pipelines-persistence]
-- [pipelines-api:kubeflow-profiles, kubeflow-profiles:kubeflow-profiles]
 - [pipelines-api:minio, minio:minio]
