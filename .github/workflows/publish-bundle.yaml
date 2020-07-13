@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  all bundles:
+  all-bundles:
     name: All Bundles
     runs-on: ubuntu-latest
 
