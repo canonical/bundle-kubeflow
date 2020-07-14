@@ -1,9 +1,0 @@
-options:
-  grpc-port:
-    type: int
-    default: 8085
-    description: GRPC service port
-  http-port:
-    type: int
-    default: 8080
-    description: HTTP proxy port
