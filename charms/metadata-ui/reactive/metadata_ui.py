@@ -32,6 +32,10 @@ def update_image():
 )
 @when_not('charm.started')
 def start_charm():
+    if not hookenv.is_leader():
+        hookenv.log("This unit is not a leader.")
+        return False
+
     layer.status.maintenance('configuring container')
 
     image_info = layer.docker_resource.get_info('oci-image')

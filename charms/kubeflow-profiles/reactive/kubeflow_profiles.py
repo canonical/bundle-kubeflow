@@ -33,6 +33,10 @@ def update_image():
 @when('layer.docker-resource.profile-image.available', 'layer.docker-resource.kfam-image.available')
 @when_not('charm.started')
 def start_charm():
+    if not hookenv.is_leader():
+        hookenv.log("This unit is not a leader.")
+        return False
+
     layer.status.maintenance('configuring container')
 
     profile_info = layer.docker_resource.get_info('profile-image')
