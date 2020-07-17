@@ -43,11 +43,11 @@ def update_image():
 @when("layer.docker-resource.oci-image.available", "oidc-client.available")
 @when_not("charm.started")
 def start_charm():
-    layer.status.maintenance("configuring container")
-
     if not hookenv.is_leader():
-        layer.status.blocked("this unit is not a leader")
+        hookenv.log("This unit is not a leader.")
         return False
+
+    layer.status.maintenance("configuring container")
 
     image_info = layer.docker_resource.get_info("oci-image")
 
