@@ -469,8 +469,6 @@ def setup(cloud, region, controller, channel, test_mode, gpu):
 
     juju('wait', '-wv')
 
-    juju('kubectl', 'apply', '-f', f'storage/{cloud}-ebs.yml')
-
     with tempfile.NamedTemporaryFile() as kubeconfig:
         # Copy details of cloud locally, and tell juju about it
         juju(
