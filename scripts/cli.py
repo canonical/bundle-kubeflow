@@ -8,6 +8,8 @@ import tempfile
 import textwrap
 import time
 from pathlib import Path
+import shutil
+from typing import Optional
 
 import click
 import yaml
@@ -26,6 +28,14 @@ def juju_debug(*args, env=None, die=True):
 #############
 # UTILITIES #
 #############
+
+
+def check_for(name: str, snap_name: Optional[str] = None):
+    if not shutil.which(name):
+        print(f"\nCommand {name} not found.\n")
+        print("Please run this command before running this script:\n")
+        print(f"    sudo snap install {snap_name or name} --classic\n")
+        sys.exit(1)
 
 
 def run(*args, env: dict = None, check=True, die=True):
@@ -229,6 +239,11 @@ def cli(debug):
     envvar='KUBEFLOW_AUTH_PASSWORD', prompt='Enter a password to set for the Kubeflow dashboard',
 )
 def deploy_to(controller, cloud, model, bundle, channel, public_address, build, overlays, password):
+    check_for('juju')
+    if build:
+        check_for('juju-bundle', snap_name='juju-helpers')
+        check_for('charm')
+
     # Dynamically-generated overlay, since there isn't a better
     # way of generating random passwords.
     if bundle == 'full':
@@ -391,6 +406,8 @@ def microk8s():
 )
 @click.option('--test-mode/--no-test-mode', default=False)
 def setup(controller, services, test_mode):
+    check_for('microk8s.enable', snap_name='microk8s')
+
     if not controller:
         controller = DEFAULT_CONTROLLERS['microk8s']
 
@@ -441,6 +458,7 @@ def ck():
 @click.option('--test-mode/--no-test-mode', default=False)
 @click.option('--gpu/--no-gpu', default=False)
 def setup(cloud, region, controller, channel, test_mode, gpu):
+    check_for('juju')
     if not controller:
         controller = DEFAULT_CONTROLLERS[cloud]
 
