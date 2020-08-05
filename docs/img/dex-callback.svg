@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg viewBox="0 0 275 300" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    text {
+      font: small Verdana, Helvetica, Arial, sans-serif;
+    }
+    .step {
+      animation-duration: 4s;
+      animation-iteration-count: infinite;
+    }
+    .step1 { animation-name: step1; }
+    .step2 { animation-name: step2; }
+    .step3 { animation-name: step3; }
+    .step4 { animation-name: step4; }
+
+    @keyframes step1 {
+      0% { opacity: 0; }
+      25% { opacity: 1; }
+    }
+    @keyframes step2 {
+      0% { opacity: 0; }
+      25% { opacity: 0; }
+      50% { opacity: 1; }
+    }
+    @keyframes step3 {
+      0% { opacity: 0; }
+      50% { opacity: 0; }
+      75% { opacity: 1; }
+    }
+    @keyframes step4 {
+      0% { opacity: 0; }
+      75% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+  </style>
+  <marker id="triangle"
+    viewBox="0 0 10 10"
+    refX="0"
+    refY="5" 
+    markerUnits="strokeWidth"
+    markerWidth="4"
+    markerHeight="3"
+    orient="auto">
+    <path d="M 0 0 L 10 5 L 0 10 z" />
+  </marker>
+  <text class="step step1" x="25" y="232.5">GET /callback</text>
+	<line class="step step1" x1="20" y1="237.5" x2="85" y2="237.5" marker-end="url(#triangle)" stroke="black" stroke-width="3" />
+
+  <text class="step step2" x="60" y="150">Forward request</text>
+	<line class="step step2" x1="137.5" y1="180" x2="137.5" y2="120" marker-end="url(#triangle)" stroke="black" stroke-width="3" />
+
+  <text class="step step3" x="175" y="150">Generate auth token</text>
+  <line class="step step3" x1="162.5" y1="120" x2="162.5" y2="180" marker-end="url(#triangle)" stroke="black" stroke-width="3" />
+
+	<line class="step step4" x1="85" y1="262.5" x2="20" y2="262.5" marker-end="url(#triangle)" stroke="black" stroke-width="3" />
+  <text class="step step4" x="25" y="267.5" dominant-baseline="hanging">301 /foo</text>
+
+  <image height="100" width="100" x="100" y="0" xlink:href="oidc.svg"><title>OIDC Gatekeeper</title></image>
+  <image height="100" width="100" x="100" y="200" xlink:href="ambassador.svg"><title>Ambassador</title></image>
+</svg>
