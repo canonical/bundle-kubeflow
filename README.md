@@ -99,54 +99,7 @@ Next, you can run these commands to set up Charmed Kubernetes:
 
 ## Authentication
 
-By default, this bundle deploys Dex configured with basic login credentials.
-Dex is able to user other services for authentication, such as GitHub's OAuth
-service. To configure Kubeflow to use one of these other services for
-authentication, check out the [Dex documentation][dex-docs]. The YAML shown in
-those examples should be configured with:
-
-    juju config dex-auth connectors="$CONNECTOR_YAML"
-
-[dex-docs]: https://github.com/dexidp/dex/tree/master/Documentation/connectors
-
-As an example, this is what you might use for `$CONNECTOR_YAML` if you are
-deploying with support for LDAP:
-
-```json
-[{
-    "id": "ldap",
-    "name": "OpenLDAP",
-    "type": "ldap",
-    "config": {
-        "bindDN": "cn=admin,dc=example,dc=org",
-        "bindPW": "admin",
-        "groupSearch": {
-            "baseDN": "cn=admin,dc=example,dc=org",
-            "filter": "",
-            "groupAttr": "DN",
-            "nameAttr": "cn",
-            "userAttr": "DN"
-        },
-        "host": "ldap-service.auth.svc.cluster.local:389",
-        "insecureNoSSL": true,
-        "userSearch": {
-            "baseDN": "cn=admin,dc=example,dc=org",
-            "emailAttr": "DN",
-            "filter": "",
-            "idAttr": "DN",
-            "nameAttr": "cn",
-            "username": "cn"
-        },
-        "usernamePrompt": "Email Address"
-    }
-}]
-'
-```
-
-For more thorough examples, see https://github.com/dexidp/dex/tree/master/examples
-If you'd like to disable the default basic credentials, run:
-
-    juju config dex-auth static-username='' static-password=''
+See [Authentication Documentation](docs/authentication.md)
 
 ## Using
 
