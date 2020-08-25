@@ -12,7 +12,7 @@ resources:
     type: oci-image
     description: 'Backing OCI image'
     auto-fetch: true
-    upstream-source: gcr.io/kubeflow-images-public/tf_operator:v1.0.0-g92389064
+    upstream-source: gcr.io/kubeflow-images-public/tf_operator:v1.1.0-g92389064
 deployment:
   type: stateless
   service: omit

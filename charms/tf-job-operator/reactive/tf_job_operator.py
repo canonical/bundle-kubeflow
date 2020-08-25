@@ -71,7 +71,7 @@ def start_charm():
                     'args': ['--alsologtostderr', '-v=1', '--monitoring-port=8443'],
                     'config': {
                         'MY_POD_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
-                        'MY_POD_NAME': hookenv.service_name(),
+                        'MY_POD_NAME': {"field": {"path": "metadata.name", "api-version": "v1"}},
                     },
                 }
             ],
