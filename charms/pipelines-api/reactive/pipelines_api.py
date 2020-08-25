@@ -88,6 +88,7 @@ def start_charm():
             'AccessKey': hookenv.config('minio-access-key'),
             'SecretAccessKey': hookenv.config('minio-secret-key'),
             'BucketName': hookenv.config('minio-bucket-name'),
+            'Secure': False,
         },
         'InitConnectionTimeout': '5s',
         "DefaultPipelineRunnerServiceAccount": "pipeline-runner",
