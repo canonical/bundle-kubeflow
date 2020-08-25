@@ -3,3 +3,7 @@ options:
     type: int
     default: 8081
     description: HTTP port
+  manager-port:
+    type: int
+    default: 8080
+    description: Management port
