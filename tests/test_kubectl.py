@@ -111,8 +111,8 @@ def test_running_edge():
 def test_crd_created_full():
     crds = yaml.safe_load(kubectl.get('crd', '-oyaml').stdout)
 
-    names = sorted(i['metadata']['name'] for i in crds['items'])
-    assert names == [
+    names = {i['metadata']['name'] for i in crds['items']}
+    assert names.issuperset({
         'authcodes.dex.coreos.com',
         'authrequests.dex.coreos.com',
         'compositecontrollers.metacontroller.k8s.io',
@@ -138,15 +138,15 @@ def test_crd_created_full():
         'trials.kubeflow.org',
         'viewers.kubeflow.org',
         'workflows.argoproj.io',
-    ]
+    })
 
 
 @pytest.mark.lite
 def test_crd_created_lite():
     crds = yaml.safe_load(kubectl.get('crd', '-oyaml').stdout)
 
-    names = sorted(i['metadata']['name'] for i in crds['items'])
-    assert names == [
+    names = {i['metadata']['name'] for i in crds['items']}
+    assert names.issuperset({
         'authcodes.dex.coreos.com',
         'authrequests.dex.coreos.com',
         'connectors.dex.coreos.com',
@@ -166,21 +166,21 @@ def test_crd_created_lite():
         'tfjobs.kubeflow.org',
         'viewers.kubeflow.org',
         'workflows.argoproj.io',
-    ]
+    })
 
 
 @pytest.mark.edge
 def test_crd_created_edge():
     crds = yaml.safe_load(kubectl.get('crd', '-oyaml').stdout)
 
-    names = sorted(i['metadata']['name'] for i in crds['items'])
-    assert names == [
+    names = {i['metadata']['name'] for i in crds['items']}
+    assert names.issuperset({
         'pytorchjobs.kubeflow.org',
         'scheduledworkflows.kubeflow.org',
         'seldondeployments.machinelearning.seldon.io',
         'tfjobs.kubeflow.org',
         'workflows.argoproj.io',
-    ]
+    })
 
 
 @pytest.mark.full
