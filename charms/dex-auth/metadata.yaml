@@ -11,7 +11,7 @@ resources:
     type: oci-image
     description: 'Backing OCI image'
     auto-fetch: true
-    upstream-source: quay.io/dexidp/dex:v2.21.0
+    upstream-source: quay.io/dexidp/dex:v2.22.0
 requires:
   oidc-client:
     interface: oidc-client
