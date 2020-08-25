@@ -45,7 +45,7 @@ def start_charm():
                         'username': image_info.username,
                         'password': image_info.password,
                     },
-                    'ports': [{'name': 'manager', 'containerPort': port}],
+                    'ports': [{'name': 'api', 'containerPort': port}],
                     'config': {
                         'DB_NAME': 'mysql',
                         'DB_USER': 'root',
@@ -61,7 +61,7 @@ def start_charm():
                         },
                         'readinessProbe': {
                             'exec': {'command': ["/bin/grpc_health_probe", f"-addr=:{port}"]},
-                            'initialDelaySeconds': 5,
+                            'initialDelaySeconds': 10,
                             'periodSeconds': 60,
                             'failureThreshold': 5,
                         },
