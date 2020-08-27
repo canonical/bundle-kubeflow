@@ -10,7 +10,7 @@ resources:
     type: oci-image
     description: 'Backing OCI image'
     auto-fetch: true
-    upstream-source: gcr.io/tfx-oss-public/ml_metadata_store_server:0.15.1
+    upstream-source: gcr.io/tfx-oss-public/ml_metadata_store_server:v0.21.1
 requires:
   mysql:
     interface: mysql

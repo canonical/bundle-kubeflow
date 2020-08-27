@@ -60,7 +60,13 @@ def start_charm():
                         'apiGroups': [''],
                         'resources': ['events', 'namespaces', 'nodes'],
                         'verbs': ['get', 'list', 'watch'],
-                    }
+                    },
+                    {
+                        'apiGroups': ['', 'app.k8s.io'],
+                        'resources': ['applications', 'pods', 'pods/exec', 'pods/log'],
+                        'verbs': ['get', 'list', 'watch'],
+                    },
+                    {'apiGroups': [''], 'resources': ['secrets'], 'verbs': ['get']},
                 ],
             },
             'service': {
@@ -92,6 +98,7 @@ def start_charm():
                         'USERID_HEADER': 'kubeflow-userid',
                         'USERID_PREFIX': '',
                         'PROFILES_KFAM_SERVICE_HOST': f'{profiles_service}.{model}',
+                        'REGISTRATION_FLOW': hookenv.config('registration-flow'),
                     },
                     'ports': [{'name': 'ui', 'containerPort': port}],
                     'kubernetes': {

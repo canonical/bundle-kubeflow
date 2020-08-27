@@ -12,7 +12,7 @@ resources:
     type: oci-image
     description: 'Backing OCI image'
     auto-fetch: true
-    upstream-source: gcr.io/ml-pipeline/viewer-crd-controller:0.2.0
+    upstream-source: gcr.io/ml-pipeline/viewer-crd-controller:0.2.5
 requires:
   ambassador:
     interface: ambassador

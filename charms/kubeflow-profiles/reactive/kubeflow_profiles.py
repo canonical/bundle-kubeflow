@@ -69,9 +69,15 @@ def start_charm():
                         '-workload-identity',
                         '',
                     ],
+                    'ports': [
+                        {'name': 'manager', 'containerPort': hookenv.config('manager-port')}
+                    ],
                     'kubernetes': {
                         'livenessProbe': {
-                            'httpGet': {'path': '/metrics', 'port': 8080},
+                            'httpGet': {
+                                'path': '/metrics',
+                                'port': hookenv.config('manager-port'),
+                            },
                             'initialDelaySeconds': 30,
                             'periodSeconds': 30,
                         }
@@ -96,7 +102,7 @@ def start_charm():
                     'ports': [{'name': 'http', 'containerPort': hookenv.config('port')}],
                     'kubernetes': {
                         'livenessProbe': {
-                            'httpGet': {'path': '/metrics', 'port': 8081},
+                            'httpGet': {'path': '/metrics', 'port': hookenv.config('port')},
                             'initialDelaySeconds': 30,
                             'periodSeconds': 30,
                         }

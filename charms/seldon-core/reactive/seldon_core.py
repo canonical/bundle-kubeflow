@@ -1,5 +1,4 @@
 import os
-import shutil
 from base64 import b64encode
 from pathlib import Path
 from subprocess import run
@@ -60,6 +59,58 @@ def start_charm():
     )
 
     ca_bundle = b64encode(Path('cert.pem').read_bytes()).decode('utf-8')
+
+    envs = {
+        'AMBASSADOR_ENABLED': config['ambassador-enabled'],
+        'AMBASSADOR_SINGLE_NAMESPACE': config['ambassador-single-namespace'],
+        'CONTROLLER_ID': config['controller-id'],
+        'DEFAULT_USER_ID': config['default-user-id'],
+        'ENGINE_CONTAINER_IMAGE_AND_VERSION': config['engine-container-image-and-version'],
+        'ENGINE_CONTAINER_IMAGE_PULL_POLICY': config['engine-container-image-pull-policy'],
+        'ENGINE_CONTAINER_SERVICE_ACCOUNT_NAME': config['engine-container-service-account-name'],
+        'ENGINE_CONTAINER_USER': config['engine-container-user'],
+        'ENGINE_LOG_MESSAGES_EXTERNALLY': config['engine-log-messages-externally'],
+        'ENGINE_PROMETHEUS_PATH': config['engine-prometheus-path'],
+        'ENGINE_SERVER_GRPC_PORT': config['engine-server-grpc-port'],
+        'ENGINE_SERVER_PORT': config['engine-server-port'],
+        'EXECUTOR_CONTAINER_IMAGE_AND_VERSION': config['executor-container-image-and-version'],
+        'EXECUTOR_CONTAINER_IMAGE_PULL_POLICY': config['executor-container-image-pull-policy'],
+        'EXECUTOR_CONTAINER_SERVICE_ACCOUNT_NAME': config[
+            'executor-container-service-account-name'
+        ],
+        'EXECUTOR_CONTAINER_USER': config['executor-container-user'],
+        'EXECUTOR_PROMETHEUS_PATH': config['executor-prometheus-path'],
+        'EXECUTOR_REQUEST_LOGGER_DEFAULT_ENDPOINT': config[
+            'executor-request-logger-default-endpoint'
+        ],
+        'EXECUTOR_SERVER_METRICS_PORT_NAME': config['executor-server-metrics-port-name'],
+        'EXECUTOR_SERVER_PORT': config['executor-server-port'],
+        'ISTIO_ENABLED': config['istio-enabled'],
+        'ISTIO_GATEWAY': config['istio-gateway'],
+        'ISTIO_TLS_MODE': config['istio-tls-mode'],
+        'MANAGER_CREATE_RESOURCES': config['manager-create-resources'],
+        'POD_NAMESPACE': model,
+        'PREDICTIVE_UNIT_DEFAULT_ENV_SECRET_REF_NAME': config[
+            'predictive-unit-default-env-secret-ref-name'
+        ],
+        'PREDICTIVE_UNIT_METRICS_PORT_NAME': config['predictive-unit-metrics-port-name'],
+        'PREDICTIVE_UNIT_SERVICE_PORT': config['predictive-unit-service-port'],
+        'RELATED_IMAGE_ENGINE': config['related-image-engine'],
+        'RELATED_IMAGE_EXECUTOR': config['related-image-executor'],
+        'RELATED_IMAGE_EXPLAINER': config['related-image-explainer'],
+        'RELATED_IMAGE_MLFLOWSERVER_GRPC': config['related-image-mlflowserver-grpc'],
+        'RELATED_IMAGE_MLFLOWSERVER_REST': config['related-image-mlflowserver-rest'],
+        'RELATED_IMAGE_SKLEARNSERVER_GRPC': config['related-image-sklearnserver-grpc'],
+        'RELATED_IMAGE_SKLEARNSERVER_REST': config['related-image-sklearnserver-rest'],
+        'RELATED_IMAGE_STORAGE_INITIALIZER': config['related-image-storage-initializer'],
+        'RELATED_IMAGE_TENSORFLOW': config['related-image-tensorflow'],
+        'RELATED_IMAGE_TFPROXY_GRPC': config['related-image-tfproxy-grpc'],
+        'RELATED_IMAGE_TFPROXY_REST': config['related-image-tfproxy-rest'],
+        'RELATED_IMAGE_XGBOOSTSERVER_GRPC': config['related-image-xgboostserver-grpc'],
+        'RELATED_IMAGE_XGBOOSTSERVER_REST': config['related-image-xgboostserver-rest'],
+        'USE_EXECUTOR': config['use-executor'],
+        'WATCH_NAMESPACE': config['watch-namespace'],
+    }
 
     layer.caas_base.pod_spec_set(
         {
@@ -167,24 +218,7 @@ def start_charm():
                         {'name': 'metrics', 'containerPort': config['metrics-port']},
                         {'name': 'webhook', 'containerPort': config['webhook-port']},
                     ],
-                    'config': {
-                        'POD_NAMESPACE': model,
-                        'CONTROLLER_NAME': '',
-                        'AMBASSADOR_ENABLED': 'true',
-                        'AMBASSADOR_SINGLE_NAMESPACE': 'false',
-                        'ENGINE_CONTAINER_IMAGE_AND_VERSION': 'docker.io/seldonio/engine:1.0.1',
-                        'ENGINE_CONTAINER_IMAGE_PULL_POLICY': 'IfNotPresent',
-                        'ENGINE_CONTAINER_SERVICE_ACCOUNT_NAME': 'default',
-                        'ENGINE_CONTAINER_USER': '8888',
-                        'ENGINE_LOG_MESSAGES_EXTERNALLY': 'false',
-                        'PREDICTIVE_UNIT_SERVICE_PORT': '9000',
-                        'ENGINE_SERVER_GRPC_PORT': '5001',
-                        'ENGINE_SERVER_PORT': '8000',
-                        'ENGINE_PROMETHEUS_PATH': 'prometheus',
-                        'ISTIO_ENABLED': 'false',
-                        'ISTIO_GATEWAY': 'kubeflow-gateway',
-                        'ISTIO_TLS_MODE': '',
-                    },
+                    'config': envs,
                     'files': [
                         {
                             'name': 'certs',

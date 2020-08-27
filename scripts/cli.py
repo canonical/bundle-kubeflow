@@ -332,10 +332,7 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
                 {
                     'apiVersion': 'v1',
                     'kind': 'Service',
-                    'metadata': {
-                        'labels': {'juju-app': 'pipelines-api'},
-                        'name': 'ml-pipeline',
-                    },
+                    'metadata': {'labels': {'juju-app': 'pipelines-api'}, 'name': 'ml-pipeline'},
                     'spec': {
                         'ports': [
                             {'name': 'grpc', 'port': 8887, 'protocol': 'TCP', 'targetPort': 8887},
@@ -373,6 +370,60 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
 
         juju('config', 'ambassador', f'juju-external-hostname={pub_addr}')
         juju('expose', 'ambassador')
+
+    end = time.time()
+
+    click.secho(
+        f'\nCongratulations, Kubeflow is now available. Took {int(end - start)} seconds.',
+        color='green',
+    )
+
+    kubeflow_info(controller, model)
+
+
+@cli.command(name='upgrade')
+@click.argument('CONTROLLER')
+@click.option('--model', default='kubeflow')
+@click.option('--bundle', default='full')
+@click.option('--channel', default='stable')
+@click.option('--build/--no-build', default=False)
+def upgrade(controller, model, bundle, channel, build):
+    check_for('juju')
+    if build:
+        check_for('juju-bundle', snap_name='juju-helpers')
+        check_for('charm')
+
+    if bundle == 'full':
+        bundle_yaml = 'bundle.yaml'
+        bundle_url = 'kubeflow'
+    elif bundle == 'lite':
+        bundle_yaml = 'bundle-lite.yaml'
+        bundle_url = 'kubeflow-lite'
+    elif bundle == 'edge':
+        bundle_yaml = 'bundle-edge.yaml'
+        bundle_url = 'kubeflow-edge'
+    else:
+        raise Exception(f"Unknown bundle {bundle}")
+
+    start = time.time()
+
+    # Allow building local bundle.yaml, otherwise deploy from the charm store
+    if build:
+        juju('bundle', 'deploy', '-b', bundle_yaml, '--build', '--', '-m', model)
+    else:
+        juju('deploy', bundle_url, '-m', model, '--channel', channel)
+
+    juju('wait', '-wv', '-m', model)
+
+    juju(
+        "kubectl",
+        "wait",
+        f"--namespace={model}",
+        "--for=condition=Ready",
+        "pod",
+        "--timeout=-1s",
+        "--all",
+    )
 
     end = time.time()
 

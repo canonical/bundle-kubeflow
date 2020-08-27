@@ -1,3 +1,5 @@
+import os
+
 from charmhelpers.core import hookenv
 from charms import layer
 from charms.reactive import clear_flag, hook, set_flag, when, when_not
@@ -48,6 +50,7 @@ def start_charm():
                         'password': image_info.password,
                     },
                     'ports': [{'name': 'http', 'containerPort': port}],
+                    'config': {'POD_NAMESPACE': os.environ['JUJU_MODEL_NAME']},
                 }
             ],
         }

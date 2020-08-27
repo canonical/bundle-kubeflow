@@ -60,6 +60,10 @@ def start_charm():
                         f"--mysql_config_password={mysql.root_password()}",
                     ],
                     'ports': [{'name': 'grpc', 'containerPort': port}],
+                    'config': {
+                        'METADATA_GRPC_SERVICE_HOST': hookenv.service_name(),
+                        'METADATA_GRPC_SERVICE_PORT': port,
+                    },
                 }
             ],
         }

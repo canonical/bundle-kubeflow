@@ -95,6 +95,7 @@ def start_charm():
                         'MINIO_HOST': minio['hostname'],
                         'MINIO_PORT': minio['port'],
                         'MINIO_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
+                        'ALLOW_CUSTOM_VISUALIZATIONS': True,
                     },
                     'ports': [{'name': 'ui', 'containerPort': port}],
                 }

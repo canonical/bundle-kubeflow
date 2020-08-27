@@ -41,10 +41,10 @@ def start_charm():
             'version': 2,
             'serviceAccount': {
                 'rules': [
-                    {'apiGroups': [''], 'resources': ['configmaps'], 'verbs': ['*']},
+                    {'apiGroups': [''], 'resources': ['configmaps', 'namespaces'], 'verbs': ['*']},
                     {
                         'apiGroups': ['kubeflow.org'],
-                        'resources': ['experiments', 'trials'],
+                        'resources': ['experiments', 'trials', 'suggestions'],
                         'verbs': ['*'],
                     },
                 ]

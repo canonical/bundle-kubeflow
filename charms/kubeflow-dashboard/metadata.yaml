@@ -10,7 +10,7 @@ resources:
     type: oci-image
     description: 'Backing OCI image'
     auto-fetch: true
-    upstream-source: gcr.io/kubeflow-images-public/centraldashboard:v1.0.0-g3ec0de71
+    upstream-source: gcr.io/kubeflow-images-public/centraldashboard:v1.1.0-g35d7484a
 requires:
   ambassador:
     interface: ambassador

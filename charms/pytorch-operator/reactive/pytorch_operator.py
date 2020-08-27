@@ -42,7 +42,11 @@ def start_charm():
                 'rules': [
                     {
                         'apiGroups': ['kubeflow.org'],
-                        'resources': ['pytorchjobs', 'pytorchjobs/status'],
+                        'resources': [
+                            'pytorchjobs',
+                            'pytorchjobs/status',
+                            'pytorchjobs/finalizers',
+                        ],
                         'verbs': ['*'],
                     },
                     {
@@ -71,7 +75,10 @@ def start_charm():
                         '-v=1',
                         '--monitoring-port=8443',
                     ],
-                    'config': {'KUBEFLOW_NAMESPACE': os.environ['JUJU_MODEL_NAME']},
+                    'config': {
+                        'MY_POD_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
+                        'MY_POD_NAME': {"field": {"path": "metadata.name", "api-version": "v1"}},
+                    },
                 }
             ],
         },
