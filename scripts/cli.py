@@ -294,7 +294,7 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
             sys.exit(1)
         clouds = [
             name
-            for name, details in json.loads(output).items()
+            for name, details in (json.loads(output) or {}).items()
             if details['type'] == 'k8s' and details['defined'] == 'public'
         ]
         if not clouds:
