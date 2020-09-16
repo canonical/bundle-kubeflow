@@ -1,71 +1,61 @@
 bundle: kubernetes
 applications:
   ambassador:
-    charm: cs:~kubeflow-charmers/ambassador
-    source: ./charms/ambassador
+    charm: ambassador
     scale: 1
     annotations:
       gui-x: '300'
       gui-y: '-518'
   argo-controller:
-    charm: cs:~kubeflow-charmers/argo-controller
-    source: ./charms/argo-controller
+    charm: argo-controller
     scale: 1
     annotations:
       gui-x: '150'
       gui-y: '259'
   dex-auth:
-    charm: cs:~kubeflow-charmers/dex-auth
-    source: ./charms/dex-auth
+    charm: dex-auth
     scale: 1
     annotations:
       gui-x: '-600'
       gui-y: '0'
   jupyter-controller:
-    charm: cs:~kubeflow-charmers/jupyter-controller
-    source: ./charms/jupyter-controller
+    charm: jupyter-controller
     scale: 1
     annotations:
       gui-x: '600'
       gui-y: '0'
   jupyter-web:
-    charm: cs:~kubeflow-charmers/jupyter-web
-    source: ./charms/jupyter-web
+    charm: jupyter-web
     scale: 1
     annotations:
       gui-x: '450'
       gui-y: '-259'
   kubeflow-dashboard:
-    charm: cs:~kubeflow-charmers/kubeflow-dashboard
-    source: ./charms/kubeflow-dashboard
+    charm: kubeflow-dashboard
     scale: 1
     annotations:
       gui-x: '450'
       gui-y: '259'
   kubeflow-profiles:
-    charm: cs:~kubeflow-charmers/kubeflow-profiles
-    source: ./charms/kubeflow-profiles
+    charm: kubeflow-profiles
     scale: 1
     annotations:
       gui-x: '300'
       gui-y: '0'
   minio:
-    charm: cs:~kubeflow-charmers/minio
-    source: ./charms/minio
+    charm: minio
     scale: 1
     annotations:
       gui-x: '-150'
       gui-y: '-259'
   oidc-gatekeeper:
-    charm: cs:~kubeflow-charmers/oidc-gatekeeper
-    source: ./charms/oidc-gatekeeper
+    charm: oidc-gatekeeper
     scale: 1
     annotations:
       gui-x: '-450'
       gui-y: '259'
   pipelines-api:
-    charm: cs:~kubeflow-charmers/pipelines-api
-    source: ./charms/pipelines-api
+    charm: pipelines-api
     scale: 1
     annotations:
       gui-x: '0'
@@ -77,57 +67,49 @@ applications:
       gui-x: '-450'
       gui-y: '-259'
   pipelines-persistence:
-    charm: cs:~kubeflow-charmers/pipelines-persistence
-    source: ./charms/pipelines-persistence
+    charm: pipelines-persistence
     scale: 1
     annotations:
       gui-x: '-300'
       gui-y: '0'
   pipelines-scheduledworkflow:
-    charm: cs:~kubeflow-charmers/pipelines-scheduledworkflow
-    source: ./charms/pipelines-scheduledworkflow
+    charm: pipelines-scheduledworkflow
     scale: 1
     annotations:
       gui-x: '-300'
       gui-y: '-518'
   pipelines-ui:
-    charm: cs:~kubeflow-charmers/pipelines-ui
-    source: ./charms/pipelines-ui
+    charm: pipelines-ui
     scale: 1
     annotations:
       gui-x: '0'
       gui-y: '-518'
   pipelines-viewer:
-    charm: cs:~kubeflow-charmers/pipelines-viewer
-    source: ./charms/pipelines-viewer
+    charm: pipelines-viewer
     scale: 1
     annotations:
       gui-x: '150'
       gui-y: '-259'
   pipelines-visualization:
-    charm: cs:~kubeflow-charmers/pipelines-visualization
-    source: ./charms/pipelines-visualization
+    charm: pipelines-visualization
     scale: 1
     annotations:
       gui-x: '-150'
       gui-y: '259'
   pytorch-operator:
-    charm: cs:~kubeflow-charmers/pytorch-operator
-    source: ./charms/pytorch-operator
+    charm: pytorch-operator
     scale: 1
     annotations:
       gui-x: '-300'
       gui-y: '518'
   seldon-core:
-    charm: cs:~kubeflow-charmers/seldon-core
-    source: ./charms/seldon-core
+    charm: seldon-core
     scale: 1
     annotations:
       gui-x: '0'
       gui-y: '518'
   tf-job-operator:
-    charm: cs:~kubeflow-charmers/tf-job-operator
-    source: ./charms/tf-job-operator
+    charm: tf-job-operator
     scale: 1
     annotations:
       gui-x: '300'
