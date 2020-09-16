@@ -1,7 +1,7 @@
 import json
 import os
 from pathlib import Path
-from subprocess import run
+from subprocess import check_call
 from base64 import b64encode
 
 import yaml
@@ -65,6 +65,101 @@ KATIB_CONFIG = {
 }
 
 
+def gen_certs(namespace, service_name):
+    Path('ssl.conf').write_text(
+        f"""[ req ]
+default_bits = 2048
+prompt = no
+default_md = sha256
+req_extensions = req_ext
+distinguished_name = dn
+
+[ dn ]
+C = GB
+ST = Canonical
+L = Canonical
+O = Canonical
+OU = Canonical
+CN = 127.0.0.1
+
+[ req_ext ]
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = {service_name}
+DNS.2 = {service_name}.{namespace}
+DNS.3 = {service_name}.{namespace}.svc
+DNS.4 = {service_name}.{namespace}.svc.cluster
+DNS.5 = {service_name}.{namespace}.svc.cluster.local
+IP.1 = 127.0.0.1
+
+[ v3_ext ]
+authorityKeyIdentifier=keyid,issuer:always
+basicConstraints=CA:FALSE
+keyUsage=keyEncipherment,dataEncipherment,digitalSignature
+extendedKeyUsage=serverAuth,clientAuth
+subjectAltName=@alt_names"""
+    )
+
+    check_call(['openssl', 'genrsa', '-out', 'ca.key', '2048'])
+    check_call(['openssl', 'genrsa', '-out', 'server.key', '2048'])
+    check_call(
+        [
+            'openssl',
+            'req',
+            '-x509',
+            '-new',
+            '-sha256',
+            '-nodes',
+            '-days',
+            '3650',
+            '-key',
+            'ca.key',
+            '-subj',
+            '/CN=127.0.0.1',
+            '-out',
+            'ca.crt',
+        ]
+    )
+    check_call(
+        [
+            'openssl',
+            'req',
+            '-new',
+            '-sha256',
+            '-key',
+            'server.key',
+            '-out',
+            'server.csr',
+            '-config',
+            'ssl.conf',
+        ]
+    )
+    check_call(
+        [
+            'openssl',
+            'x509',
+            '-req',
+            '-sha256',
+            '-in',
+            'server.csr',
+            '-CA',
+            'ca.crt',
+            '-CAkey',
+            'ca.key',
+            '-CAcreateserial',
+            '-out',
+            'cert.pem',
+            '-days',
+            '365',
+            '-extensions',
+            'v3_ext',
+            '-extfile',
+            'ssl.conf',
+        ]
+    )
+
+
 @when('layer.docker-resource.oci-image.available')
 @when_not('charm.started')
 def start_charm():
@@ -78,26 +173,7 @@ def start_charm():
     namespace = os.environ["JUJU_MODEL_NAME"]
     config = dict(hookenv.config())
 
-    run(
-        [
-            "openssl",
-            "req",
-            "-x509",
-            "-newkey",
-            "rsa:4096",
-            "-keyout",
-            "key.pem",
-            "-out",
-            "cert.pem",
-            "-days",
-            "365",
-            "-subj",
-            "/CN=katib-controller.kubeflow.svc",
-            "-nodes",
-        ],
-        check=True,
-    )
-
+    gen_certs(namespace, hookenv.service_name())
     ca_bundle = b64encode(Path('cert.pem').read_bytes()).decode('utf-8')
 
     layer.caas_base.pod_spec_set(
@@ -184,7 +260,7 @@ def start_charm():
                             'mountPath': '/tmp/cert',
                             'files': {
                                 'cert.pem': Path('cert.pem').read_text(),
-                                'key.pem': Path('key.pem').read_text(),
+                                'key.pem': Path('server.key').read_text(),
                             },
                         }
                     ],
