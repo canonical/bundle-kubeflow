@@ -11,10 +11,6 @@ options:
     type: string
     default: 'minio'
     description: Minio AccessKey
-  minio-secret-key:
-    type: string
-    default: ''
-    description: Minio SecretKey
   minio-bucket-name:
     type: string
     default: 'mlpipeline'

@@ -13,7 +13,7 @@ resources:
     upstream-source: minio/minio:RELEASE.2018-02-09T22-40-05Z
 provides:
   minio:
-    interface: http
+    interface: generic-ip-port-user-pass
 storage:
   minio-data:
     type: filesystem

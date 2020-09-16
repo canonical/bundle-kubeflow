@@ -252,10 +252,6 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
         password_overlay = {
             "applications": {
                 "dex-auth": {"options": {"static-username": "admin", "static-password": password}},
-                "katib-db": {"options": {"root_password": get_random_pass()}},
-                "oidc-gatekeeper": {"options": {"client-secret": get_random_pass()}},
-                "pipelines-api": {"options": {"minio-secret-key": "minio123"}},
-                "pipelines-db": {"options": {"root_password": get_random_pass()}},
             }
         }
     elif bundle == 'lite':
@@ -264,20 +260,12 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
         password_overlay = {
             "applications": {
                 "dex-auth": {"options": {"static-username": "admin", "static-password": password}},
-                "oidc-gatekeeper": {"options": {"client-secret": get_random_pass()}},
-                "pipelines-api": {"options": {"minio-secret-key": "minio123"}},
-                "pipelines-db": {"options": {"root_password": get_random_pass()}},
             }
         }
     elif bundle == 'edge':
         bundle_yaml = 'bundle-edge.yaml'
         bundle_url = 'kubeflow-edge'
-        password_overlay = {
-            "applications": {
-                "pipelines-api": {"options": {"minio-secret-key": "minio123"}},
-                "pipelines-db": {"options": {"root_password": get_random_pass()}},
-            }
-        }
+        password_overlay = {}
     else:
         raise Exception(f"Unknown bundle {bundle}")
 

@@ -37,7 +37,7 @@ def configure_http(http):
     'layer.docker-resource.oci-image.changed',
     'config.changed',
     'kubeflow-profiles.changed',
-    'minio.changed',
+    'endpoint.minio.joined',
     'mysql.changed',
     'pipelines-visualization.changed',
 )
@@ -53,7 +53,7 @@ def update_image():
 
 @when(
     'layer.docker-resource.oci-image.available',
-    'minio.available',
+    'endpoint.minio.joined',
     'mysql.available',
 )
 @when_not('charm.started')
@@ -70,11 +70,17 @@ def start_charm():
     mysql = endpoint_from_name('mysql')
 
     try:
-        minio = endpoint_from_name('minio').services()[0]['hosts'][0]
+        minio = endpoint_from_name('minio').mailman3()[0]
     except IndexError:
         layer.status.blocked('Waiting for minio relation.')
         return False
 
+    if minio['ip'] is None:
+        layer.status.blocked("Waiting for full minio relation.")
+        return False
+
+    hookenv.log("DEBUG")
+    hookenv.log(minio)
     grpc_port = hookenv.config('grpc-port')
     http_port = hookenv.config('http-port')
 
@@ -89,10 +95,10 @@ def start_charm():
             'DBName': 'mlpipeline',
         },
         'ObjectStoreConfig': {
-            'Host': minio['hostname'],
+            'Host': minio['ip'],
             'Port': minio['port'],
-            'AccessKey': hookenv.config('minio-access-key'),
-            'SecretAccessKey': hookenv.config('minio-secret-key'),
+            'AccessKey': minio['user'],
+            'SecretAccessKey': minio['password'],
             'BucketName': hookenv.config('minio-bucket-name'),
             'Secure': False,
         },

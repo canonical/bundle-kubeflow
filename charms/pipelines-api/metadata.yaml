@@ -17,7 +17,7 @@ requires:
   kubeflow-profiles:
     interface: http
   minio:
-    interface: http
+    interface: generic-ip-port-user-pass
   mysql:
     interface: mysql
   pipelines-visualization:
