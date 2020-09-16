@@ -1,6 +1,7 @@
 import json
 import os
 import random
+import shutil
 import string
 import subprocess
 import sys
@@ -8,7 +9,6 @@ import tempfile
 import textwrap
 import time
 from pathlib import Path
-import shutil
 from typing import Optional
 
 import click
@@ -67,7 +67,11 @@ def get_output(*args: str):
     """Gets output from subcommand without echoing stdout."""
 
     return subprocess.run(
-        args, check=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        args,
+        check=True,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
     ).stdout
 
 
@@ -236,7 +240,8 @@ def cli(debug):
 @click.option('--build/--no-build', default=False)
 @click.option('-o', '--overlays', multiple=True)
 @click.password_option(
-    envvar='KUBEFLOW_AUTH_PASSWORD', prompt='Enter a password to set for the Kubeflow dashboard',
+    envvar='KUBEFLOW_AUTH_PASSWORD',
+    prompt='Enter a password to set for the Kubeflow dashboard',
 )
 def deploy_to(controller, cloud, model, bundle, channel, public_address, build, overlays, password):
     check_for('juju')
@@ -557,7 +562,11 @@ def setup(cloud, region, controller, channel, test_mode, gpu):
     with tempfile.NamedTemporaryFile() as kubeconfig:
         # Copy details of cloud locally, and tell juju about it
         juju(
-            'scp', '-m', f'{controller}:default', 'kubernetes-master/0:~/config', kubeconfig.name,
+            'scp',
+            '-m',
+            f'{controller}:default',
+            'kubernetes-master/0:~/config',
+            kubeconfig.name,
         )
         juju(
             'add-k8s',
