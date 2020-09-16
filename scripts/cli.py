@@ -129,7 +129,7 @@ def microk8s_info(model):
     print(
         textwrap.dedent(
             f"""
-        Run `microk8s.kubectl proxy` to be able to access the dashboard at
+        Run `microk8s kubectl proxy` to be able to access the dashboard at
 
         http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/#!/overview?namespace={model}
         """
@@ -471,16 +471,17 @@ def microk8s():
 )
 @click.option('--test-mode/--no-test-mode', default=False)
 def setup(controller, services, test_mode):
-    check_for('microk8s.enable', snap_name='microk8s')
+    check_for('microk8s')
 
     if not controller:
         controller = DEFAULT_CONTROLLERS['microk8s']
 
     for service in services:
-        click.secho(f'Running microk8s.enable {service}', fg='green')
-        run('microk8s.enable', service)
+        click.secho(f'Running microk8s enable {service}', fg='green')
+        run('microk8s', 'enable', service)
         wait_for(
-            'microk8s.status',
+            'microk8s',
+            'status',
             '--wait-ready',
             wait_msg='Waiting for microk8s to become ready...',
             fail_msg=f'Couldn\'t enable {service}!',
@@ -488,7 +489,8 @@ def setup(controller, services, test_mode):
         click.echo('\n')
 
     wait_for(
-        "microk8s.kubectl",
+        "microk8s",
+        "kubectl",
         "wait",
         "--for=condition=available",
         "-nkube-system",
