@@ -9,6 +9,7 @@ jobs:
     name: Github Actions
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         microk8s: [stable, edge]
         bundle: [lite, edge]
@@ -62,6 +63,7 @@ jobs:
     name: AWS
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         microk8s: [stable, edge]
     steps:
