@@ -96,7 +96,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo snap install juju --classic --channel 2.8/stable
+        sudo snap install juju --classic --channel 2.8/edge
         sudo snap install juju-wait --classic
 
     - name: Bootstrap onto AWS
