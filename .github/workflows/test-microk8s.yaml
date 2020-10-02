@@ -11,7 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        microk8s: [stable, edge]
+        juju: [2.8/stable, 2.8/edge]
+        microk8s: [1.18, stable, edge]
         bundle: [lite, edge]
     steps:
     - name: Check out code
@@ -22,7 +23,7 @@ jobs:
         set -eux
         sudo snap install charm --classic
         sudo snap install jq
-        sudo snap install juju --classic --channel 2.7/stable
+        sudo snap install juju --classic --channel ${{ matrix.juju }}
         sudo snap install juju-helpers --classic --edge
         sudo snap install juju-wait --classic
         sudo snap install kubectl --classic
@@ -87,7 +88,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        microk8s: [stable, edge]
+        juju: [2.8/stable, 2.8/edge]
+        microk8s: [1.18, stable, edge]
     steps:
     - name: Check out code
       uses: actions/checkout@v2
@@ -121,7 +123,7 @@ jobs:
           set -eux
           sudo snap install charm --classic
           sudo snap install jq
-          sudo snap install juju --classic --channel 2.7/stable
+          sudo snap install juju --classic --channel ${{ matrix.juju }}
           sudo snap install juju-helpers --classic --edge
           sudo snap install juju-wait --classic
           sudo snap install kubectl --classic
