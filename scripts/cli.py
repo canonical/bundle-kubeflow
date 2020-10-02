@@ -489,7 +489,7 @@ def setup(controller, services, test_mode):
     args = []
     if test_mode:
         args += ['--config', 'test-mode=true', '--model-default', 'test-mode=true']
-    juju('bootstrap', 'microk8s', controller, *args)
+    juju('bootstrap', 'microk8s', '--debug', controller, *args)
 
 
 @microk8s.command()
