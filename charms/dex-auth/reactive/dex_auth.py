@@ -41,7 +41,7 @@ def update_image():
     clear_flag("config.changed")
 
 
-@when("layer.docker-resource.oci-image.available", "oidc-client.available")
+@when("layer.docker-resource.oci-image.available")
 @when_not("charm.started")
 def start_charm():
     if not hookenv.is_leader():
@@ -58,10 +58,11 @@ def start_charm():
     port = hookenv.config("port")
     public_url = hookenv.config("public-url")
 
-    oidc_client_info = endpoint_from_name('oidc-client').get_config()
-    if not oidc_client_info:
-        layer.status.blocked("No OIDC client information found")
-        return False
+    oidc_client = endpoint_from_name('oidc-client')
+    if oidc_client:
+        oidc_client_info = oidc_client.get_config()
+    else:
+        oidc_client_info = []
 
     # Allows setting a basic username/password combo
     static_username = hookenv.config("static-username")
