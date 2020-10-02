@@ -75,7 +75,20 @@ def start_charm():
             layer.status.blocked('Static password is required when static username is set')
             return False
 
-        salt = bcrypt.gensalt()
+        try:
+            salt_path = Path('/run/salt')
+            salt = salt_path.read_bytes()
+        except FileNotFoundError:
+            salt = bcrypt.gensalt()
+            salt_path.write_bytes(salt)
+
+        try:
+            user_id_path = Path('/run/user-id')
+            user_id = user_id_path.read_text()
+        except FileNotFoundError:
+            user_id = str(uuid4())
+            user_id_path.write_text(user_id)
+
         hashed = bcrypt.hashpw(static_password.encode('utf-8'), salt).decode('utf-8')
         static_config = {
             'enablePasswordDB': True,
@@ -84,7 +97,7 @@ def start_charm():
                     'email': static_username,
                     'hash': hashed,
                     'username': static_username,
-                    'userID': str(uuid4()),
+                    'userID': user_id,
                 }
             ],
         }
@@ -107,7 +120,6 @@ def start_charm():
     # it changes whenever the configmap changes.
     config_hash = sha256()
     config_hash.update(config.encode('utf-8'))
-    pod_name = f"dex-auth-{config_hash.hexdigest()[:48]}"
 
     layer.caas_base.pod_spec_set(
         {
@@ -143,7 +155,7 @@ def start_charm():
             },
             "containers": [
                 {
-                    "name": pod_name,
+                    "name": 'dex-auth',
                     "imageDetails": {
                         "imagePath": image_info.registry_path,
                         "username": image_info.username,
@@ -151,6 +163,7 @@ def start_charm():
                     },
                     "command": ["dex", "serve", "/etc/dex/cfg/config.yaml"],
                     "ports": [{"name": "http", "containerPort": port}],
+                    "config": {"CONFIG_HASH": config_hash.hexdigest()},
                     "files": [
                         {
                             "name": "config",
