@@ -66,7 +66,11 @@ KATIB_CONFIG = {
 
 
 def gen_certs(namespace, service_name):
-    Path('ssl.conf').write_text(
+    if Path('/run/cert.pem').exists():
+        hookenv.log("Found existing cert.pem, not generating new cert.")
+        return
+
+    Path('/run/ssl.conf').write_text(
         f"""[ req ]
 default_bits = 2048
 prompt = no
@@ -101,8 +105,8 @@ extendedKeyUsage=serverAuth,clientAuth
 subjectAltName=@alt_names"""
     )
 
-    check_call(['openssl', 'genrsa', '-out', 'ca.key', '2048'])
-    check_call(['openssl', 'genrsa', '-out', 'server.key', '2048'])
+    check_call(['openssl', 'genrsa', '-out', '/run/ca.key', '2048'])
+    check_call(['openssl', 'genrsa', '-out', '/run/server.key', '2048'])
     check_call(
         [
             'openssl',
@@ -114,11 +118,11 @@ subjectAltName=@alt_names"""
             '-days',
             '3650',
             '-key',
-            'ca.key',
+            '/run/ca.key',
             '-subj',
             '/CN=127.0.0.1',
             '-out',
-            'ca.crt',
+            '/run/ca.crt',
         ]
     )
     check_call(
@@ -128,11 +132,11 @@ subjectAltName=@alt_names"""
             '-new',
             '-sha256',
             '-key',
-            'server.key',
+            '/run/server.key',
             '-out',
-            'server.csr',
+            '/run/server.csr',
             '-config',
-            'ssl.conf',
+            '/run/ssl.conf',
         ]
     )
     check_call(
@@ -142,20 +146,20 @@ subjectAltName=@alt_names"""
             '-req',
             '-sha256',
             '-in',
-            'server.csr',
+            '/run/server.csr',
             '-CA',
-            'ca.crt',
+            '/run/ca.crt',
             '-CAkey',
-            'ca.key',
+            '/run/ca.key',
             '-CAcreateserial',
             '-out',
-            'cert.pem',
+            '/run/cert.pem',
             '-days',
             '365',
             '-extensions',
             'v3_ext',
             '-extfile',
-            'ssl.conf',
+            '/run/ssl.conf',
         ]
     )
 
@@ -174,62 +178,70 @@ def start_charm():
     config = dict(hookenv.config())
 
     gen_certs(namespace, hookenv.service_name())
-    ca_bundle = b64encode(Path('cert.pem').read_bytes()).decode('utf-8')
+    ca_bundle = b64encode(Path('/run/cert.pem').read_bytes()).decode('utf-8')
 
     layer.caas_base.pod_spec_set(
         {
-            'version': 2,
+            'version': 3,
             'serviceAccount': {
-                'rules': [
+                'roles': [
                     {
-                        'apiGroups': [''],
-                        'resources': [
-                            'configmaps',
-                            'serviceaccounts',
-                            'services',
-                            'secrets',
-                            'events',
-                            'namespaces',
-                        ],
-                        'verbs': ['*'],
-                    },
-                    {
-                        'apiGroups': [''],
-                        'resources': ['pods', 'pods/log', 'pods/status'],
-                        'verbs': ['*'],
-                    },
-                    {'apiGroups': ['apps'], 'resources': ['deployments'], 'verbs': ['*']},
-                    {'apiGroups': ['batch'], 'resources': ['jobs', 'cronjobs'], 'verbs': ['*']},
-                    {
-                        'apiGroups': ['apiextensions.k8s.io'],
-                        'resources': ['customresourcedefinitions'],
-                        'verbs': ['create', 'get'],
-                    },
-                    {
-                        'apiGroups': ['admissionregistration.k8s.io'],
-                        'resources': [
-                            'validatingwebhookconfigurations',
-                            'mutatingwebhookconfigurations',
-                        ],
-                        'verbs': ['*'],
-                    },
-                    {
-                        'apiGroups': ['kubeflow.org'],
-                        'resources': [
-                            'experiments',
-                            'experiments/status',
-                            'trials',
-                            'trials/status',
-                            'suggestions',
-                            'suggestions/status',
-                        ],
-                        'verbs': ['*'],
-                    },
-                    {
-                        'apiGroups': ['kubeflow.org'],
-                        'resources': ['tfjobs', 'pytorchjobs'],
-                        'verbs': ['*'],
-                    },
+                        'rules': [
+                            {
+                                'apiGroups': [''],
+                                'resources': [
+                                    'configmaps',
+                                    'serviceaccounts',
+                                    'services',
+                                    'secrets',
+                                    'events',
+                                    'namespaces',
+                                ],
+                                'verbs': ['*'],
+                            },
+                            {
+                                'apiGroups': [''],
+                                'resources': ['pods', 'pods/log', 'pods/status'],
+                                'verbs': ['*'],
+                            },
+                            {'apiGroups': ['apps'], 'resources': ['deployments'], 'verbs': ['*']},
+                            {
+                                'apiGroups': ['batch'],
+                                'resources': ['jobs', 'cronjobs'],
+                                'verbs': ['*'],
+                            },
+                            {
+                                'apiGroups': ['apiextensions.k8s.io'],
+                                'resources': ['customresourcedefinitions'],
+                                'verbs': ['create', 'get'],
+                            },
+                            {
+                                'apiGroups': ['admissionregistration.k8s.io'],
+                                'resources': [
+                                    'validatingwebhookconfigurations',
+                                    'mutatingwebhookconfigurations',
+                                ],
+                                'verbs': ['*'],
+                            },
+                            {
+                                'apiGroups': ['kubeflow.org'],
+                                'resources': [
+                                    'experiments',
+                                    'experiments/status',
+                                    'trials',
+                                    'trials/status',
+                                    'suggestions',
+                                    'suggestions/status',
+                                ],
+                                'verbs': ['*'],
+                            },
+                            {
+                                'apiGroups': ['kubeflow.org'],
+                                'resources': ['tfjobs', 'pytorchjobs'],
+                                'verbs': ['*'],
+                            },
+                        ]
+                    }
                 ]
             },
             'containers': [
@@ -253,15 +265,15 @@ def start_charm():
                         {'name': 'webhook', 'containerPort': config['webhook-port']},
                         {'name': 'metrics', 'containerPort': config['metrics-port']},
                     ],
-                    'config': {'KATIB_CORE_NAMESPACE': os.environ['JUJU_MODEL_NAME']},
-                    'files': [
+                    'envConfig': {'KATIB_CORE_NAMESPACE': os.environ['JUJU_MODEL_NAME']},
+                    'volumeConfig': [
                         {
                             'name': 'cert',
                             'mountPath': '/tmp/cert',
-                            'files': {
-                                'cert.pem': Path('cert.pem').read_text(),
-                                'key.pem': Path('server.key').read_text(),
-                            },
+                            'files': [
+                                {'path': 'cert.pem', 'content': Path('/run/cert.pem').read_text()},
+                                {'path': 'key.pem', 'content': Path('/run/server.key').read_text()},
+                            ],
                         }
                     ],
                 }
@@ -269,85 +281,91 @@ def start_charm():
         },
         k8s_resources={
             'kubernetesResources': {
-                'customResourceDefinitions': {
-                    crd['metadata']['name']: crd['spec']
+                'customResourceDefinitions': [
+                    {'name': crd['metadata']['name'], 'spec': crd['spec']}
                     for crd in yaml.safe_load_all(Path("files/crds.yaml").read_text())
-                },
-                "mutatingWebhookConfigurations": {
-                    "katib-mutating-webhook-config": [
-                        {
-                            "name": "mutating.experiment.katib.kubeflow.org",
-                            "rules": [
-                                {
-                                    'apiGroups': ['kubeflow.org'],
-                                    'apiVersions': ['v1alpha3'],
-                                    'operations': ['CREATE', 'UPDATE'],
-                                    'resources': ['experiments'],
-                                    'scope': '*',
-                                }
-                            ],
-                            "failurePolicy": "Fail",
-                            "clientConfig": {
-                                "service": {
-                                    "name": hookenv.service_name(),
-                                    "namespace": namespace,
-                                    "path": "/mutate-experiments",
-                                    "port": config['webhook-port'],
+                ],
+                "mutatingWebhookConfigurations": [
+                    {
+                        "name": "katib-mutating-webhook-config",
+                        "webhooks": [
+                            {
+                                "name": "mutating.experiment.katib.kubeflow.org",
+                                "rules": [
+                                    {
+                                        'apiGroups': ['kubeflow.org'],
+                                        'apiVersions': ['v1alpha3'],
+                                        'operations': ['CREATE', 'UPDATE'],
+                                        'resources': ['experiments'],
+                                        'scope': '*',
+                                    }
+                                ],
+                                "failurePolicy": "Fail",
+                                "clientConfig": {
+                                    "service": {
+                                        "name": hookenv.service_name(),
+                                        "namespace": namespace,
+                                        "path": "/mutate-experiments",
+                                        "port": config['webhook-port'],
+                                    },
+                                    "caBundle": ca_bundle,
                                 },
-                                "caBundle": ca_bundle,
                             },
-                        },
-                        {
-                            "name": "mutating.pod.katib.kubeflow.org",
-                            "rules": [
-                                {
-                                    'apiGroups': [''],
-                                    'apiVersions': ['v1'],
-                                    'operations': ['CREATE'],
-                                    'resources': ['pods'],
-                                    'scope': '*',
-                                }
-                            ],
-                            "failurePolicy": "Ignore",
-                            "clientConfig": {
-                                "service": {
-                                    "name": hookenv.service_name(),
-                                    "namespace": namespace,
-                                    "path": "/mutate-pods",
-                                    "port": config['webhook-port'],
+                            {
+                                "name": "mutating.pod.katib.kubeflow.org",
+                                "rules": [
+                                    {
+                                        'apiGroups': [''],
+                                        'apiVersions': ['v1'],
+                                        'operations': ['CREATE'],
+                                        'resources': ['pods'],
+                                        'scope': '*',
+                                    }
+                                ],
+                                "failurePolicy": "Ignore",
+                                "clientConfig": {
+                                    "service": {
+                                        "name": hookenv.service_name(),
+                                        "namespace": namespace,
+                                        "path": "/mutate-pods",
+                                        "port": config['webhook-port'],
+                                    },
+                                    "caBundle": ca_bundle,
                                 },
-                                "caBundle": ca_bundle,
                             },
-                        },
-                    ]
-                },
-                "validatingWebhookConfigurations": {
-                    "katib-validating-webhook-config": [
-                        {
-                            "name": "validating.experiment.katib.kubeflow.org",
-                            "rules": [
-                                {
-                                    "apiGroups": ["kubeflow.org"],
-                                    "apiVersions": ["v1alpha3"],
-                                    "operations": ["CREATE", "UPDATE"],
-                                    "resources": ["experiments"],
-                                    'scope': '*',
-                                }
-                            ],
-                            "failurePolicy": "Fail",
-                            "sideEffects": "Unknown",
-                            "clientConfig": {
-                                "service": {
-                                    "name": hookenv.service_name(),
-                                    "namespace": namespace,
-                                    "path": "/validate-experiments",
-                                    "port": config['webhook-port'],
+                        ],
+                    }
+                ],
+                "validatingWebhookConfigurations": [
+                    {
+                        "name": "katib-validating-webhook-config",
+                        "webhooks": [
+                            {
+                                "name": "validating.experiment.katib.kubeflow.org",
+                                "rules": [
+                                    {
+                                        "apiGroups": ["kubeflow.org"],
+                                        "apiVersions": ["v1alpha3"],
+                                        "operations": ["CREATE", "UPDATE"],
+                                        "resources": ["experiments"],
+                                        'scope': '*',
+                                    }
+                                ],
+                                "failurePolicy": "Fail",
+                                "sideEffects": "Unknown",
+                                "clientConfig": {
+                                    "service": {
+                                        "name": hookenv.service_name(),
+                                        "namespace": namespace,
+                                        "path": "/validate-experiments",
+                                        "port": config['webhook-port'],
+                                    },
+                                    "caBundle": ca_bundle,
                                 },
-                                "caBundle": ca_bundle,
-                            },
-                        }
-                    ]
-                },
+                            }
+                        ],
+                    }
+                ],
             },
             'configMaps': {
                 'katib-config': KATIB_CONFIG,
