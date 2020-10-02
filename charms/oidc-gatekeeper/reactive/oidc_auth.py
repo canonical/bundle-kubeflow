@@ -19,14 +19,17 @@ def charm_ready():
 
 @when('oidc-client.available')
 def configure_oidc(oidc):
-    oidc.configure(
-        {
-            'id': hookenv.config('client-id'),
-            'name': hookenv.config('client-name'),
-            'redirectURIs': [hookenv.config('public-url') + '/oidc/login/oidc'],
-            'secret': hookenv.config('client-secret'),
-        }
-    )
+    config = dict(hookenv.config())
+
+    if not config.get('public-url'):
+        return False
+
+    oidc.configure({
+        'id': config['client-id'],
+        'name': config['client-name'],
+        'redirectURIs': [config['public-url'] + '/oidc/login/oidc'],
+        'secret': config['client-secret'],
+    })
 
 
 @when_any("layer.docker-resource.oci-image.changed", "config.changed")
