@@ -372,6 +372,19 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
         juju('config', 'ambassador', f'juju-external-hostname={pub_addr}')
         juju('expose', 'ambassador')
 
+    click.echo("Waiting for Kubeflow to become ready")
+    juju('wait', '-wv', '-m', model, '-t', str(10 * 60))
+    juju(
+        "kubectl",
+        "wait",
+        "--for=condition=available",
+        "-n",
+        model,
+        "deployment",
+        "--all",
+        "--timeout=10m",
+    )
+
     end = time.time()
 
     click.secho(
