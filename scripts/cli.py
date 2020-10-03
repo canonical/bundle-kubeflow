@@ -372,6 +372,8 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
         juju('config', 'ambassador', f'juju-external-hostname={pub_addr}')
         juju('expose', 'ambassador')
 
+    juju('wait', '-wv', '-m', model)
+
     end = time.time()
 
     click.secho(
