@@ -59,6 +59,17 @@ jobs:
         sudo ./tests/dump-pipeline-logs.sh
       if: failure()
 
+    - name: Generate stdout logs
+      run: sudo ./tests/dump-stdout.sh
+      if: failure()
+
+    - name: Upload stdout logs
+      uses: actions/upload-artifact@v2
+      with:
+        name: stdout-logs
+        path: kubeflow-*.log
+      if: failure()
+
     - name: Generate debug log
       run: sudo juju debug-log --replay --no-tail > juju-debug.log
       if: failure()
