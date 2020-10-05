@@ -324,7 +324,7 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
         else:
             juju('deploy', bundle_url, '-m', model, '--channel', channel, *overlays)
 
-    juju('wait', '-wv', '-m', model)
+    juju('wait', '-wv', '-m', model, '-t', str(15 * 60))
 
     if bundle in ('full', 'lite'):
         with tempfile.NamedTemporaryFile(mode='w+') as f:
@@ -372,7 +372,7 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
         juju('config', 'ambassador', f'juju-external-hostname={pub_addr}')
         juju('expose', 'ambassador')
 
-    juju('wait', '-wv', '-m', model)
+    juju('wait', '-wv', '-m', model, '-t', str(10 * 60))
 
     end = time.time()
 
