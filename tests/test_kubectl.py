@@ -7,16 +7,31 @@ from sh import Command
 kubectl = Command('juju-kubectl')
 
 
-@pytest.mark.full
-def test_running_full():
+def get_statuses():
+    """Gets names and statuses of all workload pods.
+
+    Uses Juju 2.8 label first, and if that's empty, tries Juju 2.9 label
+    """
+
     pods = yaml.safe_load(kubectl.get('pods', '-ljuju-app', '-oyaml').stdout)
 
-    statuses = {
-        i['metadata']['labels']['juju-app']: i['status']['phase']
-        for i in pods['items']
-    }
+    if pods['items']:
+        return {
+            i['metadata']['labels']['juju-app']: i['status']['phase']
+            for i in pods['items']
+        }
+    else:
+        pods = yaml.safe_load(kubectl.get('pods', '-lapp.kubernetes.io/name', '-oyaml').stdout)
+        return {
+            i['metadata']['labels']['app.kubernetes.io/name']: i['status']['phase']
+            for i in pods['items']
+        }
 
-    assert statuses == {
+
+
+@pytest.mark.full
+def test_running_full():
+    assert get_statuses() == {
         'ambassador': 'Running',
         'argo-controller': 'Running',
         'argo-ui': 'Running',
@@ -52,14 +67,7 @@ def test_running_full():
 
 @pytest.mark.lite
 def test_running_lite():
-    pods = yaml.safe_load(kubectl.get('pods', '-ljuju-app', '-oyaml').stdout)
-
-    statuses = {
-        i['metadata']['labels']['juju-app']: i['status']['phase']
-        for i in pods['items']
-    }
-
-    assert statuses == {
+    assert get_statuses() == {
         'ambassador': 'Running',
         'argo-controller': 'Running',
         'dex-auth': 'Running',
@@ -84,14 +92,7 @@ def test_running_lite():
 
 @pytest.mark.edge
 def test_running_edge():
-    pods = yaml.safe_load(kubectl.get('pods', '-ljuju-app', '-oyaml').stdout)
-
-    statuses = {
-        i['metadata']['labels']['juju-app']: i['status']['phase']
-        for i in pods['items']
-    }
-
-    assert statuses == {
+    assert get_statuses() == {
         'argo-controller': 'Running',
         'minio': 'Running',
         'pipelines-api': 'Running',

@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        juju: [2.8/edge, edge]
+        juju: [2.8/stable, edge]
         microk8s: [1.18]
         bundle: [lite, edge]
     steps:
@@ -99,7 +99,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        juju: [2.8/edge, edge]
+        juju: [2.8/stable, edge]
         microk8s: [1.18]
     steps:
     - name: Check out code
