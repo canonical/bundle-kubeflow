@@ -41,7 +41,7 @@ def check_for(name: str, snap_name: Optional[str] = None):
 def run(*args, env: dict = None, check=True, die=True):
     """Runs command and exits script gracefully on errors."""
 
-    click.secho(f'+ {" ".join(args)}', color='green')
+    click.secho(f'+ {" ".join(args)}', fg='green')
 
     if env is None:
         env = os.environ
@@ -56,8 +56,8 @@ def run(*args, env: dict = None, check=True, die=True):
         except subprocess.CalledProcessError as err:
             if die:
                 if result.stderr:
-                    click.secho(result.stderr.decode('utf-8'), color='red')
-                click.secho(str(err), color='red')
+                    click.secho(result.stderr.decode('utf-8'), fg='red')
+                click.secho(str(err), fg='red')
                 sys.exit(1)
             else:
                 raise
@@ -88,7 +88,7 @@ def wait_for(*args: str, wait_msg: str, fail_msg: str):
             click.echo(wait_msg)
             time.sleep(5)
     else:
-        click.secho(fail_msg, _fg='red')
+        click.secho(fail_msg, fg='red')
         sys.exit(1)
 
 
@@ -289,8 +289,8 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
             output = get_output('juju', 'list-clouds', '-c', controller, '--format=json', '--all')
         except subprocess.CalledProcessError as err:
             if err.stderr is not None:
-                click.secho('STDERR: ' + err.stderr.decode('utf-8'), color='red')
-            click.secho(str(err))
+                click.secho('STDERR: ' + err.stderr.decode('utf-8'), fg='red')
+            click.echo(str(err))
             sys.exit(1)
         clouds = [
             name
@@ -298,14 +298,14 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
             if details['type'] == 'k8s' and details['defined'] == 'public'
         ]
         if not clouds:
-            click.secho(f'No Kubernetes clouds found on controller {controller}', color='red')
+            click.secho(f'No Kubernetes clouds found on controller {controller}', fg='red')
             sys.exit(1)
         elif len(clouds) > 1:
             msg = (
                 f'Multiple Kubernetes clouds found on controller {controller}: {" ".join(clouds)}'
                 'Pick which one to use with `--cloud=foo`.'
             )
-            click.secho(msg, color='red')
+            click.secho(msg, fg='red')
             sys.exit(1)
         else:
             cloud = clouds[0]
@@ -378,7 +378,7 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
 
     click.secho(
         f'\nCongratulations, Kubeflow is now available. Took {int(end - start)} seconds.',
-        color='green',
+        fg='green',
     )
 
     kubeflow_info(controller, model)
@@ -432,7 +432,7 @@ def upgrade(controller, model, bundle, channel, build):
 
     click.secho(
         f'\nCongratulations, Kubeflow is now available. Took {int(end - start)} seconds.',
-        color='green',
+        fg='green',
     )
 
     kubeflow_info(controller, model)
@@ -491,7 +491,7 @@ def setup(controller, services, test_mode):
     args = []
     if test_mode:
         args += ['--config', 'test-mode=true', '--model-default', 'test-mode=true']
-    juju('bootstrap', 'microk8s', controller, *args)
+    juju('bootstrap', 'microk8s', '--debug', controller, *args)
 
 
 @microk8s.command()

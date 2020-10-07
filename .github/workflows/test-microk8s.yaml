@@ -13,7 +13,6 @@ jobs:
       matrix:
         juju: [2.8/stable, edge]
         microk8s: [1.18]
-        bundle: [lite, edge]
     steps:
     - name: Check out code
       uses: actions/checkout@v2
@@ -21,6 +20,7 @@ jobs:
     - name: Install test dependencies
       run: |
         set -eux
+        env | sort
         sudo snap install charm --classic
         sudo snap install jq
         sudo snap install juju --classic --channel ${{ matrix.juju }}
@@ -40,15 +40,19 @@ jobs:
         git clone git://git.launchpad.net/canonical-osm
         cp -r canonical-osm/charms/interfaces/juju-relation-mysql mysql
         sudo python3 ./scripts/cli.py microk8s setup --test-mode 
-        KUBEFLOW_AUTH_PASSWORD=foobar sudo -E python3 ./scripts/cli.py deploy-to uk8s --build --bundle ${{ matrix.bundle }}
+        KUBEFLOW_AUTH_PASSWORD=foobar sudo -E python3 ./scripts/cli.py --debug deploy-to uk8s --build --bundle edge
 
     - name: Test Kubeflow
       run: |
         set -eux
         # The pods can sometimes stay in Pending for a little while longer,
         # so run the tests first that don't check pod states.
-        sudo ./tests/run.sh -k 'not kubectl' -m ${{ matrix.bundle }}
-        sudo ./tests/run.sh -k 'kubectl' -m ${{ matrix.bundle }}
+        sudo ./tests/run.sh -k 'not kubectl' -m edge
+        sudo ./tests/run.sh -k 'kubectl' -m edge
+
+    - name: Debug failures yaml
+      run: sudo juju status --format yaml
+      if: failure()
 
     - name: Debug failures
       run: |
@@ -60,25 +64,25 @@ jobs:
       if: failure()
 
     - name: Generate stdout logs
-      run: sudo ./tests/dump-stdout.sh
+      run: sudo ./tests/dump-stdout.sh ${{ strategy.job-index }}
       if: failure()
 
     - name: Upload stdout logs
       uses: actions/upload-artifact@v2
       with:
         name: stdout-logs
-        path: kubeflow-*.log
+        path: ${{ strategy.job-index }}/kubeflow-*.log
       if: failure()
 
     - name: Generate debug log
-      run: sudo juju debug-log --replay --no-tail > juju-debug.log
+      run: sudo juju debug-log --replay --no-tail > juju-debug-${{ strategy.job-index }}.log
       if: failure()
 
     - name: Upload debug log
       uses: actions/upload-artifact@v2
       with:
         name: juju-debug
-        path: juju-debug.log
+        path: juju-debug-${{ strategy.job-index }}.log
       if: failure()
 
     - name: Generate inspect tarball
@@ -101,6 +105,7 @@ jobs:
       matrix:
         juju: [2.8/stable, edge]
         microk8s: [1.18]
+        bundle: [lite, full]
     steps:
     - name: Check out code
       uses: actions/checkout@v2
@@ -154,7 +159,7 @@ jobs:
           git clone git://git.launchpad.net/canonical-osm
           cp -r canonical-osm/charms/interfaces/juju-relation-mysql mysql
           python3 ./scripts/cli.py microk8s setup --test-mode
-          KUBEFLOW_AUTH_PASSWORD=foobar python3 ./scripts/cli.py deploy-to uk8s --build
+          KUBEFLOW_AUTH_PASSWORD=foobar python3 ./scripts/cli.py --debug deploy-to uk8s --build --bundle ${{ matrix.bundle }}
         EOF
 
     - name: Test Kubeflow
@@ -164,8 +169,8 @@ jobs:
           cd bundle-kubeflow
           # The pods can sometimes stay in Pending for a little while longer,
           # so run the tests first that don't check pod states.
-          ./tests/run.sh -k 'not kubectl' -m full
-          ./tests/run.sh -k 'kubectl' -m full
+          ./tests/run.sh -k 'not kubectl' -m ${{ matrix.bundle }}
+          ./tests/run.sh -k 'kubectl' -m ${{ matrix.bundle }}
         EOF
 
     - name: Print failing logs

@@ -117,68 +117,71 @@ def start_charm():
     config_hash = sha256()
     config_hash.update(config.encode('utf-8'))
 
-    layer.caas_base.pod_spec_set(
-        {
-            "version": 2,
-            "serviceAccount": {
-                "global": True,
-                "rules": [
-                    {"apiGroups": ["dex.coreos.com"], "resources": ["*"], "verbs": ["*"]},
+    try:
+        layer.caas_base.pod_spec_set(
+            {
+                "version": 2,
+                "serviceAccount": {
+                    "global": True,
+                    "rules": [
+                        {"apiGroups": ["dex.coreos.com"], "resources": ["*"], "verbs": ["*"]},
+                        {
+                            "apiGroups": ["apiextensions.k8s.io"],
+                            "resources": ["customresourcedefinitions"],
+                            "verbs": ["create"],
+                        },
+                    ],
+                },
+                "service": {
+                    "annotations": {
+                        "getambassador.io/config": yaml.dump_all(
+                            [
+                                {
+                                    "apiVersion": "ambassador/v1",
+                                    "kind": "Mapping",
+                                    "name": "dex-auth",
+                                    "prefix": "/dex",
+                                    "rewrite": "/dex",
+                                    "service": f"{service_name}.{namespace}:{port}",
+                                    "timeout_ms": 30000,
+                                    "bypass_auth": True,
+                                }
+                            ]
+                        )
+                    }
+                },
+                "containers": [
                     {
-                        "apiGroups": ["apiextensions.k8s.io"],
-                        "resources": ["customresourcedefinitions"],
-                        "verbs": ["create"],
-                    },
+                        "name": 'dex-auth',
+                        "imageDetails": {
+                            "imagePath": image_info.registry_path,
+                            "username": image_info.username,
+                            "password": image_info.password,
+                        },
+                        "command": ["dex", "serve", "/etc/dex/cfg/config.yaml"],
+                        "ports": [{"name": "http", "containerPort": port}],
+                        "config": {"CONFIG_HASH": config_hash.hexdigest()},
+                        "files": [
+                            {
+                                "name": "config",
+                                "mountPath": "/etc/dex/cfg",
+                                "files": {"config.yaml": config},
+                            }
+                        ],
+                    }
                 ],
             },
-            "service": {
-                "annotations": {
-                    "getambassador.io/config": yaml.dump_all(
-                        [
-                            {
-                                "apiVersion": "ambassador/v1",
-                                "kind": "Mapping",
-                                "name": "dex-auth",
-                                "prefix": "/dex",
-                                "rewrite": "/dex",
-                                "service": f"{service_name}.{namespace}:{port}",
-                                "timeout_ms": 30000,
-                                "bypass_auth": True,
-                            }
-                        ]
-                    )
+            {
+                "kubernetesResources": {
+                    "customResourceDefinitions": {
+                        crd["metadata"]["name"]: crd["spec"]
+                        for crd in yaml.safe_load_all(Path("resources/crds.yaml").read_text())
+                    }
                 }
             },
-            "containers": [
-                {
-                    "name": 'dex-auth',
-                    "imageDetails": {
-                        "imagePath": image_info.registry_path,
-                        "username": image_info.username,
-                        "password": image_info.password,
-                    },
-                    "command": ["dex", "serve", "/etc/dex/cfg/config.yaml"],
-                    "ports": [{"name": "http", "containerPort": port}],
-                    "config": {"CONFIG_HASH": config_hash.hexdigest()},
-                    "files": [
-                        {
-                            "name": "config",
-                            "mountPath": "/etc/dex/cfg",
-                            "files": {"config.yaml": config},
-                        }
-                    ],
-                }
-            ],
-        },
-        {
-            "kubernetesResources": {
-                "customResourceDefinitions": {
-                    crd["metadata"]["name"]: crd["spec"]
-                    for crd in yaml.safe_load_all(Path("resources/crds.yaml").read_text())
-                }
-            }
-        },
-    )
+        )
+    except subprocess.CalledProcessError as err:
+        hookenv.log("Can't set pod spec: %s" % err)
 
     layer.status.maintenance("creating container")
     set_flag("charm.started")
