@@ -24,7 +24,7 @@ The authentication flow for an unauthenticated request consists of these steps:
 The flow of an unauthenticated request is shown here:
 
 <img
-    src="dex-unauthenticated.svg"
+    src="img/dex-unauthenticated.svg"
     alt="Unauthenticated Request"
     height="500" />
 
