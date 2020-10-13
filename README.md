@@ -5,6 +5,9 @@
 This bundle deploys KubeFlow to a Juju K8s model. The individual charms that
 make up this bundle can be found under `charms/`.
 
+## Documentation
+
+Read the documentation at https://charmed-kubeflow.io/docs/install/microk8s
 
 ## Deploying
 
@@ -99,7 +102,7 @@ Next, you can run these commands to set up Charmed Kubernetes:
 
 ## Authentication
 
-See [Authentication Documentation](docs/authentication.md)
+See [Authentication Documentation](https://charmed-kubeflow.io/docs/authentication)
 
 ## Using
 
