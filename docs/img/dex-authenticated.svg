@@ -5,31 +5,43 @@
       font: small Verdana, Helvetica, Arial, sans-serif;
     }
     .step {
-      animation-duration: 4s;
+      animation-duration: 6s;
       animation-iteration-count: infinite;
     }
     .step1 { animation-name: step1; }
     .step2 { animation-name: step2; }
     .step3 { animation-name: step3; }
     .step4 { animation-name: step4; }
+    .step5 { animation-name: step5; }
+    .step6 { animation-name: step6; }
 
     @keyframes step1 {
       0% { opacity: 0; }
-      25% { opacity: 1; }
+      16.66% { opacity: 1; }
     }
     @keyframes step2 {
       0% { opacity: 0; }
-      25% { opacity: 0; }
-      50% { opacity: 1; }
+      16.66% { opacity: 0; }
+      33.33% { opacity: 1; }
     }
     @keyframes step3 {
       0% { opacity: 0; }
-      50% { opacity: 0; }
-      75% { opacity: 1; }
+      33.33% { opacity: 0; }
+      50% { opacity: 1; }
     }
     @keyframes step4 {
       0% { opacity: 0; }
-      75% { opacity: 0; }
+      50% { opacity: 0; }
+      66.66% { opacity: 1; }
+    }
+    @keyframes step5 {
+      0% { opacity: 0; }
+      66.66% { opacity: 0; }
+      83.33% { opacity: 1; }
+    }
+    @keyframes step6 {
+      0% { opacity: 0; }
+      83.33% { opacity: 0; }
       100% { opacity: 1; }
     }
   </style>
@@ -42,12 +54,13 @@
   <line class="step step2" x1="137.5" y1="180" x2="137.5" y2="120" marker-end="url(#triangle)" stroke="black" stroke-width="3"/>
   <text class="step step3" x="175" y="150" style="white-space: pre;">Yes</text>
   <line class="step step3" x1="162.5" y1="120" x2="162.5" y2="180" marker-end="url(#triangle)" stroke="black" stroke-width="3"/>
-  <text class="step step1" x="225" y="232.5" style="white-space: pre;">GET /foo</text>
-  <line class="step step1" x1="220" y1="237.5" x2="285" y2="237.5" marker-end="url(#triangle)" stroke="black" stroke-width="3"/>
-  <line class="step step4" x1="285" y1="262.5" x2="220" y2="262.5" marker-end="url(#triangle)" stroke="black" stroke-width="3"/>
-  <text class="step step4" x="225" y="267.5" dominant-baseline="hanging" style="white-space: pre;">200 /foo</text>
-  <line class="step step4" x1="85" y1="262.5" x2="20" y2="262.5" marker-end="url(#triangle)" stroke="black" stroke-width="3"/>
-  <text class="step step4" x="25" y="267.5" dominant-baseline="hanging" style="white-space: pre;">200 /foo</text>
+  <text class="step step4" x="225" y="232.5" style="white-space: pre;">GET /foo</text>
+  <line class="step step4" x1="220" y1="237.5" x2="285" y2="237.5" marker-end="url(#triangle)" stroke="black" stroke-width="3"/>
+  <line class="step step5" x1="285" y1="262.5" x2="220" y2="262.5" marker-end="url(#triangle)" stroke="black" stroke-width="3"/>
+  <text class="step step5" x="225" y="267.5" dominant-baseline="hanging" style="white-space: pre;">200 /foo</text>
+  <line class="step step6" x1="85" y1="262.5" x2="20" y2="262.5" marker-end="url(#triangle)" stroke="black" stroke-width="3"/>
+  <text class="step step6" x="25" y="267.5" dominant-baseline="hanging" style="white-space: pre;">200 /foo</text>
+
   <g data-name="Layer 2" id="g28" transform="matrix(0.540862, 0, 0, 0.540862, 271.867065, 204.602737)">
     <g data-name="Layer 1" id="g26">
       <path d="m 103.455,53.639996 4.1,102.100004 73.75,-94.120004 a 6.79,6.79 0 0 1 9.6,-1.11 l 46,36.92 -15,-65.61 z" id="path10" style="fill:#4279f4"/>
