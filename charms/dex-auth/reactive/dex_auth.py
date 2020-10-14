@@ -44,7 +44,9 @@ def update_image():
 @when("layer.docker-resource.oci-image.available")
 @when_not("charm.started")
 def start_charm():
-    if not hookenv.is_leader():
+    is_leader = hookenv.is_leader()
+    hookenv.log('unit -> {} {} {}'.format(os.environ['JUJU_UNIT_NAME'], is_leader, type(is_leader)))
+    if not is_leader:
         hookenv.log("This unit is not a leader.")
         return False
 
