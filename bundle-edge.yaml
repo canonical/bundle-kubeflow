@@ -1,22 +1,19 @@
 bundle: kubernetes
 applications:
   argo-controller:
-    charm: cs:~kubeflow-charmers/argo-controller
-    source: ./charms/argo-controller
+    charm: argo-controller
     scale: 1
     annotations:
       gui-x: '0'
       gui-y: '-300'
   minio:
-    charm: cs:~kubeflow-charmers/minio
-    source: ./charms/minio
+    charm: minio
     scale: 1
     annotations:
       gui-x: '0'
       gui-y: '0'
   pipelines-api:
-    charm: cs:~kubeflow-charmers/pipelines-api
-    source: ./charms/pipelines-api
+    charm: pipelines-api
     scale: 1
     annotations:
       gui-x: '0'
@@ -28,36 +25,31 @@ applications:
       gui-x: '-300'
       gui-y: '300'
   pipelines-persistence:
-    charm: cs:~kubeflow-charmers/pipelines-persistence
-    source: ./charms/pipelines-persistence
+    charm: pipelines-persistence
     scale: 1
     annotations:
       gui-x: '300'
       gui-y: '300'
   pipelines-scheduledworkflow:
-    charm: cs:~kubeflow-charmers/pipelines-scheduledworkflow
-    source: ./charms/pipelines-scheduledworkflow
+    charm: pipelines-scheduledworkflow
     scale: 1
     annotations:
       gui-x: '300'
       gui-y: '0'
   pytorch-operator:
-    charm: cs:~kubeflow-charmers/pytorch-operator
-    source: ./charms/pytorch-operator
+    charm: pytorch-operator
     scale: 1
     annotations:
       gui-x: '-300'
       gui-y: '-300'
   seldon-core:
-    charm: cs:~kubeflow-charmers/seldon-core
-    source: ./charms/seldon-core
+    charm: seldon-core
     scale: 1
     annotations:
       gui-x: '-300'
       gui-y: '0'
   tf-job-operator:
-    charm: cs:~kubeflow-charmers/tf-job-operator
-    source: ./charms/tf-job-operator
+    charm: tf-job-operator
     scale: 1
     annotations:
       gui-x: '300'
