@@ -29,7 +29,9 @@ def update_image():
     clear_flag('charm.started')
 
 
-@when('layer.docker-resource.oci-image.available', 'pipelines-api.available', 'minio.available')
+@when(
+    'layer.docker-resource.oci-image.available', 'pipelines-api.available', 'endpoint.minio.joined'
+)
 @when_not('charm.started')
 def start_charm():
     if not hookenv.is_leader():
@@ -42,7 +44,16 @@ def start_charm():
     service_name = hookenv.service_name()
 
     api = endpoint_from_name('pipelines-api').services()[0]
-    minio = endpoint_from_name('minio').services()[0]['hosts'][0]
+
+    try:
+        minio = endpoint_from_name('minio').mailman3()[0]
+    except IndexError:
+        layer.status.blocked('Waiting for minio relation.')
+        return False
+
+    if minio['ip'] is None:
+        layer.status.blocked("Waiting for full minio relation.")
+        return False
 
     port = hookenv.config('port')
 
@@ -92,7 +103,7 @@ def start_charm():
                     'config': {
                         'ML_PIPELINE_SERVICE_HOST': api['service_name'],
                         'ML_PIPELINE_SERVICE_PORT': api['hosts'][0]['port'],
-                        'MINIO_HOST': minio['hostname'],
+                        'MINIO_HOST': minio['ip'],
                         'MINIO_PORT': minio['port'],
                         'MINIO_NAMESPACE': os.environ['JUJU_MODEL_NAME'],
                         'ALLOW_CUSTOM_VISUALIZATIONS': True,

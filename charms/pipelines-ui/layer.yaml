@@ -5,3 +5,4 @@ includes:
   - "layer:docker-resource"
   - "interface:ambassador"
   - "interface:http"
+  - "interface:generic-ip-port-user-pass"

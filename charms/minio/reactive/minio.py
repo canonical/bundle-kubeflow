@@ -1,5 +1,8 @@
 from charms import layer
 from charms.reactive import hook, set_flag, clear_flag, when, when_any, when_not, hookenv
+from pathlib import Path
+from string import ascii_uppercase, digits
+from random import choices
 
 
 @hook('upgrade-charm')
@@ -12,9 +15,17 @@ def charm_ready():
     layer.status.active('')
 
 
-@when('minio.available')
-def configure_minio(http):
-    http.configure(port=hookenv.config('port'), hostname=hookenv.application_name())
+@when('endpoint.minio.joined')
+def configure_minio(gipup):
+    if not Path('/run/password').exists():
+        Path('/run/password').write_text(''.join(choices(ascii_uppercase + digits, k=30)))
+
+    gipup.publish_info(
+        port=hookenv.config('port'),
+        ip=hookenv.application_name(),
+        user='minio',
+        password=Path('/run/password').read_text(),
+    )
 
 
 @when_any('layer.docker-resource.oci-image.changed', 'config.changed')
@@ -31,7 +42,11 @@ def start_charm():
 
     layer.status.maintenance('configuring container')
 
+    if not Path('/run/password').exists():
+        Path('/run/password').write_text(''.join(choices(ascii_uppercase + digits, k=30)))
+
     image_info = layer.docker_resource.get_info('oci-image')
+    config = dict(hookenv.config())
 
     layer.caas_base.pod_spec_set(
         {
@@ -45,10 +60,10 @@ def start_charm():
                         'username': image_info.username,
                         'password': image_info.password,
                     },
-                    'ports': [{'name': 'minio', 'containerPort': hookenv.config('port')}],
+                    'ports': [{'name': 'minio', 'containerPort': config['port']}],
                     'config': {
-                        'MINIO_ACCESS_KEY': hookenv.config('access-key'),
-                        'MINIO_SECRET_KEY': hookenv.config('secret-key'),
+                        'MINIO_ACCESS_KEY': config['access-key'],
+                        'MINIO_SECRET_KEY': Path('/run/password').read_text(),
                     },
                 }
             ],

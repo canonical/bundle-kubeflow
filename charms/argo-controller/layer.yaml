@@ -3,4 +3,4 @@ includes:
   - "layer:caas-base"
   - "layer:docker-resource"
   - "layer:status"
-  - "interface:http"
+  - "interface:generic-ip-port-user-pass"

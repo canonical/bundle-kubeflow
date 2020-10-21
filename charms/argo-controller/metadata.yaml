@@ -13,7 +13,7 @@ resources:
     upstream-source: argoproj/workflow-controller:v2.3.0
 requires:
   minio:
-    interface: http
+    interface: generic-ip-port-user-pass
 deployment:
   type: stateless
   service: omit

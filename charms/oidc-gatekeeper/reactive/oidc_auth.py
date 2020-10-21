@@ -1,10 +1,13 @@
 import os
+from pathlib import Path
+from random import choices
+from string import ascii_uppercase, digits
 
 import yaml
 
+from charmhelpers.core import hookenv
 from charms import layer
 from charms.reactive import clear_flag, hook, set_flag, when, when_any, when_not
-from charmhelpers.core import hookenv
 
 
 @hook("upgrade-charm")
@@ -24,11 +27,14 @@ def configure_oidc(oidc):
     if not config.get('public-url'):
         return False
 
+    if not Path('/run/password').exists():
+        Path('/run/password').write_text(''.join(choices(ascii_uppercase + digits, k=30)))
+
     oidc.configure({
         'id': config['client-id'],
         'name': config['client-name'],
         'redirectURIs': [config['public-url'] + '/oidc/login/oidc'],
-        'secret': config['client-secret'],
+        'secret': Path('/run/password').read_text(),
     })
 
 
@@ -45,6 +51,9 @@ def start_charm():
         return False
 
     layer.status.maintenance("configuring container")
+
+    if not Path('/run/password').exists():
+        Path('/run/password').write_text(''.join(choices(ascii_uppercase + digits, k=30)))
 
     image_info = layer.docker_resource.get_info("oci-image")
 
@@ -92,7 +101,7 @@ def start_charm():
                     "ports": [{"name": "http", "containerPort": port}],
                     "config": {
                         "CLIENT_ID": hookenv.config('client-id'),
-                        "CLIENT_SECRET": hookenv.config("client-secret"),
+                        "CLIENT_SECRET": Path('/run/password').read_text(),
                         "DISABLE_USERINFO": True,
                         "OIDC_PROVIDER": f"{public_url}/dex",
                         "OIDC_SCOPES": oidc_scopes,

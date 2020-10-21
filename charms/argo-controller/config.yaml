@@ -7,14 +7,6 @@ options:
     type: string
     default: artifacts
     description: S3 key prefix
-  repo-access-key:
-    type: string
-    default: minio
-    description: Artifact repository access key
-  repo-secret-key:
-    type: string
-    default: minio123
-    description: Artifact repository secret key
   executor:
     type: string
     default: pns

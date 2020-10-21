@@ -9,8 +9,3 @@ options:
     default: 'minio'
     description: |
       Access key
-  secret-key:
-    type: string
-    default: 'minio123'
-    description: |
-      Secret key

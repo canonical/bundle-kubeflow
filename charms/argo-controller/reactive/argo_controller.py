@@ -23,7 +23,7 @@ def update_image():
     clear_flag('charm.started')
 
 
-@when('layer.docker-resource.oci-image.available', 'minio.available')
+@when('layer.docker-resource.oci-image.available', 'endpoint.minio.joined')
 @when_not('charm.started')
 def start_charm():
     if not hookenv.is_leader():
@@ -32,7 +32,15 @@ def start_charm():
 
     layer.status.maintenance('configuring container')
 
-    minio = endpoint_from_name('minio').services()[0]['hosts'][0]
+    try:
+        minio = endpoint_from_name('minio').mailman3()[0]
+    except IndexError:
+        layer.status.waiting('Waiting for minio relation.')
+        return False
+
+    if not all(minio.values()):
+        layer.status.waiting("Waiting for full minio relation.")
+        return False
 
     image_info = layer.docker_resource.get_info('oci-image')
 
@@ -91,7 +99,7 @@ def start_charm():
                                             's3': {
                                                 'bucket': hookenv.config('bucket'),
                                                 'keyPrefix': hookenv.config('key-prefix'),
-                                                'endpoint': f'{minio["hostname"]}:{minio["port"]}',
+                                                'endpoint': f'{minio["ip"]}:{minio["port"]}',
                                                 'insecure': True,
                                                 'accessKeySecret': {
                                                     'name': 'mlpipeline-minio-artifact',
@@ -120,10 +128,10 @@ def start_charm():
                         'type': 'Opaque',
                         'data': {
                             'accesskey': b64encode(
-                                hookenv.config('repo-access-key').encode('utf-8')
+                                minio['user'].encode('utf-8')
                             ),
                             'secretkey': b64encode(
-                                hookenv.config('repo-secret-key').encode('utf-8')
+                                minio['password'].encode('utf-8')
                             ),
                         },
                     }

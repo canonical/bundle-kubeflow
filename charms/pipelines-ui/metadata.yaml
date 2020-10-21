@@ -19,5 +19,5 @@ requires:
   pipelines-api:
     interface: http
   minio:
-    interface: http
+    interface: generic-ip-port-user-pass
 min-juju-version: 2.7.0
