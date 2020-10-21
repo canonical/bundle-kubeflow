@@ -43,6 +43,12 @@ def configure_http(http):
 )
 def update_image():
     clear_flag('charm.started')
+    clear_flag('layer.docker-resource.oci-image.changed')
+    clear_flag('config.changed')
+    clear_flag('kubeflow-profiles.changed')
+    clear_flag('minio.changed')
+    clear_flag('mysql.changed')
+    clear_flag('pipelines-visualization.changed')
 
 
 @when(
@@ -111,20 +117,32 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
-            'version': 2,
+            'version': 3,
             'serviceAccount': {
-                'rules': [
+                'roles': [
                     {
-                        'apiGroups': ['argoproj.io'],
-                        'resources': ['workflows'],
-                        'verbs': ['create', 'get', 'list', 'watch', 'update', 'patch', 'delete'],
-                    },
-                    {
-                        'apiGroups': ['kubeflow.org'],
-                        'resources': ['scheduledworkflows'],
-                        'verbs': ['create', 'get', 'list', 'update', 'patch', 'delete'],
-                    },
-                    {'apiGroups': [''], 'resources': ['pods'], 'verbs': ['delete']},
+                        'rules': [
+                            {
+                                'apiGroups': ['argoproj.io'],
+                                'resources': ['workflows'],
+                                'verbs': [
+                                    'create',
+                                    'get',
+                                    'list',
+                                    'watch',
+                                    'update',
+                                    'patch',
+                                    'delete',
+                                ],
+                            },
+                            {
+                                'apiGroups': ['kubeflow.org'],
+                                'resources': ['scheduledworkflows'],
+                                'verbs': ['create', 'get', 'list', 'update', 'patch', 'delete'],
+                            },
+                            {'apiGroups': [''], 'resources': ['pods'], 'verbs': ['delete']},
+                        ]
+                    }
                 ]
             },
             'service': {
@@ -163,23 +181,26 @@ def start_charm():
                         '--sampleconfig=/config/sample_config.json',
                         '-logtostderr=true',
                     ],
-                    'config': {'POD_NAMESPACE': os.environ['JUJU_MODEL_NAME']},
-                    'files': [
+                    'envConfig': {'POD_NAMESPACE': os.environ['JUJU_MODEL_NAME']},
+                    'volumeConfig': [
                         {
                             'name': 'config',
                             'mountPath': '/config',
-                            'files': {
-                                'config.json': json.dumps(config_json),
-                                'sample_config.json': Path('files/sample_config.json').read_text(),
-                            },
+                            'files': [
+                                {'path': 'config.json', 'content': json.dumps(config_json)},
+                                {
+                                    'path': 'sample_config.json',
+                                    'content': Path('files/sample_config.json').read_text(),
+                                },
+                            ],
                         },
                         {
                             'name': 'samples',
                             'mountPath': '/samples',
-                            'files': {
-                                Path(sample).name: Path(sample).read_text()
+                            'files': [
+                                {'path': Path(sample).name, 'content': Path(sample).read_text()}
                                 for sample in glob('files/*.yaml')
-                            },
+                            ],
                         },
                     ],
                 }
@@ -190,40 +211,49 @@ def start_charm():
                 'serviceAccounts': [
                     {
                         'name': 'pipeline-runner',
-                        'rules': [
-                            {'apiGroups': [''], 'resources': ['secrets'], 'verbs': ['get']},
+                        'roles': [
                             {
-                                'apiGroups': [''],
-                                'resources': ['configmaps'],
-                                'verbs': ['get', 'watch', 'list'],
-                            },
-                            {
-                                'apiGroups': [''],
-                                'resources': ['persistentvolumeclaims'],
-                                'verbs': ['create', 'delete', 'get'],
-                            },
-                            {
-                                'apiGroups': ['snapshot.storage.k8s.io'],
-                                'resources': ['volumesnapshots'],
-                                'verbs': ['create', 'delete', 'get'],
-                            },
-                            {
-                                'apiGroups': ['argoproj.io'],
-                                'resources': ['workflows'],
-                                'verbs': ['get', 'list', 'watch', 'update', 'patch'],
-                            },
-                            {
-                                'apiGroups': [''],
-                                'resources': ['pods', 'pods/exec', 'pods/log', 'services'],
-                                'verbs': ['*'],
-                            },
-                            {
-                                'apiGroups': ['', 'apps', 'extensions'],
-                                'resources': ['deployments', 'replicasets'],
-                                'verbs': ['*'],
-                            },
-                            {'apiGroups': ['kubeflow.org'], 'resources': ['*'], 'verbs': ['*']},
-                            {'apiGroups': ['batch'], 'resources': ['jobs'], 'verbs': ['*']},
+                                'name': 'pipeline-runner',
+                                'rules': [
+                                    {'apiGroups': [''], 'resources': ['secrets'], 'verbs': ['get']},
+                                    {
+                                        'apiGroups': [''],
+                                        'resources': ['configmaps'],
+                                        'verbs': ['get', 'watch', 'list'],
+                                    },
+                                    {
+                                        'apiGroups': [''],
+                                        'resources': ['persistentvolumeclaims'],
+                                        'verbs': ['create', 'delete', 'get'],
+                                    },
+                                    {
+                                        'apiGroups': ['snapshot.storage.k8s.io'],
+                                        'resources': ['volumesnapshots'],
+                                        'verbs': ['create', 'delete', 'get'],
+                                    },
+                                    {
+                                        'apiGroups': ['argoproj.io'],
+                                        'resources': ['workflows'],
+                                        'verbs': ['get', 'list', 'watch', 'update', 'patch'],
+                                    },
+                                    {
+                                        'apiGroups': [''],
+                                        'resources': ['pods', 'pods/exec', 'pods/log', 'services'],
+                                        'verbs': ['*'],
+                                    },
+                                    {
+                                        'apiGroups': ['', 'apps', 'extensions'],
+                                        'resources': ['deployments', 'replicasets'],
+                                        'verbs': ['*'],
+                                    },
+                                    {
+                                        'apiGroups': ['kubeflow.org'],
+                                        'resources': ['*'],
+                                        'verbs': ['*'],
+                                    },
+                                    {'apiGroups': ['batch'], 'resources': ['jobs'], 'verbs': ['*']},
+                                ],
+                            }
                         ],
                     }
                 ]

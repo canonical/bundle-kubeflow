@@ -11,8 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        microk8s: [stable, edge]
-        bundle: [lite, edge]
+        juju: [2.8/edge]
+        microk8s: [1.18/stable, 1.18/candidate, 1.18/beta, 1.18/edge]
     steps:
     - name: Check out code
       uses: actions/checkout@v2
@@ -22,7 +22,7 @@ jobs:
         set -eux
         sudo snap install charm --classic
         sudo snap install jq
-        sudo snap install juju --classic --channel 2.7/stable
+        sudo snap install juju --classic --channel ${{ matrix.juju }}
         sudo snap install juju-helpers --classic --edge
         sudo snap install juju-wait --classic
         sudo snap install kubectl --classic
@@ -39,22 +39,58 @@ jobs:
         git clone git://git.launchpad.net/canonical-osm
         cp -r canonical-osm/charms/interfaces/juju-relation-mysql mysql
         sudo python3 ./scripts/cli.py microk8s setup --test-mode 
-        KUBEFLOW_AUTH_PASSWORD=foobar sudo -E python3 ./scripts/cli.py deploy-to uk8s --build --bundle ${{ matrix.bundle }}
+        KUBEFLOW_AUTH_PASSWORD=foobar sudo -E python3 ./scripts/cli.py --debug deploy-to uk8s --build --bundle edge
 
     - name: Test Kubeflow
       run: |
         set -eux
         # The pods can sometimes stay in Pending for a little while longer,
         # so run the tests first that don't check pod states.
-        sudo ./tests/run.sh -k 'not kubectl' -m ${{ matrix.bundle }}
-        sudo ./tests/run.sh -k 'kubectl' -m ${{ matrix.bundle }}
+        sudo ./tests/run.sh -m edge
 
-    - name: Debug failures
-      run: |
-        set -eux
-        sudo microk8s.kubectl get pods -A
-        sudo juju status
-        sudo ./tests/dump-pipeline-logs.sh
+    - name: Juju status
+      run: sudo juju status
+      if: failure()
+
+    - name: Juju status (YAML)
+      run: sudo juju status --format=yaml
+      if: failure()
+
+    - name: MicroK8s status
+      run: sudo microk8s status
+      if: failure()
+
+    - name: MicroK8s pods
+      run: sudo microk8s kubectl get pods -A
+      if: failure()
+
+    - name: Pipeline logs
+      run: sudo ./tests/dump-pipeline-logs.sh
+      if: failure()
+
+    - name: Generate debug log
+      run: sudo juju debug-log --replay --no-tail > juju-debug-${{ strategy.job-index }}.log
+      if: failure()
+
+    - name: Upload debug log
+      uses: actions/upload-artifact@v2
+      with:
+        name: juju-debug-actions
+        path: juju-debug-${{ strategy.job-index }}.log
+      if: failure()
+
+    - name: Generate inspect tarball
+      run: >
+        sudo microk8s inspect |
+        grep -Po "Report tarball is at \K.+" |
+        sudo xargs -I {} mv {} inspection-report-${{ strategy.job-index }}.tar.gz
+      if: failure()
+
+    - name: Upload inspect tarball
+      uses: actions/upload-artifact@v2
+      with:
+        name: inspection-reports-actions
+        path: ./inspection-report-${{ strategy.job-index }}.tar.gz
       if: failure()
 
   # Runs tests on AWS that are too big for github actions
@@ -65,14 +101,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        microk8s: [stable, edge]
+        juju: [2.8/edge]
+        microk8s: [1.18/stable, 1.18/candidate, 1.18/beta, 1.18/edge]
+        bundle: [lite, full]
     steps:
     - name: Check out code
       uses: actions/checkout@v2
 
     - name: Install dependencies
       run: |
-        sudo snap install juju --classic --channel 2.8/stable
+        sudo snap install juju --classic --channel 2.8/edge
         sudo snap install juju-wait --classic
 
     - name: Bootstrap onto AWS
@@ -81,25 +119,25 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: |
         set -eux
-        /snap/bin/juju autoload-credentials --client aws
-        /snap/bin/juju bootstrap aws/us-east-1 uk8saws --config test-mode=true --model-default test-mode=true
-        /snap/bin/juju deploy ubuntu --constraints 'cores=4 mem=16G root-disk=60G'
-        /snap/bin/juju wait -vw
-        /snap/bin/juju status
-        /snap/bin/juju status --format yaml
+        juju autoload-credentials --client aws
+        juju bootstrap aws/us-east-1 uk8saws --debug --config test-mode=true --model-default test-mode=true
+        juju deploy ubuntu --constraints 'cores=4 mem=16G root-disk=60G'
+        juju wait -vw
+        juju status
+        juju status --format yaml
 
     - name: Copy code to AWS instance
       run: |
         set -eux
-        /snap/bin/juju scp -- -r $(pwd)/ ubuntu/0:~/
+        juju scp -- -r $(pwd)/ ubuntu/0:~/
 
     - name: Install test dependencies
       run: |
-        /snap/bin/juju ssh ubuntu/0 <<EOF
+        juju ssh ubuntu/0 <<EOF
           set -eux
           sudo snap install charm --classic
           sudo snap install jq
-          sudo snap install juju --classic --channel 2.7/stable
+          sudo snap install juju --classic --channel ${{ matrix.juju }}
           sudo snap install juju-helpers --classic --edge
           sudo snap install juju-wait --classic
           sudo snap install kubectl --classic
@@ -113,36 +151,73 @@ jobs:
 
     - name: Deploy Kubeflow
       run: |
-        /snap/bin/juju ssh ubuntu/0 <<EOF
+        juju ssh ubuntu/0 <<EOF
           set -eux
           cd bundle-kubeflow
           git clone git://git.launchpad.net/canonical-osm
           cp -r canonical-osm/charms/interfaces/juju-relation-mysql mysql
           python3 ./scripts/cli.py microk8s setup --test-mode
-          KUBEFLOW_AUTH_PASSWORD=foobar python3 ./scripts/cli.py deploy-to uk8s --build
+          KUBEFLOW_AUTH_PASSWORD=foobar python3 ./scripts/cli.py --debug deploy-to uk8s --build --bundle ${{ matrix.bundle }}
         EOF
 
     - name: Test Kubeflow
       run: |
-        /snap/bin/juju ssh ubuntu/0 <<EOF
+        juju ssh ubuntu/0 <<EOF
           set -eux
           cd bundle-kubeflow
           # The pods can sometimes stay in Pending for a little while longer,
           # so run the tests first that don't check pod states.
-          ./tests/run.sh -k 'not kubectl' -m full
-          ./tests/run.sh -k 'kubectl' -m full
+          ./tests/run.sh -m ${{ matrix.bundle }}
         EOF
 
-    - name: Print failing logs
+    - name: Juju status
+      run: juju ssh ubuntu/0 sudo juju status
+      if: failure()
+
+    - name: Juju status (YAML)
+      run: juju ssh ubuntu/0 sudo juju status --format=yaml
+      if: failure()
+
+    - name: MicroK8s status
+      run: juju ssh ubuntu/0 sudo microk8s status
+      if: failure()
+
+    - name: MicroK8s pods
+      run: juju ssh ubuntu/0 sudo microk8s kubectl get pods -A
+      if: failure()
+
+    - name: Pipeline logs
+      run: juju ssh ubuntu/0 sudo bundle-kubeflow/tests/dump-pipeline-logs.sh
+      if: failure()
+
+    - name: Generate inspect tarball
       run: |
-        /snap/bin/juju ssh ubuntu/0 <<EOF
+        set -eux
+        juju ssh ubuntu/0 <<EOF
           set -eux
-          microk8s.kubectl get pods -A
-          cd bundle-kubeflow
-          ./tests/dump-pipeline-logs.sh
+          sudo microk8s inspect | \
+            grep -Po "Report tarball is at \K.+" | \
+            sudo xargs -I {} mv {} inspection-report-${{ strategy.job-index }}.tar.gz
+          sudo juju debug-log --replay --no-tail > ~/juju-debug.log
         EOF
+        juju scp ubuntu/0:~/juju-debug.log juju-debug-${{ strategy.job-index }}.log
+        juju scp ubuntu/0:~/inspection-report-${{ strategy.job-index }}.tar.gz .
+      if: failure()
+
+    - name: Upload debug logs
+      uses: actions/upload-artifact@v2
+      with:
+        name: juju-debug-aws
+        path: juju-debug-${{ strategy.job-index }}.log
+      if: failure()
+
+    - name: Upload inspect tarball
+      uses: actions/upload-artifact@v2
+      with:
+        name: inspection-reports-aws
+        path: ./inspection-report-${{ strategy.job-index }}.tar.gz
       if: failure()
 
     - name: Destroy controller
-      run: /snap/bin/juju destroy-controller -y uk8saws --destroy-all-models --destroy-storage
+      run: juju destroy-controller -y uk8saws --destroy-all-models --destroy-storage
       if: always()

@@ -7,104 +7,102 @@ from sh import Command
 kubectl = Command('juju-kubectl')
 
 
+def get_statuses():
+    """Gets names and statuses of all workload pods.
+
+    Uses Juju 2.8 label first, and if that's empty, tries Juju 2.9 label
+    """
+
+    pods = yaml.safe_load(kubectl.get('pods', '-ljuju-app', '-oyaml').stdout)
+
+    if pods['items']:
+        return {
+            i['metadata']['labels']['juju-app']: i['status']['phase']
+            for i in pods['items']
+        }
+    else:
+        pods = yaml.safe_load(kubectl.get('pods', '-lapp.kubernetes.io/name', '-oyaml').stdout)
+        return {
+            i['metadata']['labels']['app.kubernetes.io/name']: i['status']['phase']
+            for i in pods['items']
+        }
+
+
+
 @pytest.mark.full
 def test_running_full():
-    pods = yaml.safe_load(kubectl.get('pods', '-oyaml').stdout)
-
-    statuses = sorted(
-        (i['metadata']['labels']['juju-app'], i['status']['phase'])
-        for i in pods['items']
-        if 'juju-app' in i['metadata']['labels']
-    )
-
-    assert statuses == [
-        ('ambassador', 'Running'),
-        ('argo-controller', 'Running'),
-        ('argo-ui', 'Running'),
-        ('dex-auth', 'Running'),
-        ('jupyter-controller', 'Running'),
-        ('jupyter-web', 'Running'),
-        ('katib-controller', 'Running'),
-        ('katib-db', 'Running'),
-        ('katib-db-manager', 'Running'),
-        ('katib-ui', 'Running'),
-        ('kubeflow-dashboard', 'Running'),
-        ('kubeflow-profiles', 'Running'),
-        ('metacontroller', 'Running'),
-        ('metadata-api', 'Running'),
-        ('metadata-db', 'Running'),
-        ('metadata-envoy', 'Running'),
-        ('metadata-grpc', 'Running'),
-        ('metadata-ui', 'Running'),
-        ('minio', 'Running'),
-        ('oidc-gatekeeper', 'Running'),
-        ('pipelines-api', 'Running'),
-        ('pipelines-db', 'Running'),
-        ('pipelines-persistence', 'Running'),
-        ('pipelines-scheduledworkflow', 'Running'),
-        ('pipelines-ui', 'Running'),
-        ('pipelines-viewer', 'Running'),
-        ('pipelines-visualization', 'Running'),
-        ('pytorch-operator', 'Running'),
-        ('seldon-core', 'Running'),
-        ('tf-job-operator', 'Running'),
-    ]
+    assert get_statuses() == {
+        'ambassador': 'Running',
+        'argo-controller': 'Running',
+        'argo-ui': 'Running',
+        'dex-auth': 'Running',
+        'jupyter-controller': 'Running',
+        'jupyter-web': 'Running',
+        'katib-controller': 'Running',
+        'katib-db': 'Running',
+        'katib-db-manager': 'Running',
+        'katib-ui': 'Running',
+        'kubeflow-dashboard': 'Running',
+        'kubeflow-profiles': 'Running',
+        'metacontroller': 'Running',
+        'metadata-api': 'Running',
+        'metadata-db': 'Running',
+        'metadata-envoy': 'Running',
+        'metadata-grpc': 'Running',
+        'metadata-ui': 'Running',
+        'minio': 'Running',
+        'oidc-gatekeeper': 'Running',
+        'pipelines-api': 'Running',
+        'pipelines-db': 'Running',
+        'pipelines-persistence': 'Running',
+        'pipelines-scheduledworkflow': 'Running',
+        'pipelines-ui': 'Running',
+        'pipelines-viewer': 'Running',
+        'pipelines-visualization': 'Running',
+        'pytorch-operator': 'Running',
+        'seldon-core': 'Running',
+        'tf-job-operator': 'Running',
+    }
 
 
 @pytest.mark.lite
 def test_running_lite():
-    pods = yaml.safe_load(kubectl.get('pods', '-oyaml').stdout)
-
-    statuses = sorted(
-        (i['metadata']['labels']['juju-app'], i['status']['phase'])
-        for i in pods['items']
-        if 'juju-app' in i['metadata']['labels']
-    )
-
-    assert statuses == [
-        ('ambassador', 'Running'),
-        ('argo-controller', 'Running'),
-        ('dex-auth', 'Running'),
-        ('jupyter-controller', 'Running'),
-        ('jupyter-web', 'Running'),
-        ('kubeflow-dashboard', 'Running'),
-        ('kubeflow-profiles', 'Running'),
-        ('minio', 'Running'),
-        ('oidc-gatekeeper', 'Running'),
-        ('pipelines-api', 'Running'),
-        ('pipelines-db', 'Running'),
-        ('pipelines-persistence', 'Running'),
-        ('pipelines-scheduledworkflow', 'Running'),
-        ('pipelines-ui', 'Running'),
-        ('pipelines-viewer', 'Running'),
-        ('pipelines-visualization', 'Running'),
-        ('pytorch-operator', 'Running'),
-        ('seldon-core', 'Running'),
-        ('tf-job-operator', 'Running'),
-    ]
+    assert get_statuses() == {
+        'ambassador': 'Running',
+        'argo-controller': 'Running',
+        'dex-auth': 'Running',
+        'jupyter-controller': 'Running',
+        'jupyter-web': 'Running',
+        'kubeflow-dashboard': 'Running',
+        'kubeflow-profiles': 'Running',
+        'minio': 'Running',
+        'oidc-gatekeeper': 'Running',
+        'pipelines-api': 'Running',
+        'pipelines-db': 'Running',
+        'pipelines-persistence': 'Running',
+        'pipelines-scheduledworkflow': 'Running',
+        'pipelines-ui': 'Running',
+        'pipelines-viewer': 'Running',
+        'pipelines-visualization': 'Running',
+        'pytorch-operator': 'Running',
+        'seldon-core': 'Running',
+        'tf-job-operator': 'Running',
+    }
 
 
 @pytest.mark.edge
 def test_running_edge():
-    pods = yaml.safe_load(kubectl.get('pods', '-oyaml').stdout)
-
-    statuses = sorted(
-        (i['metadata']['labels']['juju-app'], i['status']['phase'])
-        for i in pods['items']
-        if 'juju-app' in i['metadata']['labels']
-    )
-
-    assert statuses == [
-        ('argo-controller', 'Running'),
-        ('minio', 'Running'),
-        ('pipelines-api', 'Running'),
-        ('pipelines-db', 'Running'),
-        ('pipelines-persistence', 'Running'),
-        ('pipelines-scheduledworkflow', 'Running'),
-        ('pytorch-operator', 'Running'),
-        ('seldon-core', 'Running'),
-        ('tf-job-operator', 'Running'),
-    ]
+    assert get_statuses() == {
+        'argo-controller': 'Running',
+        'minio': 'Running',
+        'pipelines-api': 'Running',
+        'pipelines-db': 'Running',
+        'pipelines-persistence': 'Running',
+        'pipelines-scheduledworkflow': 'Running',
+        'pytorch-operator': 'Running',
+        'seldon-core': 'Running',
+        'tf-job-operator': 'Running',
+    }
 
 
 @pytest.mark.full

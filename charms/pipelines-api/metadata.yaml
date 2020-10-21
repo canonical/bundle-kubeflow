@@ -25,4 +25,4 @@ requires:
 provides:
   pipelines-api:
     interface: http
-min-juju-version: 2.7.0
+min-juju-version: 2.8.4
