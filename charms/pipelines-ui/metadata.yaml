@@ -20,4 +20,4 @@ requires:
     interface: http
   minio:
     interface: generic-ip-port-user-pass
-min-juju-version: 2.7.0
+min-juju-version: 2.8.6
