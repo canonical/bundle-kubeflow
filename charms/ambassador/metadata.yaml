@@ -17,4 +17,4 @@ provides:
 deployment:
   type: stateless
   service: loadbalancer
-min-juju-version: 2.7.0
+min-juju-version: 2.8.6
