@@ -349,14 +349,6 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
         "--all",
     )
 
-    if bundle == 'full':
-        juju(
-            'kubectl',
-            'delete',
-            'mutatingwebhookconfigurations/katib-mutating-webhook-config',
-            'validatingwebhookconfigurations/katib-validating-webhook-config',
-        )
-
     if bundle in ('full', 'lite'):
         pub_addr = public_address or get_pub_addr(controller)
         juju('config', 'dex-auth', f'public-url=http://{pub_addr}:80')
