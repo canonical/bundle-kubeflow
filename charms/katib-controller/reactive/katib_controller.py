@@ -252,8 +252,6 @@ def start_charm():
                         '-webhook-port',
                         str(config['webhook-port']),
                         '-logtostderr',
-                        '-webhook-service-name',
-                        'katib-controller-old',
                         '-v=4',
                     ],
                     'imageDetails': {
@@ -288,6 +286,7 @@ def start_charm():
                 "mutatingWebhookConfigurations": [
                     {
                         "name": "katib-mutating-webhook-config",
+                        "annotations": {"juju.io/disable-name-prefix": "true"},
                         "webhooks": [
                             {
                                 "name": "mutating.experiment.katib.kubeflow.org",
@@ -339,6 +338,7 @@ def start_charm():
                 "validatingWebhookConfigurations": [
                     {
                         "name": "katib-validating-webhook-config",
+                        "annotations": {"juju.io/disable-name-prefix": "true"},
                         "webhooks": [
                             {
                                 "name": "validating.experiment.katib.kubeflow.org",
