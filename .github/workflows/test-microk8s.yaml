@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        juju: [2.8/edge]
+        juju: [2.9/candidate]
         microk8s: [1.18/stable, 1.18/candidate, 1.18/beta, 1.18/edge]
     steps:
     - name: Check out code
@@ -101,7 +101,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        juju: [2.8/edge]
+        juju: [2.9/candidate]
         microk8s: [1.18/stable, 1.18/candidate, 1.18/beta, 1.18/edge]
         bundle: [lite, full]
     steps:
@@ -110,7 +110,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo snap install juju --classic --channel 2.8/edge
+        sudo snap install juju --classic --channel 2.9/candidate
         sudo snap install juju-wait --classic
 
     - name: Bootstrap onto AWS
