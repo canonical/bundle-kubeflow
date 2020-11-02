@@ -68,7 +68,7 @@ def wait_task(namespace: str, experiment_name: str):
         elif set(statuses.values()) == {'Succeeded'}:
             print("All jobs completed successfully!")
             break
-        elif 'Failed' in statuses:
+        elif 'Failed' in statuses.values():
             print("Got failed status!")
             print(statuses)
             break
