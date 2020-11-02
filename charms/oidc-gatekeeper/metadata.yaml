@@ -14,8 +14,11 @@ resources:
     type: oci-image
     description: 'Backing OCI image'
     auto-fetch: true
-    upstream-source: gcr.io/arrikto/kubeflow/oidc-authservice:28c59ef
+    upstream-source: gcr.io/arrikto/kubeflow/oidc-authservice:fef11c3
 provides:
   oidc-client:
     interface: oidc-client
+requires:
+  service-mesh:
+    interface: service-mesh
 min-juju-version: 2.8.6
