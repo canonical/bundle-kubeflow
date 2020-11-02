@@ -1,8 +1,8 @@
 import json
 import os
+from base64 import b64encode
 from pathlib import Path
 from subprocess import check_call
-from base64 import b64encode
 
 import yaml
 
@@ -286,7 +286,7 @@ def start_charm():
                 "mutatingWebhookConfigurations": [
                     {
                         "name": "katib-mutating-webhook-config",
-                        "annotations": {"juju.io/disable-name-prefix": "true"},
+                        "annotations": {"model.juju.is/disable-prefix": "true"},
                         "webhooks": [
                             {
                                 "name": "mutating.experiment.katib.kubeflow.org",
@@ -338,7 +338,7 @@ def start_charm():
                 "validatingWebhookConfigurations": [
                     {
                         "name": "katib-validating-webhook-config",
-                        "annotations": {"juju.io/disable-name-prefix": "true"},
+                        "annotations": {"model.juju.is/disable-prefix": "true"},
                         "webhooks": [
                             {
                                 "name": "validating.experiment.katib.kubeflow.org",
