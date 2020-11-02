@@ -9,7 +9,7 @@ options:
     description: Webhook server port
   ambassador-enabled:
     type: boolean
-    default: true
+    default: false
     description: Enables Ambassador integration
   ambassador-single-namespace:
     type: boolean
@@ -89,7 +89,7 @@ options:
     description: https://docs.seldon.io/projects/seldon-core/en/v1.1.0/reference/helm.html
   istio-enabled:
     type: boolean
-    default: false
+    default: true
     description: https://docs.seldon.io/projects/seldon-core/en/v1.1.0/reference/helm.html
   istio-gateway:
     type: string
