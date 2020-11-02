@@ -22,15 +22,6 @@ def update_image():
     clear_flag('charm.started')
 
 
-@when('endpoint.service-mesh.joined')
-def configure_mesh():
-    endpoint_from_name('service-mesh').add_route(
-        prefix='/ml_metadata.MetadataStoreService/',
-        service=hookenv.service_name(),
-        port=hookenv.config('port'),
-    )
-
-
 @when('layer.docker-resource.oci-image.available', 'metadata-grpc.available')
 @when_not('charm.started')
 def start_charm():

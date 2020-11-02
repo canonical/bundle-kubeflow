@@ -4,4 +4,3 @@ includes:
   - "layer:status"
   - "layer:docker-resource"
   - "interface:http"
-  - "interface:service-mesh"

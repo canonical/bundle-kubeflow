@@ -14,8 +14,6 @@ resources:
 requires:
   metadata-grpc:
     interface: http
-  service-mesh:
-    interface: service-mesh
 provides:
   metadata-envoy:
     interface: http
