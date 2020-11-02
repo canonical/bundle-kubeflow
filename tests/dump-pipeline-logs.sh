@@ -2,7 +2,7 @@
 
 set -eux
 
-pods=$(juju kubectl get pods -l workflows.argoproj.io/completed="true" -o custom-columns=:metadata.name --no-headers)
+pods=$(juju kubectl get pods -l workflows.argoproj.io/completed -o custom-columns=:metadata.name --no-headers)
 for pod in $pods; do
     containers=$(juju kubectl get pods -o jsonpath="{.spec.containers[*].name}" $pod)
 
