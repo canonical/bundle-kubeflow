@@ -15,4 +15,6 @@ resources:
 requires:
   oidc-client:
     interface: oidc-client
+  service-mesh:
+    interface: service-mesh
 min-juju-version: 2.8.6

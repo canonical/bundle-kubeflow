@@ -41,6 +41,13 @@ def update_image():
     clear_flag("config.changed")
 
 
+@when('endpoint.service-mesh.joined')
+def configure_mesh():
+    endpoint_from_name('service-mesh').add_route(
+        prefix='/dex', service=hookenv.service_name(), port=hookenv.config('port')
+    )
+
+
 @when("layer.docker-resource.oci-image.available")
 @when_not("charm.started")
 def start_charm():
@@ -52,9 +59,7 @@ def start_charm():
 
     image_info = layer.docker_resource.get_info("oci-image")
 
-    service_name = hookenv.service_name()
     connectors = yaml.safe_load(hookenv.config("connectors"))
-    namespace = os.environ["JUJU_MODEL_NAME"]
     port = hookenv.config("port")
     public_url = hookenv.config("public-url")
 
@@ -134,24 +139,6 @@ def start_charm():
                         "verbs": ["create"],
                     },
                 ],
-            },
-            "service": {
-                "annotations": {
-                    "getambassador.io/config": yaml.dump_all(
-                        [
-                            {
-                                "apiVersion": "ambassador/v1",
-                                "kind": "Mapping",
-                                "name": "dex-auth",
-                                "prefix": "/dex",
-                                "rewrite": "/dex",
-                                "service": f"{service_name}.{namespace}:{port}",
-                                "timeout_ms": 30000,
-                                "bypass_auth": True,
-                            }
-                        ]
-                    )
-                }
             },
             "containers": [
                 {
