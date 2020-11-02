@@ -3,8 +3,6 @@ import os
 from glob import glob
 from pathlib import Path
 
-import yaml
-
 from charms import layer
 from charms.reactive import (
     clear_flag,
@@ -51,6 +49,15 @@ def update_image():
     clear_flag('pipelines-visualization.changed')
 
 
+@when('endpoint.service-mesh.joined')
+def configure_mesh():
+    endpoint_from_name('service-mesh').add_route(
+        prefix='/apis/v1beta1/pipelines',
+        service=hookenv.service_name(),
+        port=hookenv.config('http-port'),
+    )
+
+
 @when(
     'layer.docker-resource.oci-image.available',
     'endpoint.minio.joined',
@@ -65,7 +72,6 @@ def start_charm():
     layer.status.maintenance('configuring container')
 
     image_info = layer.docker_resource.get_info('oci-image')
-    service_name = hookenv.service_name()
 
     mysql = endpoint_from_name('mysql')
 
@@ -150,24 +156,6 @@ def start_charm():
                         ]
                     }
                 ]
-            },
-            'service': {
-                'annotations': {
-                    'getambassador.io/config': yaml.dump_all(
-                        [
-                            {
-                                'apiVersion': 'ambassador/v0',
-                                'kind': 'Mapping',
-                                'name': 'pipeline-api',
-                                'prefix': '/apis/v1beta1/pipelines',
-                                'rewrite': '/apis/v1beta1/pipelines',
-                                'service': f'{service_name}:{http_port}',
-                                'use_websocket': True,
-                                'timeout_ms': 30000,
-                            }
-                        ]
-                    )
-                }
             },
             'containers': [
                 {
