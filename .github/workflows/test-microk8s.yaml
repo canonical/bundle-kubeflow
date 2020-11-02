@@ -60,12 +60,27 @@ jobs:
       run: sudo microk8s status
       if: failure()
 
-    - name: MicroK8s pods
+    - name: MicroK8s get pods
       run: sudo microk8s kubectl get pods -A
       if: failure()
 
-    - name: Pipeline logs
-      run: sudo ./tests/dump-pipeline-logs.sh
+    - name: MicroK8s describe pods
+      run: sudo microk8s kubectl describe pods -A
+      if: failure()
+
+    - name: Kubeflow pod logs
+      run: |
+        set -eux
+        pods=$(sudo microk8s kubectl get pods -nkubeflow -o custom-columns=:metadata.name --no-headers)
+        for pod in $pods; do
+            containers=$(sudo microk8s kubectl get pods -nkubeflow -o jsonpath="{.spec.containers[*].name}" $pod)
+
+            for container in $containers; do
+              sudo microk8s kubectl logs -nkubeflow --timestamps $pod -c $container
+              printf '\n'
+            done
+            printf '\n\n'
+        done
       if: failure()
 
     - name: Generate debug log
@@ -91,6 +106,40 @@ jobs:
       with:
         name: inspection-reports-actions
         path: ./inspection-report-${{ strategy.job-index }}.tar.gz
+      if: failure()
+
+    - name: Generate kubectl describe
+      run: |
+        set -eux
+        mkdir describe-${{ strategy.job-index  }}
+        for resource in $(microk8s kubectl api-resources -o name | sort); do
+            microk8s kubectl describe $resource -A > describe-${{ strategy.job-index }}/"$resource".describe || true
+        done
+      if: failure()
+
+    - name: Upload kubectl describe
+      uses: actions/upload-artifact@v2
+      with:
+        name: kubectl-describe-actions
+        path: describe-${{ strategy.job-index }}/*.describe
+      if: failure()
+
+    - name: Generate kubeflow pod logs
+      run: |
+        set -eux
+        mkdir stdout-${{ strategy.job-index }}
+        for pod in $(microk8s kubectl get pods -nkubeflow -o custom-columns=:metadata.name --no-headers); do
+            for container in $(microk8s kubectl get pods -nkubeflow -o jsonpath="{.spec.containers[*].name}" $pod); do
+              microk8s kubectl logs -nkubeflow --timestamps $pod -c $container > stdout-${{ strategy.job-index }}/$pod-$container.log
+            done
+        done
+      if: failure()
+
+    - name: Upload kubeflow pod logs
+      uses: actions/upload-artifact@v2
+      with:
+        name: kubectl-stdout-actions
+        path: stdout-${{ strategy.job-index }}/*.log
       if: failure()
 
   # Runs tests on AWS that are too big for github actions
@@ -120,8 +169,8 @@ jobs:
       run: |
         set -eux
         juju autoload-credentials --client aws
-        juju bootstrap aws/us-east-1 uk8saws --debug --config test-mode=true --model-default test-mode=true
-        juju deploy ubuntu --constraints 'cores=4 mem=16G root-disk=60G'
+        juju bootstrap aws/us-east-1 uk8saws --debug --show-log --config test-mode=true --model-default test-mode=true
+        juju deploy ubuntu --constraints 'cores=8 mem=16G root-disk=80G'
         juju wait -vw
         juju status
         juju status --format yaml
@@ -182,12 +231,12 @@ jobs:
       run: juju ssh ubuntu/0 sudo microk8s status
       if: failure()
 
-    - name: MicroK8s pods
+    - name: MicroK8s get pods
       run: juju ssh ubuntu/0 sudo microk8s kubectl get pods -A
       if: failure()
 
-    - name: Pipeline logs
-      run: juju ssh ubuntu/0 sudo bundle-kubeflow/tests/dump-pipeline-logs.sh
+    - name: MicroK8s describe pods
+      run: juju ssh ubuntu/0 sudo microk8s kubectl describe pods -A
       if: failure()
 
     - name: Generate inspect tarball
@@ -216,6 +265,52 @@ jobs:
       with:
         name: inspection-reports-aws
         path: ./inspection-report-${{ strategy.job-index }}.tar.gz
+      if: failure()
+
+    - name: Generate kubectl describe
+      run: |
+        set -eux
+        juju ssh ubuntu/0 <<EOF
+          set -eux
+          mkdir describe-${{ strategy.job-index }}
+          for resource in \$(sudo microk8s kubectl api-resources -o name | sort); do
+            sudo microk8s kubectl describe \$resource -A > describe-${{ strategy.job-index }}/"\$resource".describe || true
+          done
+          tar -cvzf describe.tar.gz describe-${{ strategy.job-index }}/*.describe
+        EOF
+        juju scp ubuntu/0:~/describe.tar.gz describe-${{ strategy.job-index }}.tar.gz
+      if: failure()
+
+    - name: Upload kubectl describe
+      uses: actions/upload-artifact@v2
+      with:
+        name: kubectl-describe-aws
+        path: describe-${{ strategy.job-index }}.tar.gz
+      if: failure()
+
+    - name: Generate kubeflow pod logs
+      run: |
+        set -eux
+        juju ssh ubuntu/0 <<EOF
+          set -eux
+          mkdir stdout-${{ strategy.job-index }}
+          for namespace in admin kubeflow; do
+              for pod in \$(microk8s kubectl get pods -n \$namespace -o custom-columns=:metadata.name --no-headers); do
+                  for container in \$(microk8s kubectl get pods -n \$namespace -o jsonpath="{.spec.containers[*].name}" \$pod); do
+                    microk8s kubectl logs -n \$namespace --timestamps \$pod -c \$container > stdout-${{ strategy.job-index }}/\$namespace-\$pod-\$container.log
+                  done
+              done
+          done
+          tar -cvzf stdout.tar.gz stdout-${{ strategy.job-index }}/*.log
+        EOF
+        juju scp ubuntu/0:~/stdout.tar.gz stdout-${{ strategy.job-index }}.tar.gz
+      if: failure()
+
+    - name: Upload kubeflow pod logs
+      uses: actions/upload-artifact@v2
+      with:
+        name: kubectl-stdout-aws
+        path: stdout-${{ strategy.job-index }}.tar.gz
       if: failure()
 
     - name: Destroy controller
