@@ -3,5 +3,5 @@ includes:
   - "layer:caas-base"
   - "layer:docker-resource"
   - "layer:status"
-  - "interface:ambassador"
+  - "interface:service-mesh"
   - "interface:http"
