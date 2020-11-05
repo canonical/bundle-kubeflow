@@ -11,8 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        juju: [2.8/stable]
-        microk8s: [1.18/stable, 1.18/candidate, 1.18/beta, 1.18/edge]
+        juju: [2.8/stable, latest/candidate]
+        microk8s: [1.18/stable, 1.18/edge]
     steps:
     - name: Check out code
       uses: actions/checkout@v2
@@ -151,7 +151,7 @@ jobs:
       fail-fast: false
       matrix:
         juju: [2.8/stable]
-        microk8s: [1.18/stable, 1.18/candidate, 1.18/beta, 1.18/edge]
+        microk8s: [1.18/stable, 1.18/edge]
         bundle: [lite, full]
     steps:
     - name: Check out code
