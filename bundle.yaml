@@ -50,7 +50,7 @@ applications:
     annotations:
       gui-x: '-600'
       gui-y: '518'
-  katib-db-manager:
+  katib-manager:
     charm: katib-manager
     scale: 1
     annotations:
@@ -191,7 +191,7 @@ relations:
 - [ambassador, pipelines-viewer]
 - [argo-controller, minio]
 - [dex-auth, oidc-gatekeeper]
-- [katib-db-manager, katib-db]
+- [katib-manager, katib-db]
 - [kubeflow-profiles, jupyter-web]
 - [kubeflow-profiles, kubeflow-dashboard]
 - [metadata-api, metadata-db]
