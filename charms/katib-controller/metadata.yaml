@@ -10,7 +10,7 @@ resources:
     type: oci-image
     description: 'Backing OCI image'
     auto-fetch: true
-    upstream-source: gcr.io/kubeflow-images-public/katib/v1alpha3/katib-controller:v0.9.0
+    upstream-source: rocks.canonical.com:5000/kubeflow/katib-controller:latest
 requires:
   mysql:
     interface: mysql
