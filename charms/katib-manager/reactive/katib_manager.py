@@ -35,7 +35,7 @@ def start_charm():
 
     layer.caas_base.pod_spec_set(
         {
-            'version': 2,
+            'version': 3,
             'containers': [
                 {
                     'name': 'katib-manager',
@@ -46,7 +46,7 @@ def start_charm():
                         'password': image_info.password,
                     },
                     'ports': [{'name': 'api', 'containerPort': port}],
-                    'config': {
+                    'envConfig': {
                         'DB_NAME': 'mysql',
                         'DB_USER': 'root',
                         'DB_PASSWORD': mysql.root_password(),
@@ -68,7 +68,23 @@ def start_charm():
                     },
                 }
             ],
-        }
+        },
+        k8s_resources={
+            'kubernetesResources': {
+                'services': [
+                    {
+                        'name': 'katib-db-manager',
+                        'spec': {
+                            'ports': [
+                                {'name': 'api', 'port': 6789, 'protocol': 'TCP', 'targetPort': 6789}
+                            ],
+                            'selector': {'juju-app': 'katib-manager'},
+                            'type': 'ClusterIP',
+                        },
+                    }
+                ]
+            }
+        },
     )
 
     layer.status.maintenance('creating container')
