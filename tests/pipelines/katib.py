@@ -68,6 +68,10 @@ def wait_task(namespace: str, experiment_name: str):
         elif set(statuses.values()) == {'Succeeded'}:
             print("All jobs completed successfully!")
             break
+        elif 'Failed' in statuses:
+            print("Got failed status!")
+            print(statuses)
+            break
         else:
             print('Waiting for jobs to complete:')
             print(statuses)
@@ -87,9 +91,7 @@ def delete_task(namespace: str, experiment_name: str):
     response.raise_for_status()
 
 
-@dsl.pipeline(
-    name='Katib Test', description='Tests Katib',
-)
+@dsl.pipeline(name='Katib Test', description='Tests Katib')
 def katib_pipeline(
     namespace: str = 'admin',
     example: str = 'https://raw.githubusercontent.com/kubeflow/katib/master/examples/v1alpha3/grid-example.yaml',
