@@ -1,8 +1,16 @@
-import os
+import random
+import string
 import subprocess
+import typing
 from hashlib import sha256
 from pathlib import Path
 from uuid import uuid4
+
+import yaml
+
+from charmhelpers.core import hookenv
+from charms import layer
+from charms.reactive import clear_flag, endpoint_from_name, hook, set_flag, when, when_any, when_not
 
 try:
     import bcrypt
@@ -10,12 +18,6 @@ except ImportError:
     subprocess.check_call(["apt", "update"])
     subprocess.check_call(["apt", "install", "-y", "python3-bcrypt"])
     import bcrypt
-
-import yaml
-
-from charmhelpers.core import hookenv
-from charms import layer
-from charms.reactive import clear_flag, endpoint_from_name, hook, set_flag, when, when_any, when_not
 
 
 @hook("upgrade-charm")
@@ -48,6 +50,28 @@ def configure_mesh():
     )
 
 
+def get_or_set(name: str, *, default: typing.Union[str, typing.Callable[[], str]]) -> str:
+    try:
+        path = Path(f'/run/{name}')
+        return path.read_text()
+    except FileNotFoundError:
+        value = default() if callable(default) else default
+        path.write_text(value)
+        return value
+
+
+def get_or_set_bytes(
+    name: str, *, default: typing.Union[bytes, typing.Callable[[], bytes]]
+) -> bytes:
+    try:
+        path = Path(f'/run/{name}')
+        return path.read_bytes()
+    except FileNotFoundError:
+        value = default() if callable(default) else default
+        path.write_bytes(value)
+        return value
+
+
 @when("layer.docker-resource.oci-image.available")
 @when_not("charm.started")
 def start_charm():
@@ -75,24 +99,20 @@ def start_charm():
 
     static_config = {}
 
+    # Dex needs some way of logging in, so if nothing has been configured,
+    # just generate a username/password
+    if not static_username:
+        static_username = get_or_set('username', default='admin')
+
     if static_username:
         if not static_password:
-            layer.status.blocked('Static password is required when static username is set')
-            return False
+            static_password = get_or_set(
+                'password',
+                default=lambda: ''.join(random.choices(string.ascii_letters, k=30)),
+            )
 
-        try:
-            salt_path = Path('/run/salt')
-            salt = salt_path.read_bytes()
-        except FileNotFoundError:
-            salt = bcrypt.gensalt()
-            salt_path.write_bytes(salt)
-
-        try:
-            user_id_path = Path('/run/user-id')
-            user_id = user_id_path.read_text()
-        except FileNotFoundError:
-            user_id = str(uuid4())
-            user_id_path.write_text(user_id)
+        salt = get_or_set_bytes('salt', default=bcrypt.gensalt)
+        user_id = get_or_set('user-id', default=lambda: str(uuid4()))
 
         hashed = bcrypt.hashpw(static_password.encode('utf-8'), salt).decode('utf-8')
         static_config = {
