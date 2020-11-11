@@ -1,196 +1,50 @@
 bundle: kubernetes
 applications:
-  ambassador:
-    charm: ambassador
-    scale: 1
-    annotations:
-      gui-x: '0'
-      gui-y: '0'
-  argo-controller:
-    charm: argo-controller
-    scale: 1
-    annotations:
-      gui-x: '600'
-      gui-y: '0'
-  argo-ui:
-    charm: argo-ui
-    scale: 1
-    annotations:
-      gui-x: '300'
-      gui-y: '0'
-  dex-auth:
-    charm: dex-auth
-    scale: 1
-    annotations:
-      gui-x: '600'
-      gui-y: '-518'
-  jupyter-controller:
-    charm: jupyter-controller
-    scale: 1
-    annotations:
-      gui-x: '450'
-      gui-y: '-259'
-  jupyter-web:
-    charm: jupyter-web
-    scale: 1
-    annotations:
-      gui-x: '150'
-      gui-y: '-259'
-  katib-controller:
-    charm: katib-controller
-    scale: 1
-    annotations:
-      gui-x: '-450'
-      gui-y: '259'
-  katib-db:
-    charm: cs:~charmed-osm/mariadb-k8s
-    scale: 1
-    options:
-      database: katib
-    annotations:
-      gui-x: '-600'
-      gui-y: '518'
-  katib-manager:
-    charm: katib-manager
-    scale: 1
-    annotations:
-      gui-x: '-750'
-      gui-y: '259'
-  katib-ui:
-    charm: katib-ui
-    scale: 1
-    annotations:
-      gui-x: '-150'
-      gui-y: '259'
-  kubeflow-dashboard:
-    charm: kubeflow-dashboard
-    scale: 1
-    annotations:
-      gui-x: '750'
-      gui-y: '259'
-  kubeflow-profiles:
-    charm: kubeflow-profiles
-    scale: 1
-    annotations:
-      gui-x: '600'
-      gui-y: '518'
-  metacontroller:
-    charm: metacontroller
-    scale: 1
-    annotations:
-      gui-x: '-300'
-      gui-y: '518'
-  metadata-api:
-    charm: metadata-api
-    scale: 1
-    annotations:
-      gui-x: '-300'
-      gui-y: '-518'
-  metadata-db:
-    charm: cs:~charmed-osm/mariadb-k8s
-    scale: 1
-    annotations:
-      gui-x: '-600'
-      gui-y: '-518'
-  metadata-envoy:
-    charm: metadata-envoy
-    scale: 1
-    annotations:
-      gui-x: '-750'
-      gui-y: '-259'
-  metadata-grpc:
-    charm: metadata-grpc
-    scale: 1
-    annotations:
-      gui-x: '-450'
-      gui-y: '-259'
-  metadata-ui:
-    charm: metadata-ui
-    scale: 1
-    annotations:
-      gui-x: '-150'
-      gui-y: '-259'
-  minio:
-    charm: minio
-    scale: 1
-    annotations:
-      gui-x: '450'
-      gui-y: '259'
-  oidc-gatekeeper:
-    charm: oidc-gatekeeper
-    scale: 1
-    annotations:
-      gui-x: '750'
-      gui-y: '-259'
-  pipelines-api:
-    charm: pipelines-api
-    scale: 1
-    annotations:
-      gui-x: '300'
-      gui-y: '518'
-  pipelines-db:
-    charm: cs:~charmed-osm/mariadb-k8s
-    scale: 1
-    annotations:
-      gui-x: '0'
-      gui-y: '518'
-  pipelines-persistence:
-    charm: pipelines-persistence
-    scale: 1
-    annotations:
-      gui-x: '150'
-      gui-y: '777'
-  pipelines-scheduledworkflow:
-    charm: pipelines-scheduledworkflow
-    scale: 1
-    annotations:
-      gui-x: '-150'
-      gui-y: '777'
-  pipelines-ui:
-    charm: pipelines-ui
-    scale: 1
-    annotations:
-      gui-x: '150'
-      gui-y: '259'
-  pipelines-viewer:
-    charm: pipelines-viewer
-    scale: 1
-    annotations:
-      gui-x: '-300'
-      gui-y: '0'
-  pipelines-visualization:
-    charm: pipelines-visualization
-    scale: 1
-    annotations:
-      gui-x: '450'
-      gui-y: '777'
-  pytorch-operator:
-    charm: pytorch-operator
-    scale: 1
-    annotations:
-      gui-x: '450'
-      gui-y: '-777'
-  seldon-core:
-    charm: seldon-core
-    scale: 1
-    annotations:
-      gui-x: '900'
-      gui-y: '0'
-  tf-job-operator:
-    charm: tf-job-operator
-    scale: 1
-    annotations:
-      gui-x: '-600'
-      gui-y: '0'
+  istio-pilot:                  { charm: istio-pilot,                 scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
+  istio-ingressgateway:         { charm: istio-ingressgateway,        scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
+  argo-controller:              { charm: argo-controller,             scale: 1, annotations: { gui-x:  '600', gui-y:    '0' } }
+  argo-ui:                      { charm: argo-ui,                     scale: 1, annotations: { gui-x:  '300', gui-y:    '0' } }
+  dex-auth:                     { charm: dex-auth,                    scale: 1, annotations: { gui-x:  '600', gui-y: '-518' } }
+  jupyter-controller:           { charm: jupyter-controller,          scale: 1, annotations: { gui-x:  '450', gui-y: '-259' } }
+  jupyter-web:                  { charm: jupyter-web,                 scale: 1, annotations: { gui-x:  '150', gui-y: '-259' } }
+  katib-controller:             { charm: katib-controller,            scale: 1, annotations: { gui-x: '-450', gui-y:  '259' } }
+  katib-db:                     { charm: cs:~charmed-osm/mariadb-k8s, scale: 1, annotations: { gui-x: '-600', gui-y:  '518' }, options: { database: katib } }
+  katib-manager:                { charm: katib-manager,               scale: 1, annotations: { gui-x: '-750', gui-y:  '259' } }
+  katib-ui:                     { charm: katib-ui,                    scale: 1, annotations: { gui-x: '-150', gui-y:  '259' } }
+  kubeflow-dashboard:           { charm: kubeflow-dashboard,          scale: 1, annotations: { gui-x:  '750', gui-y:  '259' } }
+  kubeflow-profiles:            { charm: kubeflow-profiles,           scale: 1, annotations: { gui-x:  '600', gui-y:  '518' } }
+  metacontroller:               { charm: metacontroller,              scale: 1, annotations: { gui-x: '-300', gui-y:  '518' } }
+  metadata-api:                 { charm: metadata-api,                scale: 1, annotations: { gui-x: '-300', gui-y: '-518' } }
+  metadata-db:                  { charm: cs:~charmed-osm/mariadb-k8s, scale: 1, annotations: { gui-x: '-600', gui-y: '-518' } }
+  metadata-envoy:               { charm: metadata-envoy,              scale: 1, annotations: { gui-x: '-750', gui-y: '-259' } }
+  metadata-grpc:                { charm: metadata-grpc,               scale: 1, annotations: { gui-x: '-450', gui-y: '-259' } }
+  metadata-ui:                  { charm: metadata-ui,                 scale: 1, annotations: { gui-x: '-150', gui-y: '-259' } }
+  minio:                        { charm: minio,                       scale: 1, annotations: { gui-x:  '450', gui-y:  '259' } }
+  oidc-gatekeeper:              { charm: oidc-gatekeeper,             scale: 1, annotations: { gui-x:  '450', gui-y:   '10' } }
+  pipelines-api:                { charm: pipelines-api,               scale: 1, annotations: { gui-x:  '300', gui-y:  '518' } }
+  pipelines-db:                 { charm: cs:~charmed-osm/mariadb-k8s, scale: 1, annotations: { gui-x:    '0', gui-y:  '518' } }
+  pipelines-persistence:        { charm: pipelines-persistence,       scale: 1, annotations: { gui-x:  '150', gui-y:  '777' } }
+  pipelines-scheduledworkflow:  { charm: pipelines-scheduledworkflow, scale: 1, annotations: { gui-x: '-150', gui-y:  '777' } }
+  pipelines-ui:                 { charm: pipelines-ui,                scale: 1, annotations: { gui-x:  '150', gui-y:  '259' } }
+  pipelines-viewer:             { charm: pipelines-viewer,            scale: 1, annotations: { gui-x: '-300', gui-y:    '0' } }
+  pipelines-visualization:      { charm: pipelines-visualization,     scale: 1, annotations: { gui-x:  '450', gui-y:  '777' } }
+  pytorch-operator:             { charm: pytorch-operator,            scale: 1, annotations: { gui-x:  '450', gui-y: '-777' } }
+  seldon-core:                  { charm: seldon-core,                 scale: 1, annotations: { gui-x:  '900', gui-y:    '0' } }
+  tf-job-operator:              { charm: tf-job-operator,             scale: 1, annotations: { gui-x: '-600', gui-y:    '0' } }
 relations:
-- [ambassador, argo-ui]
-- [ambassador, jupyter-web]
-- [ambassador, katib-ui]
-- [ambassador, metadata-ui]
-- [ambassador, pipelines-ui]
-- [ambassador, pipelines-viewer]
 - [argo-controller, minio]
-- [dex-auth, oidc-gatekeeper]
+- [dex-auth:oidc-client, oidc-gatekeeper:oidc-client]
+- [istio-pilot:istio-pilot, istio-ingressgateway:istio-pilot]
+- [istio-pilot:service-mesh, argo-ui:service-mesh]
+- [istio-pilot:service-mesh, dex-auth:service-mesh]
+- [istio-pilot:service-mesh, jupyter-web:service-mesh]
+- [istio-pilot:service-mesh, katib-ui:service-mesh]
+- [istio-pilot:service-mesh, kubeflow-dashboard:service-mesh]
+- [istio-pilot:service-mesh, metadata-ui:service-mesh]
+- [istio-pilot:service-mesh, oidc-gatekeeper:service-mesh]
+- [istio-pilot:service-mesh, pipelines-api:service-mesh]
+- [istio-pilot:service-mesh, pipelines-ui:service-mesh]
+- [istio-pilot:service-mesh, pipelines-viewer:service-mesh]
 - [katib-manager, katib-db]
 - [kubeflow-profiles, jupyter-web]
 - [kubeflow-profiles, kubeflow-dashboard]
