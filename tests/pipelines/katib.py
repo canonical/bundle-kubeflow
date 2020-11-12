@@ -55,11 +55,20 @@ def wait_task(namespace: str, experiment_name: str):
 
     katib_ui = 'http://katib-ui.kubeflow.svc.cluster.local:8000/katib/fetch_hp_job_info/'
 
-    for _ in range(240):
+    for _ in range(120):
         response = requests.get(
             f'{katib_ui}?experimentName={experiment_name}&namespace={namespace}'
         )
-        response.raise_for_status()
+
+        try:
+            response.raise_for_status()
+        except requests.HTTPError as err:
+            print("Got error while waiting for experiment to finish")
+            print(err.response.content)
+            print(err.response.headers)
+            time.sleep(5)
+            continue
+
         trials = csv.DictReader(json.loads(response.text).splitlines())
         statuses = {t['trialName']: t['Status'] for t in trials}
 
