@@ -14,8 +14,8 @@ resources:
     auto-fetch: true
     upstream-source: gcr.io/ml-pipeline/viewer-crd-controller:0.2.5
 requires:
-  ambassador:
-    interface: ambassador
+  service-mesh:
+    interface: service-mesh
 deployment:
   type: stateless
   service: omit

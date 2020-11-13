@@ -14,8 +14,8 @@ resources:
     auto-fetch: true
     upstream-source: gcr.io/ml-pipeline/frontend:0.2.5
 requires:
-  ambassador:
-    interface: ambassador
+  service-mesh:
+    interface: service-mesh
   pipelines-api:
     interface: http
   minio:

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Forwards ports directly to pipelines-api to avoid Ambassador auth,
+# Forwards ports directly to pipelines-api to avoid auth,
 # and submits pipelines to test Kubeflow.
 
 # Kill port forwarding at script end
@@ -8,7 +8,7 @@ trap 'pkill -f svc/pipelines-api' SIGINT SIGTERM EXIT
 
 set -eux
 
-# Create connection directly to pipelines api, to get around ambassador auth
+# Create connection directly to pipelines api, to get around auth
 juju kubectl port-forward svc/pipelines-api 8888:8888 &
 
 # Wait for port forwarding to spin up

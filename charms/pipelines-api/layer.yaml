@@ -5,4 +5,5 @@ includes:
   - "layer:docker-resource"
   - "interface:mysql"
   - "interface:http"
+  - "interface:service-mesh"
   - "interface:generic-ip-port-user-pass"

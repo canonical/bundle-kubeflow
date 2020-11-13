@@ -1,10 +1,8 @@
 import os
 
-import yaml
-
 from charmhelpers.core import hookenv
 from charms import layer
-from charms.reactive import clear_flag, hook, set_flag, when, when_not
+from charms.reactive import clear_flag, endpoint_from_name, hook, set_flag, when, when_not
 
 
 @hook('upgrade-charm')
@@ -22,6 +20,13 @@ def update_image():
     clear_flag('charm.started')
 
 
+@when('endpoint.service-mesh.joined')
+def configure_mesh():
+    endpoint_from_name('service-mesh').add_route(
+        prefix='/katib/', service=hookenv.service_name(), port=hookenv.config('port')
+    )
+
+
 @when('layer.docker-resource.oci-image.available')
 @when_not('charm.started')
 def start_charm():
@@ -32,7 +37,6 @@ def start_charm():
     layer.status.maintenance('configuring container')
 
     image_info = layer.docker_resource.get_info('oci-image')
-    service_name = hookenv.service_name()
 
     port = hookenv.config('port')
 
@@ -48,23 +52,6 @@ def start_charm():
                         'verbs': ['*'],
                     },
                 ]
-            },
-            'service': {
-                'annotations': {
-                    'getambassador.io/config': yaml.dump_all(
-                        [
-                            {
-                                'apiVersion': 'ambassador/v0',
-                                'kind': 'Mapping',
-                                'name': 'katib-ui',
-                                'prefix': '/katib/',
-                                'rewrite': '/katib/',
-                                'service': f'{service_name}:{port}',
-                                'timeout_ms': 30000,
-                            }
-                        ]
-                    )
-                }
             },
             'containers': [
                 {

@@ -1,4 +1,3 @@
-import yaml
 from charms import layer
 from charms.reactive import (
     hook,
@@ -27,6 +26,13 @@ def update_image():
     clear_flag('charm.started')
 
 
+@when('endpoint.service-mesh.joined')
+def configure_mesh():
+    endpoint_from_name('service-mesh').add_route(
+        prefix='/metadata', service=hookenv.service_name(), port=hookenv.config('port')
+    )
+
+
 @when(
     'layer.docker-resource.oci-image.available', 'metadata-api.available', 'metadata-grpc.available'
 )
@@ -39,7 +45,6 @@ def start_charm():
     layer.status.maintenance('configuring container')
 
     image_info = layer.docker_resource.get_info('oci-image')
-    service_name = hookenv.service_name()
 
     api = endpoint_from_name('metadata-api').services()[0]
     grpc = endpoint_from_name('metadata-grpc').services()[0]
@@ -62,24 +67,6 @@ def start_charm():
                         'verbs': ['create', 'get', 'list', 'watch', 'delete'],
                     },
                 ]
-            },
-            'service': {
-                'annotations': {
-                    'getambassador.io/config': yaml.dump_all(
-                        [
-                            {
-                                'apiVersion': 'ambassador/v0',
-                                'kind': 'Mapping',
-                                'name': 'metadata-ui',
-                                'prefix': '/metadata',
-                                'rewrite': '/metadata',
-                                'service': f'{service_name}:{port}',
-                                'use_websocket': True,
-                                'timeout_ms': 30000,
-                            }
-                        ]
-                    )
-                }
             },
             'containers': [
                 {

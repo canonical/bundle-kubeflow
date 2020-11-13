@@ -16,10 +16,7 @@ def get_statuses():
     pods = yaml.safe_load(kubectl.get('pods', '-ljuju-app', '-oyaml').stdout)
 
     if pods['items']:
-        return {
-            i['metadata']['labels']['juju-app']: i['status']['phase']
-            for i in pods['items']
-        }
+        return {i['metadata']['labels']['juju-app']: i['status']['phase'] for i in pods['items']}
     else:
         pods = yaml.safe_load(kubectl.get('pods', '-lapp.kubernetes.io/name', '-oyaml').stdout)
         return {
@@ -28,14 +25,14 @@ def get_statuses():
         }
 
 
-
 @pytest.mark.full
 def test_running_full():
     assert get_statuses() == {
-        'ambassador': 'Running',
         'argo-controller': 'Running',
         'argo-ui': 'Running',
         'dex-auth': 'Running',
+        'istio-ingressgateway': 'Running',
+        'istio-pilot': 'Running',
         'jupyter-controller': 'Running',
         'jupyter-web': 'Running',
         'katib-controller': 'Running',
@@ -68,9 +65,10 @@ def test_running_full():
 @pytest.mark.lite
 def test_running_lite():
     assert get_statuses() == {
-        'ambassador': 'Running',
         'argo-controller': 'Running',
         'dex-auth': 'Running',
+        'istio-ingressgateway': 'Running',
+        'istio-pilot': 'Running',
         'jupyter-controller': 'Running',
         'jupyter-web': 'Running',
         'kubeflow-dashboard': 'Running',
@@ -110,33 +108,27 @@ def test_crd_created_full():
     crds = yaml.safe_load(kubectl.get('crd', '-oyaml').stdout)
 
     names = {i['metadata']['name'] for i in crds['items']}
-    assert names.issuperset({
-        'authcodes.dex.coreos.com',
-        'authrequests.dex.coreos.com',
-        'compositecontrollers.metacontroller.k8s.io',
-        'connectors.dex.coreos.com',
-        'controllerrevisions.metacontroller.k8s.io',
-        'decoratorcontrollers.metacontroller.k8s.io',
-        'experiments.kubeflow.org',
-        'notebooks.kubeflow.org',
-        'oauth2clients.dex.coreos.com',
-        'offlinesessionses.dex.coreos.com',
-        'passwords.dex.coreos.com',
-        'poddefaults.kubeflow.org',
-        'profiles.kubeflow.org',
-        'pytorchjobs.kubeflow.org',
-        'refreshtokens.dex.coreos.com',
-        'scheduledworkflows.kubeflow.org',
-        'seldondeployments.machinelearning.seldon.io',
-        'servicerolebindings.rbac.istio.io',
-        'serviceroles.rbac.istio.io',
-        'signingkeies.dex.coreos.com',
-        'suggestions.kubeflow.org',
-        'tfjobs.kubeflow.org',
-        'trials.kubeflow.org',
-        'viewers.kubeflow.org',
-        'workflows.argoproj.io',
-    })
+    assert names.issuperset(
+        {
+            'compositecontrollers.metacontroller.k8s.io',
+            'controllerrevisions.metacontroller.k8s.io',
+            'decoratorcontrollers.metacontroller.k8s.io',
+            'experiments.kubeflow.org',
+            'notebooks.kubeflow.org',
+            'poddefaults.kubeflow.org',
+            'profiles.kubeflow.org',
+            'pytorchjobs.kubeflow.org',
+            'scheduledworkflows.kubeflow.org',
+            'seldondeployments.machinelearning.seldon.io',
+            'servicerolebindings.rbac.istio.io',
+            'serviceroles.rbac.istio.io',
+            'suggestions.kubeflow.org',
+            'tfjobs.kubeflow.org',
+            'trials.kubeflow.org',
+            'viewers.kubeflow.org',
+            'workflows.argoproj.io',
+        }
+    )
 
 
 @pytest.mark.lite
@@ -144,27 +136,21 @@ def test_crd_created_lite():
     crds = yaml.safe_load(kubectl.get('crd', '-oyaml').stdout)
 
     names = {i['metadata']['name'] for i in crds['items']}
-    assert names.issuperset({
-        'authcodes.dex.coreos.com',
-        'authrequests.dex.coreos.com',
-        'connectors.dex.coreos.com',
-        'notebooks.kubeflow.org',
-        'oauth2clients.dex.coreos.com',
-        'offlinesessionses.dex.coreos.com',
-        'passwords.dex.coreos.com',
-        'poddefaults.kubeflow.org',
-        'profiles.kubeflow.org',
-        'pytorchjobs.kubeflow.org',
-        'refreshtokens.dex.coreos.com',
-        'scheduledworkflows.kubeflow.org',
-        'seldondeployments.machinelearning.seldon.io',
-        'servicerolebindings.rbac.istio.io',
-        'serviceroles.rbac.istio.io',
-        'signingkeies.dex.coreos.com',
-        'tfjobs.kubeflow.org',
-        'viewers.kubeflow.org',
-        'workflows.argoproj.io',
-    })
+    assert names.issuperset(
+        {
+            'notebooks.kubeflow.org',
+            'poddefaults.kubeflow.org',
+            'profiles.kubeflow.org',
+            'pytorchjobs.kubeflow.org',
+            'scheduledworkflows.kubeflow.org',
+            'seldondeployments.machinelearning.seldon.io',
+            'servicerolebindings.rbac.istio.io',
+            'serviceroles.rbac.istio.io',
+            'tfjobs.kubeflow.org',
+            'viewers.kubeflow.org',
+            'workflows.argoproj.io',
+        }
+    )
 
 
 @pytest.mark.edge
@@ -172,13 +158,15 @@ def test_crd_created_edge():
     crds = yaml.safe_load(kubectl.get('crd', '-oyaml').stdout)
 
     names = {i['metadata']['name'] for i in crds['items']}
-    assert names.issuperset({
-        'pytorchjobs.kubeflow.org',
-        'scheduledworkflows.kubeflow.org',
-        'seldondeployments.machinelearning.seldon.io',
-        'tfjobs.kubeflow.org',
-        'workflows.argoproj.io',
-    })
+    assert names.issuperset(
+        {
+            'pytorchjobs.kubeflow.org',
+            'scheduledworkflows.kubeflow.org',
+            'seldondeployments.machinelearning.seldon.io',
+            'tfjobs.kubeflow.org',
+            'workflows.argoproj.io',
+        }
+    )
 
 
 @pytest.mark.full
@@ -187,8 +175,6 @@ def test_service_accounts_created_full():
 
     names = sorted(i['metadata']['name'] for i in crds['items'])
     assert names == [
-        'ambassador',
-        'ambassador-operator',
         'argo-controller',
         'argo-controller-operator',
         'argo-ui',
@@ -196,6 +182,10 @@ def test_service_accounts_created_full():
         'default',
         'dex-auth',
         'dex-auth-operator',
+        'istio-ingressgateway',
+        'istio-ingressgateway-operator',
+        'istio-pilot',
+        'istio-pilot-operator',
         'jupyter-controller',
         'jupyter-controller-operator',
         'jupyter-notebook',
@@ -249,13 +239,15 @@ def test_service_accounts_created_lite():
 
     names = sorted(i['metadata']['name'] for i in crds['items'])
     assert names == [
-        'ambassador',
-        'ambassador-operator',
         'argo-controller',
         'argo-controller-operator',
         'default',
         'dex-auth',
         'dex-auth-operator',
+        'istio-ingressgateway',
+        'istio-ingressgateway-operator',
+        'istio-pilot',
+        'istio-pilot-operator',
         'jupyter-controller',
         'jupyter-controller-operator',
         'jupyter-notebook',

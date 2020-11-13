@@ -12,8 +12,8 @@ resources:
     auto-fetch: true
     upstream-source: gcr.io/kubeflow-images-public/metadata-frontend:v0.1.8
 requires:
-  ambassador:
-    interface: ambassador
+  service-mesh:
+    interface: service-mesh
   metadata-api:
     interface: http
   metadata-grpc:

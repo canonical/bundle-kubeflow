@@ -1,13 +1,10 @@
-import os
 from pathlib import Path
 from random import choices
 from string import ascii_uppercase, digits
 
-import yaml
-
 from charmhelpers.core import hookenv
 from charms import layer
-from charms.reactive import clear_flag, hook, set_flag, when, when_any, when_not
+from charms.reactive import clear_flag, endpoint_from_name, hook, set_flag, when, when_any, when_not
 
 
 @hook("upgrade-charm")
@@ -20,6 +17,13 @@ def charm_ready():
     layer.status.active("")
 
 
+@when('endpoint.service-mesh.joined')
+def configure_mesh():
+    endpoint_from_name('service-mesh').add_route(
+        prefix='/authservice', service=hookenv.service_name(), port=hookenv.config('port')
+    )
+
+
 @when('oidc-client.available')
 def configure_oidc(oidc):
     config = dict(hookenv.config())
@@ -30,12 +34,14 @@ def configure_oidc(oidc):
     if not Path('/run/password').exists():
         Path('/run/password').write_text(''.join(choices(ascii_uppercase + digits, k=30)))
 
-    oidc.configure({
-        'id': config['client-id'],
-        'name': config['client-name'],
-        'redirectURIs': [config['public-url'] + '/oidc/login/oidc'],
-        'secret': Path('/run/password').read_text(),
-    })
+    oidc.configure(
+        {
+            'id': config['client-id'],
+            'name': config['client-name'],
+            'redirectURIs': ['/authservice/oidc/callback'],
+            'secret': Path('/run/password').read_text(),
+        }
+    )
 
 
 @when_any("layer.docker-resource.oci-image.changed", "config.changed")
@@ -57,8 +63,6 @@ def start_charm():
 
     image_info = layer.docker_resource.get_info("oci-image")
 
-    service_name = hookenv.service_name()
-    namespace = os.environ["JUJU_MODEL_NAME"]
     public_url = hookenv.config("public-url")
     port = hookenv.config("port")
     oidc_scopes = hookenv.config("oidc-scopes")
@@ -66,30 +70,6 @@ def start_charm():
     layer.caas_base.pod_spec_set(
         {
             "version": 2,
-            "service": {
-                "annotations": {
-                    "getambassador.io/config": yaml.dump_all(
-                        [
-                            {
-                                "apiVersion": "ambassador/v1",
-                                "kind": "Mapping",
-                                "name": "oidc-gatekeeper",
-                                "prefix": "/oidc",
-                                "service": f"{service_name}.{namespace}:{port}",
-                                "timeout_ms": 30000,
-                                "bypass_auth": True,
-                            },
-                            {
-                                "apiVersion": "ambassador/v1",
-                                "kind": "AuthService",
-                                "name": "oidc-gatekeeper-auth",
-                                "auth_service": f"{service_name}.{namespace}:{port}",
-                                "allowed_authorization_headers": ["kubeflow-userid"],
-                            },
-                        ]
-                    )
-                }
-            },
             "containers": [
                 {
                     "name": "oidc-gatekeeper",
@@ -106,11 +86,11 @@ def start_charm():
                         "OIDC_PROVIDER": f"{public_url}/dex",
                         "OIDC_SCOPES": oidc_scopes,
                         "SERVER_PORT": port,
-                        "SELF_URL": f"{public_url}/oidc",
                         "USERID_HEADER": "kubeflow-userid",
                         "USERID_PREFIX": "",
-                        "STORE_PATH": "bolt.db",
-                        "REDIRECT_URL": f"{public_url}/oidc/login/oidc",
+                        "SESSION_STORE_PATH": "bolt.db",
+                        'SKIP_AUTH_URLS': '/dex/',
+                        'AUTHSERVICE_URL_PREFIX': '/authservice/',
                     },
                 }
             ],

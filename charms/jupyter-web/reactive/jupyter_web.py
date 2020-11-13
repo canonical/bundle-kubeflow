@@ -1,7 +1,6 @@
 from glob import glob
 from pathlib import Path
 import os
-import yaml
 
 from charmhelpers.core import hookenv
 from charms import layer
@@ -23,6 +22,13 @@ def update_image():
     clear_flag('charm.started')
 
 
+@when('endpoint.service-mesh.joined')
+def configure_mesh():
+    endpoint_from_name('service-mesh').add_route(
+        prefix='/jupyter', service=hookenv.service_name(), port=hookenv.config('port')
+    )
+
+
 @when('layer.docker-resource.oci-image.available', 'kubeflow-profiles.available')
 @when_not('charm.started')
 def start_charm():
@@ -33,7 +39,6 @@ def start_charm():
     layer.status.maintenance('configuring container')
 
     image_info = layer.docker_resource.get_info('oci-image')
-    service_name = hookenv.service_name()
 
     port = hookenv.config('port')
 
@@ -81,23 +86,6 @@ def start_charm():
                     {'apiGroups': ['kubeflow.org'], 'resources': ['*'], 'verbs': ['*']},
                     {'apiGroups': ['batch'], 'resources': ['jobs'], 'verbs': ['*']},
                 ],
-            },
-            'service': {
-                'annotations': {
-                    'getambassador.io/config': yaml.dump_all(
-                        [
-                            {
-                                'apiVersion': 'ambassador/v0',
-                                'kind': 'Mapping',
-                                'name': 'jupyter-web',
-                                'prefix': '/jupyter/',
-                                'service': f'{service_name}:{port}',
-                                'timeout_ms': 30000,
-                                'add_request_headers': {'x-forwarded-prefix': '/jupyter'},
-                            }
-                        ]
-                    )
-                }
             },
             'containers': [
                 {

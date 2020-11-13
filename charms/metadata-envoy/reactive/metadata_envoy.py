@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import yaml
 from jinja2 import Template
 
 from charmhelpers.core import hookenv
@@ -34,8 +33,6 @@ def start_charm():
 
     image_info = layer.docker_resource.get_info('oci-image')
 
-    service_name = hookenv.service_name()
-
     admin_port = hookenv.config('admin-port')
     port = hookenv.config('port')
 
@@ -50,25 +47,6 @@ def start_charm():
     layer.caas_base.pod_spec_set(
         spec={
             'version': 2,
-            'service': {
-                'annotations': {
-                    'getambassador.io/config': yaml.dump_all(
-                        [
-                            {
-                                'apiVersion': 'ambassador/v0',
-                                'kind': 'Mapping',
-                                'name': 'metadata-proxy',
-                                'prefix': '/ml_metadata.MetadataStoreService/',
-                                'rewrite': '/ml_metadata.MetadataStoreService/',
-                                'service': f'{service_name}:{port}',
-                                'use_websocket': True,
-                                'grpc': True,
-                                'timeout_ms': 30000,
-                            }
-                        ]
-                    )
-                }
-            },
             'containers': [
                 {
                     'name': 'metadata-envoy',

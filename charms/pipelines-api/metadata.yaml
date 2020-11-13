@@ -14,6 +14,8 @@ resources:
     auto-fetch: true
     upstream-source: gcr.io/ml-pipeline/api-server:0.2.5
 requires:
+  service-mesh:
+    interface: service-mesh
   kubeflow-profiles:
     interface: http
   minio:

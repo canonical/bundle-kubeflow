@@ -12,6 +12,6 @@ resources:
     auto-fetch: true
     upstream-source: argoproj/argoui:v2.3.0
 requires:
-  ambassador:
-    interface: ambassador
+  service-mesh:
+    interface: service-mesh
 min-juju-version: 2.8.6

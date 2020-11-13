@@ -31,6 +31,13 @@ def update_image():
     clear_flag('charm.started')
 
 
+@when('endpoint.service-mesh.joined')
+def configure_mesh():
+    endpoint_from_name('service-mesh').add_route(
+        prefix='/', service=hookenv.service_name(), port=hookenv.config('port')
+    )
+
+
 @when('layer.docker-resource.oci-image.available', 'kubeflow-profiles.available')
 @when_not('charm.started')
 def start_charm():
@@ -41,7 +48,6 @@ def start_charm():
     layer.status.maintenance('configuring container')
 
     image_info = layer.docker_resource.get_info('oci-image')
-    service_name = hookenv.service_name()
     model = os.environ['JUJU_MODEL_NAME']
 
     profiles = endpoint_from_name('kubeflow-profiles').services()[0]
@@ -68,23 +74,6 @@ def start_charm():
                     },
                     {'apiGroups': [''], 'resources': ['secrets'], 'verbs': ['get']},
                 ],
-            },
-            'service': {
-                'annotations': {
-                    'getambassador.io/config': yaml.dump_all(
-                        [
-                            {
-                                'apiVersion': 'ambassador/v0',
-                                'kind': 'Mapping',
-                                'name': 'dashboard-mapping',
-                                'prefix': '/',
-                                'rewrite': '/',
-                                'service': f'{service_name}:{port}',
-                                'timeout_ms': 30000,
-                            }
-                        ]
-                    )
-                }
             },
             'containers': [
                 {
