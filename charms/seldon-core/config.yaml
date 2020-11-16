@@ -87,10 +87,6 @@ options:
     type: string
     default: '8000'
     description: https://docs.seldon.io/projects/seldon-core/en/v1.1.0/reference/helm.html
-  istio-enabled:
-    type: boolean
-    default: true
-    description: https://docs.seldon.io/projects/seldon-core/en/v1.1.0/reference/helm.html
   istio-gateway:
     type: string
     default: '$(SERVICE_NAMESPACE)/kubeflow-gateway'
