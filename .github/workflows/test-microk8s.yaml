@@ -124,6 +124,7 @@ jobs:
         juju deploy ubuntu --constraints 'cores=4 mem=16G root-disk=60G'
         juju wait -vw
         juju status
+
         juju status --format yaml
 
     - name: Copy code to AWS instance
