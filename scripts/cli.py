@@ -354,8 +354,8 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
         juju('config', 'dex-auth', f'public-url=http://{pub_addr}:80')
         juju('config', 'oidc-gatekeeper', f'public-url=http://{pub_addr}:80')
 
-        juju('config', 'ambassador', f'juju-external-hostname={pub_addr}')
-        juju('expose', 'ambassador')
+        # juju('config', 'ambassador', f'juju-external-hostname={pub_addr}')
+        # juju('expose', 'ambassador')
 
     click.echo("Waiting for Kubeflow to become ready")
     juju('wait', '-wv', '-m', model, '-t', str(10 * 60))
