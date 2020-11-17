@@ -20,8 +20,15 @@ def charm_ready():
     layer.status.active('')
 
 
-@when_any('layer.docker-resource.oci-image.changed', 'config.changed')
+@when_any(
+    'layer.docker-resource.oci-image.changed', 'config.changed', 'endpoint.service-mesh.joined'
+)
 def update_image():
+    clear_flag('charm.started')
+
+
+@hook('service-mesh-relation-broken')
+def service_mesh_unjoined(_):
     clear_flag('charm.started')
 
 
@@ -85,7 +92,7 @@ def start_charm():
         ],
         'EXECUTOR_SERVER_METRICS_PORT_NAME': config['executor-server-metrics-port-name'],
         'EXECUTOR_SERVER_PORT': config['executor-server-port'],
-        'ISTIO_ENABLED': config['istio-enabled'],
+        'ISTIO_ENABLED': hookenv.is_relation_made('service-mesh'),
         'ISTIO_GATEWAY': config['istio-gateway'],
         'ISTIO_TLS_MODE': config['istio-tls-mode'],
         'MANAGER_CREATE_RESOURCES': config['manager-create-resources'],

@@ -11,4 +11,7 @@ resources:
     description: 'Backing OCI image'
     auto-fetch: true
     upstream-source: 'docker.io/seldonio/seldon-core-operator:1.2.1'
+requires:
+  service-mesh:
+    interface: service-mesh
 min-juju-version: 2.8.6
