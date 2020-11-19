@@ -20,7 +20,13 @@ def charm_ready():
 @when('endpoint.service-mesh.joined')
 def configure_mesh():
     endpoint_from_name('service-mesh').add_route(
-        prefix='/authservice', service=hookenv.service_name(), port=hookenv.config('port')
+        prefix='/authservice',
+        service=hookenv.service_name(),
+        port=hookenv.config('port'),
+        auth={
+            'request_headers': ['cookie', 'X-Auth-Token'],
+            'response_headers': ['kubeflow-userid'],
+        },
     )
 
 
