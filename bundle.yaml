@@ -1,10 +1,10 @@
 bundle: kubernetes
 applications:
-  istio-pilot:                  { charm: istio-pilot,                 scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
-  istio-ingressgateway:         { charm: istio-ingressgateway,        scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
   argo-controller:              { charm: argo-controller,             scale: 1, annotations: { gui-x:  '600', gui-y:    '0' } }
   argo-ui:                      { charm: argo-ui,                     scale: 1, annotations: { gui-x:  '300', gui-y:    '0' } }
   dex-auth:                     { charm: dex-auth,                    scale: 1, annotations: { gui-x:  '600', gui-y: '-518' } }
+  istio-ingressgateway:         { charm: istio-ingressgateway-5,      scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
+  istio-pilot:                  { charm: istio-pilot-5,               scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
   jupyter-controller:           { charm: jupyter-controller,          scale: 1, annotations: { gui-x:  '450', gui-y: '-259' } }
   jupyter-web:                  { charm: jupyter-web,                 scale: 1, annotations: { gui-x:  '150', gui-y: '-259' } }
   katib-controller:             { charm: katib-controller,            scale: 1, annotations: { gui-x: '-450', gui-y:  '259' } }
