@@ -7,7 +7,7 @@ make up this bundle can be found under `charms/`.
 
 ## Documentation
 
-Read the documentation at https://charmed-kubeflow.io/docs/install/microk8s
+Read the [documentation](https://charmed-kubeflow.io/docs/install).
 
 ## Deploying
 
