@@ -24,7 +24,9 @@ def create_task(namespace: str, example: str) -> NamedTuple('Data', [('experimen
 
     config.load_incluster_config()
     api = client.CustomObjectsApi()
-    resource = yaml.safe_load(requests.get(example).text)
+    response = requests.get(example)
+    response.raise_for_status()
+    resource = yaml.safe_load(response.text)
     resource['metadata']['name'] += '-' + ''.join(
         random.choice(string.ascii_lowercase) for _ in range(6)
     )
@@ -103,7 +105,7 @@ def delete_task(namespace: str, experiment_name: str):
 @dsl.pipeline(name='Katib Test', description='Tests Katib')
 def katib_pipeline(
     namespace: str = 'admin',
-    example: str = 'https://raw.githubusercontent.com/kubeflow/katib/master/examples/v1alpha3/grid-example.yaml',
+    example: str = 'https://raw.githubusercontent.com/kubeflow/katib/4559e16/examples/v1alpha3/grid-example.yaml',
 ):
     create = create_task(namespace, example)
     wait = wait_task(namespace, create.outputs['experiment_name'])
