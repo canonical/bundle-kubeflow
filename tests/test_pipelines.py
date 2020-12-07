@@ -35,7 +35,7 @@ MNIST_PARAMS = [
 KATIB_PARAMS = [
     {
         'name': 'example',
-        'value': 'https://raw.githubusercontent.com/kubeflow/katib/master/examples/v1alpha3/grid-example.yaml',
+        'value': 'https://raw.githubusercontent.com/kubeflow/katib/4559e16/examples/v1alpha3/grid-example.yaml',
     }
 ]
 
