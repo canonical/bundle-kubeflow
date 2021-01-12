@@ -573,9 +573,9 @@ def setup(cloud, region, controller, channel, test_mode, gpu):
     if test_mode:
         args += ['--config', 'test-mode=true', '--model-default', 'test-mode=true']
     juju('bootstrap', f'{cloud}/{region}', controller, *args)
-    juju('deploy', *deploy_args)
+    juju('deploy', '-m', f'{controller}:default', *deploy_args)
 
-    juju('wait', '-wv')
+    juju('wait', '-m', f'{controller}:default', '-wv')
 
     with tempfile.NamedTemporaryFile() as kubeconfig:
         # Copy details of cloud locally, and tell juju about it
