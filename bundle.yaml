@@ -37,6 +37,7 @@ relations:
 - [istio-pilot:istio-pilot, istio-ingressgateway:istio-pilot]
 - [istio-pilot:service-mesh, argo-ui:service-mesh]
 - [istio-pilot:service-mesh, dex-auth:service-mesh]
+- [istio-pilot:service-mesh, jupyter-controller:service-mesh]
 - [istio-pilot:service-mesh, jupyter-web:service-mesh]
 - [istio-pilot:service-mesh, katib-ui:service-mesh]
 - [istio-pilot:service-mesh, kubeflow-dashboard:service-mesh]

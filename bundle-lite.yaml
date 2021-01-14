@@ -2,8 +2,8 @@ bundle: kubernetes
 applications:
   argo-controller:              { charm: cs:argo-controller,             scale: 1, annotations: { gui-x:  '600', gui-y:    '0' } }
   dex-auth:                     { charm: cs:dex-auth,                    scale: 1, annotations: { gui-x:  '600', gui-y: '-518' } }
-  istio-ingressgateway:         { charm: cs:istio-ingressgateway-7,      scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
-  istio-pilot:                  { charm: cs:istio-pilot-7,               scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
+  istio-ingressgateway:         { charm: cs:istio-ingressgateway-8,      scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
+  istio-pilot:                  { charm: cs:istio-pilot-8,               scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
   jupyter-controller:           { charm: cs:jupyter-controller,          scale: 1, annotations: { gui-x:  '450', gui-y: '-259' } }
   jupyter-web:                  { charm: cs:jupyter-web,                 scale: 1, annotations: { gui-x:  '150', gui-y: '-259' } }
   kubeflow-dashboard:           { charm: cs:kubeflow-dashboard,          scale: 1, annotations: { gui-x:  '750', gui-y:  '259' } }
@@ -25,6 +25,7 @@ relations:
 - [dex-auth:oidc-client, oidc-gatekeeper:oidc-client]
 - [istio-pilot:istio-pilot, istio-ingressgateway:istio-pilot]
 - [istio-pilot:service-mesh, dex-auth:service-mesh]
+- [istio-pilot:service-mesh, jupyter-controller:service-mesh]
 - [istio-pilot:service-mesh, jupyter-web:service-mesh]
 - [istio-pilot:service-mesh, kubeflow-dashboard:service-mesh]
 - [istio-pilot:service-mesh, oidc-gatekeeper:service-mesh]

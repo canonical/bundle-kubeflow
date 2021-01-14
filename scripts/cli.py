@@ -390,6 +390,7 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
     pub_addr = public_address or get_pub_addr(controller)
     if application_exists('dex-auth'):
         juju('config', 'dex-auth', f'public-url=http://{pub_addr}:80')
+        juju('config', 'dex-auth', f'static-password={password}')
 
     if application_exists('oidc-gatekeeper'):
         juju('config', 'oidc-gatekeeper', f'public-url=http://{pub_addr}:80')
