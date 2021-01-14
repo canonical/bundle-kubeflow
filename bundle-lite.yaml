@@ -31,7 +31,6 @@ relations:
 - [istio-pilot:service-mesh, pipelines-api:service-mesh]
 - [istio-pilot:service-mesh, pipelines-ui:service-mesh]
 - [istio-pilot:service-mesh, pipelines-viewer:service-mesh]
-- [kubeflow-profiles, jupyter-web]
 - [kubeflow-profiles, kubeflow-dashboard]
 - [pipelines-api, pipelines-db]
 - [pipelines-api, pipelines-persistence]

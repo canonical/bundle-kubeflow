@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 import yaml
 
@@ -32,6 +33,7 @@ def start_charm():
     layer.status.maintenance('configuring container')
 
     image_info = layer.docker_resource.get_info('oci-image')
+    model = os.environ['JUJU_MODEL_NAME']
 
     layer.caas_base.pod_spec_set(
         {
@@ -44,11 +46,24 @@ def start_charm():
                         'resources': ['statefulsets', 'deployments'],
                         'verbs': ['*'],
                     },
-                    {'apiGroups': [''], 'resources': ['pods'], 'verbs': ['get', 'list', 'watch']},
-                    {'apiGroups': [''], 'resources': ['services'], 'verbs': ['*']},
+                    {
+                        'apiGroups': [''],
+                        'resources': ['pods'],
+                        'verbs': ['get', 'list', 'watch'],
+                    },
+                    {
+                        'apiGroups': [''],
+                        'resources': ['services'],
+                        'verbs': ['*'],
+                    },
+                    {
+                        'apiGroups': [''],
+                        'resources': ['events'],
+                        'verbs': ['get', 'list', 'watch', 'create'],
+                    },
                     {
                         'apiGroups': ['kubeflow.org'],
-                        'resources': ['notebooks', 'notebooks/status'],
+                        'resources': ['notebooks', 'notebooks/status', 'notebooks/finalizers'],
                         'verbs': ['*'],
                     },
                     {
@@ -63,7 +78,8 @@ def start_charm():
                     'name': 'jupyter-controller',
                     'command': ['/manager'],
                     'config': {
-                        'USE_ISTIO': 'false',
+                        'USE_ISTIO': str(hookenv.is_relation_made('service-mesh')).lower(),
+                        'ISTIO_GATEWAY': f'{model}/kubeflow-gateway',
                         'USE_CULLING': hookenv.config('enable-culling'),
                     },
                     'imageDetails': {
