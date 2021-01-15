@@ -3,8 +3,8 @@ applications:
   argo-controller:              { charm: cs:argo-controller,             scale: 1, annotations: { gui-x:  '600', gui-y:    '0' } }
   argo-ui:                      { charm: cs:argo-ui,                     scale: 1, annotations: { gui-x:  '300', gui-y:    '0' } }
   dex-auth:                     { charm: cs:dex-auth,                    scale: 1, annotations: { gui-x:  '600', gui-y: '-518' } }
-  istio-ingressgateway:         { charm: cs:istio-ingressgateway-7,      scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
-  istio-pilot:                  { charm: cs:istio-pilot-7,               scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
+  istio-ingressgateway:         { charm: cs:istio-ingressgateway-8,      scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
+  istio-pilot:                  { charm: cs:istio-pilot-8,               scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
   jupyter-controller:           { charm: cs:jupyter-controller,          scale: 1, annotations: { gui-x:  '450', gui-y: '-259' } }
   jupyter-web:                  { charm: cs:jupyter-web,                 scale: 1, annotations: { gui-x:  '150', gui-y: '-259' } }
   katib-controller:             { charm: cs:katib-controller,            scale: 1, annotations: { gui-x: '-450', gui-y:  '259' } }
@@ -37,6 +37,7 @@ relations:
 - [istio-pilot:istio-pilot, istio-ingressgateway:istio-pilot]
 - [istio-pilot:service-mesh, argo-ui:service-mesh]
 - [istio-pilot:service-mesh, dex-auth:service-mesh]
+- [istio-pilot:service-mesh, jupyter-controller:service-mesh]
 - [istio-pilot:service-mesh, jupyter-web:service-mesh]
 - [istio-pilot:service-mesh, katib-ui:service-mesh]
 - [istio-pilot:service-mesh, kubeflow-dashboard:service-mesh]
@@ -46,7 +47,6 @@ relations:
 - [istio-pilot:service-mesh, pipelines-ui:service-mesh]
 - [istio-pilot:service-mesh, pipelines-viewer:service-mesh]
 - [katib-manager, katib-db]
-- [kubeflow-profiles, jupyter-web]
 - [kubeflow-profiles, kubeflow-dashboard]
 - [metadata-api, metadata-db]
 - [metadata-api:metadata-api, metadata-ui:metadata-api]

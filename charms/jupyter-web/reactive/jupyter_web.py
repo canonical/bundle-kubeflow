@@ -1,6 +1,5 @@
 from glob import glob
 from pathlib import Path
-import os
 
 from charmhelpers.core import hookenv
 from charms import layer
@@ -25,11 +24,14 @@ def update_image():
 @when('endpoint.service-mesh.joined')
 def configure_mesh():
     endpoint_from_name('service-mesh').add_route(
-        prefix='/jupyter', service=hookenv.service_name(), port=hookenv.config('port')
+        prefix='/jupyter/',
+        rewrite='/',
+        service=hookenv.service_name(),
+        port=hookenv.config('port'),
     )
 
 
-@when('layer.docker-resource.oci-image.available', 'kubeflow-profiles.available')
+@when('layer.docker-resource.oci-image.available')
 @when_not('charm.started')
 def start_charm():
     if not hookenv.is_leader():
@@ -42,11 +44,6 @@ def start_charm():
 
     port = hookenv.config('port')
 
-    profiles = endpoint_from_name('kubeflow-profiles').services()[0]
-    profiles_host = profiles['service_name']
-    profiles_port = profiles['hosts'][0]['port']
-    model = os.environ['JUJU_MODEL_NAME']
-
     layer.caas_base.pod_spec_set(
         {
             'version': 2,
@@ -55,13 +52,8 @@ def start_charm():
                 'rules': [
                     {
                         'apiGroups': [''],
-                        'resources': ['namespaces'],
-                        'verbs': ['get', 'list', 'create', 'delete'],
-                    },
-                    {
-                        'apiGroups': ['kubeflow.org'],
-                        'resources': ['notebooks', 'poddefaults'],
-                        'verbs': ['get', 'list', 'create', 'delete'],
+                        'resources': ['pods', 'pods/log', 'secrets', 'services'],
+                        'verbs': ['*'],
                     },
                     {
                         'apiGroups': [''],
@@ -69,22 +61,45 @@ def start_charm():
                         'verbs': ['create', 'delete', 'get', 'list'],
                     },
                     {
-                        'apiGroups': ['storage.k8s.io'],
-                        'resources': ['storageclasses'],
-                        'verbs': ['get', 'list', 'watch'],
+                        'apiGroups': [''],
+                        'resources': ['namespaces'],
+                        'verbs': ['get', 'list', 'create', 'delete'],
                     },
                     {
                         'apiGroups': [''],
-                        'resources': ['pods', 'pods/log', 'secrets', 'services'],
-                        'verbs': ['*'],
+                        'resources': ['events'],
+                        'verbs': ['list'],
                     },
                     {
                         'apiGroups': ['', 'apps', 'extensions'],
                         'resources': ['deployments', 'replicasets'],
                         'verbs': ['*'],
                     },
-                    {'apiGroups': ['kubeflow.org'], 'resources': ['*'], 'verbs': ['*']},
-                    {'apiGroups': ['batch'], 'resources': ['jobs'], 'verbs': ['*']},
+                    {
+                        'apiGroups': ['authorization.k8s.io'],
+                        'resources': ['subjectaccessreviews'],
+                        'verbs': ['create'],
+                    },
+                    {
+                        'apiGroups': ['batch'],
+                        'resources': ['jobs'],
+                        'verbs': ['*'],
+                    },
+                    {
+                        'apiGroups': ['kubeflow.org'],
+                        'resources': ['*'],
+                        'verbs': ['*'],
+                    },
+                    {
+                        'apiGroups': ['kubeflow.org'],
+                        'resources': ['notebooks', 'notebooks/finalizers', 'poddefaults'],
+                        'verbs': ['get', 'list', 'create', 'delete'],
+                    },
+                    {
+                        'apiGroups': ['storage.k8s.io'],
+                        'resources': ['storageclasses'],
+                        'verbs': ['get', 'list', 'watch'],
+                    },
                 ],
             },
             'containers': [
@@ -95,11 +110,12 @@ def start_charm():
                         'username': image_info.username,
                         'password': image_info.password,
                     },
+                    'command': ['python3'],
+                    'args': ['main.py', '--dev'],
                     'ports': [{'name': 'http', 'containerPort': port}],
                     'config': {
                         'USERID_HEADER': 'kubeflow-userid',
                         'USERID_PREFIX': '',
-                        'KFAM': f'{profiles_host}.{model}.svc.cluster.local:{profiles_port}',
                     },
                     'files': [
                         {

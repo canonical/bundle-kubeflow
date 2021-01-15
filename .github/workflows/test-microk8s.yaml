@@ -30,7 +30,7 @@ jobs:
         sudo snap install yq
         sudo apt update
         sudo apt install -y libssl-dev python3-setuptools
-        sudo pip3 install pytest sh kfp requests pyyaml
+        sudo pip3 install pytest sh kfp requests pyyaml selenium
         sudo usermod -a -G microk8s $USER
 
     - name: Deploy Kubeflow
@@ -193,8 +193,8 @@ jobs:
           sudo snap install microk8s --classic --channel ${{ matrix.microk8s }}
           sudo snap install yq
           sudo apt update
-          sudo apt install -y libssl-dev
-          sudo pip3 install pytest sh kfp requests pyyaml
+          sudo apt install -y libssl-dev firefox-geckodriver
+          sudo pip3 install pytest sh kfp requests pyyaml selenium
           sudo usermod -a -G microk8s ubuntu
         EOF
 
@@ -214,6 +214,13 @@ jobs:
         juju ssh ubuntu/0 <<EOF
           set -eux
           cd bundle-kubeflow
+
+          # https://bugs.launchpad.net/juju/+bug/1900915
+          # This seems to mostly work... :(
+          juju wait -wv
+          sleep 300
+          juju wait -wv
+
           # The pods can sometimes stay in Pending for a little while longer,
           # so run the tests first that don't check pod states.
           ./tests/run.sh -m ${{ matrix.bundle }}
@@ -237,6 +244,17 @@ jobs:
 
     - name: MicroK8s describe pods
       run: juju ssh ubuntu/0 sudo microk8s kubectl describe pods -A
+      if: failure()
+
+    - name: Get selenium screenshot
+      run: juju scp ubuntu/0:/tmp/selenium.png selenium-${{ strategy.job-index }}.png
+      if: failure()
+
+    - name: Upload selenium screenshot
+      uses: actions/upload-artifact@v2
+      with:
+        name: selenium-screenshots
+        path: selenium-${{ strategy.job-index }}.png
       if: failure()
 
     - name: Generate inspect tarball
