@@ -6,6 +6,7 @@ from selenium import webdriver
 from selenium.common.exceptions import JavascriptException
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
+from shutil import which
 
 
 def polymer_is_trash(elems):
@@ -22,7 +23,13 @@ def polymer_is_trash(elems):
 @pytest.mark.full
 @pytest.mark.lite
 def test_login():
-    status = yaml.load(check_output(['juju', 'status', '--format=yaml']))
+    juju = which('juju')
+    if juju is None:
+        juju = which('microk8s.juju')
+    if juju is None:
+        raise Exception("Juju not found!")
+
+    status = yaml.load(check_output([juju, 'status', '--format=yaml']))
     endpoint = status['applications']['istio-ingressgateway']['address']
     try:
         ip_address(endpoint)
@@ -30,7 +37,7 @@ def test_login():
     except ValueError:
         pass
     url = f'http://{endpoint}/'
-    output = check_output(['juju', 'config', 'dex-auth', 'static-password'])
+    output = check_output([juju, 'config', 'dex-auth', 'static-password'])
     password = output.decode('utf-8').strip()
 
     options = Options()
