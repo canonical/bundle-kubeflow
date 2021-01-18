@@ -18,9 +18,14 @@ def charm_ready():
     layer.status.active('')
 
 
-@when_any('layer.docker-resource.oci-image.changed', 'config.changed')
+@when_any(
+    'layer.docker-resource.oci-image.changed',
+    'config.changed',
+    'endpoint.service-mesh.changed',
+)
 def update_image():
     clear_flag('charm.started')
+    clear_flag('endpoint.service-mesh.changed')
 
 
 @when('layer.docker-resource.oci-image.available')
