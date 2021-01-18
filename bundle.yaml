@@ -4,7 +4,7 @@ applications:
   argo-ui:                      { charm: cs:argo-ui,                     scale: 1, annotations: { gui-x:  '300', gui-y:    '0' } }
   dex-auth:                     { charm: cs:dex-auth,                    scale: 1, annotations: { gui-x:  '600', gui-y: '-518' } }
   istio-ingressgateway:         { charm: cs:istio-ingressgateway-8,      scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
-  istio-pilot:                  { charm: cs:istio-pilot-8,               scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
+  istio-pilot:                  { charm: cs:istio-pilot-8,               scale: 1, annotations: { gui-x:    '0', gui-y:    '0' }, options: { default-gateway: "kubeflow-gateway" } }
   jupyter-controller:           { charm: cs:jupyter-controller,          scale: 1, annotations: { gui-x:  '450', gui-y: '-259' } }
   jupyter-web:                  { charm: cs:jupyter-web,                 scale: 1, annotations: { gui-x:  '150', gui-y: '-259' } }
   katib-controller:             { charm: cs:katib-controller,            scale: 1, annotations: { gui-x: '-450', gui-y:  '259' } }
