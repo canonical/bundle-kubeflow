@@ -246,15 +246,18 @@ jobs:
       run: juju ssh ubuntu/0 sudo microk8s kubectl describe pods -A
       if: failure()
 
-    - name: Get selenium screenshot
-      run: juju scp ubuntu/0:/tmp/selenium.png selenium-${{ strategy.job-index }}.png
+    - name: Get selenium screenshots
+      run: |
+        set -eux
+        juju ssh ubuntu/0 'bash -c "tar -czvf selenium.tar.gz /tmp/selenium-*.png"'
+        juju scp ubuntu/0:selenium.tar.gz selenium-${{ strategy.job-index }}.tar.gz
       if: failure()
 
-    - name: Upload selenium screenshot
+    - name: Upload selenium screenshots
       uses: actions/upload-artifact@v2
       with:
         name: selenium-screenshots
-        path: selenium-${{ strategy.job-index }}.png
+        path: selenium-${{ strategy.job-index }}.tar.gz
       if: failure()
 
     - name: Generate inspect tarball
@@ -262,6 +265,7 @@ jobs:
         set -eux
         juju ssh ubuntu/0 <<EOF
           set -eux
+          ls -lath /tmp
           sudo microk8s inspect | \
             grep -Po "Report tarball is at \K.+" | \
             sudo xargs -I {} mv {} inspection-report-${{ strategy.job-index }}.tar.gz

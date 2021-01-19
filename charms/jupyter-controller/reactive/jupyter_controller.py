@@ -85,7 +85,7 @@ def start_charm():
                     'config': {
                         'USE_ISTIO': str(hookenv.is_relation_made('service-mesh')).lower(),
                         'ISTIO_GATEWAY': f'{model}/kubeflow-gateway',
-                        'USE_CULLING': hookenv.config('enable-culling'),
+                        'ENABLE_CULLING': hookenv.config('enable-culling'),
                     },
                     'imageDetails': {
                         'imagePath': image_info.registry_path,
