@@ -3,8 +3,15 @@
 import pytest
 import yaml
 from sh import Command
+from flaky import flaky
+from time import sleep
 
-kubectl = Command('juju-kubectl')
+try:
+    from sh import juju_kubectl
+
+    kubectl = juju_kubectl
+except ImportError:
+    kubectl = Command('kubectl').bake('-nkubeflow')
 
 
 def get_statuses():
@@ -26,6 +33,7 @@ def get_statuses():
 
 
 @pytest.mark.full
+@flaky(max_runs=60, rerun_filter=lambda *_: sleep(5) and True)
 def test_running_full():
     assert get_statuses() == {
         'argo-controller': 'Running',
@@ -63,6 +71,7 @@ def test_running_full():
 
 
 @pytest.mark.lite
+@flaky(max_runs=60, rerun_filter=lambda *_: sleep(5) and True)
 def test_running_lite():
     assert get_statuses() == {
         'argo-controller': 'Running',
@@ -89,6 +98,7 @@ def test_running_lite():
 
 
 @pytest.mark.edge
+@flaky(max_runs=60, rerun_filter=lambda *_: sleep(5) and True)
 def test_running_edge():
     assert get_statuses() == {
         'argo-controller': 'Running',

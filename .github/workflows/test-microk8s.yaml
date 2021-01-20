@@ -20,17 +20,14 @@ jobs:
     - name: Install test dependencies
       run: |
         set -eux
-        sudo snap install charm --classic
-        sudo snap install jq
+        for snap in charm juju-helpers juju-wait; do
+            sudo snap install $snap --classic
+        done
         sudo snap install juju --classic --channel ${{ matrix.juju }}
-        sudo snap install juju-helpers --classic --edge
-        sudo snap install juju-wait --classic
-        sudo snap install kubectl --classic
         sudo snap install microk8s --classic --channel ${{ matrix.microk8s }}
-        sudo snap install yq
         sudo apt update
         sudo apt install -y libssl-dev python3-setuptools
-        sudo pip3 install pytest sh kfp requests pyyaml selenium
+        sudo pip3 install -r requirements.txt -r test-requirements.txt
         sudo usermod -a -G microk8s $USER
 
     - name: Deploy Kubeflow
@@ -42,11 +39,7 @@ jobs:
         KUBEFLOW_AUTH_PASSWORD=foobar sudo -E python3 ./scripts/cli.py --debug deploy-to uk8s --build --bundle edge
 
     - name: Test Kubeflow
-      run: |
-        set -eux
-        # The pods can sometimes stay in Pending for a little while longer,
-        # so run the tests first that don't check pod states.
-        sudo ./tests/run.sh -m edge
+      run: sudo ./tests/run.sh -m edge
 
     - name: Juju status
       run: sudo juju status
@@ -184,17 +177,15 @@ jobs:
       run: |
         juju ssh ubuntu/0 <<EOF
           set -eux
-          sudo snap install charm --classic
-          sudo snap install jq
+          for snap in charm juju-helpers juju-wait; do
+              sudo snap install \$snap --classic
+          done
           sudo snap install juju --classic --channel ${{ matrix.juju }}
-          sudo snap install juju-helpers --classic --edge
-          sudo snap install juju-wait --classic
-          sudo snap install kubectl --classic
           sudo snap install microk8s --classic --channel ${{ matrix.microk8s }}
-          sudo snap install yq
           sudo apt update
           sudo apt install -y libssl-dev firefox-geckodriver
-          sudo pip3 install pytest sh kfp requests pyyaml selenium
+          cd bundle-kubeflow
+          sudo pip3 install -r requirements.txt -r test-requirements.txt
           sudo usermod -a -G microk8s ubuntu
         EOF
 
@@ -214,15 +205,6 @@ jobs:
         juju ssh ubuntu/0 <<EOF
           set -eux
           cd bundle-kubeflow
-
-          # https://bugs.launchpad.net/juju/+bug/1900915
-          # This seems to mostly work... :(
-          juju wait -wv
-          sleep 300
-          juju wait -wv
-
-          # The pods can sometimes stay in Pending for a little while longer,
-          # so run the tests first that don't check pod states.
           ./tests/run.sh -m ${{ matrix.bundle }}
         EOF
 
@@ -249,7 +231,10 @@ jobs:
     - name: Get selenium screenshots
       run: |
         set -eux
-        juju ssh ubuntu/0 'bash -c "tar -czvf selenium.tar.gz /tmp/selenium-*.png"'
+        juju ssh ubuntu/0 <<EOF
+          set -eux
+          tar -czvf selenium.tar.gz /tmp/selenium-*.png
+        EOF
         juju scp ubuntu/0:selenium.tar.gz selenium-${{ strategy.job-index }}.tar.gz
       if: failure()
 
@@ -265,7 +250,6 @@ jobs:
         set -eux
         juju ssh ubuntu/0 <<EOF
           set -eux
-          ls -lath /tmp
           sudo microk8s inspect | \
             grep -Po "Report tarball is at \K.+" | \
             sudo xargs -I {} mv {} inspection-report-${{ strategy.job-index }}.tar.gz
