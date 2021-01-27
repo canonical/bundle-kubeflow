@@ -45,6 +45,10 @@ jobs:
       run: sudo juju status
       if: failure()
 
+    - name: Juju Controllers YAML
+      run: sudo cat ~/.local/share/juju/controllers.yaml
+      if: failure()
+
     - name: Juju status (YAML)
       run: sudo juju status --format=yaml
       if: failure()

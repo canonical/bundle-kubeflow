@@ -33,9 +33,10 @@ def get_statuses():
 
 
 @pytest.mark.full
-@flaky(max_runs=60, rerun_filter=lambda *_: sleep(5) and True)
+@flaky(max_runs=60, rerun_filter=lambda *_: sleep(5) or True)
 def test_running_full():
     assert get_statuses() == {
+        'admission-webhook': 'Running',
         'argo-controller': 'Running',
         'argo-ui': 'Running',
         'dex-auth': 'Running',
@@ -71,9 +72,10 @@ def test_running_full():
 
 
 @pytest.mark.lite
-@flaky(max_runs=60, rerun_filter=lambda *_: sleep(5) and True)
+@flaky(max_runs=60, rerun_filter=lambda *_: sleep(5) or True)
 def test_running_lite():
     assert get_statuses() == {
+        'admission-webhook': 'Running',
         'argo-controller': 'Running',
         'dex-auth': 'Running',
         'istio-ingressgateway': 'Running',
@@ -98,7 +100,7 @@ def test_running_lite():
 
 
 @pytest.mark.edge
-@flaky(max_runs=60, rerun_filter=lambda *_: sleep(5) and True)
+@flaky(max_runs=60, rerun_filter=lambda *_: sleep(5) or True)
 def test_running_edge():
     assert get_statuses() == {
         'argo-controller': 'Running',
@@ -185,6 +187,8 @@ def test_service_accounts_created_full():
 
     names = sorted(i['metadata']['name'] for i in crds['items'])
     assert names == [
+        'admission-webhook',
+        'admission-webhook-operator',
         'argo-controller',
         'argo-controller-operator',
         'argo-ui',
@@ -249,6 +253,8 @@ def test_service_accounts_created_lite():
 
     names = sorted(i['metadata']['name'] for i in crds['items'])
     assert names == [
+        'admission-webhook',
+        'admission-webhook-operator',
         'argo-controller',
         'argo-controller-operator',
         'default',
