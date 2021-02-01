@@ -156,12 +156,19 @@ def test_notebook(driver):
     # Make sure we can connect to a specific notebook's endpoint
     # Notebook is opened in a new tab, so we have to explicitly switch to it,
     # run our tests, close it, then switch back to the main window.
-    print("ASDFASDF")
-    print(driver.window_handles)
-    print(driver.current_url)
     driver.switch_to.window(driver.window_handles[-1])
-    print(driver.window_handles)
-    print(driver.current_url)
+    expected_url = url + 'notebook/admin/%s/tree?' % notebook_name
+    for _ in range(60):
+        current_url = driver.current_url
+        print("CURRENT URL: %s" % current_url)
+        if current_url == expected_url:
+            break
+        else:
+            sleep(5)
+            driver.refresh()
+    else:
+        pytest.abort("Waited too long for selenium to open up notebook server!")
+
     wait.until(url_to_be(url + 'notebook/admin/%s/tree?' % notebook_name))
     wait.until(presence_of_element_located((By.ID, "new-dropdown-button")))
     driver.execute_script('window.close()')
