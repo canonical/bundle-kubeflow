@@ -1,10 +1,12 @@
 """Runs tests by inspecting microk8s with kubectl."""
 
+from time import sleep
+
 import pytest
 import yaml
 from sh import Command
+
 from flaky import flaky
-from time import sleep
 
 try:
     from sh import juju_kubectl
