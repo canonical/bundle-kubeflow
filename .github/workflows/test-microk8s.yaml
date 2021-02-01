@@ -17,6 +17,10 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
 
+    - uses: balchua/microk8s-actions@v0.2.2
+      with:
+        channel: '${{ matrix.microk8s }}'
+
     - name: Install test dependencies
       run: |
         set -eux
@@ -24,7 +28,6 @@ jobs:
             sudo snap install $snap --classic
         done
         sudo snap install juju --classic --channel ${{ matrix.juju }}
-        sudo snap install microk8s --classic --channel ${{ matrix.microk8s }}
         sudo apt update
         sudo apt install -y libssl-dev python3-setuptools
         sudo pip3 install -r requirements.txt -r test-requirements.txt
@@ -32,56 +35,39 @@ jobs:
 
     - name: Deploy Kubeflow
       run: |
-        set -eux
-        git clone git://git.launchpad.net/canonical-osm
-        cp -r canonical-osm/charms/interfaces/juju-relation-mysql mysql
-        sudo python3 ./scripts/cli.py microk8s setup --test-mode 
-        KUBEFLOW_AUTH_PASSWORD=foobar sudo -E python3 ./scripts/cli.py --debug deploy-to uk8s --build --bundle edge
+        sg microk8s <<EOF
+          set -eux
+          git clone git://git.launchpad.net/canonical-osm
+          cp -r canonical-osm/charms/interfaces/juju-relation-mysql mysql
+          python3 ./scripts/cli.py microk8s setup --test-mode
+          KUBEFLOW_AUTH_PASSWORD=foobar python3 ./scripts/cli.py --debug deploy-to uk8s --build --bundle edge
+        EOF
 
     - name: Test Kubeflow
-      run: sudo ./tests/run.sh -m edge
+      run: sg microk8s -c './tests/run.sh -m edge'
 
     - name: Juju status
-      run: sudo juju status
-      if: failure()
-
-    - name: Juju Controllers YAML
-      run: sudo cat ~/.local/share/juju/controllers.yaml
+      run: juju status
       if: failure()
 
     - name: Juju status (YAML)
-      run: sudo juju status --format=yaml
+      run: juju status --format=yaml
       if: failure()
 
     - name: MicroK8s status
-      run: sudo microk8s status
+      run: sg microk8s -c 'microk8s status'
       if: failure()
 
-    - name: MicroK8s get pods
-      run: sudo microk8s kubectl get pods -A
+    - name: kubectl get pods
+      run: kubectl get pods -A
       if: failure()
 
-    - name: MicroK8s describe pods
-      run: sudo microk8s kubectl describe pods -A
-      if: failure()
-
-    - name: Kubeflow pod logs
-      run: |
-        set -eux
-        pods=$(sudo microk8s kubectl get pods -nkubeflow -o custom-columns=:metadata.name --no-headers)
-        for pod in $pods; do
-            containers=$(sudo microk8s kubectl get pods -nkubeflow -o jsonpath="{.spec.containers[*].name}" $pod)
-
-            for container in $containers; do
-              sudo microk8s kubectl logs -nkubeflow --timestamps $pod -c $container
-              printf '\n'
-            done
-            printf '\n\n'
-        done
+    - name: kubectl describe pods
+      run: kubectl describe pods -A
       if: failure()
 
     - name: Generate debug log
-      run: sudo juju debug-log --replay --no-tail > juju-debug-${{ strategy.job-index }}.log
+      run: juju debug-log --replay --no-tail > juju-debug-${{ strategy.job-index }}.log
       if: failure()
 
     - name: Upload debug log
@@ -93,9 +79,11 @@ jobs:
 
     - name: Generate inspect tarball
       run: >
-        sudo microk8s inspect |
-        grep -Po "Report tarball is at \K.+" |
-        sudo xargs -I {} mv {} inspection-report-${{ strategy.job-index }}.tar.gz
+        sg microk8s <<EOF
+          microk8s inspect | \
+          grep -Po "Report tarball is at \K.+" | \
+          xargs -I {} cp {} inspection-report-${{ strategy.job-index }}.tar.gz
+        EOF
       if: failure()
 
     - name: Upload inspect tarball
@@ -109,8 +97,8 @@ jobs:
       run: |
         set -eux
         mkdir describe-${{ strategy.job-index  }}
-        for resource in $(microk8s kubectl api-resources -o name | sort); do
-            microk8s kubectl describe $resource -A > describe-${{ strategy.job-index }}/"$resource".describe || true
+        for resource in $(kubectl api-resources -o name | sort); do
+            kubectl describe $resource -A > describe-${{ strategy.job-index }}/"$resource".describe || true
         done
       if: failure()
 
@@ -125,9 +113,9 @@ jobs:
       run: |
         set -eux
         mkdir stdout-${{ strategy.job-index }}
-        for pod in $(microk8s kubectl get pods -nkubeflow -o custom-columns=:metadata.name --no-headers); do
-            for container in $(microk8s kubectl get pods -nkubeflow -o jsonpath="{.spec.containers[*].name}" $pod); do
-              microk8s kubectl logs -nkubeflow --timestamps $pod -c $container > stdout-${{ strategy.job-index }}/$pod-$container.log
+        for pod in $(kubectl get pods -nkubeflow -o custom-columns=:metadata.name --no-headers); do
+            for container in $(kubectl get pods -nkubeflow -o jsonpath="{.spec.containers[*].name}" $pod); do
+              kubectl logs -nkubeflow --timestamps $pod -c $container > stdout-${{ strategy.job-index }}/$pod-$container.log
             done
         done
       if: failure()
