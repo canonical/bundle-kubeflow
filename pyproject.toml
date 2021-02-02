@@ -3,3 +3,23 @@ line-length = 100
 target-version = ['py37']
 skip-string-normalization = true
 exclude = "(venv|spawner.py|mnist.py|pipeline-samples)"
+
+[tool.poetry]
+name = "charmed-kubeflow"
+version = "1.0"
+description = "charmed-kubeflow.io"
+authors = [""]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+click = "^7"
+pyyaml = "^5.3"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6"
+sh = "^1.14"
+kfp = "^1.3"
+pyyaml = "^5.3"
+selenium = "^3.141"
+flaky = "^3.7"
+charmcraft = "^0.8"
