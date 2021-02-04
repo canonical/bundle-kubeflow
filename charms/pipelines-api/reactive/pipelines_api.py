@@ -208,6 +208,7 @@ def start_charm():
                         'roles': [
                             {
                                 'name': 'pipeline-runner',
+                                'global': True,
                                 'rules': [
                                     {'apiGroups': [''], 'resources': ['secrets'], 'verbs': ['get']},
                                     {
