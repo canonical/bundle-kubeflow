@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+    paths:
+      - charms/**
+      - bundle*.yaml
 
 jobs:
   all-bundles:
