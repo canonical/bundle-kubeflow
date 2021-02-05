@@ -25,18 +25,6 @@ def juju_debug(*args, env=None, die=True):
     run('juju', '--debug', *args, env=env, die=die)
 
 
-def kubectl_exists(resource):
-    try:
-        subprocess.check_call(
-            ['juju', 'kubectl', 'get', resource],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        return True
-    except subprocess.CalledProcessError:
-        return False
-
-
 def application_exists(application):
     try:
         subprocess.check_call(
@@ -339,25 +327,34 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
     else:
         juju('deploy', bundle_url, '-m', model, '--channel', channel)
 
-    if kubectl_exists('role/istio-ingressgateway-operator'):
-        juju(
-            'kubectl',
-            'patch',
-            'role/istio-ingressgateway-operator',
-            '-p',
-            yaml.dump(
-                {
-                    "apiVersion": "rbac.authorization.k8s.io/v1",
-                    "kind": "Role",
-                    "metadata": {"name": "istio-ingressgateway-operator"},
-                    "rules": [{"apiGroups": ["*"], "resources": ["*"], "verbs": ["*"]}],
-                }
-            ),
-        )
+    if application_exists('istio-ingressgateway'):
+        for _ in range(60):
+            try:
+                juju(
+                    'kubectl',
+                    'patch',
+                    'role/istio-ingressgateway-operator',
+                    '-p',
+                    yaml.dump(
+                        {
+                            "apiVersion": "rbac.authorization.k8s.io/v1",
+                            "kind": "Role",
+                            "metadata": {"name": "istio-ingressgateway-operator"},
+                            "rules": [{"apiGroups": ["*"], "resources": ["*"], "verbs": ["*"]}],
+                        }
+                    ),
+                    die=False,
+                )
+                break
+            except Exception as err:
+                print(err)
+                time.sleep(5)
+        else:
+            raise Exception("Couldn't patch role/istio-ingressgateway-operator!")
 
     juju('wait', '-wv', '-m', model, '-t', str(30 * 60))
 
-    if kubectl_exists('service/pipelines-api'):
+    if application_exists('pipelines-api'):
         with tempfile.NamedTemporaryFile(mode='w+') as f:
             yaml.dump(
                 {
@@ -490,7 +487,7 @@ def microk8s():
 @click.option(
     '-s',
     '--services',
-    default=['dns', 'storage', 'dashboard', 'ingress', 'metallb:10.64.140.43-10.64.140.49'],
+    default=['dns', 'storage', 'rbac', 'dashboard', 'ingress', 'metallb:10.64.140.43-10.64.140.49'],
     multiple=True,
 )
 @click.option('--test-mode/--no-test-mode', default=False)

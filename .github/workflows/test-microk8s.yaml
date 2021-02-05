@@ -58,6 +58,12 @@ jobs:
       run: juju status
       if: failure()
 
+    - name: service account info
+      run: |
+        set -eux
+        kubectl get serviceaccounts,roles,clusterroles,rolebindings,clusterrolebindings -oyaml -A
+      if: failure()
+
     - name: Juju status (YAML)
       run: juju status --format=yaml
       if: failure()
