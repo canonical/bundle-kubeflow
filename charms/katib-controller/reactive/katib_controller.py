@@ -182,6 +182,7 @@ def start_charm():
             'serviceAccount': {
                 'roles': [
                     {
+                        'global': True,
                         'rules': [
                             {
                                 'apiGroups': [''],
