@@ -502,13 +502,14 @@ def setup(controller, services, test_mode, config):
         controller = DEFAULT_CONTROLLERS['microk8s']
 
     for service in services:
+        if not service:
+            continue
         click.secho(f'Running microk8s enable {service}', fg='green')
         run('microk8s', 'enable', service)
         wait_for(
             'microk8s',
             'status',
             '--wait-ready',
-            '--timeout', '3',
             wait_msg='Waiting for microk8s to become ready...',
             fail_msg=f'Couldn\'t enable {service}!',
         )
