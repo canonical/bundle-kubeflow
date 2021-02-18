@@ -494,13 +494,16 @@ def microk8s():
     multiple=True,
 )
 @click.option('--test-mode/--no-test-mode', default=False)
-def setup(controller, services, test_mode):
+@click.option('--config', multiple=True)
+def setup(controller, services, test_mode, config):
     check_for('microk8s')
 
     if not controller:
         controller = DEFAULT_CONTROLLERS['microk8s']
 
     for service in services:
+        if not service:
+            continue
         click.secho(f'Running microk8s enable {service}', fg='green')
         run('microk8s', 'enable', service)
         wait_for(
@@ -525,7 +528,7 @@ def setup(controller, services, test_mode):
         fail_msg='Waited too long for addons to come up!',
     )
 
-    args = []
+    args = [f'--config={c}' for c in config]
     if test_mode:
         args += ['--config', 'test-mode=true', '--model-default', 'test-mode=true']
     juju('bootstrap', 'microk8s', '--debug', controller, *args)
