@@ -8,10 +8,8 @@ def attach_output_volume(op):
     """
 
     # Handle auto-generated pipeline metadata
-    op.output_artifact_paths = {
-        'mlpipeline-ui-metadata': '/output/mlpipeline-ui-metadata.json',
-        'mlpipeline-metrics': '/output/mlpipeline-metrics.json',
-    }
+    op.output_artifact_paths['mlpipeline-ui-metadata'] = '/tmp/outputs/mlpipeline-ui-metadata.json'
+    op.output_artifact_paths['mlpipeline-metrics'] = '/tmp/outputs/mlpipeline-metrics.json'
 
     # Add somewhere to store regular output
     op.add_volume(k8s_client.V1Volume(name='volume', empty_dir=k8s_client.V1EmptyDirVolumeSource()))
