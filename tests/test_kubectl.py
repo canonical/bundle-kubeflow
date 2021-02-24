@@ -4,14 +4,11 @@ from time import sleep
 
 import pytest
 import yaml
+from flaky import flaky
 from sh import Command
 
-from flaky import flaky
-
 try:
-    from sh import juju_kubectl
-
-    kubectl = juju_kubectl
+    from sh import juju_kubectl as kubectl
 except ImportError:
     kubectl = Command('kubectl').bake('-nkubeflow')
 
@@ -185,145 +182,151 @@ def test_crd_created_edge():
 
 @pytest.mark.full
 def test_service_accounts_created_full():
-    crds = yaml.safe_load(kubectl.get('sa', '-oyaml').stdout)
+    sas = yaml.safe_load(kubectl.get('sa', '-oyaml').stdout)
 
-    names = sorted(i['metadata']['name'] for i in crds['items'])
-    assert names == [
-        'admission-webhook',
-        'admission-webhook-operator',
-        'argo-controller',
-        'argo-controller-operator',
-        'argo-ui',
-        'argo-ui-operator',
-        'default',
-        'dex-auth',
-        'dex-auth-operator',
-        'istio-ingressgateway',
-        'istio-ingressgateway-operator',
-        'istio-pilot',
-        'istio-pilot-operator',
-        'jupyter-controller',
-        'jupyter-controller-operator',
-        'jupyter-notebook',
-        'jupyter-web',
-        'jupyter-web-operator',
-        'katib-controller',
-        'katib-controller-operator',
-        'katib-db-operator',
-        'katib-manager-operator',
-        'katib-ui',
-        'katib-ui-operator',
-        'kubeflow-dashboard',
-        'kubeflow-dashboard-operator',
-        'kubeflow-profiles',
-        'kubeflow-profiles-operator',
-        'metacontroller',
-        'metacontroller-operator',
-        'metadata-api-operator',
-        'metadata-db-operator',
-        'metadata-envoy-operator',
-        'metadata-grpc-operator',
-        'metadata-ui',
-        'metadata-ui-operator',
-        'minio-operator',
-        'oidc-gatekeeper-operator',
-        'pipeline-runner',
-        'pipelines-api',
-        'pipelines-api-operator',
-        'pipelines-db-operator',
-        'pipelines-persistence',
-        'pipelines-persistence-operator',
-        'pipelines-scheduledworkflow',
-        'pipelines-scheduledworkflow-operator',
-        'pipelines-ui',
-        'pipelines-ui-operator',
-        'pipelines-viewer',
-        'pipelines-viewer-operator',
-        'pipelines-visualization-operator',
-        'pytorch-operator',
-        'pytorch-operator-operator',
-        'seldon-core',
-        'seldon-core-operator',
-        'tf-job-operator',
-        'tf-job-operator-operator',
-    ]
+    names = {i['metadata']['name'] for i in sas['items']}
+    assert names.issuperset(
+        {
+            'admission-webhook',
+            'admission-webhook-operator',
+            'argo-controller',
+            'argo-controller-operator',
+            'argo-ui',
+            'argo-ui-operator',
+            'default',
+            'dex-auth',
+            'dex-auth-operator',
+            'istio-ingressgateway',
+            'istio-ingressgateway-operator',
+            'istio-pilot',
+            'istio-pilot-operator',
+            'jupyter-controller',
+            'jupyter-controller-operator',
+            'jupyter-notebook',
+            'jupyter-web',
+            'jupyter-web-operator',
+            'katib-controller',
+            'katib-controller-operator',
+            'katib-db-operator',
+            'katib-manager-operator',
+            'katib-ui',
+            'katib-ui-operator',
+            'kubeflow-dashboard',
+            'kubeflow-dashboard-operator',
+            'kubeflow-profiles',
+            'kubeflow-profiles-operator',
+            'metacontroller',
+            'metacontroller-operator',
+            'metadata-api-operator',
+            'metadata-db-operator',
+            'metadata-envoy-operator',
+            'metadata-grpc-operator',
+            'metadata-ui',
+            'metadata-ui-operator',
+            'minio-operator',
+            'oidc-gatekeeper-operator',
+            'pipeline-runner',
+            'pipelines-api',
+            'pipelines-api-operator',
+            'pipelines-db-operator',
+            'pipelines-persistence',
+            'pipelines-persistence-operator',
+            'pipelines-scheduledworkflow',
+            'pipelines-scheduledworkflow-operator',
+            'pipelines-ui',
+            'pipelines-ui-operator',
+            'pipelines-viewer',
+            'pipelines-viewer-operator',
+            'pipelines-visualization-operator',
+            'pytorch-operator',
+            'pytorch-operator-operator',
+            'seldon-core',
+            'seldon-core-operator',
+            'tf-job-operator',
+            'tf-job-operator-operator',
+        },
+    )
 
 
 @pytest.mark.lite
 def test_service_accounts_created_lite():
-    crds = yaml.safe_load(kubectl.get('sa', '-oyaml').stdout)
+    sas = yaml.safe_load(kubectl.get('sa', '-oyaml').stdout)
 
-    names = sorted(i['metadata']['name'] for i in crds['items'])
-    assert names == [
-        'admission-webhook',
-        'admission-webhook-operator',
-        'argo-controller',
-        'argo-controller-operator',
-        'default',
-        'dex-auth',
-        'dex-auth-operator',
-        'istio-ingressgateway',
-        'istio-ingressgateway-operator',
-        'istio-pilot',
-        'istio-pilot-operator',
-        'jupyter-controller',
-        'jupyter-controller-operator',
-        'jupyter-notebook',
-        'jupyter-web',
-        'jupyter-web-operator',
-        'kubeflow-dashboard',
-        'kubeflow-dashboard-operator',
-        'kubeflow-profiles',
-        'kubeflow-profiles-operator',
-        'minio-operator',
-        'oidc-gatekeeper-operator',
-        'pipeline-runner',
-        'pipelines-api',
-        'pipelines-api-operator',
-        'pipelines-db-operator',
-        'pipelines-persistence',
-        'pipelines-persistence-operator',
-        'pipelines-scheduledworkflow',
-        'pipelines-scheduledworkflow-operator',
-        'pipelines-ui',
-        'pipelines-ui-operator',
-        'pipelines-viewer',
-        'pipelines-viewer-operator',
-        'pipelines-visualization-operator',
-        'pytorch-operator',
-        'pytorch-operator-operator',
-        'seldon-core',
-        'seldon-core-operator',
-        'tf-job-operator',
-        'tf-job-operator-operator',
-    ]
+    names = {i['metadata']['name'] for i in sas['items']}
+    assert names.issuperset(
+        {
+            'admission-webhook',
+            'admission-webhook-operator',
+            'argo-controller',
+            'argo-controller-operator',
+            'default',
+            'dex-auth',
+            'dex-auth-operator',
+            'istio-ingressgateway',
+            'istio-ingressgateway-operator',
+            'istio-pilot',
+            'istio-pilot-operator',
+            'jupyter-controller',
+            'jupyter-controller-operator',
+            'jupyter-notebook',
+            'jupyter-web',
+            'jupyter-web-operator',
+            'kubeflow-dashboard',
+            'kubeflow-dashboard-operator',
+            'kubeflow-profiles',
+            'kubeflow-profiles-operator',
+            'minio-operator',
+            'oidc-gatekeeper-operator',
+            'pipeline-runner',
+            'pipelines-api',
+            'pipelines-api-operator',
+            'pipelines-db-operator',
+            'pipelines-persistence',
+            'pipelines-persistence-operator',
+            'pipelines-scheduledworkflow',
+            'pipelines-scheduledworkflow-operator',
+            'pipelines-ui',
+            'pipelines-ui-operator',
+            'pipelines-viewer',
+            'pipelines-viewer-operator',
+            'pipelines-visualization-operator',
+            'pytorch-operator',
+            'pytorch-operator-operator',
+            'seldon-core',
+            'seldon-core-operator',
+            'tf-job-operator',
+            'tf-job-operator-operator',
+        },
+    )
 
 
 @pytest.mark.edge
 def test_service_accounts_created_edge():
-    crds = yaml.safe_load(kubectl.get('sa', '-oyaml').stdout)
+    sas = yaml.safe_load(kubectl.get('sa', '-oyaml').stdout)
 
-    names = sorted(i['metadata']['name'] for i in crds['items'])
-    assert names == [
-        'argo-controller',
-        'argo-controller-operator',
-        'default',
-        'minio-operator',
-        'pipeline-runner',
-        'pipelines-api',
-        'pipelines-api-operator',
-        'pipelines-db-operator',
-        'pipelines-persistence',
-        'pipelines-persistence-operator',
-        'pipelines-scheduledworkflow',
-        'pipelines-scheduledworkflow-operator',
-        'pytorch-operator',
-        'pytorch-operator-operator',
-        'seldon-core',
-        'seldon-core-operator',
-        'tf-job-operator',
-        'tf-job-operator-operator',
-    ]
+    names = {i['metadata']['name'] for i in sas['items']}
+    assert names.issuperset(
+        {
+            'argo-controller',
+            'argo-controller-operator',
+            'default',
+            'minio-operator',
+            'pipeline-runner',
+            'pipelines-api',
+            'pipelines-api-operator',
+            'pipelines-db-operator',
+            'pipelines-persistence',
+            'pipelines-persistence-operator',
+            'pipelines-scheduledworkflow',
+            'pipelines-scheduledworkflow-operator',
+            'pytorch-operator',
+            'pytorch-operator-operator',
+            'seldon-core',
+            'seldon-core-operator',
+            'tf-job-operator',
+            'tf-job-operator-operator',
+        },
+    )
 
 
 # TODO: Failing in Travis
