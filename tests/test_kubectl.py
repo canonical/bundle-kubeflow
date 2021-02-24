@@ -49,7 +49,6 @@ def test_running_full():
         'katib-ui': 'Running',
         'kubeflow-dashboard': 'Running',
         'kubeflow-profiles': 'Running',
-        'metacontroller': 'Running',
         'metadata-api': 'Running',
         'metadata-db': 'Running',
         'metadata-envoy': 'Running',
@@ -121,9 +120,6 @@ def test_crd_created_full():
     names = {i['metadata']['name'] for i in crds['items']}
     assert names.issuperset(
         {
-            'compositecontrollers.metacontroller.k8s.io',
-            'controllerrevisions.metacontroller.k8s.io',
-            'decoratorcontrollers.metacontroller.k8s.io',
             'experiments.kubeflow.org',
             'notebooks.kubeflow.org',
             'poddefaults.kubeflow.org',
@@ -215,8 +211,6 @@ def test_service_accounts_created_full():
             'kubeflow-dashboard-operator',
             'kubeflow-profiles',
             'kubeflow-profiles-operator',
-            'metacontroller',
-            'metacontroller-operator',
             'metadata-api-operator',
             'metadata-db-operator',
             'metadata-envoy-operator',

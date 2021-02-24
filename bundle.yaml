@@ -14,7 +14,6 @@ applications:
   katib-ui:                     { charm: cs:katib-ui,                    scale: 1, annotations: { gui-x: '-150', gui-y:  '259' } }
   kubeflow-dashboard:           { charm: cs:kubeflow-dashboard,          scale: 1, annotations: { gui-x:  '750', gui-y:  '259' } }
   kubeflow-profiles:            { charm: cs:kubeflow-profiles,           scale: 1, annotations: { gui-x:  '600', gui-y:  '518' } }
-  metacontroller:               { charm: cs:metacontroller,              scale: 1, annotations: { gui-x: '-300', gui-y:  '518' } }
   metadata-api:                 { charm: cs:metadata-api,                scale: 1, annotations: { gui-x: '-300', gui-y: '-518' } }
   metadata-db:                  { charm: cs:~charmed-osm/mariadb-k8s,    scale: 1, annotations: { gui-x: '-600', gui-y: '-518' } }
   metadata-envoy:               { charm: cs:metadata-envoy,              scale: 1, annotations: { gui-x: '-750', gui-y: '-259' } }
