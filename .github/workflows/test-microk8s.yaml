@@ -44,7 +44,14 @@ jobs:
         EOF
 
     - name: Test Kubeflow
-      run: sg microk8s -c './tests/run.sh -m edge'
+      run: |
+        set -eux
+        sg microk8s -c './tests/run.sh -m edge'
+        sudo snap restart microk8s
+        sg microk8s -c 'microk8s.status --wait-ready'
+        juju wait -wv
+        kubectl wait -nkubeflow --for=condition=available deployment --all --timeout=5m
+        sg microk8s -c './tests/run.sh -m edge'
 
     - name: Juju status
       run: juju status
