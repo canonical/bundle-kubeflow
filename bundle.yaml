@@ -1,6 +1,6 @@
 bundle: kubernetes
 applications:
-  admission-webhook:            { charm: cs:admission-webhook,           scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
+  admission-webhook:            { charm: cs:admission-webhook-8,         scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
   argo-controller:              { charm: cs:argo-controller,             scale: 1, annotations: { gui-x:  '600', gui-y:    '0' } }
   argo-ui:                      { charm: cs:argo-ui,                     scale: 1, annotations: { gui-x:  '300', gui-y:    '0' } }
   dex-auth:                     { charm: cs:dex-auth,                    scale: 1, annotations: { gui-x:  '600', gui-y: '-518' } }
