@@ -25,13 +25,13 @@ def attach_output_volume(fun):
 
 
 @attach_output_volume
-def fortune_task(url):
+def fortune_task():
     """Get a random fortune."""
     return dsl.ContainerOp(
         name='fortune',
-        image='appropriate/curl',
+        image='ubuntu',
         command=['sh', '-c'],
-        arguments=['curl $0 | tee $1', url, '/output/fortune.txt'],
+        arguments=['echo "Hello World" | tee /output/fortune.txt'],
         file_outputs={'text': '/output/fortune.txt'},
     )
 
@@ -49,6 +49,6 @@ def cow_task(text):
 
 
 @dsl.pipeline(name='Fortune Cow', description='Talk to a fortunate cow.')
-def cowsay_pipeline(url='https://helloacm.com/api/fortune/'):
-    fortune = fortune_task(url)
-    cowsay = cow_task(fortune.output)
+def cowsay_pipeline():
+    fortune = fortune_task()
+    cow_task(fortune.output)

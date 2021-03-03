@@ -47,12 +47,16 @@ jobs:
       run: |
         set -eux
         sg microk8s -c './tests/run.sh -m edge'
-        # Disabled until we can switch to https://github.com/canonical/argo-operators
-        # sudo snap restart microk8s
-        # sg microk8s -c 'microk8s.status --wait-ready'
-        # juju wait -wv
-        # kubectl wait -nkubeflow --for=condition=available deployment --all --timeout=5m
-        # sg microk8s -c './tests/run.sh -m edge'
+        sudo snap restart microk8s
+        sg microk8s -c 'microk8s.status --wait-ready'
+        kubectl wait -nkubeflow --for=condition=available deployment --all --timeout=5m
+        kubectl wait -nkubeflow --for=condition=ready pod -ljuju-app
+        kubectl get pods -A
+        juju status
+        juju wait -wv
+        kubectl wait -nkubeflow --for=condition=available deployment --all --timeout=5m
+        kubectl wait -nkubeflow --for=condition=ready pod -ljuju-app
+        sg microk8s -c './tests/run.sh -m edge'
 
     - name: Juju status
       run: juju status

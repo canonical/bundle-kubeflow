@@ -10,7 +10,7 @@ from .pipelines.jupyter import jupyter_pipeline
 from .pipelines.object_detection import object_detection_pipeline
 
 
-COWSAY_PARAMS = [{"name": "url", "value": "https://helloacm.com/api/fortune/"}]
+COWSAY_PARAMS = [{}]
 
 
 MNIST_PARAMS = [
