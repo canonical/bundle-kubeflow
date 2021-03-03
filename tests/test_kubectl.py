@@ -64,7 +64,7 @@ def test_running_full():
         'pipelines-viewer': 'Running',
         'pipelines-visualization': 'Running',
         'pytorch-operator': 'Running',
-        'seldon-core': 'Running',
+        'seldon-controller-manager': 'Running',
         'tf-job-operator': 'Running',
     }
 
@@ -92,7 +92,7 @@ def test_running_lite():
         'pipelines-viewer': 'Running',
         'pipelines-visualization': 'Running',
         'pytorch-operator': 'Running',
-        'seldon-core': 'Running',
+        'seldon-controller-manager': 'Running',
         'tf-job-operator': 'Running',
     }
 
@@ -108,7 +108,7 @@ def test_running_edge():
         'pipelines-persistence': 'Running',
         'pipelines-scheduledworkflow': 'Running',
         'pytorch-operator': 'Running',
-        'seldon-core': 'Running',
+        'seldon-controller-manager': 'Running',
         'tf-job-operator': 'Running',
     }
 
@@ -234,8 +234,8 @@ def test_service_accounts_created_full():
             'pipelines-visualization-operator',
             'pytorch-operator',
             'pytorch-operator-operator',
-            'seldon-core',
-            'seldon-core-operator',
+            'seldon-controller-manager',
+            'seldon-controller-manager-operator',
             'tf-job-operator',
             'tf-job-operator-operator',
         },
@@ -286,8 +286,8 @@ def test_service_accounts_created_lite():
             'pipelines-visualization-operator',
             'pytorch-operator',
             'pytorch-operator-operator',
-            'seldon-core',
-            'seldon-core-operator',
+            'seldon-controller-manager',
+            'seldon-controller-manager-operator',
             'tf-job-operator',
             'tf-job-operator-operator',
         },
@@ -315,8 +315,8 @@ def test_service_accounts_created_edge():
             'pipelines-scheduledworkflow-operator',
             'pytorch-operator',
             'pytorch-operator-operator',
-            'seldon-core',
-            'seldon-core-operator',
+            'seldon-controller-manager',
+            'seldon-controller-manager-operator',
             'tf-job-operator',
             'tf-job-operator-operator',
         },
