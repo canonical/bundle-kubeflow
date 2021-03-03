@@ -155,7 +155,7 @@ def delete_task(namespace: str, endpoint: str, notebook_name: str):
 )
 def jupyter_pipeline(
     namespace: str = 'admin',
-    endpoint: str = 'http://jupyter-web.kubeflow.svc.cluster.local:5000',
+    endpoint: str = 'http://jupyter-ui.kubeflow.svc.cluster.local:5000',
     notebook_configurations: str = '["kubeflow-ci-test"]',
     notebook_cpu: str = "0.5",
     # notebook_custom_image: str = "",

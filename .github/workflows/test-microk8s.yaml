@@ -303,7 +303,7 @@ jobs:
           for namespace in admin kubeflow; do
               for pod in \$(microk8s kubectl get pods -n \$namespace -o custom-columns=:metadata.name --no-headers); do
                   for container in \$(microk8s kubectl get pods -n \$namespace -o jsonpath="{.spec.containers[*].name}" \$pod); do
-                    microk8s kubectl logs -n \$namespace --timestamps \$pod -c \$container > stdout-${{ strategy.job-index }}/\$namespace-\$pod-\$container.log
+                    microk8s kubectl logs -n \$namespace --timestamps \$pod -c \$container > stdout-${{ strategy.job-index }}/\$namespace-\$pod-\$container.log || true
                   done
               done
           done
