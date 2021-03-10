@@ -29,7 +29,7 @@ applications:
   pipelines-viewer:             { charm: cs:pipelines-viewer,            scale: 1, annotations: { gui-x: '-300', gui-y:    '0' } }
   pipelines-visualization:      { charm: cs:pipelines-visualization,     scale: 1, annotations: { gui-x:  '450', gui-y:  '777' } }
   pytorch-operator:             { charm: cs:pytorch-operator,            scale: 1, annotations: { gui-x:  '450', gui-y: '-777' } }
-  seldon-core:                  { charm: cs:seldon-core,                 scale: 1, annotations: { gui-x:  '900', gui-y:    '0' } }
+  seldon-controller-manager:    { charm: cs:seldon-controller-manager,   scale: 1, annotations: { gui-x:  '900', gui-y:    '0' } }
   tf-job-operator:              { charm: cs:tf-job-operator,             scale: 1, annotations: { gui-x: '-600', gui-y:    '0' } }
 relations:
 - [argo-controller, minio]
