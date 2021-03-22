@@ -29,7 +29,7 @@ jobs:
         done
         sudo snap install juju --classic --channel ${{ matrix.juju }}
         sudo apt update
-        sudo apt install -y libssl-dev python3-setuptools
+        sudo apt install -y libssl-dev python3-pip
         sudo pip3 install -r requirements.txt -r test-requirements.txt
         sudo usermod -a -G microk8s $USER
 
@@ -183,7 +183,7 @@ jobs:
           sudo snap install juju --classic --channel ${{ matrix.juju }}
           sudo snap install microk8s --classic --channel ${{ matrix.microk8s }}
           sudo apt update
-          sudo apt install -y libssl-dev firefox-geckodriver
+          sudo apt install -y libssl-dev firefox-geckodriver python3-pip
           cd bundle-kubeflow
           sudo pip3 install -r requirements.txt -r test-requirements.txt
           sudo usermod -a -G microk8s ubuntu
