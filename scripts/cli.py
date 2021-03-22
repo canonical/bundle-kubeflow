@@ -355,7 +355,16 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
             ),
         )
 
-    juju('wait', '-wv', '-m', model, '-t', str(30 * 60))
+    # See here for why loop is necessary:
+    # https://bugs.launchpad.net/juju/+bug/1921739
+    for _ in range(60):
+        try:
+            juju('wait', '-wv', '-m', model, '-t', str(30 * 60), die=False)
+            break
+        except subprocess.CalledProcessError:
+            time.sleep(5)
+    else:
+        juju('wait', '-wv', '-m', model, '-t', str(30 * 60), die=False)
 
     if kubectl_exists('service/pipelines-api'):
         with tempfile.NamedTemporaryFile(mode='w+') as f:

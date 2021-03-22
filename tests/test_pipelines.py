@@ -1,14 +1,15 @@
+from time import sleep
 from typing import Callable
 
 import pytest
+from flaky import flaky
 from kfp import Client
 
 from .pipelines.cowsay import cowsay_pipeline
-from .pipelines.mnist import mnist_pipeline
-from .pipelines.katib import katib_pipeline
 from .pipelines.jupyter import jupyter_pipeline
+from .pipelines.katib import katib_pipeline
+from .pipelines.mnist import mnist_pipeline
 from .pipelines.object_detection import object_detection_pipeline
-
 
 COWSAY_PARAMS = [{"name": "url", "value": "https://helloacm.com/api/fortune/"}]
 
@@ -80,6 +81,7 @@ JUPYTER_PARAMS = []
         ),
     ],
 )
+@flaky(max_runs=12, rerun_filter=lambda *_: sleep(5) or True)
 def test_pipelines(name: str, params: list, fn: Callable):
     """Runs each pipeline that it's been parameterized for, and waits for it to succeed."""
 

@@ -73,7 +73,7 @@ def create_task(
     workspace = json.loads(workspace)
     workspace['name'] = workspace['name'].format(name)
     response = requests.post(
-        f'{endpoint}/api/namespaces/{namespace}/notebooks',
+        f'{endpoint}/jupyter/api/namespaces/{namespace}/notebooks',
         json={
             "configurations": json.loads(configurations),
             "cpu": cpu,
@@ -104,7 +104,7 @@ def wait_task(namespace: str, endpoint: str, notebook_name: str):
     import time
 
     for _ in range(240):
-        response = requests.get(f'{endpoint}/api/namespaces/{namespace}/notebooks')
+        response = requests.get(f'{endpoint}/jupyter/api/namespaces/{namespace}/notebooks')
         response.raise_for_status()
         notebooks = response.json()['notebooks']
 
@@ -145,7 +145,9 @@ def delete_task(namespace: str, endpoint: str, notebook_name: str):
 
     import requests
 
-    response = requests.delete(f'{endpoint}/api/namespaces/{namespace}/notebooks/{notebook_name}')
+    response = requests.delete(
+        f'{endpoint}/jupyter/api/namespaces/{namespace}/notebooks/{notebook_name}'
+    )
     response.raise_for_status()
 
 
