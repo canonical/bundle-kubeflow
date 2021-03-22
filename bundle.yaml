@@ -8,10 +8,10 @@ applications:
   istio-pilot:                  { charm: cs:istio-pilot-8,               scale: 1, annotations: { gui-x:    '0', gui-y:    '0' }, options: { default-gateway: "kubeflow-gateway" } }
   jupyter-controller:           { charm: cs:jupyter-controller-50,       scale: 1, annotations: { gui-x:  '450', gui-y: '-259' } }
   jupyter-ui:                   { charm: cs:jupyter-ui-4,                scale: 1, annotations: { gui-x:  '150', gui-y: '-259' } }
-  katib-controller:             { charm: cs:katib-controller,            scale: 1, annotations: { gui-x: '-450', gui-y:  '259' } }
-  katib-db:                     { charm: cs:~charmed-osm/mariadb-k8s,    scale: 1, annotations: { gui-x: '-600', gui-y:  '518' }, options: { database: katib } }
-  katib-manager:                { charm: cs:katib-manager,               scale: 1, annotations: { gui-x: '-750', gui-y:  '259' } }
-  katib-ui:                     { charm: cs:katib-ui,                    scale: 1, annotations: { gui-x: '-150', gui-y:  '259' } }
+  katib-controller:             { charm: cs:katib-controller-27,         scale: 1, annotations: { gui-x: '-450', gui-y:  '259' } }
+  katib-db:                     { charm: cs:~charmed-osm/mariadb-k8s-35, scale: 1, annotations: { gui-x: '-600', gui-y:  '518' }, options: { database: katib } }
+  katib-db-manager:             { charm: cs:katib-db-manager-1,          scale: 1, annotations: { gui-x: '-750', gui-y:  '259' } }
+  katib-ui:                     { charm: cs:katib-ui-27,                 scale: 1, annotations: { gui-x: '-150', gui-y:  '259' } }
   kubeflow-dashboard:           { charm: cs:kubeflow-dashboard,          scale: 1, annotations: { gui-x:  '750', gui-y:  '259' } }
   kubeflow-profiles:            { charm: cs:kubeflow-profiles,           scale: 1, annotations: { gui-x:  '600', gui-y:  '518' } }
   metadata-api:                 { charm: cs:metadata-api,                scale: 1, annotations: { gui-x: '-300', gui-y: '-518' } }
@@ -46,7 +46,7 @@ relations:
 - [istio-pilot:service-mesh, pipelines-api:service-mesh]
 - [istio-pilot:service-mesh, pipelines-ui:service-mesh]
 - [istio-pilot:service-mesh, pipelines-viewer:service-mesh]
-- [katib-manager, katib-db]
+- [katib-db-manager, katib-db]
 - [kubeflow-profiles, kubeflow-dashboard]
 - [metadata-api, metadata-db]
 - [metadata-api:metadata-api, metadata-ui:metadata-api]
