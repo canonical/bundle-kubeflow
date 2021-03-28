@@ -386,6 +386,14 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
             )
             juju('kubectl', 'apply', '-f', f.name)
 
+    if bundle == 'full':
+        juju(
+            'kubectl',
+            'delete',
+            'mutatingwebhookconfigurations/katib-mutating-webhook-config',
+            'validatingwebhookconfigurations/katib-validating-webhook-config',
+        )
+
     juju(
         "kubectl",
         "wait",
