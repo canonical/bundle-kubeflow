@@ -1,12 +1,12 @@
 bundle: kubernetes
 applications:
-  admission-webhook:            { charm: cs:admission-webhook-8,         scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
+  admission-webhook:            { charm: cs:admission-webhook-10,        scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
   argo-controller:              { charm: cs:argo-controller,             scale: 1, annotations: { gui-x:  '600', gui-y:    '0' } }
   dex-auth:                     { charm: cs:dex-auth,                    scale: 1, annotations: { gui-x:  '600', gui-y: '-518' } }
   istio-ingressgateway:         { charm: cs:istio-ingressgateway-8,      scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
   istio-pilot:                  { charm: cs:istio-pilot-8,               scale: 1, annotations: { gui-x:    '0', gui-y:    '0' }, options: { default-gateway: "kubeflow-gateway" }  }
-  jupyter-controller:           { charm: cs:jupyter-controller-46,       scale: 1, annotations: { gui-x:  '450', gui-y: '-259' } }
-  jupyter-ui:                   { charm: cs:jupyter-ui-0,                scale: 1, annotations: { gui-x:  '150', gui-y: '-259' } }
+  jupyter-controller:           { charm: cs:jupyter-controller-50,       scale: 1, annotations: { gui-x:  '450', gui-y: '-259' } }
+  jupyter-ui:                   { charm: cs:jupyter-ui-4,                scale: 1, annotations: { gui-x:  '150', gui-y: '-259' } }
   kubeflow-dashboard:           { charm: cs:kubeflow-dashboard,          scale: 1, annotations: { gui-x:  '750', gui-y:  '259' } }
   kubeflow-profiles:            { charm: cs:kubeflow-profiles,           scale: 1, annotations: { gui-x:  '600', gui-y:  '518' } }
   minio:                        { charm: cs:minio,                       scale: 1, annotations: { gui-x:  '450', gui-y:  '259' } }
