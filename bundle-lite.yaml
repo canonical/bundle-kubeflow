@@ -1,26 +1,26 @@
 bundle: kubernetes
 applications:
-  admission-webhook:            { charm: cs:admission-webhook-10,        scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
-  argo-controller:              { charm: cs:argo-controller,             scale: 1, annotations: { gui-x:  '600', gui-y:    '0' } }
-  dex-auth:                     { charm: cs:dex-auth,                    scale: 1, annotations: { gui-x:  '600', gui-y: '-518' } }
-  istio-ingressgateway:         { charm: cs:istio-ingressgateway-8,      scale: 1, annotations: { gui-x:    '0', gui-y:    '0' } }
-  istio-pilot:                  { charm: cs:istio-pilot-8,               scale: 1, annotations: { gui-x:    '0', gui-y:    '0' }, options: { default-gateway: "kubeflow-gateway" }  }
-  jupyter-controller:           { charm: cs:jupyter-controller-50,       scale: 1, annotations: { gui-x:  '450', gui-y: '-259' } }
-  jupyter-ui:                   { charm: cs:jupyter-ui-4,                scale: 1, annotations: { gui-x:  '150', gui-y: '-259' } }
-  kubeflow-dashboard:           { charm: cs:kubeflow-dashboard,          scale: 1, annotations: { gui-x:  '750', gui-y:  '259' } }
-  kubeflow-profiles:            { charm: cs:kubeflow-profiles,           scale: 1, annotations: { gui-x:  '600', gui-y:  '518' } }
-  minio:                        { charm: cs:minio,                       scale: 1, annotations: { gui-x:  '450', gui-y:  '259' } }
-  oidc-gatekeeper:              { charm: cs:oidc-gatekeeper,             scale: 1, annotations: { gui-x:  '450', gui-y:   '10' } }
-  pipelines-api:                { charm: cs:pipelines-api,               scale: 1, annotations: { gui-x:  '300', gui-y:  '518' } }
-  pipelines-db:                 { charm: cs:~charmed-osm/mariadb-k8s,    scale: 1, annotations: { gui-x:    '0', gui-y:  '518' } }
-  pipelines-persistence:        { charm: cs:pipelines-persistence,       scale: 1, annotations: { gui-x:  '150', gui-y:  '777' } }
-  pipelines-scheduledworkflow:  { charm: cs:pipelines-scheduledworkflow, scale: 1, annotations: { gui-x: '-150', gui-y:  '777' } }
-  pipelines-ui:                 { charm: cs:pipelines-ui,                scale: 1, annotations: { gui-x:  '150', gui-y:  '259' } }
-  pipelines-viewer:             { charm: cs:pipelines-viewer,            scale: 1, annotations: { gui-x: '-300', gui-y:    '0' } }
-  pipelines-visualization:      { charm: cs:pipelines-visualization,     scale: 1, annotations: { gui-x:  '450', gui-y:  '777' } }
-  pytorch-operator:             { charm: cs:pytorch-operator,            scale: 1, annotations: { gui-x:  '450', gui-y: '-777' } }
-  seldon-controller-manager:    { charm: cs:seldon-controller-manager,   scale: 1, annotations: { gui-x:  '900', gui-y:    '0' } }
-  tf-job-operator:              { charm: cs:tf-job-operator,             scale: 1, annotations: { gui-x: '-600', gui-y:    '0' } }
+  admission-webhook:            { charm: cs:admission-webhook-10,        scale: 1 }
+  argo-controller:              { charm: cs:argo-controller,             scale: 1 }
+  dex-auth:                     { charm: cs:dex-auth,                    scale: 1 }
+  istio-ingressgateway:         { charm: cs:istio-ingressgateway-8,      scale: 1 }
+  istio-pilot:                  { charm: cs:istio-pilot-8,               scale: 1, options: { default-gateway: "kubeflow-gateway" }  }
+  jupyter-controller:           { charm: cs:jupyter-controller-50,       scale: 1 }
+  jupyter-ui:                   { charm: cs:jupyter-ui-4,                scale: 1 }
+  kubeflow-dashboard:           { charm: cs:kubeflow-dashboard,          scale: 1 }
+  kubeflow-profiles:            { charm: cs:kubeflow-profiles,           scale: 1 }
+  minio:                        { charm: cs:minio,                       scale: 1 }
+  oidc-gatekeeper:              { charm: cs:oidc-gatekeeper,             scale: 1 }
+  pipelines-api:                { charm: cs:pipelines-api,               scale: 1 }
+  pipelines-db:                 { charm: cs:~charmed-osm/mariadb-k8s,    scale: 1 }
+  pipelines-persistence:        { charm: cs:pipelines-persistence,       scale: 1 }
+  pipelines-scheduledworkflow:  { charm: cs:pipelines-scheduledworkflow, scale: 1 }
+  pipelines-ui:                 { charm: cs:pipelines-ui,                scale: 1 }
+  pipelines-viewer:             { charm: cs:pipelines-viewer,            scale: 1 }
+  pipelines-visualization:      { charm: cs:pipelines-visualization,     scale: 1 }
+  pytorch-operator:             { charm: cs:pytorch-operator,            scale: 1 }
+  seldon-controller-manager:    { charm: cs:seldon-controller-manager,   scale: 1 }
+  tf-job-operator:              { charm: cs:tf-job-operator,             scale: 1 }
 relations:
 - [argo-controller, minio]
 - [dex-auth:oidc-client, oidc-gatekeeper:oidc-client]
