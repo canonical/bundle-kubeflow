@@ -1,14 +1,14 @@
 bundle: kubernetes
 applications:
-  argo-controller:              { charm: cs:argo-controller,             scale: 1, annotations: { gui-x:  '600', gui-y:    '0' } }
-  minio:                        { charm: cs:minio,                       scale: 1, annotations: { gui-x:  '450', gui-y:  '259' } }
-  pipelines-api:                { charm: cs:pipelines-api,               scale: 1, annotations: { gui-x:  '300', gui-y:  '518' } }
-  pipelines-db:                 { charm: cs:~charmed-osm/mariadb-k8s,    scale: 1, annotations: { gui-x:    '0', gui-y:  '518' } }
-  pipelines-persistence:        { charm: cs:pipelines-persistence,       scale: 1, annotations: { gui-x:  '150', gui-y:  '777' } }
-  pipelines-scheduledworkflow:  { charm: cs:pipelines-scheduledworkflow, scale: 1, annotations: { gui-x: '-150', gui-y:  '777' } }
-  pytorch-operator:             { charm: cs:pytorch-operator,            scale: 1, annotations: { gui-x:  '450', gui-y: '-777' } }
-  seldon-controller-manager:    { charm: cs:seldon-controller-manager,   scale: 1, annotations: { gui-x:  '900', gui-y:    '0' } }
-  tf-job-operator:              { charm: cs:tf-job-operator,             scale: 1, annotations: { gui-x: '-600', gui-y:    '0' } }
+  argo-controller:              { charm: cs:argo-controller,             scale: 1 }
+  minio:                        { charm: cs:minio,                       scale: 1 }
+  pipelines-api:                { charm: cs:pipelines-api,               scale: 1 }
+  pipelines-db:                 { charm: cs:~charmed-osm/mariadb-k8s,    scale: 1 }
+  pipelines-persistence:        { charm: cs:pipelines-persistence,       scale: 1 }
+  pipelines-scheduledworkflow:  { charm: cs:pipelines-scheduledworkflow, scale: 1 }
+  pytorch-operator:             { charm: cs:pytorch-operator,            scale: 1 }
+  seldon-controller-manager:    { charm: cs:seldon-controller-manager,   scale: 1 }
+  tf-job-operator:              { charm: cs:tf-job-operator,             scale: 1 }
 relations:
 - [argo-controller, minio]
 - [pipelines-api, pipelines-db]
