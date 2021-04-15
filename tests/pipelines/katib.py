@@ -38,7 +38,7 @@ def create_task(namespace: str, example: str) -> NamedTuple('Data', [('experimen
     pprint(resource)
     api.create_namespaced_custom_object(
         group="kubeflow.org",
-        version="v1alpha3",
+        version="v1beta1",
         namespace="admin",
         plural="experiments",
         body=resource,
@@ -55,7 +55,7 @@ def wait_task(namespace: str, experiment_name: str):
     import csv
     import json
 
-    katib_ui = 'http://katib-ui.kubeflow.svc.cluster.local:8000/katib/fetch_hp_job_info/'
+    katib_ui = 'http://katib-ui.kubeflow.svc.cluster.local:8080/katib/fetch_hp_job_info/'
 
     for _ in range(120):
         response = requests.get(
@@ -96,7 +96,7 @@ def wait_task(namespace: str, experiment_name: str):
 def delete_task(namespace: str, experiment_name: str):
     import requests
 
-    katib_ui = 'http://katib-ui.kubeflow.svc.cluster.local:8000/katib/delete_experiment/'
+    katib_ui = 'http://katib-ui.kubeflow.svc.cluster.local:8080/katib/delete_experiment/'
 
     response = requests.get(f'{katib_ui}?experimentName={experiment_name}&namespace={namespace}')
     response.raise_for_status()
@@ -105,8 +105,8 @@ def delete_task(namespace: str, experiment_name: str):
 @dsl.pipeline(name='Katib Test', description='Tests Katib')
 def katib_pipeline(
     namespace: str = 'admin',
-    example: str = 'https://raw.githubusercontent.com/kubeflow/katib/4559e16/examples/v1alpha3/grid-example.yaml',
+    example: str = 'https://raw.githubusercontent.com/kubeflow/katib/5ed27d7/examples/v1beta1/early-stopping/median-stop.yaml',
 ):
-    create = create_task(namespace, example)
-    wait = wait_task(namespace, create.outputs['experiment_name'])
-    _delete = delete_task(namespace, create.outputs['experiment_name']).after(wait)
+    _create = create_task(namespace, example)
+    # wait = wait_task(namespace, create.outputs['experiment_name'])
+    # _delete = delete_task(namespace, create.outputs['experiment_name']).after(wait)

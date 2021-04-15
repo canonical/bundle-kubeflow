@@ -1,16 +1,16 @@
 bundle: kubernetes
 applications:
-  argo-controller:              { charm: cs:argo-controller,             scale: 1 }
-  minio:                        { charm: cs:minio,                       scale: 1 }
-  pipelines-api:                { charm: cs:pipelines-api,               scale: 1 }
-  pipelines-db:                 { charm: cs:~charmed-osm/mariadb-k8s,    scale: 1 }
-  pipelines-persistence:        { charm: cs:pipelines-persistence,       scale: 1 }
-  pipelines-scheduledworkflow:  { charm: cs:pipelines-scheduledworkflow, scale: 1 }
-  pytorch-operator:             { charm: cs:pytorch-operator,            scale: 1 }
-  seldon-controller-manager:    { charm: cs:seldon-controller-manager,   scale: 1 }
-  tf-job-operator:              { charm: cs:tf-job-operator,             scale: 1 }
+  argo-controller:           { charm: cs:argo-controller-51,          scale: 1 }
+  minio:                     { charm: cs:minio-55,                    scale: 1 }
+  kfp-api:                   { charm: cs:kfp-api-10,                  scale: 1 }
+  kfp-db:                    { charm: cs:~charmed-osm/mariadb-k8s-35, scale: 1, options: { database: mlpipeline } }
+  kfp-persistence:           { charm: cs:kfp-persistence-7,           scale: 1 }
+  kfp-schedwf:               { charm: cs:kfp-schedwf-7,               scale: 1 }
+  pytorch-operator:          { charm: cs:pytorch-operator-53,         scale: 1 }
+  seldon-controller-manager: { charm: cs:seldon-core-50,              scale: 1 }
+  tfjob-operator:            { charm: cs:tfjob-operator-1,            scale: 1 }
 relations:
 - [argo-controller, minio]
-- [pipelines-api, pipelines-db]
-- [pipelines-api, pipelines-persistence]
-- [pipelines-api:minio, minio:minio]
+- [kfp-api, kfp-db]
+- [kfp-api, kfp-persistence]
+- [kfp-api, minio]
