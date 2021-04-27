@@ -1,4 +1,4 @@
-name: MicroK8s Test
+name: CI
 
 on:
   - push
@@ -11,8 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        juju: [2.8/stable, latest/candidate]
-        microk8s: [1.18/stable, 1.18/edge]
+        juju: [2.8/stable]
+        microk8s: [latest/stable]
     steps:
     - name: Check out code
       uses: actions/checkout@v2
@@ -20,6 +20,7 @@ jobs:
     - uses: balchua/microk8s-actions@v0.2.2
       with:
         channel: '${{ matrix.microk8s }}'
+        addons: '["dns", "storage", "rbac"]'
 
     - name: Install test dependencies
       run: |
@@ -34,6 +35,7 @@ jobs:
         sudo usermod -a -G microk8s $USER
 
     - name: Deploy Kubeflow
+      timeout-minutes: 15
       run: |
         sg microk8s <<EOF
           set -eux
@@ -44,6 +46,7 @@ jobs:
         EOF
 
     - name: Test Kubeflow
+      timeout-minutes: 15
       run: |
         set -eux
         sg microk8s -c './tests/run.sh -m edge'
@@ -144,7 +147,7 @@ jobs:
       fail-fast: false
       matrix:
         juju: [2.8/stable]
-        microk8s: [1.18/stable, 1.18/edge]
+        microk8s: [1.20/stable, 1.20/edge]
         bundle: [lite, full]
     steps:
     - name: Check out code
@@ -205,8 +208,15 @@ jobs:
         juju ssh ubuntu/0 <<EOF
           set -eux
           cd bundle-kubeflow
-          ./tests/run.sh -m ${{ matrix.bundle }}
+          ./tests/run.sh -m ${{ matrix.bundle }} -k 'not selenium'
+          ./tests/run.sh -m ${{ matrix.bundle }} -k selenium
         EOF
+
+    - run: juju ssh ubuntu/0 sudo juju show-unit istio-pilot/0
+      if: failure()
+
+    - run: juju ssh ubuntu/0 sudo juju show-unit istio-ingressgateway/0
+      if: failure()
 
     - name: Juju status
       run: juju ssh ubuntu/0 sudo juju status

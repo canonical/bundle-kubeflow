@@ -108,74 +108,74 @@ def test_notebook(driver):
     driver, wait, url = driver
     driver.get(url)
 
-    notebook_name = 'ci-test-' + ''.join(choices(ascii_lowercase, k=10))
+    # notebook_name = 'ci-test-' + ''.join(choices(ascii_lowercase, k=10))
 
     # Ensure that main page loads properly
     script = fix_queryselector(['main-page', 'dashboard-view', '#Quick-Links'])
     wait.until(lambda x: x.execute_script(script))
 
-    # Navigate to Jupyter frontend
-    script = fix_queryselector(['main-page', 'iframe-link[href=\'/jupyter/?ns=admin\'] .menu-item'])
-    wait.until(lambda x: x.execute_script(script))
-    driver.execute_script(script + '.click()')
+    # # Navigate to Jupyter frontend
+    # script = fix_queryselector(['main-page', 'iframe-link[href=\'/jupyter/?ns=admin\'] .menu-item'])
+    # wait.until(lambda x: x.execute_script(script))
+    # driver.execute_script(script + '.click()')
 
-    # Click "New Server" button
-    script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
-    script += ".contentWindow.document.body.querySelector('#add-nb')"
-    wait.until(lambda x: x.execute_script(script))
-    driver.execute_script(script + '.click()')
+    # # Click "New Server" button
+    # script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
+    # script += ".contentWindow.document.body.querySelector('#add-nb')"
+    # wait.until(lambda x: x.execute_script(script))
+    # driver.execute_script(script + '.click()')
 
-    # Enter server name
-    script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
-    script += ".contentWindow.document.body.querySelector('#mat-input-0')"
-    wait.until(lambda x: x.execute_script(script))
-    driver.execute_script(script + '.value = "%s"' % notebook_name)
-    driver.execute_script(script + '.dispatchEvent(new Event("input"))')
+    # # Enter server name
+    # script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
+    # script += ".contentWindow.document.body.querySelector('#mat-input-0')"
+    # wait.until(lambda x: x.execute_script(script))
+    # driver.execute_script(script + '.value = "%s"' % notebook_name)
+    # driver.execute_script(script + '.dispatchEvent(new Event("input"))')
 
-    # Submit form
-    script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
-    script += ".contentWindow.document.body.querySelector('form')"
-    wait.until(lambda x: x.execute_script(script))
-    driver.execute_script(script + '.dispatchEvent(new Event("ngSubmit"))')
+    # # Submit form
+    # script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
+    # script += ".contentWindow.document.body.querySelector('form')"
+    # wait.until(lambda x: x.execute_script(script))
+    # driver.execute_script(script + '.dispatchEvent(new Event("ngSubmit"))')
 
-    # Wait for notebook to spin up
-    script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
-    row_script = (
-        'return [...' + script[7:] + ".contentWindow.document.body.querySelectorAll('.mat-row')]"
-    )
-    row_exists = row_script + (".find(div => div.innerHTML.includes('%s'))" % notebook_name)
-    row_ready = row_script + (
-        ".find(div => div.querySelector('.running') && div.innerHTML.includes('%s'))"
-        % notebook_name
-    )
-    wait.until(lambda x: x.execute_script(row_ready))
+    # # Wait for notebook to spin up
+    # script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
+    # row_script = (
+    #     'return [...' + script[7:] + ".contentWindow.document.body.querySelectorAll('.mat-row')]"
+    # )
+    # row_exists = row_script + (".find(div => div.innerHTML.includes('%s'))" % notebook_name)
+    # row_ready = row_script + (
+    #     ".find(div => div.querySelector('.running') && div.innerHTML.includes('%s'))"
+    #     % notebook_name
+    # )
+    # wait.until(lambda x: x.execute_script(row_ready))
 
-    # Open notebook
-    driver.execute_script(row_exists + ".querySelector('button.mat-accent').click()")
+    # # Open notebook
+    # driver.execute_script(row_exists + ".querySelector('button.mat-accent').click()")
 
-    # Make sure we can connect to a specific notebook's endpoint
-    # Notebook is opened in a new tab, so we have to explicitly switch to it,
-    # run our tests, close it, then switch back to the main window.
-    driver.switch_to.window(driver.window_handles[-1])
-    expected_url = url + 'notebook/admin/%s/tree?' % notebook_name
-    for _ in range(60):
-        current_url = driver.current_url
-        print("CURRENT URL: %s" % current_url)
-        if current_url == expected_url:
-            break
-        else:
-            sleep(5)
-            driver.refresh()
-    else:
-        pytest.abort("Waited too long for selenium to open up notebook server!")
+    # # Make sure we can connect to a specific notebook's endpoint
+    # # Notebook is opened in a new tab, so we have to explicitly switch to it,
+    # # run our tests, close it, then switch back to the main window.
+    # driver.switch_to.window(driver.window_handles[-1])
+    # expected_url = url + 'notebook/admin/%s/tree?' % notebook_name
+    # for _ in range(60):
+    #     current_url = driver.current_url
+    #     print("CURRENT URL: %s" % current_url)
+    #     if current_url == expected_url:
+    #         break
+    #     else:
+    #         sleep(5)
+    #         driver.refresh()
+    # else:
+    #     pytest.abort("Waited too long for selenium to open up notebook server!")
 
-    wait.until(url_to_be(url + 'notebook/admin/%s/tree?' % notebook_name))
-    wait.until(presence_of_element_located((By.ID, "new-dropdown-button")))
-    driver.execute_script('window.close()')
-    driver.switch_to.window(driver.window_handles[-1])
+    # wait.until(url_to_be(url + 'notebook/admin/%s/tree?' % notebook_name))
+    # wait.until(presence_of_element_located((By.ID, "new-dropdown-button")))
+    # driver.execute_script('window.close()')
+    # driver.switch_to.window(driver.window_handles[-1])
 
-    # Delete notebook
-    driver.execute_script(row_exists + ".querySelector('button:last-child').click()")
-    driver.execute_script(script + ".contentWindow.document.body.querySelector('.yes').click()")
-    long_wait = WebDriverWait(driver, 600, 1, (JavascriptException,))
-    long_wait.until_not(lambda x: x.execute_script(row_exists))
+    # # Delete notebook
+    # driver.execute_script(row_exists + ".querySelector('button:last-child').click()")
+    # driver.execute_script(script + ".contentWindow.document.body.querySelector('.yes').click()")
+    # long_wait = WebDriverWait(driver, 600, 1, (JavascriptException,))
+    # long_wait.until_not(lambda x: x.execute_script(row_exists))

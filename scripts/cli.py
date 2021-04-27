@@ -329,17 +329,15 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
         cloud,
         '--config',
         'logging-config="<root>=DEBUG;unit=DEBUG"',
+        '--config',
+        'update-status-hook-interval=30s',
     )
 
     juju('kubectl', 'label', 'namespace', model, 'istio-injection=enabled')
 
-    # Allow building local bundle.yaml, otherwise deploy from the charm store
-    if build:
-        juju('bundle', 'deploy', '-b', bundle_yaml, '--build', '--', '-m', model)
-    else:
-        juju('deploy', bundle_url, '-m', model, '--channel', channel)
-
-    if kubectl_exists('role/istio-ingressgateway-operator'):
+    if bundle in ('full', 'lite'):
+        juju('bundle', 'deploy', '-aistio-pilot', '-aistio-ingressgateway')
+        time.sleep(10)
         juju(
             'kubectl',
             'patch',
@@ -355,16 +353,25 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
             ),
         )
 
+        juju('wait', '-wv', '-m', model, '-t', str(300))
+        juju('model-config', 'update-status-hook-interval=5m')
+
+    # Allow building local bundle.yaml, otherwise deploy from the charm store
+    if build:
+        juju('bundle', 'deploy', '-b', bundle_yaml, '--build', '--', '-m', model)
+    else:
+        juju('deploy', bundle_url, '-m', model, '--channel', channel)
+
     # See here for why loop is necessary:
     # https://bugs.launchpad.net/juju/+bug/1921739
-    for _ in range(60):
+    for _ in range(120):
         try:
-            juju('wait', '-wv', '-m', model, '-t', str(30 * 60), die=False)
+            juju('wait', '-wv', '-m', model, '-t', str(30), die=False)
             break
         except subprocess.CalledProcessError:
             time.sleep(5)
     else:
-        juju('wait', '-wv', '-m', model, '-t', str(30 * 60), die=False)
+        juju('wait', '-wv', '-m', model, '-t', str(300), die=False)
 
     if kubectl_exists('service/pipelines-api'):
         with tempfile.NamedTemporaryFile(mode='w+') as f:
@@ -386,14 +393,6 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
             )
             juju('kubectl', 'apply', '-f', f.name)
 
-    if bundle == 'full':
-        juju(
-            'kubectl',
-            'delete',
-            'mutatingwebhookconfigurations/katib-mutating-webhook-config',
-            'validatingwebhookconfigurations/katib-validating-webhook-config',
-        )
-
     juju(
         "kubectl",
         "wait",
@@ -414,7 +413,17 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
 
     click.echo("Waiting for Kubeflow to become ready")
 
-    juju('wait', '-wv', '-m', model, '-t', str(10 * 60))
+    # See here for why loop is necessary:
+    # https://bugs.launchpad.net/juju/+bug/1921739
+    for _ in range(120):
+        try:
+            juju('wait', '-wv', '-m', model, '-t', str(30), die=False)
+            break
+        except subprocess.CalledProcessError:
+            time.sleep(5)
+    else:
+        juju('wait', '-wv', '-m', model, '-t', str(300), die=False)
+
     juju(
         "kubectl",
         "wait",

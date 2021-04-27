@@ -1,9 +1,0 @@
-options:
-  port:
-    type: int
-    default: 8080
-    description: HTTP port
-  database-name:
-    type: string
-    default: metadb
-    description: MySQL database name
