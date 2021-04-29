@@ -18,7 +18,7 @@ applications:
   kfp-ui:                    { charm: cs:kfp-ui-9,                    scale: 1 }
   kfp-viewer:                { charm: cs:kfp-viewer-7,                scale: 1 }
   kfp-viz:                   { charm: cs:kfp-viz-6,                   scale: 1 }
-  kubeflow-dashboard:        { charm: cs:kubeflow-dashboard-55,       scale: 1 }
+  kubeflow-dashboard:        { charm: cs:kubeflow-dashboard-56,       scale: 1 }
   kubeflow-profiles:         { charm: cs:kubeflow-profiles-52,        scale: 1 }
   mlmd:                      { charm: cs:mlmd-5,                      scale: 1 }
   minio:                     { charm: cs:minio-55,                    scale: 1 }
