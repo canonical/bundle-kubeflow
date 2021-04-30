@@ -16,6 +16,7 @@ applications:
   kfp-viz:                   { charm: cs:kfp-viz-6,                   scale: 1 }
   kubeflow-dashboard:        { charm: cs:kubeflow-dashboard-56,       scale: 1 }
   kubeflow-profiles:         { charm: cs:kubeflow-profiles-52,        scale: 1 }
+  kubeflow-volumes:          { charm: cs:kubeflow-volumes-0,          scale: 1 }
   minio:                     { charm: cs:minio-55,                    scale: 1 }
   mlmd:                      { charm: cs:mlmd-5,                      scale: 1 }
   oidc-gatekeeper:           { charm: cs:oidc-gatekeeper-53,          scale: 1 }
@@ -29,6 +30,7 @@ relations:
 - [istio-pilot:ingress, jupyter-ui:ingress]
 - [istio-pilot:ingress, kfp-ui:ingress]
 - [istio-pilot:ingress, kubeflow-dashboard:ingress]
+- [istio-pilot:ingress, kubeflow-volumes:ingress]
 - [istio-pilot:istio-pilot, istio-ingressgateway:istio-pilot]
 - [istio-pilot:ingress, oidc-gatekeeper:ingress]
 - [istio-pilot:ingress-auth, oidc-gatekeeper:ingress-auth]
