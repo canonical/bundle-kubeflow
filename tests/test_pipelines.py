@@ -10,7 +10,7 @@ from .pipelines.jupyter import jupyter_pipeline
 from .pipelines.object_detection import object_detection_pipeline
 
 
-COWSAY_PARAMS = [{}]
+COWSAY_PARAMS = []
 
 
 MNIST_PARAMS = [
