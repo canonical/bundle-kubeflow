@@ -2,7 +2,7 @@ bundle: kubernetes
 applications:
   admission-webhook:         { charm: cs:admission-webhook-10,        scale: 1 }
   argo-controller:           { charm: cs:argo-controller-51,          scale: 1 }
-  dex-auth:                  { charm: cs:dex-auth-55,                 scale: 1 }
+  dex-auth:                  { charm: cs:dex-auth-60,                 scale: 1 }
   istio-ingressgateway:      { charm: cs:istio-ingressgateway-20,     scale: 1 }
   istio-pilot:               { charm: cs:istio-pilot-20,              scale: 1, options: { default-gateway: "kubeflow-gateway" } }
   jupyter-controller:        { charm: cs:jupyter-controller-55,       scale: 1 }

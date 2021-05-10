@@ -235,7 +235,7 @@ def get_pub_addr(controller: str):
         try:
             output = get_output('juju', 'kubectl', 'get', f'svc/{charm}', '-ojson')
             pub_ip = json.loads(output)['status']['loadBalancer']['ingress'][0]['ip']
-            return '%s.xip.io' % pub_ip
+            return '%s.nip.io' % pub_ip
         except (KeyError, subprocess.CalledProcessError):
             pass
 
@@ -284,13 +284,13 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
     # way of generating random passwords.
     if bundle == 'full':
         bundle_yaml = 'bundle.yaml'
-        bundle_url = 'kubeflow'
+        bundle_url = 'cs:kubeflow'
     elif bundle == 'lite':
         bundle_yaml = 'bundle-lite.yaml'
-        bundle_url = 'kubeflow-lite'
+        bundle_url = 'cs:kubeflow-lite'
     elif bundle == 'edge':
         bundle_yaml = 'bundle-edge.yaml'
-        bundle_url = 'kubeflow-edge'
+        bundle_url = 'cs:kubeflow-edge'
     else:
         raise Exception(f"Unknown bundle {bundle}")
 

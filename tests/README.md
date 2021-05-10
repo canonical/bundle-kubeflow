@@ -17,7 +17,7 @@ If you have Charmed Kubeflow deployed to a remote machine with an SSH proxy avai
 (for example, if you have MicroK8s running on an AWS VM), you can run the tests like this
 to run them against the remote machine:
 
-    pytest tests/ -m <bundle> --proxy=localhost:9999 --url=http://10.64.140.43.xip.io/ --password=password
+    pytest tests/ -m <bundle> --proxy=localhost:9999 --url=http://10.64.140.43.nip.io/ --password=password
 
 Additionally, if you'd like to view the Selenium tests as they're in progress, you can
 pass in the `--headful` option like this:
