@@ -48,7 +48,7 @@ def driver(request):
         endpoint = status['applications']['istio-ingressgateway']['address']
         try:
             ip_address(endpoint)
-            endpoint += '.xip.io'
+            endpoint += '.nip.io'
         except ValueError:
             pass
         url = f'http://{endpoint}/'
