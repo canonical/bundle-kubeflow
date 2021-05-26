@@ -15,14 +15,14 @@ applications:
   kfp-db:                    { charm: cs:~charmed-osm/mariadb-k8s-35, scale: 1, options: { database: mlpipeline } }
   kfp-persistence:           { charm: cs:kfp-persistence-7,           scale: 1 }
   kfp-schedwf:               { charm: cs:kfp-schedwf-7,               scale: 1 }
-  kfp-ui:                    { charm: cs:kfp-ui-9,                    scale: 1 }
+  kfp-ui:                    { charm: cs:kfp-ui-10,                   scale: 1 }
   kfp-viewer:                { charm: cs:kfp-viewer-7,                scale: 1 }
   kfp-viz:                   { charm: cs:kfp-viz-6,                   scale: 1 }
   kubeflow-dashboard:        { charm: cs:kubeflow-dashboard-56,       scale: 1 }
   kubeflow-profiles:         { charm: cs:kubeflow-profiles-52,        scale: 1 }
   mlmd:                      { charm: cs:mlmd-5,                      scale: 1 }
   minio:                     { charm: cs:minio-55,                    scale: 1 }
-  oidc-gatekeeper:           { charm: cs:oidc-gatekeeper-53,          scale: 1 }
+  oidc-gatekeeper:           { charm: cs:oidc-gatekeeper-54,          scale: 1 }
   pytorch-operator:          { charm: cs:pytorch-operator-53,         scale: 1 }
   spark:                     { charm: cs:~spark-charmers/spark-2,     scale: 1 }
   seldon-controller-manager: { charm: cs:seldon-core-50,              scale: 1 }
