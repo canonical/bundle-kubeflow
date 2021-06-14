@@ -49,7 +49,7 @@ Where `<NAMESPACE>` matches the name of the Juju model that you're using,
 and `path/to/job/definition.yaml` should point to a `TFJob` definition
 similar to the `mnist.yaml` example [found here][mnist-example].
 
-[mnist-example]: charms/tf-job-operator/files/mnist.yaml
+[mnist-example]: https://github.com/canonical/tfjob-operator/blob/master/examples/mnist.yaml
 
 ### TensorFlow Serving
 
