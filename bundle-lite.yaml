@@ -7,13 +7,13 @@ applications:
   istio-pilot:               { charm: cs:istio-pilot-20,              scale: 1, options: { default-gateway: "kubeflow-gateway" }  }
   jupyter-controller:        { charm: cs:jupyter-controller-55,       scale: 1 }
   jupyter-ui:                { charm: cs:jupyter-ui-9,                scale: 1 }
-  kfp-api:                   { charm: cs:kfp-api-10,                  scale: 1 }
+  kfp-api:                   { charm: cs:kfp-api-12,                  scale: 1 }
   kfp-db:                    { charm: cs:~charmed-osm/mariadb-k8s-35, scale: 1, options: { database: mlpipeline } }
-  kfp-persistence:           { charm: cs:kfp-persistence-7,           scale: 1 }
-  kfp-schedwf:               { charm: cs:kfp-schedwf-7,               scale: 1 }
-  kfp-ui:                    { charm: cs:kfp-ui-10,                   scale: 1 }
-  kfp-viewer:                { charm: cs:kfp-viewer-7,                scale: 1 }
-  kfp-viz:                   { charm: cs:kfp-viz-6,                   scale: 1 }
+  kfp-persistence:           { charm: cs:kfp-persistence-9,           scale: 1 }
+  kfp-schedwf:               { charm: cs:kfp-schedwf-9,               scale: 1 }
+  kfp-ui:                    { charm: cs:kfp-ui-12,                   scale: 1 }
+  kfp-viewer:                { charm: cs:kfp-viewer-9,                scale: 1 }
+  kfp-viz:                   { charm: cs:kfp-viz-8,                   scale: 1 }
   kubeflow-dashboard:        { charm: cs:kubeflow-dashboard-56,       scale: 1 }
   kubeflow-profiles:         { charm: cs:kubeflow-profiles-52,        scale: 1 }
   minio:                     { charm: cs:minio-55,                    scale: 1 }

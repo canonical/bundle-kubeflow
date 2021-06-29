@@ -11,13 +11,13 @@ applications:
   katib-db:                  { charm: cs:~charmed-osm/mariadb-k8s-35, scale: 1, options: { database: katib } }
   katib-db-manager:          { charm: cs:katib-db-manager-4,          scale: 1 }
   katib-ui:                  { charm: cs:katib-ui-30,                 scale: 1 }
-  kfp-api:                   { charm: cs:kfp-api-10,                  scale: 1 }
+  kfp-api:                   { charm: cs:kfp-api-12,                  scale: 1 }
   kfp-db:                    { charm: cs:~charmed-osm/mariadb-k8s-35, scale: 1, options: { database: mlpipeline } }
-  kfp-persistence:           { charm: cs:kfp-persistence-7,           scale: 1 }
-  kfp-schedwf:               { charm: cs:kfp-schedwf-7,               scale: 1 }
-  kfp-ui:                    { charm: cs:kfp-ui-10,                   scale: 1 }
-  kfp-viewer:                { charm: cs:kfp-viewer-7,                scale: 1 }
-  kfp-viz:                   { charm: cs:kfp-viz-6,                   scale: 1 }
+  kfp-persistence:           { charm: cs:kfp-persistence-9,           scale: 1 }
+  kfp-schedwf:               { charm: cs:kfp-schedwf-9,               scale: 1 }
+  kfp-ui:                    { charm: cs:kfp-ui-12,                   scale: 1 }
+  kfp-viewer:                { charm: cs:kfp-viewer-9,                scale: 1 }
+  kfp-viz:                   { charm: cs:kfp-viz-8,                   scale: 1 }
   kubeflow-dashboard:        { charm: cs:kubeflow-dashboard-56,       scale: 1 }
   kubeflow-profiles:         { charm: cs:kubeflow-profiles-52,        scale: 1 }
   mlmd:                      { charm: cs:mlmd-5,                      scale: 1 }
