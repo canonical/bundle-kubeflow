@@ -5,8 +5,8 @@ applications:
   dex-auth:                  { charm: cs:dex-auth-60,                 scale: 1 }
   istio-ingressgateway:      { charm: cs:istio-ingressgateway-20,     scale: 1 }
   istio-pilot:               { charm: cs:istio-pilot-20,              scale: 1, options: { default-gateway: "kubeflow-gateway" }  }
-  jupyter-controller:        { charm: cs:jupyter-controller-55,       scale: 1 }
-  jupyter-ui:                { charm: cs:jupyter-ui-9,                scale: 1 }
+  jupyter-controller:        { charm: cs:jupyter-controller-56,       scale: 1 }
+  jupyter-ui:                { charm: cs:jupyter-ui-10,               scale: 1 }
   kfp-api:                   { charm: cs:kfp-api-12,                  scale: 1 }
   kfp-db:                    { charm: cs:~charmed-osm/mariadb-k8s-35, scale: 1, options: { database: mlpipeline } }
   kfp-persistence:           { charm: cs:kfp-persistence-9,           scale: 1 }
