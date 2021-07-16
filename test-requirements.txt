@@ -1,4 +1,3 @@
-charmcraft==0.9.0
 click==7.1.2
 flaky==3.7.0
 kfp==1.4.0

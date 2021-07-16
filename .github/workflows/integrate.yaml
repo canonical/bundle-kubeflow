@@ -25,13 +25,14 @@ jobs:
     - name: Install test dependencies
       run: |
         set -eux
-        for snap in charm juju-helpers juju-wait; do
+        for snap in charmcraft charm juju-helpers juju-wait; do
             sudo snap install $snap --classic
         done
         sudo snap install juju --classic --channel ${{ matrix.juju }}
         sudo apt update
         sudo apt install -y libssl-dev python3-pip
-        sudo pip3 install -r requirements.txt -r test-requirements.txt
+        sudo pip3 install -r requirements.txt
+        sudo pip3 install tox
         sudo usermod -a -G microk8s $USER
 
     - name: Deploy Kubeflow
@@ -49,7 +50,7 @@ jobs:
       timeout-minutes: 15
       run: |
         set -eux
-        sg microk8s -c './tests/run.sh -m edge'
+        sg microk8s -c 'tox -e tests -- -m edge'
         # Disabled until we can switch to https://github.com/canonical/argo-operators
         # sudo snap restart microk8s
         # sg microk8s -c 'microk8s.status --wait-ready'
@@ -194,7 +195,7 @@ jobs:
       run: |
         juju ssh ubuntu/0 <<EOF
           set -eux
-          for snap in charm juju-helpers juju-wait; do
+          for snap in charmcraft charm juju-helpers juju-wait; do
               sudo snap install \$snap --classic
           done
           sudo snap install juju --classic --channel ${{ matrix.juju }}
@@ -202,7 +203,7 @@ jobs:
           sudo apt update
           sudo apt install -y libssl-dev firefox-geckodriver python3-pip
           cd bundle-kubeflow
-          sudo pip3 install -r requirements.txt -r test-requirements.txt
+          sudo pip3 install tox
           sudo usermod -a -G microk8s ubuntu
         EOF
 
@@ -222,8 +223,8 @@ jobs:
         juju ssh ubuntu/0 <<EOF
           set -eux
           cd bundle-kubeflow
-          ./tests/run.sh -m ${{ matrix.bundle }} -k 'not selenium'
-          ./tests/run.sh -m ${{ matrix.bundle }} -k selenium
+          tox -e tests -- -m ${{ matrix.bundle }} -k 'not selenium'
+          tox -e tests -- -m ${{ matrix.bundle }} -k selenium
         EOF
 
     - run: juju ssh ubuntu/0 sudo juju show-unit istio-pilot/0
