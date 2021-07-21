@@ -5,4 +5,5 @@ kfp==1.4.0
 pytest==6.2.3
 pyyaml==5.3.1
 selenium==3.141.0
+selenium-wire==4.3.1
 sh==1.14.1

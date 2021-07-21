@@ -33,11 +33,11 @@ def get_params(func):
             katib_pipeline,
             marks=[pytest.mark.full],
         ),
-        pytest.param(
-            'jupyter',
-            jupyter_pipeline,
-            marks=[pytest.mark.full, pytest.mark.lite],
-        ),
+        # pytest.param(
+        #     'jupyter',
+        #     jupyter_pipeline,
+        #     marks=[pytest.mark.full, pytest.mark.lite],
+        # ),
         pytest.param(
             'object_detection',
             object_detection_pipeline,
