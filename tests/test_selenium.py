@@ -1,18 +1,20 @@
 from ipaddress import ip_address
+from pathlib import Path
 from random import choices
 from shutil import which
 from string import ascii_lowercase
 from subprocess import check_output
 from time import sleep
+from urllib.parse import urlparse
 
 import pytest
 import yaml
-from selenium import webdriver
 from selenium.common.exceptions import JavascriptException, WebDriverException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.support.expected_conditions import presence_of_element_located, url_to_be
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from seleniumwire import webdriver
 
 
 def fix_queryselector(elems):
@@ -28,6 +30,11 @@ def fix_queryselector(elems):
 
     selectors = '").shadowRoot.querySelector("'.join(elems)
     return 'return document.querySelector("' + selectors + '")'
+
+
+def evaluate(doc, xpath):
+    result_type = 'XPathResult.FIRST_ORDERED_NODE_TYPE'
+    return f'return {doc}.evaluate("{xpath}", {doc}, null, {result_type}, null).singleNodeValue'
 
 
 @pytest.fixture()
@@ -68,7 +75,13 @@ def driver(request):
         profile.set_preference('network.proxy.socks', proxy.split(':')[0])
         profile.set_preference('network.proxy.socks_port', int(proxy.split(':')[1]))
 
-    with webdriver.Firefox(options=options, firefox_profile=profile) as driver:
+    kwargs = {
+        'options': options,
+        'seleniumwire_options': {'enable_har': True},
+        'firefox_profile': profile,
+    }
+
+    with webdriver.Firefox(**kwargs) as driver:
         wait = WebDriverWait(driver, 180, 1, (JavascriptException,))
         # Go to URL and log in
         for _ in range(60):
@@ -88,6 +101,8 @@ def driver(request):
         wait.until(lambda x: x.execute_script(script))
 
         yield driver, wait, url
+
+        Path(f'/tmp/selenium-{request.node.name}.har').write_text(driver.har)
         driver.get_screenshot_as_file(f'/tmp/selenium-{request.node.name}.png')
 
 
@@ -106,7 +121,6 @@ def test_login(driver):
 @pytest.mark.lite
 def test_notebook(driver):
     driver, wait, url = driver
-    driver.get(url)
 
     notebook_name = 'ci-test-' + ''.join(choices(ascii_lowercase, k=10))
 
@@ -121,73 +135,79 @@ def test_notebook(driver):
 
     # Click "New Server" button
     script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
-    script += ".contentWindow.document.body.querySelector('#add-nb')"
+    script += ".contentWindow.document.body.querySelector('#newResource')"
     wait.until(lambda x: x.execute_script(script))
     driver.execute_script(script + '.click()')
 
+    wait.until(EC.url_to_be(url + '_/jupyter/new?ns=admin'))
+
     # Enter server name
     script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
-    script += ".contentWindow.document.body.querySelector('#mat-input-0')"
+    script += ".contentWindow.document.body.querySelector('input[placeholder=\"Name\"]')"
     wait.until(lambda x: x.execute_script(script))
     driver.execute_script(script + '.value = "%s"' % notebook_name)
     driver.execute_script(script + '.dispatchEvent(new Event("input"))')
 
-    # Open the image dropdown menu
-    script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
-    script += ".contentWindow.document.body.querySelector('#mat-select-5')"
-    wait.until(lambda x: x.execute_script(script))
-    driver.execute_script(script + '.click()')
-
-    # Select an image
-    script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
-    script += ".contentWindow.document.body.querySelector('#mat-option-12')"
-    wait.until(lambda x: x.execute_script(script))
-    driver.execute_script(script + '.click()')
-
-    # Submit form
+    # Click submit on the form. Sleep for 1 second before clicking the submit
+    # button because shiny animations that ignore click events are simply a must.
+    # Note that that was sarcasm. If you're reading this, please don't shit up
+    # the web with braindead technologies.
     script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
     script += ".contentWindow.document.body.querySelector('form')"
     wait.until(lambda x: x.execute_script(script))
     driver.execute_script(script + '.dispatchEvent(new Event("ngSubmit"))')
+    wait.until(EC.url_to_be(url + '_/jupyter/new?ns=admin'))
 
-    # Wait for notebook to spin up
-    script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
-    row_script = (
-        'return [...' + script[7:] + ".contentWindow.document.body.querySelectorAll('.mat-row')]"
-    )
-    row_exists = row_script + (".find(div => div.innerHTML.includes('%s'))" % notebook_name)
-    row_ready = row_script + (
-        ".find(div => div.querySelector('.running') && div.innerHTML.includes('%s'))"
-        % notebook_name
-    )
-    wait.until(lambda x: x.execute_script(row_ready))
+    # doc points at the nested Document hidden in all of the shadowroots
+    # Saving as separate variable to make constructing `Document.evaluate`
+    # query easier, as that requires `contextNode` to be equal to `doc`.
+    doc = fix_queryselector(['main-page', 'iframe-container', 'iframe'])[7:]
+    doc += ".contentWindow.document"
 
-    # Open notebook
-    driver.execute_script(row_exists + ".querySelector('button.mat-accent').click()")
+    # Since upstream doesn't use proper class names or IDs or anything, find the
+    # <tr> containing elements that contain the notebook name and `ready`, signifying
+    # that the notebook is finished booting up. Returns a reference to the containing
+    # <tr> element. The result is a fairly unreadable XPath reference, but it works 🤷
+    chonky_boi = '/'.join(
+        [
+            f"//*[contains(text(), '{notebook_name}')]",
+            "ancestor::tr",
+            "/*[contains(@class, 'ready')]",
+            "ancestor::tr",
+        ]
+    )
+
+    script = evaluate(doc, chonky_boi)
+    wait.until(lambda x: x.execute_script(script))
+    driver.execute_script(doc + '.querySelector(".action-button button").click()')
 
     # Make sure we can connect to a specific notebook's endpoint
     # Notebook is opened in a new tab, so we have to explicitly switch to it,
     # run our tests, close it, then switch back to the main window.
     driver.switch_to.window(driver.window_handles[-1])
-    expected_url = url + 'notebook/admin/%s/tree?' % notebook_name
-    for _ in range(60):
-        current_url = driver.current_url
-        print("CURRENT URL: %s" % current_url)
-        if current_url == expected_url:
+    expected_path = f'/notebook/admin/{notebook_name}/lab'
+    for _ in range(12):
+        path = urlparse(driver.current_url).path
+        if path == expected_path:
             break
-        else:
-            sleep(5)
-            driver.refresh()
-    else:
-        pytest.abort("Waited too long for selenium to open up notebook server!")
 
-    wait.until(url_to_be(url + 'notebook/admin/%s/tree?' % notebook_name))
-    wait.until(presence_of_element_located((By.ID, "new-dropdown-button")))
+        sleep(5)
+        driver.refresh()
+    else:
+        pytest.fail(
+            "Waited too long for selenium to open up notebook server. "
+            f"Expected current path to be `{expected_path}`, got `{path}`."
+        )
+
+    # Wait for main content div to load
+    # TODO: More testing of notebook UIs
+    wait.until(EC.presence_of_element_located((By.CLASS_NAME, "jp-Launcher-sectionTitle")))
     driver.execute_script('window.close()')
     driver.switch_to.window(driver.window_handles[-1])
 
-    # Delete notebook
-    driver.execute_script(row_exists + ".querySelector('button:last-child').click()")
-    driver.execute_script(script + ".contentWindow.document.body.querySelector('.yes').click()")
-    long_wait = WebDriverWait(driver, 600, 1, (JavascriptException,))
-    long_wait.until_not(lambda x: x.execute_script(row_exists))
+    # Delete notebook, and wait for it to finalize
+    driver.execute_script(evaluate(doc, "//*[contains(text(), 'delete')]") + '.click()')
+    driver.execute_script(f"{doc}.body.querySelector('.mat-warn').click()")
+
+    script = evaluate(doc, "//*[contains(text(), '{notebook_name}')]")
+    wait.until_not(lambda x: x.execute_script(script))

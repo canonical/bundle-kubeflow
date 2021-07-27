@@ -11,8 +11,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        juju: [2.8/stable]
-        microk8s: [latest/stable]
+        juju: [2.9/stable]
+        microk8s: [1.20/stable]
     steps:
     - name: Check out code
       uses: actions/checkout@v2
@@ -138,6 +138,20 @@ jobs:
         path: stdout-${{ strategy.job-index }}/*.log
       if: failure()
 
+    - name: Upload selenium screenshots
+      uses: actions/upload-artifact@v2
+      with:
+        name: selenium-screenshots-actions
+        path: /tmp/selenium-*.png
+      if: failure()
+
+    - name: Upload HAR logs
+      uses: actions/upload-artifact@v2
+      with:
+        name: selenium-har-actions
+        path: /tmp/selenium-*.har
+      if: failure()
+
   # Runs tests on AWS that are too big for github actions
   # Tests that are small enough are above in `actions:`
   aws:
@@ -146,8 +160,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        juju: [2.8/stable]
-        microk8s: [1.20/stable, 1.20/edge]
+        juju: [2.9/stable]
+        microk8s: [1.20/stable]
         bundle: [lite, full]
     steps:
     - name: Check out code
@@ -238,21 +252,30 @@ jobs:
       run: juju ssh ubuntu/0 sudo microk8s kubectl describe pods -A
       if: failure()
 
-    - name: Get selenium screenshots
+    - name: Get selenium screenshots and HAR file
       run: |
         set -eux
         juju ssh ubuntu/0 <<EOF
           set -eux
-          tar -czvf selenium.tar.gz /tmp/selenium-*.png || true
+          tar -czvf selenium-screenshots.tar.gz /tmp/selenium-*.png || true
+          tar -czvf selenium-har.tar.gz /tmp/selenium-*.har || true
         EOF
-        juju scp ubuntu/0:selenium.tar.gz selenium-${{ strategy.job-index }}.tar.gz
+        juju scp ubuntu/0:selenium-screenshots.tar.gz selenium-screenshots-${{ strategy.job-index }}.tar.gz
+        juju scp ubuntu/0:selenium-har.tar.gz selenium-har-${{ strategy.job-index }}.tar.gz
       if: failure()
 
     - name: Upload selenium screenshots
       uses: actions/upload-artifact@v2
       with:
-        name: selenium-screenshots
-        path: selenium-${{ strategy.job-index }}.tar.gz
+        name: selenium-screenshots-aws
+        path: selenium-screenshots-${{ strategy.job-index }}.tar.gz
+      if: failure()
+
+    - name: Upload HAR logs
+      uses: actions/upload-artifact@v2
+      with:
+        name: selenium-har-aws
+        path: selenium-har-${{ strategy.job-index }}.tar.gz
       if: failure()
 
     - name: Generate inspect tarball
