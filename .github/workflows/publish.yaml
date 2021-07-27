@@ -21,9 +21,7 @@ jobs:
       run: |
         set -eux
         sudo snap install charm --classic
-        sudo snap install juju-helpers --classic --channel edge
-        pip3 install --user charmcraft
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        sudo snap install juju-bundle --classic
 
     - name: Publish bundle
       env:
@@ -33,11 +31,6 @@ jobs:
         echo $CHARMSTORE_CREDENTIAL > ~/.go-cookies
         git clone git://git.launchpad.net/canonical-osm
         cp -r canonical-osm/charms/interfaces/juju-relation-mysql mysql
-        juju-bundle publish \
-            -b bundle.yaml \
-            --url cs:~kubeflow-charmers/kubeflow \
-            --serial --prune \
-            --publish-charms \
-            --publish-namespace kubeflow-charmers
+        juju-bundle publish -b bundle.yaml --url cs:~kubeflow-charmers/kubeflow
         juju-bundle publish -b bundle-lite.yaml --url cs:~kubeflow-charmers/kubeflow-lite
         juju-bundle publish -b bundle-edge.yaml --url cs:~kubeflow-charmers/kubeflow-edge
