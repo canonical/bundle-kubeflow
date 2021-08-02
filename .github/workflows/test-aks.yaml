@@ -14,7 +14,7 @@ jobs:
     - name: Install test dependencies
       run: |
         set -eux
-        for snap in charm juju-helpers juju-wait; do
+        for snap in charmcraft charm juju-helpers juju-wait; do
             sudo snap install $snap --classic
         done
         sudo snap install juju --classic
