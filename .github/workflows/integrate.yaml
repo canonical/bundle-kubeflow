@@ -7,6 +7,14 @@ on:
     - cron: '0 12 * * TUE'
 
 jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - run: sudo apt update && sudo apt install tox
+    - run: tox -e lint
+
   actions:
     name: Github Actions
     runs-on: ubuntu-latest
