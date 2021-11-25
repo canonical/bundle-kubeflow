@@ -24,10 +24,9 @@ applications:
   mlmd:                      { charm: cs:mlmd-5,                      scale: 1 }
   minio:                     { charm: cs:minio-55,                    scale: 1 }
   oidc-gatekeeper:           { charm: cs:oidc-gatekeeper-54,          scale: 1 }
-  pytorch-operator:          { charm: cs:pytorch-operator-53,         scale: 1 }
   spark:                     { charm: cs:~spark-charmers/spark-2,     scale: 1 }
   seldon-controller-manager: { charm: cs:seldon-core-50,              scale: 1 }
-  tfjob-operator:            { charm: cs:tfjob-operator-1,            scale: 1 }
+  training-operator:          { charm: cs:training-operator-1,         scale: 1 }
 relations:
 - [argo-controller, minio]
 - [dex-auth:oidc-client, oidc-gatekeeper:oidc-client]
