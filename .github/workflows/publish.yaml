@@ -1,36 +1,34 @@
 name: Publish
-
 on:
   push:
     branches:
       - master
-    paths:
-      - charms/**
-      - bundle*.yaml
+      - main
+      - track/**
+  pull_request:
+    branches:
+      - master
+      - main
+      - track/**
 
 jobs:
-  all-bundles:
-    name: All Bundles
+  publish-bundle:
+    name: Publish bundle-kubeflow
     runs-on: ubuntu-latest
-
+    env:
+      CHARMCRAFT_AUTH: ${{ secrets.CHARMCRAFT_CREDENTIALS }}
     steps:
-    - name: Check out code
-      uses: actions/checkout@v2
+      #FIXME: this will only publish the kubeflow bundle, no edge/lite
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: sudo snap install charmcraft --classic --channel=latest/edge
+      - name: Pack and publish bundle
+        run: |
+          set -ex
+          charmcraft pack --destructive-mode
+          charmcraft upload ./*.zip
+          export REVISION=$(charmcraft revisions kubeflow 2>&1 | awk 'NR==2 {print $1}')
+          charmcraft release kubeflow --revision $REVISION --channel=latest/edge
 
-    - name: Install dependencies
-      run: |
-        set -eux
-        sudo snap install charm --classic
-        sudo snap install juju-bundle --classic
 
-    - name: Publish bundle
-      env:
-        CHARMSTORE_CREDENTIAL: ${{ secrets.CHARMSTORE_CREDENTIAL }}
-      run: |
-        set -eux
-        echo $CHARMSTORE_CREDENTIAL > ~/.go-cookies
-        git clone git://git.launchpad.net/canonical-osm
-        cp -r canonical-osm/charms/interfaces/juju-relation-mysql mysql
-        juju-bundle publish -b bundle.yaml --url cs:~kubeflow-charmers/kubeflow
-        juju-bundle publish -b bundle-lite.yaml --url cs:~kubeflow-charmers/kubeflow-lite
-        juju-bundle publish -b bundle-edge.yaml --url cs:~kubeflow-charmers/kubeflow-edge
+
