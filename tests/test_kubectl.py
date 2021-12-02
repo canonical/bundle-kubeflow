@@ -59,10 +59,9 @@ def test_running_full():
         'minio': 'Running',
         'mlmd': 'Running',
         'oidc-gatekeeper': 'Running',
-        'pytorch-operator': 'Running',
         'seldon-controller-manager': 'Running',
         'spark': 'Running',
-        'tfjob-operator': 'Running',
+        'training-operator': 'Running',
     }
 
 
@@ -90,9 +89,8 @@ def test_running_lite():
         'kfp-ui': 'Running',
         'kfp-viewer': 'Running',
         'kfp-viz': 'Running',
-        'pytorch-operator': 'Running',
         'seldon-controller-manager': 'Running',
-        'tfjob-operator': 'Running',
+        'training-operator': 'Running',
     }
 
 
@@ -106,9 +104,8 @@ def test_running_edge():
         'kfp-persistence': 'Running',
         'kfp-schedwf': 'Running',
         'minio': 'Running',
-        'pytorch-operator': 'Running',
         'seldon-controller-manager': 'Running',
-        'tfjob-operator': 'Running',
+        'training-operator': 'Running',
     }
 
 
@@ -123,16 +120,18 @@ def test_crd_created_full():
             'notebooks.kubeflow.org',
             'poddefaults.kubeflow.org',
             'profiles.kubeflow.org',
-            'pytorchjobs.kubeflow.org',
             'scheduledworkflows.kubeflow.org',
             'seldondeployments.machinelearning.seldon.io',
             'servicerolebindings.rbac.istio.io',
             'serviceroles.rbac.istio.io',
             'suggestions.kubeflow.org',
-            'tfjobs.kubeflow.org',
             'trials.kubeflow.org',
             'viewers.kubeflow.org',
             'workflows.argoproj.io',
+            'xgboostjobs.kubeflow.org',
+            'mxjobs.kubeflow.org',
+            'pytorchjobs.kubeflow.org',
+            'tfjobs.kubeflow.org',
         }
     )
 
@@ -147,14 +146,16 @@ def test_crd_created_lite():
             'notebooks.kubeflow.org',
             'poddefaults.kubeflow.org',
             'profiles.kubeflow.org',
-            'pytorchjobs.kubeflow.org',
             'scheduledworkflows.kubeflow.org',
             'seldondeployments.machinelearning.seldon.io',
             'servicerolebindings.rbac.istio.io',
             'serviceroles.rbac.istio.io',
-            'tfjobs.kubeflow.org',
             'viewers.kubeflow.org',
             'workflows.argoproj.io',
+            'xgboostjobs.kubeflow.org',
+            'mxjobs.kubeflow.org',
+            'pytorchjobs.kubeflow.org',
+            'tfjobs.kubeflow.org',
         }
     )
 
@@ -166,11 +167,13 @@ def test_crd_created_edge():
     names = {i['metadata']['name'] for i in crds['items']}
     assert names.issuperset(
         {
-            'pytorchjobs.kubeflow.org',
             'scheduledworkflows.kubeflow.org',
             'seldondeployments.machinelearning.seldon.io',
-            'tfjobs.kubeflow.org',
             'workflows.argoproj.io',
+            'xgboostjobs.kubeflow.org',
+            'mxjobs.kubeflow.org',
+            'pytorchjobs.kubeflow.org',
+            'tfjobs.kubeflow.org',
         }
     )
 
@@ -226,14 +229,11 @@ def test_service_accounts_created_full():
             'mlmd-operator',
             'oidc-gatekeeper-operator',
             'pipeline-runner',
-            'pytorch-operator',
-            'pytorch-operator-operator',
             'seldon-controller-manager',
             'seldon-controller-manager-operator',
             'spark',
             'spark-operator',
-            'tfjob-operator',
-            'tfjob-operator-operator',
+            'training-operator',
         },
     )
 
@@ -282,12 +282,9 @@ def test_service_accounts_created_lite():
             'mlmd-operator',
             'oidc-gatekeeper-operator',
             'pipeline-runner',
-            'pytorch-operator',
-            'pytorch-operator-operator',
             'seldon-controller-manager',
             'seldon-controller-manager-operator',
-            'tfjob-operator',
-            'tfjob-operator-operator',
+            'training-operator',
         },
     )
 
@@ -311,11 +308,8 @@ def test_service_accounts_created_edge():
             'kfp-schedwf-operator',
             'minio-operator',
             'pipeline-runner',
-            'pytorch-operator',
-            'pytorch-operator-operator',
             'seldon-controller-manager',
             'seldon-controller-manager-operator',
-            'tfjob-operator',
-            'tfjob-operator-operator',
+            'training-operator',
         },
     )
