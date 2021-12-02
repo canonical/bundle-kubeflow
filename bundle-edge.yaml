@@ -1,14 +1,14 @@
 bundle: kubernetes
+name: kubeflow-edge
 applications:
-  argo-controller:           { charm: cs:argo-controller-51,          scale: 1 }
-  minio:                     { charm: cs:minio-55,                    scale: 1 }
-  kfp-api:                   { charm: cs:kfp-api-12,                  scale: 1 }
-  kfp-db:                    { charm: cs:~charmed-osm/mariadb-k8s-35, scale: 1, options: { database: mlpipeline } }
-  kfp-persistence:           { charm: cs:kfp-persistence-9,           scale: 1 }
-  kfp-schedwf:               { charm: cs:kfp-schedwf-9,               scale: 1 }
-  pytorch-operator:          { charm: cs:pytorch-operator-53,         scale: 1 }
-  seldon-controller-manager: { charm: cs:seldon-core-50,              scale: 1 }
-  tfjob-operator:            { charm: cs:tfjob-operator-1,            scale: 1 }
+  argo-controller:           { charm: argo-controller,         channel: latest/edge, scale: 1 }
+  minio:                     { charm: minio,                   channel: latest/edge, scale: 1 }
+  kfp-api:                   { charm: kfp-api,                 channel: latest/edge, scale: 1 }
+  kfp-db:                    { charm: charmed-osm-mariadb-k8s, channel: latest/edge, scale: 1, options: { database: mlpipeline } }
+  kfp-persistence:           { charm: kfp-persistence,         channel: latest/edge, scale: 1 }
+  kfp-schedwf:               { charm: kfp-schedwf,             channel: latest/edge, scale: 1 }
+  seldon-controller-manager: { charm: seldon-core,             channel: latest/edge, scale: 1 }
+  training-operator:         { charm: training-operator,       channel: latest/edge, scale: 1, trust: true }
 relations:
 - [argo-controller, minio]
 - [kfp-api, kfp-db]
