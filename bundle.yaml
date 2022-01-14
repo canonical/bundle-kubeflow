@@ -13,7 +13,7 @@ applications:
   katib-controller:              { charm: katib-controller,        channel: latest/edge, scale: 1 }
   katib-db:                      { charm: charmed-osm-mariadb-k8s, channel: latest/edge, scale: 1, options: { database: katib } }
   katib-db-manager:              { charm: katib-db-manager,        channel: latest/edge, scale: 1 }
-  katib-ui:                      { charm: katib-ui,                channel: latest/edge, scale: 1, resources: { oci-image: docker.io/kubeflowkatib/katib-ui:v1beta1-a96ff59 } }
+  katib-ui:                      { charm: katib-ui,                channel: latest/edge, scale: 1 }
   kfp-api:                       { charm: kfp-api,                 channel: latest/edge, scale: 1 }
   kfp-db:                        { charm: charmed-osm-mariadb-k8s, channel: latest/edge, scale: 1, options: { database: mlpipeline } }
   kfp-persistence:               { charm: kfp-persistence,         channel: latest/edge, scale: 1 }
