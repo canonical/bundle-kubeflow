@@ -3,25 +3,27 @@ name: kubeflow-lite
 applications:
   admission-webhook:             { charm: admission-webhook,       channel: latest/edge, scale: 1 }
   argo-controller:               { charm: argo-controller,         channel: latest/edge, scale: 1 }
-  dex-auth:                      { charm: dex-auth,                channel: latest/edge, scale: 1, trust: true }
-  istio-ingressgateway-operator: { charm: istio-gateway,           channel: latest/edge, scale: 1, trust: true, options: { kind: ingress } }
-  istio-pilot:                   { charm: istio-pilot,             channel: latest/edge, scale: 1, options: { default-gateways: "kubeflow-gateway" } }
+  dex-auth:                      { charm: dex-auth,                channel: 2.28/edge, scale: 1, trust: true }
+  istio-ingressgateway:          { charm: istio-gateway,           channel: 1.5/edge, scale: 1, trust: true}
+  istio-pilot:                   { charm: istio-pilot,             channel: 1.5/edge, scale: 1, options: { default-gateway: "kubeflow-gateway" } }
   jupyter-controller:            { charm: jupyter-controller,      channel: latest/edge, scale: 1 }
   jupyter-ui:                    { charm: jupyter-ui,              channel: latest/edge, scale: 1 }
   kfp-api:                       { charm: kfp-api,                 channel: latest/edge, scale: 1 }
   kfp-db:                        { charm: charmed-osm-mariadb-k8s, channel: latest/edge, scale: 1, options: { database: mlpipeline } }
   kfp-persistence:               { charm: kfp-persistence,         channel: latest/edge, scale: 1 }
+  kfp-profile-controller:        { charm: kfp-profile-controller,  channel: latest/edge, scale: 1 }
   kfp-schedwf:                   { charm: kfp-schedwf,             channel: latest/edge, scale: 1 }
   kfp-ui:                        { charm: kfp-ui,                  channel: latest/edge, scale: 1 }
   kfp-viewer:                    { charm: kfp-viewer,              channel: latest/edge, scale: 1 }
   kfp-viz:                       { charm: kfp-viz,                 channel: latest/edge, scale: 1 }
   kubeflow-dashboard:            { charm: kubeflow-dashboard,      channel: latest/edge, scale: 1 }
   kubeflow-profiles:             { charm: kubeflow-profiles,       channel: latest/edge, scale: 1 }
+  kubeflow-roles:                { charm: kubeflow-roles,          channel: latest/edge, scale: 1, trust: true }
   kubeflow-volumes:              { charm: kubeflow-volumes,        channel: latest/edge, scale: 1 }
+  metacontroller-operator:       { charm: metacontroller-operator, channel: latest/edge, scale: 1, trust: true }
   mlmd:                          { charm: mlmd,                    channel: latest/edge, scale: 1 }
   minio:                         { charm: minio,                   channel: latest/edge, scale: 1 }
   oidc-gatekeeper:               { charm: oidc-gatekeeper,         channel: latest/edge, scale: 1 }
-  spark:                         { charm: cs:~spark-charmers/spark-2,     scale: 1 }
   seldon-controller-manager:     { charm: seldon-core,             channel: latest/edge, scale: 1 }
   training-operator:             { charm: training-operator,       channel: latest/edge, scale: 1, trust: true }
 relations:
@@ -34,12 +36,13 @@ relations:
 - [istio-pilot:ingress, kubeflow-volumes:ingress]
 - [istio-pilot:ingress, oidc-gatekeeper:ingress]
 - [istio-pilot:ingress-auth, oidc-gatekeeper:ingress-auth]
-- [istio-pilot:istio-pilot, istio-ingressgateway-operator:istio-pilot]
+- [istio-pilot:istio-pilot, istio-ingressgateway:istio-pilot]
 - [kfp-api, kfp-db]
 - [kfp-api:kfp-api, kfp-persistence:kfp-api]
 - [kfp-api:kfp-api, kfp-ui:kfp-api]
 - [kfp-api:kfp-viz, kfp-viz:kfp-viz]
 - [kfp-api:object-storage, minio:object-storage]
+- [kfp-profile-controller:object-storage, minio:object-storage]
 - [kfp-ui:object-storage, minio:object-storage]
 - [kubeflow-profiles, kubeflow-dashboard]
 - [mlmd:grpc, envoy:grpc]

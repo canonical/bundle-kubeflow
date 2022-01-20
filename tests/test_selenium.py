@@ -52,7 +52,7 @@ def driver(request):
 
     if not url:
         status = yaml.safe_load(check_output([juju, 'status', '--format=yaml']))
-        endpoint = status['applications']['istio-ingressgateway-operator']['address']
+        endpoint = status['applications']['istio-ingressgateway']['address']
         try:
             ip_address(endpoint)
             endpoint += '.nip.io'

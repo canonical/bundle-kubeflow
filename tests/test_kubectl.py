@@ -40,7 +40,7 @@ def test_running_full():
         'argo-server': 'Running',
         'dex-auth': 'Running',
         'envoy': 'Running',
-        'istio-ingressgateway-operator': 'Running',
+        'istio-ingressgateway': 'Running',
         'istio-pilot': 'Running',
         'jupyter-controller': 'Running',
         'jupyter-ui': 'Running',
@@ -66,7 +66,6 @@ def test_running_full():
         'mlmd': 'Running',
         'oidc-gatekeeper': 'Running',
         'seldon-controller-manager': 'Running',
-        'spark': 'Running',
         'tensorboard-controller': 'Running',
         'tensorboards-web-app': 'Running',
         'training-operator': 'Running',
@@ -84,12 +83,6 @@ def test_running_lite():
         'istio-pilot': 'Running',
         'jupyter-controller': 'Running',
         'jupyter-ui': 'Running',
-        'kubeflow-dashboard': 'Running',
-        'kubeflow-profiles': 'Running',
-        'kubeflow-volumes': 'Running',
-        'minio': 'Running',
-        'mlmd': 'Running',
-        'oidc-gatekeeper': 'Running',
         'kfp-api': 'Running',
         'kfp-db': 'Running',
         'kfp-persistence': 'Running',
@@ -97,21 +90,14 @@ def test_running_lite():
         'kfp-ui': 'Running',
         'kfp-viewer': 'Running',
         'kfp-viz': 'Running',
-        'seldon-controller-manager': 'Running',
-        'training-operator': 'Running',
-    }
-
-
-@pytest.mark.edge
-@flaky(max_runs=60, rerun_filter=lambda *_: sleep(5) or True)
-def test_running_edge():
-    assert get_statuses() == {
-        'argo-controller': 'Running',
-        'kfp-api': 'Running',
-        'kfp-db': 'Running',
-        'kfp-persistence': 'Running',
-        'kfp-schedwf': 'Running',
+        'kubeflow-dashboard': 'Running',
+        'kubeflow-profiles': 'Running',
+        'kubeflow-roles': 'Running',
+        'kubeflow-volumes': 'Running',
+        'metacontroller-operator': 'Running',
         'minio': 'Running',
+        'mlmd': 'Running',
+        'oidc-gatekeeper': 'Running',
         'seldon-controller-manager': 'Running',
         'training-operator': 'Running',
     }
@@ -159,24 +145,6 @@ def test_crd_created_lite():
             'servicerolebindings.rbac.istio.io',
             'serviceroles.rbac.istio.io',
             'viewers.kubeflow.org',
-            'workflows.argoproj.io',
-            'xgboostjobs.kubeflow.org',
-            'mxjobs.kubeflow.org',
-            'pytorchjobs.kubeflow.org',
-            'tfjobs.kubeflow.org',
-        }
-    )
-
-
-@pytest.mark.edge
-def test_crd_created_edge():
-    crds = yaml.safe_load(kubectl.get('crd', '-oyaml').stdout)
-
-    names = {i['metadata']['name'] for i in crds['items']}
-    assert names.issuperset(
-        {
-            'scheduledworkflows.kubeflow.org',
-            'seldondeployments.machinelearning.seldon.io',
             'workflows.argoproj.io',
             'xgboostjobs.kubeflow.org',
             'mxjobs.kubeflow.org',

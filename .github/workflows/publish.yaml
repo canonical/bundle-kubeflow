@@ -15,6 +15,10 @@ jobs:
   publish-bundle:
     name: Publish bundle-kubeflow
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        bundle_file: [bundle.yaml, bundle-lite.yaml]
     env:
       CHARMCRAFT_AUTH: ${{ secrets.CHARMCRAFT_CREDENTIALS }}
     steps:
@@ -25,6 +29,11 @@ jobs:
       - name: Pack and publish bundle
         run: |
           set -ex
+          # Use a temporary directory to support publishing any of the bundles in this root dir
+          BUILD_DIR=.bundle_build
+          mkdir .bundle_build
+          cp charmcraft.yaml ${{ matrix.bundle_file }} $BUILD_DIR/bundle.yaml
+          cd $BUNDLE_DIR
           charmcraft pack --destructive-mode
           charmcraft upload ./*.zip
           export REVISION=$(charmcraft revisions kubeflow 2>&1 | awk 'NR==2 {print $1}')
