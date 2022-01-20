@@ -34,6 +34,7 @@ jobs:
           mkdir $BUILD_DIR
           cp ${{ matrix.bundle_file }} $BUILD_DIR/bundle.yaml
           cp charmcraft.yaml $BUILD_DIR
+          cp README.md $BUILD_DIR
           cd $BUILD_DIR
           charmcraft pack --destructive-mode
           charmcraft upload ./*.zip
