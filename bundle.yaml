@@ -4,10 +4,10 @@ applications:
   admission-webhook:             { charm: admission-webhook,       channel: latest/edge, scale: 1 }
   argo-controller:               { charm: argo-controller,         channel: latest/edge, scale: 1 }
   argo-server:                   { charm: argo-server,             channel: latest/edge, scale: 1 }
-  dex-auth:                      { charm: cs:dex-auth-60,          scale: 1, trust: true }
+  dex-auth:                      { charm: dex-auth,                channel: 2.28/edge, scale: 1, trust: true }
   envoy:                         { charm: envoy,                   channel: latest/edge, scale: 1 }
-  istio-ingressgateway-operator: { charm: cs:istio-ingressgateway-20,   scale: 1, trust: true }
-  istio-pilot:                   { charm: cs:istio-pilot-20,            scale: 1, trust: true, options: { default-gateway: "kubeflow-gateway" } }
+  istio-ingressgateway-operator: { charm: istio-gateway,           channel: 1.5/edge, scale: 1, trust: true}
+  istio-pilot:                   { charm: istio-pilot,             channel: 1.5/edge, scale: 1, options: { default-gateway: "kubeflow-gateway" } }
   jupyter-controller:            { charm: jupyter-controller,      channel: latest/edge, scale: 1 }
   jupyter-ui:                    { charm: jupyter-ui,              channel: latest/edge, scale: 1 }
   katib-controller:              { charm: katib-controller,        channel: latest/edge, scale: 1 }
@@ -28,9 +28,8 @@ applications:
   metacontroller-operator:       { charm: metacontroller-operator, channel: latest/edge, scale: 1, trust: true }
   mlmd:                          { charm: mlmd,                    channel: latest/edge, scale: 1 }
   minio:                         { charm: minio,                   channel: latest/edge, scale: 1 }
-  oidc-gatekeeper:               { charm: cs:oidc-gatekeeper-54,   scale: 1 }
+  oidc-gatekeeper:               { charm: oidc-gatekeeper,         channel: latest/edge, scale: 1 }
   seldon-controller-manager:     { charm: seldon-core,             channel: latest/edge, scale: 1 }
-  spark:                         { charm: cs:~spark-charmers/spark-2,     scale: 1 }
   tensorboard-controller:        { charm: tensorboard-controller,  channel: latest/edge, scale: 1 }
   tensorboards-web-app:          { charm: tensorboards-web-app,    channel: latest/edge, scale: 1 }
   training-operator:             { charm: training-operator,       channel: latest/edge, scale: 1, trust: true }
