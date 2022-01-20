@@ -32,7 +32,8 @@ jobs:
           # Use a temporary directory to support publishing any of the bundles in this root dir
           BUILD_DIR=.bundle_build
           mkdir .bundle_build
-          cp charmcraft.yaml ${{ matrix.bundle_file }} $BUILD_DIR/bundle.yaml
+          cp ${{ matrix.bundle_file }} $BUILD_DIR/bundle.yaml
+          cp charmcraft.yaml $BUILD_DIR
           cd $BUNDLE_DIR
           charmcraft pack --destructive-mode
           charmcraft upload ./*.zip
