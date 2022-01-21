@@ -4,6 +4,7 @@ applications:
   admission-webhook:             { charm: admission-webhook,       channel: latest/edge, scale: 1 }
   argo-controller:               { charm: argo-controller,         channel: latest/edge, scale: 1 }
   dex-auth:                      { charm: dex-auth,                channel: 2.28/edge, scale: 1, trust: true }
+  envoy: { charm: envoy, channel: latest/edge, scale: 1 }
   istio-ingressgateway:          { charm: istio-gateway,           channel: 1.5/edge, scale: 1, trust: true}
   istio-pilot:                   { charm: istio-pilot,             channel: 1.5/edge, scale: 1, options: { default-gateway: "kubeflow-gateway" } }
   jupyter-controller:            { charm: jupyter-controller,      channel: latest/edge, scale: 1 }
