@@ -37,7 +37,9 @@ def test_running_full():
     assert get_statuses() == {
         'admission-webhook': 'Running',
         'argo-controller': 'Running',
+        'argo-server': 'Running',
         'dex-auth': 'Running',
+        'envoy': 'Running',
         'istio-ingressgateway': 'Running',
         'istio-pilot': 'Running',
         'jupyter-controller': 'Running',
@@ -49,6 +51,7 @@ def test_running_full():
         'kfp-api': 'Running',
         'kfp-db': 'Running',
         'kfp-persistence': 'Running',
+        'kfp-profile-controller': 'Running',
         'kfp-schedwf': 'Running',
         'kfp-ui': 'Running',
         'kfp-viewer': 'Running',
@@ -56,13 +59,16 @@ def test_running_full():
         'kubeflow-dashboard': 'Running',
         'kubeflow-profiles': 'Running',
         'kubeflow-volumes': 'Running',
+        'kubeflow-roles': 'Running',
+        'kubeflow-metacontroller-operator-charm': 'Running',
+        'metacontroller-operator': 'Running',
         'minio': 'Running',
         'mlmd': 'Running',
         'oidc-gatekeeper': 'Running',
-        'pytorch-operator': 'Running',
         'seldon-controller-manager': 'Running',
-        'spark': 'Running',
-        'tfjob-operator': 'Running',
+        'tensorboard-controller': 'Running',
+        'tensorboards-web-app': 'Running',
+        'training-operator': 'Running',
     }
 
 
@@ -77,12 +83,6 @@ def test_running_lite():
         'istio-pilot': 'Running',
         'jupyter-controller': 'Running',
         'jupyter-ui': 'Running',
-        'kubeflow-dashboard': 'Running',
-        'kubeflow-profiles': 'Running',
-        'kubeflow-volumes': 'Running',
-        'minio': 'Running',
-        'mlmd': 'Running',
-        'oidc-gatekeeper': 'Running',
         'kfp-api': 'Running',
         'kfp-db': 'Running',
         'kfp-persistence': 'Running',
@@ -90,25 +90,16 @@ def test_running_lite():
         'kfp-ui': 'Running',
         'kfp-viewer': 'Running',
         'kfp-viz': 'Running',
-        'pytorch-operator': 'Running',
-        'seldon-controller-manager': 'Running',
-        'tfjob-operator': 'Running',
-    }
-
-
-@pytest.mark.edge
-@flaky(max_runs=60, rerun_filter=lambda *_: sleep(5) or True)
-def test_running_edge():
-    assert get_statuses() == {
-        'argo-controller': 'Running',
-        'kfp-api': 'Running',
-        'kfp-db': 'Running',
-        'kfp-persistence': 'Running',
-        'kfp-schedwf': 'Running',
+        'kubeflow-dashboard': 'Running',
+        'kubeflow-profiles': 'Running',
+        'kubeflow-roles': 'Running',
+        'kubeflow-volumes': 'Running',
+        'metacontroller-operator': 'Running',
         'minio': 'Running',
-        'pytorch-operator': 'Running',
+        'mlmd': 'Running',
+        'oidc-gatekeeper': 'Running',
         'seldon-controller-manager': 'Running',
-        'tfjob-operator': 'Running',
+        'training-operator': 'Running',
     }
 
 
@@ -123,16 +114,18 @@ def test_crd_created_full():
             'notebooks.kubeflow.org',
             'poddefaults.kubeflow.org',
             'profiles.kubeflow.org',
-            'pytorchjobs.kubeflow.org',
             'scheduledworkflows.kubeflow.org',
             'seldondeployments.machinelearning.seldon.io',
             'servicerolebindings.rbac.istio.io',
             'serviceroles.rbac.istio.io',
             'suggestions.kubeflow.org',
-            'tfjobs.kubeflow.org',
             'trials.kubeflow.org',
             'viewers.kubeflow.org',
             'workflows.argoproj.io',
+            'xgboostjobs.kubeflow.org',
+            'mxjobs.kubeflow.org',
+            'pytorchjobs.kubeflow.org',
+            'tfjobs.kubeflow.org',
         }
     )
 
@@ -147,30 +140,16 @@ def test_crd_created_lite():
             'notebooks.kubeflow.org',
             'poddefaults.kubeflow.org',
             'profiles.kubeflow.org',
-            'pytorchjobs.kubeflow.org',
             'scheduledworkflows.kubeflow.org',
             'seldondeployments.machinelearning.seldon.io',
             'servicerolebindings.rbac.istio.io',
             'serviceroles.rbac.istio.io',
-            'tfjobs.kubeflow.org',
             'viewers.kubeflow.org',
             'workflows.argoproj.io',
-        }
-    )
-
-
-@pytest.mark.edge
-def test_crd_created_edge():
-    crds = yaml.safe_load(kubectl.get('crd', '-oyaml').stdout)
-
-    names = {i['metadata']['name'] for i in crds['items']}
-    assert names.issuperset(
-        {
+            'xgboostjobs.kubeflow.org',
+            'mxjobs.kubeflow.org',
             'pytorchjobs.kubeflow.org',
-            'scheduledworkflows.kubeflow.org',
-            'seldondeployments.machinelearning.seldon.io',
             'tfjobs.kubeflow.org',
-            'workflows.argoproj.io',
         }
     )
 
@@ -178,7 +157,6 @@ def test_crd_created_edge():
 @pytest.mark.full
 def test_service_accounts_created_full():
     sas = yaml.safe_load(kubectl.get('sa', '-oyaml').stdout)
-
     names = {i['metadata']['name'] for i in sas['items']}
     assert names.issuperset(
         {
@@ -186,11 +164,14 @@ def test_service_accounts_created_full():
             'admission-webhook-operator',
             'argo-controller',
             'argo-controller-operator',
+            'argo-server',
+            'argo-server-operator',
             'default',
             'dex-auth',
             'dex-auth-operator',
-            'istio-ingressgateway',
+            'envoy-operator',
             'istio-ingressgateway-operator',
+            'istio-ingressgateway-operator-operator',
             'istio-pilot',
             'istio-pilot-operator',
             'jupyter-controller',
@@ -209,6 +190,7 @@ def test_service_accounts_created_full():
             'kfp-db-operator',
             'kfp-persistence',
             'kfp-persistence-operator',
+            'kfp-profile-controller-operator',
             'kfp-schedwf',
             'kfp-schedwf-operator',
             'kfp-ui',
@@ -220,20 +202,24 @@ def test_service_accounts_created_full():
             'kubeflow-dashboard-operator',
             'kubeflow-profiles',
             'kubeflow-profiles-operator',
+            'kubeflow-roles',
             'kubeflow-volumes',
             'kubeflow-volumes-operator',
+            'metacontroller-operator',
+            'metacontroller-operator-charm',
             'minio-operator',
             'mlmd-operator',
+            'modeloperator',
             'oidc-gatekeeper-operator',
-            'pipeline-runner',
-            'pytorch-operator',
-            'pytorch-operator-operator',
             'seldon-controller-manager',
             'seldon-controller-manager-operator',
             'spark',
             'spark-operator',
-            'tfjob-operator',
-            'tfjob-operator-operator',
+            'tensorboard-controller',
+            'tensorboard-controller-operator',
+            'tensorboards-web-app',
+            'tensorboards-web-app-operator',
+            'training-operator',
         },
     )
 
@@ -282,12 +268,9 @@ def test_service_accounts_created_lite():
             'mlmd-operator',
             'oidc-gatekeeper-operator',
             'pipeline-runner',
-            'pytorch-operator',
-            'pytorch-operator-operator',
             'seldon-controller-manager',
             'seldon-controller-manager-operator',
-            'tfjob-operator',
-            'tfjob-operator-operator',
+            'training-operator',
         },
     )
 
@@ -311,11 +294,8 @@ def test_service_accounts_created_edge():
             'kfp-schedwf-operator',
             'minio-operator',
             'pipeline-runner',
-            'pytorch-operator',
-            'pytorch-operator-operator',
             'seldon-controller-manager',
             'seldon-controller-manager-operator',
-            'tfjob-operator',
-            'tfjob-operator-operator',
+            'training-operator',
         },
     )

@@ -2,6 +2,8 @@ name: CI
 
 on:
   push:
+    branches:
+      - master
   pull_request:
   schedule:
     - cron: '0 12 * * TUE'
@@ -15,30 +17,24 @@ jobs:
     - run: sudo apt update && sudo apt install tox
     - run: tox -e lint
 
-  actions:
-    name: Github Actions
+  integration-tests:
+    name: Integration tests on Github
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        juju: [2.9/stable]
-        microk8s: [1.20/stable]
     steps:
     - name: Check out code
       uses: actions/checkout@v2
 
-    - uses: balchua/microk8s-actions@v0.2.2
+    - name: Setup operator environment
+      uses: charmed-kubernetes/actions-operator@main
       with:
-        channel: '${{ matrix.microk8s }}'
-        addons: '["dns", "storage", "rbac"]'
+        provider: microk8s
+        channel: 1.21/stable
+        charmcraft-channel: latest/candidate
 
     - name: Install test dependencies
       run: |
         set -eux
-        for snap in charmcraft charm juju-helpers juju-wait; do
-            sudo snap install $snap --classic
-        done
-        sudo snap install juju --classic --channel ${{ matrix.juju }}
+        sudo snap install juju-wait --classic
         sudo apt update
         sudo apt install -y libssl-dev python3-pip
         sudo pip3 install -r requirements.txt
@@ -172,7 +168,7 @@ jobs:
       fail-fast: false
       matrix:
         juju: [2.9/stable]
-        microk8s: [1.20/stable]
+        microk8s: [1.21/stable]
         bundle: [lite, full]
     steps:
     - name: Check out code
@@ -205,9 +201,10 @@ jobs:
       run: |
         juju ssh ubuntu/0 <<EOF
           set -eux
-          for snap in charmcraft charm juju-helpers juju-wait; do
+          for snap in juju-helpers juju-wait; do
               sudo snap install \$snap --classic
           done
+          sudo snap install charmcraft --classic --channel=latest/candidate
           sudo snap install juju --classic --channel ${{ matrix.juju }}
           sudo snap install microk8s --classic --channel ${{ matrix.microk8s }}
           sudo apt update
