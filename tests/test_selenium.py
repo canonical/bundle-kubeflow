@@ -136,106 +136,107 @@ def test_login(driver):
     wait.until(lambda x: x.execute_script(script))
 
 
-@pytest.mark.full
-@pytest.mark.lite
-def test_notebook(driver):
-    logger.info("executing notebook test")
-    logger.info(f"driver = {driver}")
-    driver, wait, url, dex_username = driver
-    kf_username = dex_username.split("@")[0]  # Uses only left hand side of email address
-
-    logger.info(f"kf_username = {kf_username}")
-
-    notebook_name = 'ci-test-' + ''.join(choices(ascii_lowercase, k=10))
-
-    logger.info(f"Ensuring main page loads properly")
-    script = fix_queryselector(['main-page', 'dashboard-view', '#Quick-Links'])
-    wait.until(lambda x: x.execute_script(script))
-    logger.info(f"Main page loaded correctly")
-
-    logger.info(f"Navigating to Jupyter frontend")
-    script = fix_queryselector(['main-page', f'iframe-link[href=\'/jupyter/?ns={kf_username}\'] .menu-item'])
-    wait.until(lambda x: x.execute_script(script))
-    driver.execute_script(script + '.click()')
-
-    logger.info(f"Selecting 'New Server'")
-    script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
-    script += ".contentWindow.document.body.querySelector('#newResource')"
-    wait.until(lambda x: x.execute_script(script))
-    driver.execute_script(script + '.click()')
-
-    driver.get_screenshot_as_file(f'/tmp/selenium-notebook-new_server.png')
-
-    wait.until(EC.url_to_be(url + f'_/jupyter/new?ns={kf_username}'))
-
-    logger.info(f"Entering server name")
-    script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
-    script += ".contentWindow.document.body.querySelector('input[data-placeholder=\"Name\"]')"
-    wait.until(lambda x: x.execute_script(script))
-    driver.execute_script(script + '.value = "%s"' % notebook_name)
-    driver.execute_script(script + '.dispatchEvent(new Event("input"))')
-
-    # Click submit on the form. Sleep for 1 second before clicking the submit
-    # button because shiny animations that ignore click events are simply a must.
-    # Note that that was sarcasm. If you're reading this, please don't shit up
-    # the web with braindead technologies.
-    script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
-    script += ".contentWindow.document.body.querySelector('form')"
-    wait.until(lambda x: x.execute_script(script))
-    driver.execute_script(script + '.dispatchEvent(new Event("ngSubmit"))')
-    wait.until(EC.url_to_be(url + f'_/jupyter/new?ns={kf_username}'))
-
-    # doc points at the nested Document hidden in all of the shadowroots
-    # Saving as separate variable to make constructing `Document.evaluate`
-    # query easier, as that requires `contextNode` to be equal to `doc`.
-    doc = fix_queryselector(['main-page', 'iframe-container', 'iframe'])[7:]
-    doc += ".contentWindow.document"
-
-    # Since upstream doesn't use proper class names or IDs or anything, find the
-    # <tr> containing elements that contain the notebook name and `ready`, signifying
-    # that the notebook is finished booting up. Returns a reference to the containing
-    # <tr> element. The result is a fairly unreadable XPath reference, but it works 🤷
-    chonky_boi = '/'.join(
-        [
-            f"//*[contains(text(), '{notebook_name}')]",
-            "ancestor::tr",
-            "/*[contains(@class, 'ready')]",
-            "ancestor::tr",
-        ]
-    )
-
-    script = evaluate(doc, chonky_boi)
-    wait.until(lambda x: x.execute_script(script))
-    driver.execute_script(doc + '.querySelector(".action-button button").click()')
-
-    # Make sure we can connect to a specific notebook's endpoint
-    # Notebook is opened in a new tab, so we have to explicitly switch to it,
-    # run our tests, close it, then switch back to the main window.
-    logger.info(f"Switching to new tab with notebook")
-    driver.switch_to.window(driver.window_handles[-1])
-    expected_path = f'/notebook/{kf_username}/{notebook_name}/lab'
-    for _ in range(12):
-        path = urlparse(driver.current_url).path
-        if path == expected_path:
-            break
-
-        sleep(5)
-        driver.refresh()
-    else:
-        pytest.fail(
-            "Waited too long for selenium to open up notebook server. "
-            f"Expected current path to be `{expected_path}`, got `{path}`."
-        )
-
-    logger.info("Wait for main content div to load then test")
-    wait.until(EC.presence_of_element_located((By.CLASS_NAME, "jp-Launcher-sectionTitle")))
-    driver.execute_script('window.close()')
-    driver.switch_to.window(driver.window_handles[-1])
-
-    # TODO: Should this be a fixture so we never leave a notebook behind?
-    logger.info(f"Deleting notebook")
-    driver.execute_script(evaluate(doc, "//*[contains(text(), 'delete')]") + '.click()')
-    driver.execute_script(f"{doc}.body.querySelector('.mat-warn').click()")
-
-    script = evaluate(doc, "//*[contains(text(), '{notebook_name}')]")
-    wait.until_not(lambda x: x.execute_script(script))
+# Test disabled until https://github.com/kubeflow/kubeflow/issues/6056 is fixed
+# @pytest.mark.full
+# @pytest.mark.lite
+# def test_notebook(driver):
+#     logger.info("executing notebook test")
+#     logger.info(f"driver = {driver}")
+#     driver, wait, url, dex_username = driver
+#     kf_username = dex_username.split("@")[0]  # Uses only left hand side of email address
+#
+#     logger.info(f"kf_username = {kf_username}")
+#
+#     notebook_name = 'ci-test-' + ''.join(choices(ascii_lowercase, k=10))
+#
+#     logger.info(f"Ensuring main page loads properly")
+#     script = fix_queryselector(['main-page', 'dashboard-view', '#Quick-Links'])
+#     wait.until(lambda x: x.execute_script(script))
+#     logger.info(f"Main page loaded correctly")
+#
+#     logger.info(f"Navigating to Jupyter frontend")
+#     script = fix_queryselector(['main-page', f'iframe-link[href=\'/jupyter/?ns={kf_username}\'] .menu-item'])
+#     wait.until(lambda x: x.execute_script(script))
+#     driver.execute_script(script + '.click()')
+#
+#     logger.info(f"Selecting 'New Server'")
+#     script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
+#     script += ".contentWindow.document.body.querySelector('#newResource')"
+#     wait.until(lambda x: x.execute_script(script))
+#     driver.execute_script(script + '.click()')
+#
+#     driver.get_screenshot_as_file(f'/tmp/selenium-notebook-new_server.png')
+#
+#     wait.until(EC.url_to_be(url + f'_/jupyter/new?ns={kf_username}'))
+#
+#     logger.info(f"Entering server name")
+#     script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
+#     script += ".contentWindow.document.body.querySelector('input[data-placeholder=\"Name\"]')"
+#     wait.until(lambda x: x.execute_script(script))
+#     driver.execute_script(script + '.value = "%s"' % notebook_name)
+#     driver.execute_script(script + '.dispatchEvent(new Event("input"))')
+#
+#     # Click submit on the form. Sleep for 1 second before clicking the submit
+#     # button because shiny animations that ignore click events are simply a must.
+#     # Note that that was sarcasm. If you're reading this, please don't shit up
+#     # the web with braindead technologies.
+#     script = fix_queryselector(['main-page', 'iframe-container', 'iframe'])
+#     script += ".contentWindow.document.body.querySelector('form')"
+#     wait.until(lambda x: x.execute_script(script))
+#     driver.execute_script(script + '.dispatchEvent(new Event("ngSubmit"))')
+#     wait.until(EC.url_to_be(url + f'_/jupyter/new?ns={kf_username}'))
+#
+#     # doc points at the nested Document hidden in all of the shadowroots
+#     # Saving as separate variable to make constructing `Document.evaluate`
+#     # query easier, as that requires `contextNode` to be equal to `doc`.
+#     doc = fix_queryselector(['main-page', 'iframe-container', 'iframe'])[7:]
+#     doc += ".contentWindow.document"
+#
+#     # Since upstream doesn't use proper class names or IDs or anything, find the
+#     # <tr> containing elements that contain the notebook name and `ready`, signifying
+#     # that the notebook is finished booting up. Returns a reference to the containing
+#     # <tr> element. The result is a fairly unreadable XPath reference, but it works 🤷
+#     chonky_boi = '/'.join(
+#         [
+#             f"//*[contains(text(), '{notebook_name}')]",
+#             "ancestor::tr",
+#             "/*[contains(@class, 'ready')]",
+#             "ancestor::tr",
+#         ]
+#     )
+#
+#     script = evaluate(doc, chonky_boi)
+#     wait.until(lambda x: x.execute_script(script))
+#     driver.execute_script(doc + '.querySelector(".action-button button").click()')
+#
+#     # Make sure we can connect to a specific notebook's endpoint
+#     # Notebook is opened in a new tab, so we have to explicitly switch to it,
+#     # run our tests, close it, then switch back to the main window.
+#     logger.info(f"Switching to new tab with notebook")
+#     driver.switch_to.window(driver.window_handles[-1])
+#     expected_path = f'/notebook/{kf_username}/{notebook_name}/lab'
+#     for _ in range(12):
+#         path = urlparse(driver.current_url).path
+#         if path == expected_path:
+#             break
+#
+#         sleep(5)
+#         driver.refresh()
+#     else:
+#         pytest.fail(
+#             "Waited too long for selenium to open up notebook server. "
+#             f"Expected current path to be `{expected_path}`, got `{path}`."
+#         )
+#
+#     logger.info("Wait for main content div to load then test")
+#     wait.until(EC.presence_of_element_located((By.CLASS_NAME, "jp-Launcher-sectionTitle")))
+#     driver.execute_script('window.close()')
+#     driver.switch_to.window(driver.window_handles[-1])
+#
+#     # TODO: Should this be a fixture so we never leave a notebook behind?
+#     logger.info(f"Deleting notebook")
+#     driver.execute_script(evaluate(doc, "//*[contains(text(), 'delete')]") + '.click()')
+#     driver.execute_script(f"{doc}.body.querySelector('.mat-warn').click()")
+#
+#     script = evaluate(doc, "//*[contains(text(), '{notebook_name}')]")
+#     wait.until_not(lambda x: x.execute_script(script))
