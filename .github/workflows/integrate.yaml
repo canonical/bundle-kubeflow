@@ -222,7 +222,7 @@ jobs:
           git clone git://git.launchpad.net/canonical-osm
           cp -r canonical-osm/charms/interfaces/juju-relation-mysql mysql
           python3 ./scripts/cli.py microk8s setup --test-mode
-          KUBEFLOW_AUTH_PASSWORD=foobar python3 ./scripts/cli.py --debug deploy-to uk8s --build --bundle ${{ matrix.bundle }}
+          KUBEFLOW_AUTH_PASSWORD=${{ secrets.KUBEFLOW_AUTH_PASSWORD }} python3 ./scripts/cli.py --debug deploy-to uk8s --build --bundle ${{ matrix.bundle }} --username ${{ secrets.KUBEFLOW_AUTH_USERNAME }} 
         EOF
 
     - name: Test Kubeflow
@@ -230,8 +230,8 @@ jobs:
         juju ssh ubuntu/0 <<EOF
           set -eux
           cd bundle-kubeflow
-          tox -e tests -- -m ${{ matrix.bundle }} -k 'not selenium'
-          tox -e tests -- -m ${{ matrix.bundle }} -k selenium
+          tox -e tests -- -m ${{ matrix.bundle }} -k 'not selenium' --username ${{ secrets.KUBEFLOW_AUTH_USERNAME }} --password ${{ secrets.KUBEFLOW_AUTH_PASSWORD }}
+          tox -e tests -- -m ${{ matrix.bundle }} -k selenium --username ${{ secrets.KUBEFLOW_AUTH_USERNAME }} --password ${{ secrets.KUBEFLOW_AUTH_PASSWORD }}
         EOF
 
     - run: juju ssh ubuntu/0 sudo juju show-unit istio-pilot/0

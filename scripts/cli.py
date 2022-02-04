@@ -83,6 +83,7 @@ def run(*args, env: dict = None, check=True, die=True):
                     click.secho(result.stderr.decode('utf-8'), fg='red')
                 click.secho(str(err), fg='red')
                 sys.exit(1)
+                sys.exit(1)
             else:
                 raise
 
@@ -274,7 +275,8 @@ def cli(debug):
     envvar='KUBEFLOW_AUTH_PASSWORD',
     prompt='Enter a password to set for the Kubeflow dashboard',
 )
-def deploy_to(controller, cloud, model, bundle, channel, public_address, build, password):
+@click.option('--username', default='admin@email.com')
+def deploy_to(controller, cloud, model, bundle, channel, public_address, build, password, username):
     check_for('juju')
     if build:
         check_for('juju-bundle', snap_name='juju-helpers')
@@ -406,6 +408,7 @@ def deploy_to(controller, cloud, model, bundle, channel, public_address, build, 
     pub_addr = public_address or get_pub_addr(controller)
     if application_exists('dex-auth'):
         juju('config', 'dex-auth', f'public-url=http://{pub_addr}:80')
+        juju('config', 'dex-auth', f'static-username={username}')
         juju('config', 'dex-auth', f'static-password={password}')
 
     if application_exists('oidc-gatekeeper'):

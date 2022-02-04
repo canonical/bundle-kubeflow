@@ -1,11 +1,9 @@
 """Runs tests by inspecting microk8s with kubectl."""
 
-from time import sleep
-
 import pytest
 import yaml
-from flaky import flaky
 from sh import Command
+from pytest_operator.plugin import OpsTest
 
 try:
     from sh import juju_kubectl as kubectl
@@ -32,75 +30,14 @@ def get_statuses():
 
 
 @pytest.mark.full
-@flaky(max_runs=60, rerun_filter=lambda *_: sleep(5) or True)
-def test_running_full():
-    assert get_statuses() == {
-        'admission-webhook': 'Running',
-        'argo-controller': 'Running',
-        'argo-server': 'Running',
-        'dex-auth': 'Running',
-        'envoy': 'Running',
-        'istio-ingressgateway': 'Running',
-        'istio-pilot': 'Running',
-        'jupyter-controller': 'Running',
-        'jupyter-ui': 'Running',
-        'katib-controller': 'Running',
-        'katib-db': 'Running',
-        'katib-db-manager': 'Running',
-        'katib-ui': 'Running',
-        'kfp-api': 'Running',
-        'kfp-db': 'Running',
-        'kfp-persistence': 'Running',
-        'kfp-profile-controller': 'Running',
-        'kfp-schedwf': 'Running',
-        'kfp-ui': 'Running',
-        'kfp-viewer': 'Running',
-        'kfp-viz': 'Running',
-        'kubeflow-dashboard': 'Running',
-        'kubeflow-profiles': 'Running',
-        'kubeflow-volumes': 'Running',
-        'kubeflow-roles': 'Running',
-        'kubeflow-metacontroller-operator-charm': 'Running',
-        'metacontroller-operator': 'Running',
-        'minio': 'Running',
-        'mlmd': 'Running',
-        'oidc-gatekeeper': 'Running',
-        'seldon-controller-manager': 'Running',
-        'tensorboard-controller': 'Running',
-        'tensorboards-web-app': 'Running',
-        'training-operator': 'Running',
-    }
-
-
 @pytest.mark.lite
-@flaky(max_runs=60, rerun_filter=lambda *_: sleep(5) or True)
-def test_running_lite():
-    assert get_statuses() == {
-        'admission-webhook': 'Running',
-        'argo-controller': 'Running',
-        'dex-auth': 'Running',
-        'istio-ingressgateway': 'Running',
-        'istio-pilot': 'Running',
-        'jupyter-controller': 'Running',
-        'jupyter-ui': 'Running',
-        'kfp-api': 'Running',
-        'kfp-db': 'Running',
-        'kfp-persistence': 'Running',
-        'kfp-schedwf': 'Running',
-        'kfp-ui': 'Running',
-        'kfp-viewer': 'Running',
-        'kfp-viz': 'Running',
-        'kubeflow-dashboard': 'Running',
-        'kubeflow-profiles': 'Running',
-        'kubeflow-roles': 'Running',
-        'kubeflow-volumes': 'Running',
-        'metacontroller-operator': 'Running',
-        'minio': 'Running',
-        'mlmd': 'Running',
-        'oidc-gatekeeper': 'Running',
-        'seldon-controller-manager': 'Running',
-        'training-operator': 'Running',
-    }
+async def test_all_charms_running(ops_test: OpsTest):
+
+    await ops_test.model.wait_for_idle(
+        status="active",
+        raise_on_blocked=True,
+        timeout=300,
+    )
 
 
 @pytest.mark.full
@@ -151,151 +88,4 @@ def test_crd_created_lite():
             'pytorchjobs.kubeflow.org',
             'tfjobs.kubeflow.org',
         }
-    )
-
-
-@pytest.mark.full
-def test_service_accounts_created_full():
-    sas = yaml.safe_load(kubectl.get('sa', '-oyaml').stdout)
-    names = {i['metadata']['name'] for i in sas['items']}
-    assert names.issuperset(
-        {
-            'admission-webhook',
-            'admission-webhook-operator',
-            'argo-controller',
-            'argo-controller-operator',
-            'argo-server',
-            'argo-server-operator',
-            'default',
-            'dex-auth',
-            'dex-auth-operator',
-            'envoy-operator',
-            'istio-ingressgateway-operator',
-            'istio-ingressgateway-operator-operator',
-            'istio-pilot',
-            'istio-pilot-operator',
-            'jupyter-controller',
-            'jupyter-controller-operator',
-            'jupyter-ui',
-            'jupyter-ui-operator',
-            'katib-controller',
-            'katib-controller-operator',
-            'katib-db-manager',
-            'katib-db-manager-operator',
-            'katib-db-operator',
-            'katib-ui',
-            'katib-ui-operator',
-            'kfp-api',
-            'kfp-api-operator',
-            'kfp-db-operator',
-            'kfp-persistence',
-            'kfp-persistence-operator',
-            'kfp-profile-controller-operator',
-            'kfp-schedwf',
-            'kfp-schedwf-operator',
-            'kfp-ui',
-            'kfp-ui-operator',
-            'kfp-viewer',
-            'kfp-viewer-operator',
-            'kfp-viz-operator',
-            'kubeflow-dashboard',
-            'kubeflow-dashboard-operator',
-            'kubeflow-profiles',
-            'kubeflow-profiles-operator',
-            'kubeflow-roles',
-            'kubeflow-volumes',
-            'kubeflow-volumes-operator',
-            'metacontroller-operator',
-            'metacontroller-operator-charm',
-            'minio-operator',
-            'mlmd-operator',
-            'modeloperator',
-            'oidc-gatekeeper-operator',
-            'seldon-controller-manager',
-            'seldon-controller-manager-operator',
-            'spark',
-            'spark-operator',
-            'tensorboard-controller',
-            'tensorboard-controller-operator',
-            'tensorboards-web-app',
-            'tensorboards-web-app-operator',
-            'training-operator',
-        },
-    )
-
-
-@pytest.mark.lite
-def test_service_accounts_created_lite():
-    sas = yaml.safe_load(kubectl.get('sa', '-oyaml').stdout)
-
-    names = {i['metadata']['name'] for i in sas['items']}
-    assert names.issuperset(
-        {
-            'admission-webhook',
-            'admission-webhook-operator',
-            'argo-controller',
-            'argo-controller-operator',
-            'default',
-            'dex-auth',
-            'dex-auth-operator',
-            'istio-ingressgateway',
-            'istio-ingressgateway-operator',
-            'istio-pilot',
-            'istio-pilot-operator',
-            'jupyter-controller',
-            'jupyter-controller-operator',
-            'jupyter-ui',
-            'jupyter-ui-operator',
-            'kfp-api',
-            'kfp-api-operator',
-            'kfp-db-operator',
-            'kfp-persistence',
-            'kfp-persistence-operator',
-            'kfp-schedwf',
-            'kfp-schedwf-operator',
-            'kfp-ui',
-            'kfp-ui-operator',
-            'kfp-viewer',
-            'kfp-viewer-operator',
-            'kfp-viz-operator',
-            'kubeflow-dashboard',
-            'kubeflow-dashboard-operator',
-            'kubeflow-profiles',
-            'kubeflow-profiles-operator',
-            'kubeflow-volumes',
-            'kubeflow-volumes-operator',
-            'minio-operator',
-            'mlmd-operator',
-            'oidc-gatekeeper-operator',
-            'pipeline-runner',
-            'seldon-controller-manager',
-            'seldon-controller-manager-operator',
-            'training-operator',
-        },
-    )
-
-
-@pytest.mark.edge
-def test_service_accounts_created_edge():
-    sas = yaml.safe_load(kubectl.get('sa', '-oyaml').stdout)
-
-    names = {i['metadata']['name'] for i in sas['items']}
-    assert names.issuperset(
-        {
-            'argo-controller',
-            'argo-controller-operator',
-            'default',
-            'kfp-api',
-            'kfp-api-operator',
-            'kfp-db-operator',
-            'kfp-persistence',
-            'kfp-persistence-operator',
-            'kfp-schedwf',
-            'kfp-schedwf-operator',
-            'minio-operator',
-            'pipeline-runner',
-            'seldon-controller-manager',
-            'seldon-controller-manager-operator',
-            'training-operator',
-        },
     )
