@@ -54,12 +54,12 @@ def _get_kf_url():
             cowsay_pipeline,
             marks=[pytest.mark.full, pytest.mark.lite],
         ),
-        # TODO: Move this to Katib bundle?
-        pytest.param(
-            'katib',
-            katib_pipeline,
-            marks=[pytest.mark.full],
-        ),
+        # # TODO: Move this to Katib bundle?
+        # pytest.param(
+        #     'katib',
+        #     katib_pipeline,
+        #     marks=[pytest.mark.full],
+        # ),
         # pytest.param(
         #     'jupyter',
         #     jupyter_pipeline,
