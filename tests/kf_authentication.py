@@ -17,8 +17,10 @@ def kubeflow_login(host, username=None, password=None):
     }
 
     if not data['login'] or not data['password']:
-        raise ValueError("Missing login credentials - credentials must be passed or defined"
-                         " in KUBEFLOW_USERNAME/KUBEFLOW_PASSWORD environment variables.")
+        raise ValueError(
+            "Missing login credentials - credentials must be passed or defined"
+            " in KUBEFLOW_USERNAME/KUBEFLOW_PASSWORD environment variables."
+        )
 
     # GET on host provides us a location header with the dex auth page
     # and state for this session
@@ -40,8 +42,10 @@ def kubeflow_login(host, username=None, password=None):
     validate_response_status_code(response, [302], f"Failed to connect to dex_url '{dex_url}'.")
 
     if response.status_code != 302:
-        raise ValueError(f"Failed to connect to host site.  "
-                         f"Got response {response.status_code}, expected 302")
+        raise ValueError(
+            f"Failed to connect to host site.  "
+            f"Got response {response.status_code}, expected 302"
+        )
     dex_login_partial_url = response.headers['location']
     dex_login_url = f'{host}{dex_login_partial_url}'
     logging.debug(f"Got dex_login_url with request token of '{dex_login_url}")
@@ -49,9 +53,7 @@ def kubeflow_login(host, username=None, password=None):
     # Log in
     response = requests.post(dex_login_url, data=data, verify=False, allow_redirects=False)
     validate_response_status_code(
-        response,
-        [301, 303],
-        f"Failed to log into dex - are your credentials correct?"
+        response, [301, 303], f"Failed to log into dex - are your credentials correct?"
     )
     dex_approval_partial_url = response.headers['location']
     dex_approval_url = f'{host}{dex_approval_partial_url}'
@@ -59,13 +61,17 @@ def kubeflow_login(host, username=None, password=None):
 
     # GET and return the authservice_session cookie
     response = requests.get(dex_approval_url, verify=False, allow_redirects=False)
-    validate_response_status_code(response, [301, 303], f"Failed to connect to dex_approval_url '{dex_approval_url}'.")
+    validate_response_status_code(
+        response, [301, 303], f"Failed to connect to dex_approval_url '{dex_approval_url}'."
+    )
     authservice_partial_url = response.headers['location']
     authservice_url = f"{host}{authservice_partial_url}"
     logging.debug(f"Got authservice_url of '{authservice_url}'")
 
     response = requests.get(authservice_url, verify=False, allow_redirects=False)
-    validate_response_status_code(response, [301, 302], f"Failed to connect to authservice_url '{authservice_url}'.")
+    validate_response_status_code(
+        response, [301, 302], f"Failed to connect to authservice_url '{authservice_url}'."
+    )
 
     return response.cookies['authservice_session']
 
@@ -75,8 +81,10 @@ def validate_response_status_code(response, expected_codes: list, error_message:
     if error_message:
         error_message += "  "
     if response.status_code not in expected_codes:
-        raise ValueError(f"{error_message}"
-                         f"Got response {response.status_code}, expected one of {expected_codes}")
+        raise ValueError(
+            f"{error_message}"
+            f"Got response {response.status_code}, expected one of {expected_codes}"
+        )
 
 
 # For testing:
@@ -85,5 +93,3 @@ if __name__ == "__main__":
     # Infers username and password from KUBEFLOW_USERNAME, KUBEFLOW_PASSWORD
     authsession_cookie = kubeflow_login(host)
     print(authsession_cookie)
-
-

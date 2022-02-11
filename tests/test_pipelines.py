@@ -81,13 +81,17 @@ def test_pipelines(name: str, fn: Callable, request):
     username = request.config.option.username
     password = request.config.option.password
     if username is None or password is None:
-        raise ValueError("Must specify username and password for testing.  Pass through pytest "
-                         "using --username and --password arguments")
+        raise ValueError(
+            "Must specify username and password for testing.  Pass through pytest "
+            "using --username and --password arguments"
+        )
     namespace = username.split("@")[0]
 
     # kubeflow login credentials inferred from
 
-    cookies = f"authservice_session={kubeflow_login(host=kf_url, username=username, password=password)}"
+    cookies = (
+        f"authservice_session={kubeflow_login(host=kf_url, username=username, password=password)}"
+    )
 
     host = f"{kf_url}/pipeline"
     client = Client(host=host, namespace=namespace, cookies=cookies)
