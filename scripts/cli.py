@@ -83,7 +83,6 @@ def run(*args, env: dict = None, check=True, die=True):
                     click.secho(result.stderr.decode('utf-8'), fg='red')
                 click.secho(str(err), fg='red')
                 sys.exit(1)
-                sys.exit(1)
             else:
                 raise
 
