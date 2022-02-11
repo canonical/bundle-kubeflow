@@ -45,7 +45,7 @@ jobs:
         set -eux
         juju autoload-credentials --client aws
         juju bootstrap aws/us-east-1 uk8saws --debug --show-log --config test-mode=true --model-default test-mode=true
-        juju deploy ubuntu --constraints 'cores=8 mem=16G root-disk=80G'
+        juju deploy ubuntu --constraints 'instance-type=t3a.xlarge root-disk=80G'
         juju wait -vw
         juju status
         juju status --format yaml
