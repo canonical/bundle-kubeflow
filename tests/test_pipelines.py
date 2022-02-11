@@ -46,13 +46,13 @@ def _get_kf_url():
         # pytest.param(
         #     'mnist',
         #     mnist_pipeline,
-        #     marks=[pytest.mark.full, pytest.mark.lite, pytest.mark.edge],
+        #     marks=[pytest.mark.full, pytest.mark.lite],
         # ),
         # TODO: Move this to pipelines bundle
         pytest.param(
             'cowsay',
             cowsay_pipeline,
-            marks=[pytest.mark.full, pytest.mark.lite, pytest.mark.edge],
+            marks=[pytest.mark.full, pytest.mark.lite],
         ),
         # TODO: Move this to Katib bundle?
         pytest.param(
