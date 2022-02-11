@@ -88,8 +88,10 @@ jobs:
         juju ssh ubuntu/0 <<EOF
           set -eux
           cd bundle-kubeflow
-          tox -e tests -- -m ${{ matrix.bundle }} -k 'not selenium' --username ${{ secrets.KUBEFLOW_AUTH_USERNAME }} --password ${{ secrets.KUBEFLOW_AUTH_PASSWORD }}
-          tox -e tests -- -m ${{ matrix.bundle }} -k selenium --username ${{ secrets.KUBEFLOW_AUTH_USERNAME }} --password ${{ secrets.KUBEFLOW_AUTH_PASSWORD }}
+          export KUBEFLOW_AUTH_USERNAME=${{ secrets.KUBEFLOW_AUTH_USERNAME }}
+          export KUBEFLOW_AUTH_PASSWORD=${{ secrets.KUBEFLOW_AUTH_PASSWORD }}
+          tox -e tests -- -m ${{ matrix.bundle }} -k 'not selenium'
+          tox -e tests -- -m ${{ matrix.bundle }} -k selenium
         EOF
 
     - run: juju ssh ubuntu/0 sudo juju show-unit istio-pilot/0
