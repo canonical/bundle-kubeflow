@@ -32,9 +32,19 @@ To deploy this bundle and run tests locally, do the following:
    sudo pip3 install -r requirements.txt
    sudo pip3 install tox
 ```
-3. Run tests on your bundle with tox:
-   1. full bundle: `tox -e tests -- -m full --username user123@email.com --password user123`
-   2. lite bundle: `tox -e tests -- -m lite --username user123@email.com --password user123`
+3. Run tests on your bundle with tox.  As many tests need authentication, make 
+   sure you pass the username and password you set in step (1) through 
+   environment variable or argument, for example:
+   1. full bundle (using command line arguments): 
+      ```
+      tox -e tests -- -m full --username user123@email.com --password user123`
+      ```
+   4. lite bundle (using environment variables:
+      ```
+      export KUBEFLOW_AUTH_USERNAME=user1234@email.com
+      export KUBEFLOW_AUTH_PASSWORD=user1234
+      tox -e tests -- -m lite
+      ```
 
 Subsets of the tests are also available using pytest's substring expression selector
 (eg: `tox -e tests -- -m full --username user123@email.com --password user123 -k 'selenium'` to run just the selenium tests).
