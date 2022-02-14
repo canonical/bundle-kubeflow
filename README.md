@@ -24,13 +24,20 @@ There are two possible paths, depending on your choice of Kubernetes:
 ## Testing
 
 To deploy this bundle and run tests locally, do the following:
-1. Deploy the bundle you're interested in using the [installation guide](https://www.kubeflow.org/docs/distributions/charmed/install-kubeflow/)
-2. Run the tests with tox:
+1. Set up Kubernetes, Juju, and deploy the bundle you're interested in (`kubeflow` or `kubeflow-lite`) using the [installation guide](https://charmed-kubeflow.io/docs/install/)
+2. Install test prerequisites:
+```bash
+   sudo snap install juju-wait --classic
+   sudo apt update
+   sudo pip3 install -r requirements.txt
+   sudo pip3 install tox
+```
+3. Run tests on your bundle with tox:
    1. full bundle: `tox -e tests -- -m full --username user123@email.com --password user123`
    2. lite bundle: `tox -e tests -- -m lite --username user123@email.com --password user123`
 
 Subsets of the tests are also available using pytest's substring expression selector
-(eg: `tox -e tests -- -m full --username user123@email.com --password user123 -k 'selenium'`)
+(eg: `tox -e tests -- -m full --username user123@email.com --password user123 -k 'selenium'` to run just the selenium tests).
 
 ## Documentation
 
