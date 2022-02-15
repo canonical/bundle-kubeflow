@@ -28,9 +28,12 @@ To deploy this bundle and run tests locally, do the following:
 2. Install test prerequisites:
 ```bash
    sudo snap install juju-wait --classic
+   sudo snap install juju-kubectl --classic
+   sudo snap install charmcraft --classic
    sudo apt update
-   sudo pip3 install -r requirements.txt
+   sudo apt install -y firefox-geckodriver
    sudo pip3 install tox
+   sudo pip3 install -r requirements.txt
 ```
 3. Run tests on your bundle with tox.  As many tests need authentication, make 
    sure you pass the username and password you set in step (1) through 
