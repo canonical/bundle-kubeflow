@@ -3,11 +3,15 @@ import inspect
 from ipaddress import ip_address
 from shutil import which
 from subprocess import check_output
+import time
 from typing import Callable
 import yaml
 
-import pytest
 from kfp import Client
+import lightkube
+from lightkube.generic_resource import create_global_resource
+from lightkube.models.meta_v1 import ObjectMeta
+import pytest
 
 from .pipelines.cowsay import cowsay_pipeline
 from .pipelines.jupyter import jupyter_pipeline
@@ -36,6 +40,49 @@ def _get_kf_url():
     except ValueError:
         pass
     return f'http://{endpoint}/'
+
+# Helpers
+@pytest.fixture(scope="session")
+def lightkube_client() -> lightkube.Client:
+    """Yields a lightkube client and generic resources (custom CRDs)."""
+    client = lightkube.Client()
+    global_resources = {
+        "Profile": create_global_resource(
+                        group="kubeflow.org", version="v1", kind="Profile", plural="profiles"
+                    ),
+    }
+    return client, global_resources
+
+
+@pytest.fixture(scope="session")
+def profile(lightkube_client, request):
+    """Creates a Profile object in cluster, cleaning it up after."""
+    client, global_resources = lightkube_client
+    Profile = global_resources["Profile"]
+
+    # Get username from args to test
+    user_name = request.config.option.username
+    profile_name = user_name.split("@")[0]
+    profile_metadata = ObjectMeta(name=profile_name)
+    profile_spec = {
+        "owner": {
+            "kind": "User",
+            "name": user_name,
+        }
+    }
+
+    # Feels redundant to specify apiVersion/kind again here.
+    # Asked in https://github.com/gtsystem/lightkube/issues/27
+    profile = Profile(apiVersion="kubeflow.org/v1", metadata=profile_metadata, spec=profile_spec, kind="Profile")
+    client.create(profile, profile_name)
+
+    # Sleep to let the profile controller generate objects associated with profile
+    # TODO: Should I watch for something to come up here?
+    time.sleep(5)
+
+    yield profile
+
+    client.delete(Profile, profile_name)
 
 
 @pytest.mark.parametrize(
@@ -72,7 +119,7 @@ def _get_kf_url():
         ),
     ],
 )
-def test_pipelines(name: str, fn: Callable, request):
+def test_pipelines(name: str, fn: Callable, request, profile):
     """Runs each pipeline that it's been parameterized for, and waits for it to succeed."""
 
     # TODO: Make this an argument in CI
