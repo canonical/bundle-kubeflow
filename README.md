@@ -26,7 +26,9 @@ There are two possible paths, depending on your choice of Kubernetes:
 To deploy this bundle and run tests locally, do the following:
 
 1. Set up Kubernetes, Juju, and deploy the bundle you're interested in (`kubeflow` or
-   `kubeflow-lite`) using the [installation guide](https://charmed-kubeflow.io/docs/install/)
+   `kubeflow-lite`) using the [installation guide](https://charmed-kubeflow.io/docs/install/). This
+   must include populating the `.kube/config` file with your Kubernetes cluster as the active
+   context
 1. Install test prerequisites:
 
 ```bash
