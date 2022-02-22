@@ -9,6 +9,7 @@ import yaml
 
 from kfp import Client
 import lightkube
+from lightkube import codecs
 from lightkube.generic_resource import create_global_resource
 from lightkube.models.meta_v1 import ObjectMeta
 import pytest
@@ -58,22 +59,10 @@ def lightkube_client() -> lightkube.Client:
 def profile(lightkube_client, request):
     """Creates a Profile object in cluster, cleaning it up after."""
     client, global_resources = lightkube_client
-    Profile = global_resources["Profile"]
 
-    # Get username from args to test
-    user_name = request.config.option.username
-    profile_name = user_name.split("@")[0]
-    profile_metadata = ObjectMeta(name=profile_name)
-    profile_spec = {
-        "owner": {
-            "kind": "User",
-            "name": user_name,
-        }
-    }
-
-    # Feels redundant to specify apiVersion/kind again here.
-    # Asked in https://github.com/gtsystem/lightkube/issues/27
-    profile = Profile(apiVersion="kubeflow.org/v1", metadata=profile_metadata, spec=profile_spec, kind="Profile")
+    username, profile_name = _get_user_identity_from_args(request)
+    template_context = dict(profile_name=profile_name, username=username)
+    profile = _load_profile_from_template(context=template_context)
     client.create(profile, profile_name)
 
     # Sleep to let the profile controller generate objects associated with profile
@@ -82,7 +71,23 @@ def profile(lightkube_client, request):
 
     yield profile
 
-    client.delete(Profile, profile_name)
+    # Clean up after
+    client.delete(global_resources["Profile"], profile_name)
+
+
+def _get_user_identity_from_args(request):
+    username = request.config.option.username
+    profile_name = username.split("@")[0]
+    return username, profile_name
+
+
+def _load_profile_from_template(context):
+    template_file = "tests/profile_template.yaml"
+    with open(template_file) as f:
+        objs = codecs.load_all_yaml(f, context=context)
+    if len(objs) > 1:
+        raise ValueError(f"Expected one object in profile yaml, found {len(objs)}")
+    return objs[0]
 
 
 @pytest.mark.parametrize(
