@@ -42,6 +42,7 @@ def _get_kf_url():
         pass
     return f'http://{endpoint}/'
 
+
 # Helpers
 @pytest.fixture(scope="session")
 def lightkube_client() -> lightkube.Client:
@@ -49,8 +50,8 @@ def lightkube_client() -> lightkube.Client:
     client = lightkube.Client()
     global_resources = {
         "Profile": create_global_resource(
-                        group="kubeflow.org", version="v1", kind="Profile", plural="profiles"
-                    ),
+            group="kubeflow.org", version="v1", kind="Profile", plural="profiles"
+        ),
     }
     return client, global_resources
 
