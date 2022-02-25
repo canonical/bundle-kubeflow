@@ -12,7 +12,7 @@ def kubeflow_login(url, username=None, password=None):
     """Completes the dex/oidc login flow, returning the authservice_session cookie."""
     parsed_url = urlparse(url)
     url_base = f"{parsed_url.scheme}://{parsed_url.netloc}"
-    
+
     data = {
         'login': username or os.getenv('KUBEFLOW_USERNAME', None),
         'password': password or os.getenv('KUBEFLOW_PASSWORD', None),
@@ -25,35 +25,22 @@ def kubeflow_login(url, username=None, password=None):
         )
 
     # GET on url redirects us to the dex_login_url including state for this session
-    response = requests.get(
-        url,
-        verify=False,
-        allow_redirects=True
-    )
+    response = requests.get(url, verify=False, allow_redirects=True)
     validate_response_status_code(response, [200], f"Failed to connect to url site '{url}'.")
     dex_login_url = response.url
     logging.debug(f"Redirected to dex_login_url of '{dex_login_url}'")
-    
+
     # Log in, retrieving the redirection to the approval page
-    response = requests.post(
-        dex_login_url,
-        data=data,
-        verify=False,
-        allow_redirects=False
-    )
+    response = requests.post(dex_login_url, data=data, verify=False, allow_redirects=False)
     validate_response_status_code(
         response, [303], f"Failed to log into dex - are your credentials correct?"
     )
     approval_endpoint = response.headers['location']
     dex_approval_url = url_base + approval_endpoint
     logging.debug(f"Logged in with dex_approval_url of '{dex_approval_url}")
-    
+
     # Get the OIDC approval code and state
-    response = requests.get(
-        dex_approval_url,
-        verify=False,
-        allow_redirects=False
-    )
+    response = requests.get(dex_approval_url, verify=False, allow_redirects=False)
     validate_response_status_code(
         response, [303], f"Failed to connect to dex_approval_url '{dex_approval_url}'."
     )
@@ -61,7 +48,6 @@ def kubeflow_login(url, username=None, password=None):
     authservice_url = url_base + authservice_endpoint
     logging.debug(f"Got authservice_url of '{authservice_url}'")
 
-    
     # Access DEX OIDC path to generate session cookie
     response = requests.get(
         authservice_url,
@@ -71,7 +57,7 @@ def kubeflow_login(url, username=None, password=None):
     validate_response_status_code(
         response, [302], f"Failed to connect to authservice_url '{authservice_url}'."
     )
-    
+
     return response.cookies['authservice_session']
 
 
