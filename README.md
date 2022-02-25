@@ -45,7 +45,7 @@ To deploy this bundle and run tests locally, do the following:
    username and password you set in step (1) through environment variable or argument, for example:
    1. full bundle (using command line arguments):
       ```
-      tox -e tests -- -m full --username user123@email.com --password user123`
+      tox -e tests -- -m full --username user123@email.com --password user123
       ```
    1. lite bundle (using environment variables:
       ```
