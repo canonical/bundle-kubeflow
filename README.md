@@ -36,7 +36,7 @@ To deploy this bundle and run tests locally, do the following:
    sudo snap install juju-kubectl --classic
    sudo snap install charmcraft --classic
    sudo apt update
-   sudo apt install -y firefox-geckodriver
+   sudo apt install -y libssl-dev firefox-geckodriver
    sudo pip3 install tox
    sudo pip3 install -r requirements.txt
 ```
