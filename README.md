@@ -28,8 +28,8 @@ To deploy this bundle and run tests locally, do the following:
 1. Set up Kubernetes, Juju, and deploy the bundle you're interested in (`kubeflow` or
    `kubeflow-lite`) using the [installation guide](https://charmed-kubeflow.io/docs/install/). This
    must include populating the `.kube/config` file with your Kubernetes cluster as the active
-   context. Beware of using `admin` as the dex-auth static-username as it conflicts with the
-   `admin` kubernetes profile while running tests below
+   context. Beware of using `admin` as the dex-auth static-username as the tests attempt to create
+   a profile and `admin` conflicts with an existing default profile.
 1. Install test prerequisites:
 
 ```bash
