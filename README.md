@@ -21,6 +21,8 @@ There are two possible paths, depending on your choice of Kubernetes:
 1. For any Kubernetes, follow the [installation instructions][install].
 1. On MicroK8s, you simply have to enable the [Kubeflow add-on][addon].
 
+**Note**: The kubeflow add-on for Microk8s is no longer supported. I you are using Microk8s 1.21+ you should follow [this instructions][quickstart] instead.
+
 ## Testing
 
 To deploy this bundle and run tests locally, do the following:
@@ -67,3 +69,4 @@ Read the [official documentation][docs].
 [charmedkf]: https://charmed-kubeflow.io/
 [docs]: https://charmed-kubeflow.io/docs/
 [install]: https://charmed-kubeflow.io/docs/install
+[quickstart]: https://charmed-kubeflow.io/docs/quickstart
