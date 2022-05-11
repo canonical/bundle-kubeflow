@@ -16,10 +16,8 @@ Visit [charmed-kubeflow.io][charmedkf] for more information.
 
 ## Install
 
-There are two possible paths, depending on your choice of Kubernetes:
 
-1. For any Kubernetes, follow the [installation instructions][install].
-1. On MicroK8s, you simply have to enable the [Kubeflow add-on][addon].
+For any Kubernetes, follow the [installation instructions][install].
 
 ## Testing
 
@@ -64,7 +62,6 @@ the selenium tests).
 
 Read the [official documentation][docs].
 
-[addon]: https://microk8s.io/docs/addon-kubeflow
 [charmedkf]: https://charmed-kubeflow.io/
 [docs]: https://charmed-kubeflow.io/docs/
 [install]: https://charmed-kubeflow.io/docs/install
