@@ -61,7 +61,6 @@ the selenium tests).
 
 Read the [official documentation][docs].
 
-[addon]: https://microk8s.io/docs/addon-kubeflow
 [charmedkf]: https://charmed-kubeflow.io/
 [docs]: https://charmed-kubeflow.io/docs/
 [install]: https://charmed-kubeflow.io/docs/install
