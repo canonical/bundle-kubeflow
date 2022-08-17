@@ -55,7 +55,7 @@ applications:
     _github_repo_name: katib-operators
   katib-db:
     charm: charmed-osm-mariadb-k8s
-    channel: latest/edge
+    channel: latest/stable
     scale: 1
     options:
       database: katib
@@ -76,7 +76,7 @@ applications:
     _github_repo_name: kfp-operators
   kfp-db:
     charm: charmed-osm-mariadb-k8s
-    channel: latest/edge
+    channel: latest/stable
     scale: 1
     options:
       database: mlpipeline
