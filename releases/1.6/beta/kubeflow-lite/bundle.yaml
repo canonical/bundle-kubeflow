@@ -120,7 +120,7 @@ applications:
     _github_repo_name: minio-operator
   oidc-gatekeeper:
     charm: oidc-gatekeeper
-    channel: ckf-1.4/beta
+    channel: latest/beta
     scale: 1
     _github_repo_name: oidc-gatekeeper-operator
   seldon-controller-manager:
