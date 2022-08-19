@@ -139,7 +139,7 @@ applications:
     _github_repo_name: metacontroller-operator
   minio:
     charm: minio
-    channel: latest/edge
+    channel: ckf-1.6/edge
     scale: 1
     _github_repo_name: minio-operator
   oidc-gatekeeper:
