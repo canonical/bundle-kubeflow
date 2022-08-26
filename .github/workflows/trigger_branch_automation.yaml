@@ -1,0 +1,18 @@
+name: Trigger Branch Creation Automation in Kubeflow-ci repository
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - main
+      - track/**
+
+jobs:
+  trigger-branch-creation:
+    name: Trigger branch Creation
+    runs-on: ubuntu-latest
+    steps:
+      - name: trigger repository dispatch event
+        run: |
+          curl -XPOST -H "Authorization: token ${{secrets.KUBEFLOW_BOT_TOKEN}}" -H "Accept: application/vnd.github+json" https://api.github.com/repos/canonical/kubeflow-ci/dispatches --data '{"event_type": "branch_creation"}'
