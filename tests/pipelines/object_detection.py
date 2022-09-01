@@ -290,7 +290,11 @@ def test_task(model: InputBinaryFile(str), validation_images: InputBinaryFile(st
             assert np.array(prediction[name]).shape == shape, name
 
     with open('pet.jpg', 'wb') as f:
-        f.write(requests.get('https://people.canonical.com/~knkski/pet.jpg').content)
+        f.write(
+            requests.get(
+                'https://github.com/canonical/bundle-kubeflow/raw/main/tests/pipelines/artifacts/pet.jpg'
+            ).content
+        )
     test_image = imread('pet.jpg').reshape((1, 500, 357, 3)).tolist()
     response = requests.post(f'{model_url}:predict', json={'instances': test_image})
     response.raise_for_status()
@@ -313,9 +317,9 @@ def test_task(model: InputBinaryFile(str), validation_images: InputBinaryFile(st
     description='Continues training a pretrained pet detection model, then tests serving it.',
 )
 def object_detection_pipeline(
-    images='https://people.canonical.com/~knkski/images.tar.gz',
-    annotations='https://people.canonical.com/~knkski/annotations.tar.gz',
-    pretrained='https://people.canonical.com/~knkski/faster_rcnn_resnet101_coco_11_06_2017.tar.gz',
+    images='http://www.robots.ox.ac.uk/~vgg/data/pets/data/images.tar.gz',
+    annotations='http://www.robots.ox.ac.uk/~vgg/data/pets/data/annotations.tar.gz',
+    pretrained='http://storage.googleapis.com/download.tensorflow.org/models/object_detection/faster_rcnn_resnet101_coco_11_06_2017.tar.gz',  # noqa
 ):
     loaded = load_task(images, annotations)
     loaded.container.set_gpu_limit(1)
