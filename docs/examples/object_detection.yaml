@@ -2,11 +2,11 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: object-detection-example-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.4.0, pipelines.kubeflow.org/pipeline_compilation_time: '2021-05-01T17:45:01.452218',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.4.0, pipelines.kubeflow.org/pipeline_compilation_time: '2022-09-01T16:01:39.268852',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Continues training a pretrained
-      pet detection model, then tests serving it.", "inputs": [{"default": "https://people.canonical.com/~knkski/images.tar.gz",
-      "name": "images", "optional": true}, {"default": "https://people.canonical.com/~knkski/annotations.tar.gz",
-      "name": "annotations", "optional": true}, {"default": "https://people.canonical.com/~knkski/faster_rcnn_resnet101_coco_11_06_2017.tar.gz",
+      pet detection model, then tests serving it.", "inputs": [{"default": "http://www.robots.ox.ac.uk/~vgg/data/pets/data/images.tar.gz",
+      "name": "images", "optional": true}, {"default": "http://www.robots.ox.ac.uk/~vgg/data/pets/data/annotations.tar.gz",
+      "name": "annotations", "optional": true}, {"default": "http://storage.googleapis.com/download.tensorflow.org/models/object_detection/faster_rcnn_resnet101_coco_11_06_2017.tar.gz",
       "name": "pretrained", "optional": true}], "name": "Object Detection Example"}'}
   labels: {pipelines.kubeflow.org/kfp_sdk_version: 1.4.0}
 spec:
@@ -334,7 +334,11 @@ spec:
                     assert np.array(prediction[name]).shape == shape, name
 
             with open('pet.jpg', 'wb') as f:
-                f.write(requests.get('https://people.canonical.com/~knkski/pet.jpg').content)
+                f.write(
+                    requests.get(
+                        'https://github.com/canonical/bundle-kubeflow/raw/main/tests/pipelines/artifacts/pet.jpg'
+                    ).content
+                )
             test_image = imread('pet.jpg').reshape((1, 500, 357, 3)).tolist()
             response = requests.post(f'{model_url}:predict', json={'instances': test_image})
             response.raise_for_status()
@@ -468,7 +472,7 @@ spec:
           (300,),\n    }\n    for i, prediction in enumerate(response.json()[''predictions'']):\n        print(\"Checking
           prediction #%s\" % i)\n        for name, shape in shapes.items():\n            assert
           np.array(prediction[name]).shape == shape, name\n\n    with open(''pet.jpg'',
-          ''wb'') as f:\n        f.write(requests.get(''https://people.canonical.com/~knkski/pet.jpg'').content)\n    test_image
+          ''wb'') as f:\n        f.write(\n            requests.get(\n                ''https://github.com/canonical/bundle-kubeflow/raw/main/tests/pipelines/artifacts/pet.jpg''\n            ).content\n        )\n    test_image
           = imread(''pet.jpg'').reshape((1, 500, 357, 3)).tolist()\n    response =
           requests.post(f''{model_url}:predict'', json={''instances'': test_image})\n    response.raise_for_status()\n    shapes
           = {\n        ''detection_boxes'': (300, 4),\n        ''raw_detection_boxes'':
@@ -628,7 +632,7 @@ spec:
           "{{inputs.parameters.pretrained}}"}'}
   arguments:
     parameters:
-    - {name: images, value: 'https://people.canonical.com/~knkski/images.tar.gz'}
-    - {name: annotations, value: 'https://people.canonical.com/~knkski/annotations.tar.gz'}
-    - {name: pretrained, value: 'https://people.canonical.com/~knkski/faster_rcnn_resnet101_coco_11_06_2017.tar.gz'}
+    - {name: images, value: 'http://www.robots.ox.ac.uk/~vgg/data/pets/data/images.tar.gz'}
+    - {name: annotations, value: 'http://www.robots.ox.ac.uk/~vgg/data/pets/data/annotations.tar.gz'}
+    - {name: pretrained, value: 'http://storage.googleapis.com/download.tensorflow.org/models/object_detection/faster_rcnn_resnet101_coco_11_06_2017.tar.gz'}
   serviceAccountName: pipeline-runner
