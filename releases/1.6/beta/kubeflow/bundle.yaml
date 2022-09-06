@@ -181,7 +181,7 @@ relations:
   - [istio-pilot:ingress-auth, oidc-gatekeeper:ingress-auth]
   - [istio-pilot:istio-pilot, istio-ingressgateway:istio-pilot]
   - [istio-pilot:ingress, tensorboards-web-app:ingress]
-  - [istio-pilot:gateway, tensorboard-controller:gateway]
+  - [istio-pilot:gateway-info, tensorboard-controller:gateway-info]
   - [katib-db-manager, katib-db]
   - [kfp-api, kfp-db]
   - [kfp-api:kfp-api, kfp-persistence:kfp-api]
