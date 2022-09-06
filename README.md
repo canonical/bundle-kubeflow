@@ -58,6 +58,13 @@ Subsets of the tests are also available using pytest's substring expression sele
 `tox -e tests -- -m full --username user123@email.com --password user123 -k 'selenium'` to run just
 the selenium tests).
 
+## Workarounds
+1. The following list concerns all the workarounds for kubeflow 1.6/beta:
+   - Due to the upstream issue https://github.com/kubeflow/manifests/issues/2087 we need to apply the following workaround on k8s hosts:
+     ```
+     sudo sysctl fs.inotify.max_user_instances=1280
+     sudo sysctl fs.inotify.max_user_watches=655360
+     ```
 ## Documentation
 
 Read the [official documentation][docs].
