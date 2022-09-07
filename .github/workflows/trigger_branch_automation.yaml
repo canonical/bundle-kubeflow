@@ -4,9 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - master
       - main
-      - track/**
 
 jobs:
   trigger-branch-creation:
