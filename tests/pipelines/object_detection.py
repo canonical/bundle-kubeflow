@@ -72,7 +72,29 @@ def train_task(records: InputBinaryFile(str), pretrained: str, exported: OutputB
     shutil.move(model_path, '/model')
 
     with tarfile.open(mode='r:gz', fileobj=records) as tar:
-        tar.extractall('/records')
+        
+        import os
+        
+        def is_within_directory(directory, target):
+            
+            abs_directory = os.path.abspath(directory)
+            abs_target = os.path.abspath(target)
+        
+            prefix = os.path.commonprefix([abs_directory, abs_target])
+            
+            return prefix == abs_directory
+        
+        def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+        
+            for member in tar.getmembers():
+                member_path = os.path.join(path, member.name)
+                if not is_within_directory(path, member_path):
+                    raise Exception("Attempted Path Traversal in Tar File")
+        
+            tar.extractall(path, members, numeric_owner=numeric_owner) 
+            
+        
+        safe_extract(tar, "/records")
 
     with open('/pipeline.config', 'w') as f:
         config = Path('samples/configs/faster_rcnn_resnet101_pets.config').read_text()
@@ -144,13 +166,51 @@ def test_task(model: InputBinaryFile(str), validation_images: InputBinaryFile(st
     from matplotlib.pyplot import imread
 
     with tarfile.open(model.name) as tar:
-        tar.extractall(path="/")
+        def is_within_directory(directory, target):
+            
+            abs_directory = os.path.abspath(directory)
+            abs_target = os.path.abspath(target)
+        
+            prefix = os.path.commonprefix([abs_directory, abs_target])
+            
+            return prefix == abs_directory
+        
+        def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+        
+            for member in tar.getmembers():
+                member_path = os.path.join(path, member.name)
+                if not is_within_directory(path, member_path):
+                    raise Exception("Attempted Path Traversal in Tar File")
+        
+            tar.extractall(path, members, numeric_owner=numeric_owner) 
+            
+        
+        safe_extract(tar, path="/")
     shutil.move('/exported', '/output/object_detection')
     # https://stackoverflow.com/a/45552938
     shutil.copytree('/output/object_detection/saved_model', '/output/object_detection/1')
 
     with tarfile.open(validation_images.name) as tar:
-        tar.extractall(path="/images")
+        def is_within_directory(directory, target):
+            
+            abs_directory = os.path.abspath(directory)
+            abs_target = os.path.abspath(target)
+        
+            prefix = os.path.commonprefix([abs_directory, abs_target])
+            
+            return prefix == abs_directory
+        
+        def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+        
+            for member in tar.getmembers():
+                member_path = os.path.join(path, member.name)
+                if not is_within_directory(path, member_path):
+                    raise Exception("Attempted Path Traversal in Tar File")
+        
+            tar.extractall(path, members, numeric_owner=numeric_owner) 
+            
+        
+        safe_extract(tar, path="/images")
 
     model_url = 'http://localhost:9001/v1/models/object_detection'
     for _ in range(60):
