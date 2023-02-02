@@ -54,11 +54,13 @@ applications:
     scale: 1
     _github_repo_name: katib-operators
   katib-db:
-    charm: charmed-osm-mariadb-k8s
-    channel: latest/stable
+    charm: mysql-k8s
+    channel: latest/edge
+    series: jammy
     scale: 1
     options:
-      database: katib
+      mysql-interface-database: katib
+      mysql-interface-user: mysql
   katib-db-manager:
     charm: katib-db-manager
     channel: 0.14/edge
@@ -75,11 +77,13 @@ applications:
     scale: 1
     _github_repo_name: kfp-operators
   kfp-db:
-    charm: charmed-osm-mariadb-k8s
-    channel: latest/stable
+    charm: mysql-k8s
+    channel: latest/edge
+    series: jammy
     scale: 1
     options:
-      database: mlpipeline
+      mysql-interface-database: mlpipeline
+      mysql-interface-user: mysql
   kfp-persistence:
     charm: kfp-persistence
     channel: 2.0/edge
@@ -182,8 +186,8 @@ relations:
   - [istio-pilot:istio-pilot, istio-ingressgateway:istio-pilot]
   - [istio-pilot:ingress, tensorboards-web-app:ingress]
   - [istio-pilot:gateway-info, tensorboard-controller:gateway-info]
-  - [katib-db-manager, katib-db]
-  - [kfp-api, kfp-db]
+  - [katib-db-manager:mysql, katib-db:mysql]
+  - [kfp-api:mysql, kfp-db:mysql]
   - [kfp-api:kfp-api, kfp-persistence:kfp-api]
   - [kfp-api:kfp-api, kfp-ui:kfp-api]
   - [kfp-api:kfp-viz, kfp-viz:kfp-viz]
