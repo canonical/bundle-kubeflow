@@ -11,7 +11,7 @@ on:
 jobs:
   lint:
     name: Lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
     - run: sudo apt update && sudo apt install tox
@@ -21,7 +21,7 @@ jobs:
   # Tests that are small enough are above in `actions:`
   aws:
     name: AWS
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
