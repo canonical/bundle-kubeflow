@@ -176,7 +176,7 @@ applications:
     _github_repo_name: minio-operator
   oidc-gatekeeper:
     charm: oidc-gatekeeper
-    channel: ckf-1.7/edge
+    channel: ckf-1.6/edge
     scale: 1
     _github_repo_name: oidc-gatekeeper-operator
   seldon-controller-manager:
