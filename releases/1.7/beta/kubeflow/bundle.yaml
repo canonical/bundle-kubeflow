@@ -116,6 +116,8 @@ applications:
     charm: knative-eventing
     channel: latest/edge
     scale: 1
+    options:
+      namespace: knative-eventig
     _github_repo_name: knative-operators
   knative-operator:
     charm: knative-operator
@@ -127,6 +129,10 @@ applications:
     charm: knative-serving
     channel: latest/edge
     scale: 1
+    options:
+      namespace: knative-serving
+      istio.gateway.namespace: kubeflow
+      istio.gateway.name: kubeflow-gateway
     _github_repo_name: knative-operators
   kserve-controller:
     charm: kserve-controller
