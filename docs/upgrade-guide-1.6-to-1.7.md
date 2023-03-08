@@ -172,23 +172,49 @@ kubectl -n kubeflow delete pod minio-migration
 
 11. Verify that data is accessible by navigating to Minio dashboard.
 
-12. Re-establish all Minio relations with new charm:
-
-
-```python
-juju relate minio argo-controller
-juju relate minio kfp-api
-juju relate minio kfp-profile-controller
-juju relate minio kfp-ui
-juju relate minio mlflow-server
-```
-
-13. Remove old PV and PVC:
+12. After completed deployment with relations and additional testing of data integrity old PV and PVC can be removed:
 
 
 ```python
 kubectl -n kubeflow delete pv $PV_NAME
 kubectl -n kubeflow delete pvc $SOURCE_PVC
+```
+
+## Add relations
+
+The charms now require relations to be added again to complete a working deployment. You do not need to wait for all the charms to be deployed to add these relations.
+
+
+```python
+juju relate argo-controller minio
+juju relate dex-auth:oidc-client oidc-gatekeeper:oidc-client
+juju relate istio-pilot:ingress dex-auth:ingress
+juju relate istio-pilot:ingress jupyter-ui:ingress
+juju relate istio-pilot:ingress kfp-ui:ingress
+juju relate istio-pilot:ingress kubeflow-dashboard:ingress
+juju relate istio-pilot:ingress kubeflow-volumes:ingress
+juju relate istio-pilot:ingress oidc-gatekeeper:ingress
+juju relate istio-pilot:ingress-auth oidc-gatekeeper:ingress-auth
+juju relate istio-pilot:istio-pilot istio-ingressgateway:istio-pilot
+juju relate kfp-api kfp-db
+juju relate kfp-api:kfp-api kfp-persistence:kfp-api
+juju relate kfp-api:kfp-api kfp-ui:kfp-api
+juju relate kfp-api:kfp-viz kfp-viz:kfp-viz
+juju relate kfp-api:object-storage minio:object-storage
+juju relate kfp-profile-controller:object-storage minio:object-storage
+juju relate kfp-ui:object-storage minio:object-storage
+juju relate kubeflow-profiles kubeflow-dashboard
+juju relate istio-pilot:ingress tensorboards-web-app:ingress
+juju relate istio-pilot:gateway tensorboard-controller:gateway
+juju relate istio-pilot:ingress katib-ui:ingress
+juju relate katib-db-manager katib-db
+```
+
+You can control the progress of the update by running:
+
+
+```python
+watch -c juju status --color
 ```
 
 # User namespace is wiped out
