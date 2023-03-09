@@ -23,11 +23,21 @@ juju status --relations | grep regular | awk '{print $1" "$2}' | xargs -l juju r
 ```
 
 ## Backup data
-To prevent catastrophic data loss all imporatant data should be backed up.
+
+To prevent catastrophic data loss all important data should be backed up.
 
 ## Upgrade the charms
 
 To upgarde Kubeflow each charm needs to be refreshed:
+
+# Istio is not upgrading properly
+juju refresh istio-ingressgateway --channel latest/edge
+juju refresh istio-pilot --channel latest/edge
+
+# User namespace is wiped out
+juju refresh kubeflow-dashboard --channel latest/edge
+juju refresh kubeflow-profiles --channel latest/edge
+
 
 
 ```python
@@ -103,23 +113,17 @@ PV_SIZE=?????
 juju remove-application minio
 ```
 
-5. Deploy new Minio charm with same storage size and obtain new PVC name which will be used as a destination for data migration:
+5. Deploy new Minio charm, reconfigure Minio, access dashboard, and obtain new PVC name which will be used as a destination for data migration:
 
 
 ```python
-juju deploy minio --channel edge --storage minio-data=$PV_SIZE
+juju deploy minio --channel edge
+juju config minio secret-key=$MINIO_USER
+juju config minio secret-key=$MINIO_PASSWORD
 DESTINATION_PVC=$(kubectl -n kubeflow get statefulset minio -o=json | jq -r '(.spec.volumeClaimTemplates)[0].metadata.name')
 ```
 
-6. Re-configure Minio credentials and verify that all data can be accessed by accessing Minio dashboard:
-
-
-```python
-juju config minio secret-key=$MINIO_USER
-juju config minio secret-key=$MINIO_PASSWORD
-```
-
-7. Create migration pod definition in `pod-minio-migration.yaml`:
+6. Create migration pod definition in `pod-minio-migration.yaml`:
 ```
 apiVersion: v1
 kind: Pod
@@ -149,11 +153,11 @@ spec:
         readOnly: false
 ```
 
-8. Start migration pod:
+7. Start migration pod:
 
 
 ```python
-sed "s/SOURCE_PVC/${SOURCE_PVC}/g;s/DESTINATION_PVC/${DESTINATION_PVC}/g;" pod-minio-migration.yaml | kubectl apply -f -
+sed "s/SOURCE_PVC/${SOURCE_PVC}/g;s/DESTINATION_PVC/${DESTINATION_PVC}/g;" pod-minio-migration.yaml | 8ubectl apply -f -
 ```
 
 9. Ensure that `minio-migration` pod is running and execute data copy command from source PVC to destination PVC:
@@ -163,16 +167,16 @@ sed "s/SOURCE_PVC/${SOURCE_PVC}/g;s/DESTINATION_PVC/${DESTINATION_PVC}/g;" pod-m
 kubectl -n kubeflow exec -ti minio-migration -- /bin/sh -c "cp -rfpT /data-source/ /data-destination/ && sync && exit"
 ```
 
-10. After data copying is complete delete migration pod:
+9. After data copying is complete delete migration pod:
 
 
 ```python
 kubectl -n kubeflow delete pod minio-migration
 ```
 
-11. Verify that data is accessible by navigating to Minio dashboard.
+10. Verify that data is accessible by navigating to Minio dashboard.
 
-12. After completed deployment with relations and additional testing of data integrity old PV and PVC can be removed:
+11. After completed deployment with relations and additional testing of data integrity old PV and PVC can be removed:
 
 
 ```python
@@ -216,11 +220,3 @@ You can control the progress of the update by running:
 ```python
 watch -c juju status --color
 ```
-
-# User namespace is wiped out
-juju refresh kubeflow-dashboard --channel latest/edge
-juju refresh kubeflow-profiles --channel latest/edge
-
-# Istio is not upgrading properly
-juju refresh istio-ingressgateway --channel latest/edge
-juju refresh istio-pilot --channel latest/edge
