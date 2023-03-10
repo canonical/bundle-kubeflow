@@ -117,7 +117,7 @@ applications:
     channel: 1.8/edge
     scale: 1
     options:
-      namespace: knative-eventig
+      namespace: knative-eventing
     _github_repo_name: knative-operators
   knative-operator:
     charm: knative-operator
