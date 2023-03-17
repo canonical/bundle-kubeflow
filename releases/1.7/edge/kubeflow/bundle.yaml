@@ -116,6 +116,7 @@ applications:
     charm: knative-eventing
     channel: 1.8/edge
     scale: 1
+    trust: true
     options:
       namespace: knative-eventing
     _github_repo_name: knative-operators
@@ -129,6 +130,7 @@ applications:
     charm: knative-serving
     channel: 1.8/edge
     scale: 1
+    trust: true
     options:
       namespace: knative-serving
       istio.gateway.namespace: kubeflow
