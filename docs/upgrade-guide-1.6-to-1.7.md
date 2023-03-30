@@ -113,8 +113,11 @@ juju refresh istio-pilot --channel 1.13/stable
 juju refresh istio-pilot --channel 1.14/stable
 juju refresh istio-pilot --channel 1.15/stable
 juju refresh istio-pilot --channel 1.16/stable
-
 ```
+
+*Troubleshooting of Istio upgrade*
+
+Refer to [this document](https://github.com/canonical/istio-operators/blob/main/charms/istio-pilot/README.md) for troubleshooting tips.
 
 4. Deploy `istio-ingressgateway` add relation between `istio-pilot` and `istio-gateway`:
 
