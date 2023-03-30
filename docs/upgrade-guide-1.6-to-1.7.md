@@ -93,9 +93,9 @@ juju show-application istio-ingressgateway 2> >(grep -q "not found" && echo $?)
 kubectl -n kubeflow get deploy istio-ingressgateway-workload 2> >(grep -q "NotFound" && echo $?)
 ```
 
-    *Troubleshooting of removal of `istio-ingressgateway` application*
+*Troubleshooting of removal of `istio-ingressgateway` application*
 
-    If required, remove `istio-ingressgateway` application with `--force` options and remove `istio-ingressgateway-workload` manually:
+If required, remove `istio-ingressgateway` application with `--force` options and remove `istio-ingressgateway-workload` manually:
 
 
 ```python
@@ -168,9 +168,9 @@ juju refresh tensorboards-web-app --channel 1.7/stable
 juju refresh training-operator --channel 1.6/stable
 ```
 
-    *Troubleshooting charm upgrade*
+*Troubleshooting charm upgrade*
 
-    If charm fails upgrade or is stuck in `maintenance` state for long time it is possible to recover by running refresh command with version that was there prior to deployment, i.e. downgrade the charm.
+If charm fails upgrade or is stuck in `maintenance` state for long time it is possible to recover by running refresh command with version that was there prior to deployment, i.e. downgrade the charm.
 
 ## Deploy KNative and KServe charms
 
