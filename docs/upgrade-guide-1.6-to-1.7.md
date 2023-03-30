@@ -95,7 +95,7 @@ kubectl -n kubeflow get deploy istio-ingressgateway-workload 2> >(grep -q "NotFo
 
 *Troubleshooting of removal of `istio-ingressgateway` application*
 
-If required, remove `istio-ingressgateway` application with `--force` options and remove `istio-ingressgateway-workload` manually:
+If required, remove `istio-ingressgateway` application with `--force` option and remove `istio-ingressgateway-workload` manually:
 
 
 ```python
