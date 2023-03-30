@@ -2,7 +2,7 @@
 # How to upgrade Kubeflow from 1.6 to 1.7
 
 Version 1.7 of Kubeflow was released in March 2023, together with the bundle and charms of Charmed Kubeflow.
-To upgarde existing 1.6 Kubeflow deployment each individual charm needs to be refreshed using `juju refresh` command. In addition, some special steps need to be taken to upgrade Istio, backup data, deploy new features, and ensure existing default profile stays intact.
+To upgrade existing 1.6 Kubeflow deployment each individual charm needs to be refreshed using `juju refresh` command. In addition, some special steps need to be taken to upgrade Istio, backup data, deploy new features, and ensure existing default profile stays intact.
 
 **Prerequisites**
 
@@ -23,12 +23,12 @@ To upgarde existing 1.6 Kubeflow deployment each individual charm needs to be re
 
 ## Before upgrade
 
-**WARNING: To prevent catastrophic data loss all important data should be backed up according to the policies of your organization.**
+**WARNING: To prevent catastrophic data loss all important data should be backed up according to the policies of your organisation.**
 
-Before upgrading Charmed Kubeflow it is recommened to do the following:
+Before upgrading Charmed Kubeflow it is recommended to do the following:
 
 - Stop all Notebooks.
-- Review any important data that needs to be backed up and preform backup procedures according to the policies of your organization.
+- Review any important data that needs to be backed up and preform backup procedures according to the policies of your organisation.
 - Record all version of charms in existing Charmed Kubeflow deployment.
 
 All upgrade steps should be done in `kubeflow` model. Before performing the upgrade switch to `kubeflow` model:
@@ -44,7 +44,7 @@ juju switch kubeflow
 
 In Charmed Kubeflow 1.6 a special default profile named `admin` is created at deployment time. When upgrading to 1.7 this default profile needs to be updated in order to prevent its deletion.
 
-Follow the folowing steps prior to upgarde to preserved default `admin` profile.
+Follow the folowing steps prior to upgrade to preserved default `admin` profile.
 
 
 
@@ -74,7 +74,7 @@ juju trust seldon-controller-manager --scope=cluster
 
 ## Upgrade Istio
 
-Upgrade of Istio service mesh components is performed according to Istio instructions and invloves upgrading charms in sequence. Note that `istio-gateway` charm should always me removed before starting upgrade. For more details on Istio upgrade and how to debug failed upgardes refer to [this document](https://github.com/canonical/istio-operators/blob/main/charms/istio-pilot/README.md). It is assumed that `istio-pilot` version in Charmed Kubeflow deployed is 1.11.
+Upgrade of Istio service mesh components is performed according to Istio instructions and invloves upgrading charms in sequence. Note that `istio-gateway` charm should always me removed before starting upgrade. For more details on Istio upgrade and how to debug failed upgrades refer to [this document](https://github.com/canonical/istio-operators/blob/main/charms/istio-pilot/README.md). It is assumed that `istio-pilot` version in Charmed Kubeflow deployed is 1.11.
 
 1. Remove `istio-ingressgaeway` application and corresponding relation with `istio-pilot`:
 
@@ -130,9 +130,9 @@ juju relate istio-pilot istio-ingressgateway
 
 ## Upgrade charms
 
-To upgarde Charmed Kubeflow each charm needs to be refreshed. It is recommended to wait for each charm to finish its upgrade before proceeding with the next.
+To upgrade Charmed Kubeflow each charm needs to be refreshed. It is recommended to wait for each charm to finish its upgrade before proceeding with the next.
 
-Depending on original deployment of Charmed Kuberflow version 1.6, refresh command will report that charm is up-to-date which indicats that there is not need to upgrade that particular charm.
+Depending on original deployment of Charmed Kuberflow version 1.6, refresh command will report that charm is up-to-date which indicates that there is not need to upgrade that particular charm.
 
 During the upgrade some charms can temporarily  go into `error` or `blocked` state. 
 
