@@ -173,7 +173,7 @@ juju refresh training-operator --channel 1.6/stable
 
 *Troubleshooting charm upgrade*
 
-If charm fails upgrade or is stuck in `maintenance` state for long time it is possible to recover by running refresh command with version that was there prior to deployment, i.e. downgrade the charm.
+If charm fails upgrade or is stuck in `maintenance` state for long time it is possible to recover by running refresh command with version that was there prior to deployment, i.e. downgrade the charm. After that repeat the upgrade.
 
 ## Deploy KNative and KServe charms
 
