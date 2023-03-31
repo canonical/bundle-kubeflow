@@ -1,13 +1,14 @@
 
-# How to upgrade Kubeflow from 1.6 to 1.7
+# How to upgrade Charmed Kubeflow from 1.6 to 1.7
 
-Version 1.7 of Kubeflow was released in March 2023, together with the bundle and charms of Charmed Kubeflow.
-To upgrade existing 1.6 Kubeflow deployment each individual charm needs to be refreshed using `juju refresh` command. In addition, some special steps need to be taken to upgrade Istio, backup data, deploy new features, and ensure existing default profile stays intact.
+Version 1.7 of Charmed Kubeflow was released in March 2023, aligning with the upstream Kubeflow project [release](https://github.com/kubeflow/manifests/releases/tag/v1.7.0).
+To upgrade existing 1.6 Kubeflow deployment each charm has to be refreshed using `juju refresh`. In addition, this guide includes steps to be taken to upgrade certain components, backup data, and deploy new features.
 
 **Prerequisites**
 
-- Access to dashboard of exising Charmed Kubeflow 1.6 deployment.
-- Access to Kubernetes cluster where existing Charmed Kubeflow 1.6 is deployed.
+- An active and idle Charmed Kubeflow 1.6 deployment. This requires all charms in the bundle to be in that state.
+Access to dashboard of exising Charmed Kubeflow 1.6 deployment.
+- Admin access to Kubernetes cluster where existing Charmed Kubeflow 1.6 is deployed.
 - Tools: `kubectl`, `juju`
 
 **Contents:**
@@ -31,7 +32,7 @@ Before upgrading Charmed Kubeflow it is recommended to do the following:
 - Review any important data that needs to be backed up and preform backup procedures according to the policies of your organisation.
 - Record all version of charms in existing Charmed Kubeflow deployment.
 
-All upgrade steps should be done in `kubeflow` model. Before performing the upgrade switch to `kubeflow` model:
+All upgrade steps should be done in `kubeflow` model. If you haven't already, switch to `kubeflow` model:
 
 
 
@@ -42,9 +43,9 @@ juju switch kubeflow
 
 ### Update default `admin` profile to prevent its deletion
 
-In Charmed Kubeflow 1.6 a special default profile named `admin` is created at deployment time. When upgrading to 1.7 this default profile needs to be updated in order to prevent its deletion.
+In Charmed Kubeflow 1.6 a special default profile named `admin` is created by default at deployment time. When upgrading to 1.7 this default profile needs to be edited in order to prevent its deletion.
 
-Follow the folowing steps prior to upgrade to preserved default `admin` profile.
+Follow these steps prior to upgrade to preserve default `admin` profile:
 
 
 
@@ -60,7 +61,9 @@ kubectl label profile admin model.juju.is/name-
 
 ### Enable trust on deployed charms
 
-Some charms in Charmed Kubeflow 1.6 require `trust` to be enabled before upgrade.
+Because of changes in the charm code, some charms in Charmed Kubeflow 1.6 have to be trusted by juju before the upgrade.
+
+**WARNING: Please note that if you do not execute `juju trust` for these charms, you may encounter authorization errors. If that is the case, please refer to the Troubleshooting guide.**
 
 
 ```python
@@ -73,6 +76,8 @@ juju trust seldon-controller-manager --scope=cluster
 ```
 
 ## Upgrade Istio
+
+Upgrade of istio components is performed according to Istio's [best practices](https://istio.io/latest/docs/setup/upgrade/), which requires upgrading charms in sequence. For more details on upgrading and troubleshooting `istio-pilot` and `istio-ingressgateway` charms, please refer to [this document](https://github.com/canonical/istio-operators/blob/main/charms/istio-pilot/README.md). It is assumed that the deployed `istio-pilot` and `istio-ingressgateway` version alongside Charmed Kubeflow 1.6 is 1.11.
 
 Upgrade of Istio service mesh components is performed according to Istio instructions and invloves upgrading charms in sequence. Note that `istio-gateway` charm should always me removed before starting upgrade. For more details on Istio upgrade and how to debug failed upgrades refer to [this document](https://github.com/canonical/istio-operators/blob/main/charms/istio-pilot/README.md). It is assumed that `istio-pilot` version in Charmed Kubeflow deployed is 1.11.
 
@@ -95,6 +100,8 @@ kubectl -n kubeflow get deploy istio-ingressgateway-workload 2> >(grep -q "NotFo
 
 *Troubleshooting of removal of `istio-ingressgateway` application*
 
+**WARNING: Removing application using `--force` option should be the last resort. There could be potential stability issues if application is not shutdown cleanly.**
+
 If required, remove `istio-ingressgateway` application with `--force` option and remove `istio-ingressgateway-workload` manually:
 
 
@@ -103,7 +110,7 @@ If required, remove `istio-ingressgateway` application with `--force` option and
     kubectl -n kubeflow delete deploy istio-ingressgateway-workload
 ```
 
-3. Upgrade `istio-pilot` charm in sequence. Wait for each `refresh` command to finish and upgrade to intermediate version is complete:
+3. Upgrade `istio-pilot` charm in sequence. Wait for each `refresh` command to finish and upgrade to intermediate version is complete, i.e. `istio-pilot` application is in `active` state and unit is in `active/idle` state:
 
 
 ```python
@@ -134,7 +141,7 @@ To upgrade Charmed Kubeflow each charm needs to be refreshed. It is recommended 
 
 Depending on original deployment of Charmed Kuberflow version 1.6, refresh command will report that charm is up-to-date which indicates that there is not need to upgrade that particular charm.
 
-During the upgrade some charms can temporarily  go into `error` or `blocked` state. 
+During the upgrade some charms can temporarily  go into `error` or `blocked` state, but they should go `active` after a while.
 
 
 
@@ -183,7 +190,7 @@ KNative and KServe are new additions to Charmed Kubeflow 1.7 and need to be depl
 ```python
 # install knative and kserve
 juju deploy knative-operator --channel 1.8/stable --trust
-juju deploy knative-serving --config namespace="knative-serving" --config istio.gateway.namespace=kubeflow --config istio.gateway.name=ingressgateway --channel 1.8/stable --trust
+juju deploy knative-serving --config namespace="knative-serving" --config istio.gateway.namespace=kubeflow --config istio.gateway.name=kubeflow-gateway --channel 1.8/stable --trust
 juju deploy knative-eventing --config namespace="knative-eventing" --channel 1.8/stable --trust
 juju deploy kserve-controller --channel 0.10/stable --trust
 ```
