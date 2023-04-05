@@ -16,7 +16,7 @@ Access to dashboard of exising Charmed Kubeflow 1.6 deployment.
 - [Before upgrade](#before-charmed-kubeflow-upgrade)
 - [Upgrade Istio](#upgrade-istio)
 - [Before charms upgrade](#before-charms-upgrade)
-  - [Update default 'admin' profile to prevent its deletion](Update-default-admin-profile-to-prevent-its-deletion)
+  - [Update default 'admin' profile to prevent its deletion](#update-default-admin-profile-to-prevent-its-deletion)
   - [Enable trust on deployed charms](#enable-trust-on-deployed-charms)
 - [Upgrade charms](#upgrade-charms)
 - [Deploy KNative and KServe charms](#deploy-knative-and-kserve-charms)
