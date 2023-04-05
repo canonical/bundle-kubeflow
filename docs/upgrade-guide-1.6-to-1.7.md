@@ -13,24 +13,25 @@ Access to dashboard of exising Charmed Kubeflow 1.6 deployment.
 
 **Contents:**
 
-- [Before upgrade](#before-upgrade)
+- [Before upgrade](#before-charmed-kubeflow-upgrade)
+- [Upgrade Istio](#upgrade-istio)
+- [Before charms upgrade](#before-charms-upgrade)
   - [Update default 'admin' profile to prevent its deletion](Update-default-admin-profile-to-prevent-its-deletion)
   - [Enable trust on deployed charms](#enable-trust-on-deployed-charms)
-- [Upgrade Istio](#upgrade-istio)
 - [Upgrade charms](#upgrade-charms)
 - [Deploy KNative and KServe charms](#deploy-knative-and-kserve-charms)
 - [Verify upgrade](#verify-upgrade)
 
 
-## Before upgrade
+## Before Charmed Kubeflow upgrade
 
-**WARNING: To prevent catastrophic data loss all important data should be backed up according to the policies of your organisation.**
+**WARNING: To prevent data loss, all important data should be backed up according to the policies of your organisation.**
 
 Before upgrading Charmed Kubeflow it is recommended to do the following:
 
 - Stop all Notebooks.
 - Review any important data that needs to be backed up and preform backup procedures according to the policies of your organisation.
-- Record all version of charms in existing Charmed Kubeflow deployment.
+- Record all charm versions in existing Charmed Kubeflow deployment.
 
 All upgrade steps should be done in `kubeflow` model. If you haven't already, switch to `kubeflow` model:
 
@@ -41,23 +42,93 @@ All upgrade steps should be done in `kubeflow` model. If you haven't already, sw
 juju switch kubeflow
 ```
 
-### Update default `admin` profile to prevent its deletion
+## Upgrade Istio
 
-In Charmed Kubeflow 1.6 a special default profile named `admin` is created by default at deployment time. When upgrading to 1.7 this default profile needs to be edited in order to prevent its deletion.
+Upgrade of istio components is performed according to Istio's [best practices](https://istio.io/latest/docs/setup/upgrade/), which requires upgrading Istio by one minor version at a time and in sequence. For more details on upgrading and troubleshooting `istio-pilot` and `istio-ingressgateway` charms, please refer to [this document](https://github.com/canonical/istio-operators/blob/main/charms/istio-pilot/README.md). It is assumed that the deployed `istio-pilot` and `istio-ingressgateway` version alongside Charmed Kubeflow 1.6 is 1.11.
 
-Follow these steps prior to upgrade to preserve default `admin` profile:
-
+1. Remove the `istio-ingressgateway` application and corresponding relation with `istio-pilot`:
 
 
 ```python
-# update admin profile
-kubectl annotate profile admin controller.juju.is/id-
-kubectl annotate profile admin model.juju.is/id-
-kubectl label profile admin app.juju.is/created-by-
-kubectl label profile admin app.kubernetes.io/managed-by-
-kubectl label profile admin app.kubernetes.io/name-
-kubectl label profile admin model.juju.is/name-
+# remove relation and istio-ingressgateway application
+juju remove-relation istio-pilot istio-ingressgateway
+juju remove-application istio-ingressgateway
 ```
+
+2. Ensure that `istio-ingressgateway` application and all related resources are properly removed. The following commands should succeed (return `0`):
+
+
+```python
+juju show-application istio-ingressgateway 2> >(grep -q "not found" && echo $?)
+kubectl -n kubeflow get deploy istio-ingressgateway-workload 2> >(grep -q "NotFound" && echo $?)
+```
+
+<!-- This should be placed in [detail] section on Discourse -->
+#### Troubleshooting of removal of `istio-ingressgateway` application
+
+**WARNING: Removing application using `--force` option should be the last resort. There could be potential stability issues if application is not shutdown cleanly.**
+
+If required, remove `istio-ingressgateway` application with `--force` option and remove `istio-ingressgateway-workload` manually:
+
+
+```python
+    juju remove-application --force istio-ingressgateway
+    kubectl -n kubeflow delete deploy istio-ingressgateway-workload
+```
+
+3. Upgrade `istio-pilot` charm in sequence. Wait for each `refresh` command to finish and upgrade to intermediate version is complete, i.e. `istio-pilot` application is in `active` state and unit is in `active/idle` state:
+
+
+```python
+# upgrade istio-pilot from 1.11 to 1.12
+juju refresh istio-pilot --channel 1.12/stable
+```
+
+Initial upgrade from 1.11 to 1.12 might take some time. Ensure that `istio-pilot` charm has completed its upgrade.
+
+
+```python
+# upgrade istio-pilot from 1.12 to 1.13
+juju refresh istio-pilot --channel 1.13/stable
+```
+
+
+```python
+# upgrade istio-pilot from 1.13 to 1.14
+juju refresh istio-pilot --channel 1.14/stable
+```
+
+
+```python
+# upgrade istio-pilot from 1.14 to 1.15
+juju refresh istio-pilot --channel 1.15/stable
+```
+
+
+```python
+# upgrade istio-pilot from 1.15 to 1.16
+juju refresh istio-pilot --channel 1.16/stable
+```
+
+<!-- This should be placed in [detail] section on Discourse -->
+#### Troubleshooting of Istio upgrade
+
+Refer to [this document](https://github.com/canonical/istio-operators/blob/main/charms/istio-pilot/README.md) for troubleshooting tips.
+
+4. Deploy `istio-ingressgateway` add relation between `istio-pilot` and `istio-gateway`:
+
+
+```python
+# deploy istio-ingressgateway
+juju deploy istio-gateway --channel 1.16/stable --trust --config kind=ingress istio-ingressgateway
+juju relate istio-pilot istio-ingressgateway
+```
+
+## Before charms upgrade
+
+Before charms can be upgraded the following actions need to be taken:
+- Eanble trust on deployed charms (required).
+- Updayed default `admin` profile to prevent its deletion (optional)
 
 ### Enable trust on deployed charms
 
@@ -75,64 +146,19 @@ juju trust kubeflow-profiles --scope=cluster
 juju trust seldon-controller-manager --scope=cluster
 ```
 
-## Upgrade Istio
+### Update default `admin` profile to prevent its deletion
 
-Upgrade of istio components is performed according to Istio's [best practices](https://istio.io/latest/docs/setup/upgrade/), which requires upgrading charms in sequence. For more details on upgrading and troubleshooting `istio-pilot` and `istio-ingressgateway` charms, please refer to [this document](https://github.com/canonical/istio-operators/blob/main/charms/istio-pilot/README.md). It is assumed that the deployed `istio-pilot` and `istio-ingressgateway` version alongside Charmed Kubeflow 1.6 is 1.11.
-
-Upgrade of Istio service mesh components is performed according to Istio instructions and invloves upgrading charms in sequence. Note that `istio-gateway` charm should always me removed before starting upgrade. For more details on Istio upgrade and how to debug failed upgrades refer to [this document](https://github.com/canonical/istio-operators/blob/main/charms/istio-pilot/README.md). It is assumed that `istio-pilot` version in Charmed Kubeflow deployed is 1.11.
-
-1. Remove `istio-ingressgaeway` application and corresponding relation with `istio-pilot`:
+In Charmed Kubeflow 1.6 a user profile named `admin` is created by default at deployment time.  This profile has no additional priviledges - it is just a default profile that was created for convenience and has been removed as of Charmed Kubeflow 1.7.  When upgrading to 1.7 this default profile will be deleted.  If you depend on this profile, you can do the following to prevent its deletion:
 
 
 ```python
-# remove relation and istio-ingressgateway application
-juju remove-relation istio-pilot istio-ingressgateway
-juju remove-application istio-ingressgateway
-```
-
-2. Ensure that `istio-ingressgateway` application and all related resources are properly removed. The following commands should succeed (return `0`):
-
-
-```python
-juju show-application istio-ingressgateway 2> >(grep -q "not found" && echo $?)
-kubectl -n kubeflow get deploy istio-ingressgateway-workload 2> >(grep -q "NotFound" && echo $?)
-```
-
-*Troubleshooting of removal of `istio-ingressgateway` application*
-
-**WARNING: Removing application using `--force` option should be the last resort. There could be potential stability issues if application is not shutdown cleanly.**
-
-If required, remove `istio-ingressgateway` application with `--force` option and remove `istio-ingressgateway-workload` manually:
-
-
-```python
-    juju remove-application --force istio-ingressgateway
-    kubectl -n kubeflow delete deploy istio-ingressgateway-workload
-```
-
-3. Upgrade `istio-pilot` charm in sequence. Wait for each `refresh` command to finish and upgrade to intermediate version is complete, i.e. `istio-pilot` application is in `active` state and unit is in `active/idle` state:
-
-
-```python
-# upgrade istio-pilot in sequence
-juju refresh istio-pilot --channel 1.12/stable
-juju refresh istio-pilot --channel 1.13/stable
-juju refresh istio-pilot --channel 1.14/stable
-juju refresh istio-pilot --channel 1.15/stable
-juju refresh istio-pilot --channel 1.16/stable
-```
-
-*Troubleshooting of Istio upgrade*
-
-Refer to [this document](https://github.com/canonical/istio-operators/blob/main/charms/istio-pilot/README.md) for troubleshooting tips.
-
-4. Deploy `istio-ingressgateway` add relation between `istio-pilot` and `istio-gateway`:
-
-
-```python
-# deploy istio-ingressgateway
-juju deploy istio-gateway --channel 1.16/stable --trust --config kind=ingress istio-ingressgateway
-juju relate istio-pilot istio-ingressgateway
+# update admin profile
+kubectl annotate profile admin controller.juju.is/id-
+kubectl annotate profile admin model.juju.is/id-
+kubectl label profile admin app.juju.is/created-by-
+kubectl label profile admin app.kubernetes.io/managed-by-
+kubectl label profile admin app.kubernetes.io/name-
+kubectl label profile admin model.juju.is/name-
 ```
 
 ## Upgrade charms
@@ -178,7 +204,8 @@ juju refresh tensorboards-web-app --channel 1.7/stable
 juju refresh training-operator --channel 1.6/stable
 ```
 
-*Troubleshooting charm upgrade*
+<!-- This should be placed in [detail] section on Discourse -->
+#### Troubleshooting charm upgrade
 
 If charm fails upgrade or is stuck in `maintenance` state for long time it is possible to recover by running refresh command with version that was there prior to deployment, i.e. downgrade the charm. After that repeat the upgrade.
 
