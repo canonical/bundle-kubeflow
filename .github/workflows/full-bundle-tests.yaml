@@ -10,7 +10,7 @@ jobs:
    steps:
      - uses: actions/checkout@v3
      - name: Setup operator environment
-       uses: charmed-kubernetes/actions-operator@main
+       uses: charmed-kubernetes/actions-operator@1.1.0
        with:
          provider: microk8s
          channel: 1.24/stable
