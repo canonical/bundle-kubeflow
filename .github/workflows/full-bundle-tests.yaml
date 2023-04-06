@@ -5,7 +5,7 @@ on:
  
 
 jobs:
- test-bundle-1.6-stable:
+ test-bundle-1_6-stable:
    runs-on: [self-hosted, linux, X64, xlarge]
    steps:
      - uses: actions/checkout@v3
