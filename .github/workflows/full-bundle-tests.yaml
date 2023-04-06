@@ -5,18 +5,26 @@ on:
  
 
 jobs:
- test-self-hosted-large-container:
-   runs-on: [self-hosted, linux, X64, large]
-   steps:
-     - uses: actions/checkout@v3
-     - run: curl https://www.google.com.au
- test-self-hosted-xlarge:
+ test-bundle-1.6-stable:
    runs-on: [self-hosted, linux, X64, xlarge]
    steps:
      - uses: actions/checkout@v3
-     - run: echo hi
- test-self-hosted-two-xlarge:
-   runs-on: [self-hosted, linux, X64, two-xlarge]
-   steps:
-     - uses: actions/checkout@v3
-     - run: echo hi
+     - name: Setup operator environment
+       uses: charmed-kubernetes/actions-operator@main
+       with:
+         provider: microk8s
+         channel: 1.24/stable
+         charmcraft-channel: latest/candidate
+         # Pinning juju agent to 2.9.42 to keep compatibility with pythonlib-juju<3
+         bootstrap-options: --agent-version="2.9.42"
+
+     # TODO: Remove once the actions-operator does this automatically
+     - name: Configure kubectl
+       run: |
+         sg microk8s -c "microk8s config > ~/.kube/config"
+     - run: |
+         sg microk8s -c "microk8s enable metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'"
+     - run: |
+         sg microk8s -c "juju add-model kubeflow"
+     - run: |
+         sg microk8s -c "tox -e test_bundle_1.6 --recreate  -- --model kubeflow --channel 1.6/stable"

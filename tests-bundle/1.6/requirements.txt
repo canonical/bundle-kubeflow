@@ -1,0 +1,5 @@
+lightkube
+pytest
+pytest-operator
+kfp<2.0.0
+juju<3.1
