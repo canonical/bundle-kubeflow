@@ -25,6 +25,6 @@ jobs:
      - run: |
          sg microk8s -c "microk8s enable metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'"
      - run: |
-         sg microk8s -c "juju add-model kubeflow"
+         sg microk8s -c "juju add-model kubeflow --config default-series=focal"
      - run: |
          sg microk8s -c "tox -e test_bundle_1.6 --recreate  -- --model kubeflow --channel 1.6/stable"
