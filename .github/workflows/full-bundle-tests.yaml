@@ -6,17 +6,17 @@ on:
 
 jobs:
  test-self-hosted-large-container:
-   runs-on: [self-hosted, linux, X64, ubuntu, large]
+   runs-on: [self-hosted, linux, X64, large]
    steps:
      - uses: actions/checkout@v3
      - run: curl https://www.google.com.au
  test-self-hosted-xlarge:
-   runs-on: [self-hosted, linux, X64, ubuntu, xlarge]
+   runs-on: [self-hosted, linux, X64, xlarge]
    steps:
      - uses: actions/checkout@v3
      - run: echo hi
  test-self-hosted-two-xlarge:
-   runs-on: [self-hosted, linux, X64, ubuntu, two-xlarge]
+   runs-on: [self-hosted, linux, X64, two-xlarge]
    steps:
      - uses: actions/checkout@v3
      - run: echo hi
