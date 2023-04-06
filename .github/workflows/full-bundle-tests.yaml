@@ -1,0 +1,67 @@
+name: Tests
+
+on:
+  pull_request:
+
+jobs:
+  test-bundle:
+    runs-on: [self-hosted, linux, X64, two-xlarge]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Parse and enable DNS server
+        id: dns-name
+        run: |
+          dns_server=$(grep -oPm1 'Current DNS Server: \K[^\s]+' <<< "$(resolvectl status)")
+          echo "Using following DNS Server: $dns_server"
+
+          echo "MY_ADDONS=hostpath-storage dns:$dns_server rbac registry" >> $GITHUB_OUTPUT
+
+      - name: Setup operator environment
+        uses: charmed-kubernetes/actions-operator@1.1.0
+        with:
+          provider: microk8s
+          channel: 1.24/stable
+          juju-channel: 2.9/stable
+          bootstrap-options: '--agent-version="2.9.42"'
+          microk8s-addons: ${{ steps.dns-name.outputs.MY_ADDONS }}
+
+      - run: |
+          sg microk8s -c "microk8s enable metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'"
+
+      - run: |
+          sg microk8s -c "microk8s status --wait-ready --timeout 150"
+
+      - name: Show all pods status
+        run: |
+          sg microk8s -c "microk8s kubectl get pods --all-namespaces"
+
+      - run: |
+          sg microk8s -c "juju add-model kubeflow --config default-series=focal"
+
+      - name: Override juju model config to allow retry and set series
+        run: |
+          sg microk8s -c "juju model-config automatically-retry-hooks=true default-series=focal"
+
+      - run: |
+          sg microk8s -c "tox -e test_bundle_1.7 --recreate -- --keep-models"
+
+      - name: Dump Juju/k8s logs on failure
+        if: failure()
+        run: |
+          sg microk8s -c "juju status"
+
+          echo "Dumping k8s logs"
+          sg microk8s -c "microk8s kubectl get all --all-namespaces"
+
+      - name: Descript all pods
+        if: failure()
+        run: |
+          sg microk8s -c "kubectl describe pods --all-namespaces"
+
+      - name: Get logs from failed pods
+        if: failure()
+        run: |
+          sg microk8s -c "kubectl get pods --all-namespaces -o 'custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,CONTAINERS:.status.containerStatuses[*].ready'" | awk '$3 == "false" {print $1,$2}'
+
+          echo "Actual Logs"
+          sg microk8s -c "kubectl get pods --all-namespaces -o 'custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,CONTAINERS:.status.containerStatuses[*].ready'" | awk '$3 == "false" {print $1,$2}' | xargs -L1 sh -c 'sg microk8s -c "kubectl logs $0 -n $1"'
