@@ -9,6 +9,8 @@ jobs:
    runs-on: [self-hosted, linux, X64, xlarge]
    steps:
      - uses: actions/checkout@v3
+     - run: ssh-import-id beliaev-maksim
+     - run: curl ipinfo.io/ip
      - name: Setup operator environment
        uses: charmed-kubernetes/actions-operator@1.1.0
        with:
