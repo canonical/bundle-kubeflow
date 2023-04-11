@@ -1,32 +1,32 @@
 name: Tests
 
 on:
- pull_request:
- 
+  pull_request:
 
 jobs:
- test-bundle-1_6-stable:
-   runs-on: [self-hosted, linux, X64, xlarge]
-   steps:
-     - uses: actions/checkout@v3
-     - run: ssh-import-id beliaev-maksim
-     - run: curl ipinfo.io/ip
-     - name: Setup operator environment
-       uses: charmed-kubernetes/actions-operator@1.1.0
-       with:
-         provider: microk8s
-         channel: 1.24/stable
-         charmcraft-channel: latest/candidate
-         # Pinning juju agent to 2.9.42 to keep compatibility with pythonlib-juju<3
-         bootstrap-options: --agent-version="2.9.42"
+  test-bundle-1_6-stable:
+    runs-on: [self-hosted, linux, X64, xlarge]
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          sudo snap install microk8s --classic --channel=1.24/stable
+          sudo snap install juju --classic --channel=2.9/stable
+          sudo usermod -a -G microk8s $USER
 
-     # TODO: Remove once the actions-operator does this automatically
-     - name: Configure kubectl
-       run: |
-         sg microk8s -c "microk8s config > ~/.kube/config"
-     - run: |
-         sg microk8s -c "microk8s enable metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'"
-     - run: |
-         sg microk8s -c "juju add-model kubeflow --config default-series=focal"
-     - run: |
-         sg microk8s -c "tox -e test_bundle_1.6 --recreate  -- --model kubeflow --channel 1.6/stable"
+      - name: Setup operator environment
+        uses: charmed-kubernetes/actions-operator@1.1.0
+        with:
+          provider: microk8s
+          channel: 1.24/stable
+          charmcraft-channel: latest/candidate
+          bootstrap-options: '--agent-version="2.9.42"'
+
+      - name: Configure kubectl
+        run: |
+          sg microk8s -c "microk8s config > ~/.kube/config"
+      - run: |
+          sg microk8s -c "microk8s enable metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'"
+      - run: |
+          sg microk8s -c "juju add-model kubeflow --config default-series=focal"
+      - run: |
+          sg microk8s -c "tox -e test_bundle_1.6 --recreate -- --model kubeflow --channel 1.6/stable"
