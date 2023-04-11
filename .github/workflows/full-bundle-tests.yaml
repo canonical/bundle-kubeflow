@@ -10,7 +10,6 @@ jobs:
       - uses: actions/checkout@v3
       - run: |
           sudo snap install microk8s --classic --channel=1.24/stable
-          sudo snap install juju --classic --channel=2.9/stable
           sudo usermod -a -G microk8s $USER
 
       - run: |
