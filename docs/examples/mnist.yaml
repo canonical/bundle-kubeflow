@@ -2,12 +2,12 @@ apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
   generateName: mnist-cnn-example-
-  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.4.0, pipelines.kubeflow.org/pipeline_compilation_time: '2021-03-15T17:56:16.241186',
+  annotations: {pipelines.kubeflow.org/kfp_sdk_version: 1.4.0, pipelines.kubeflow.org/pipeline_compilation_time: '2022-07-13T15:28:29.010707',
     pipelines.kubeflow.org/pipeline_spec: '{"description": "Trains an example Convolutional
-      Neural Network on MNIST dataset.", "inputs": [{"default": "https://people.canonical.com/~knkski/train-images-idx3-ubyte.gz",
-      "name": "train_images", "optional": true}, {"default": "https://people.canonical.com/~knkski/train-labels-idx1-ubyte.gz",
-      "name": "train_labels", "optional": true}, {"default": "https://people.canonical.com/~knkski/t10k-images-idx3-ubyte.gz",
-      "name": "test_images", "optional": true}, {"default": "https://people.canonical.com/~knkski/t10k-labels-idx1-ubyte.gz",
+      Neural Network on MNIST dataset.", "inputs": [{"default": "https://github.com/canonical/bundle-kubeflow/raw/test-artifacts/tests/pipelines/artifacts/train-images-idx3-ubyte.gz",
+      "name": "train_images", "optional": true}, {"default": "https://github.com/canonical/bundle-kubeflow/raw/test-artifacts/tests/pipelines/artifacts/train-labels-idx1-ubyte.gz",
+      "name": "train_labels", "optional": true}, {"default": "https://github.com/canonical/bundle-kubeflow/raw/test-artifacts/tests/pipelines/artifacts/t10k-images-idx3-ubyte.gz",
+      "name": "test_images", "optional": true}, {"default": "https://github.com/canonical/bundle-kubeflow/raw/test-artifacts/tests/pipelines/artifacts/t10k-labels-idx1-ubyte.gz",
       "name": "test_labels", "optional": true}, {"default": "2", "name": "train_epochs",
       "optional": true, "type": "Integer"}, {"default": "128", "name": "train_batch_size",
       "optional": true, "type": "Integer"}], "name": "MNIST CNN Example"}'}
@@ -325,6 +325,37 @@ spec:
             accuracy = sum(1 for (p, a) in zipped if p == a) / len(predicted)
 
             print(f"Accuracy: {accuracy:0.2f}")
+            # TODO: Figure out how to access artifacts via pipelines UI
+            #  print("Generating confusion matrix")
+            #  labels = list(range(10))
+            #  cm = [[0] * 10 for _ in range(10)]
+            #  for pred, target in zipped:
+            #      cm[target][pred] += 1
+            #  for target in range(10):
+            #      for predicted in range(10):
+            #          count = cm[target][predicted]
+            #          confusion_matrix.write(f'{target},{predicted},{count}\n')
+            #
+            #  with open('/output/mlpipeline-ui-metadata.json', 'w') as f:
+            #      json.dump(
+            #          {
+            #              "version": 1,
+            #              "outputs": [
+            #                  {
+            #                      "type": "confusion_matrix",
+            #                      "format": "csv",
+            #                      "source": "minio://mlpipeline/cm.tgz",
+            #                      "schema": [
+            #                          {"name": "target", "type": "CATEGORY"},
+            #                          {"name": "predicted", "type": "CATEGORY"},
+            #                          {"name": "count", "type": "NUMBER"},
+            #                      ],
+            #                      "labels": list(map(str, labels)),
+            #                  }
+            #              ],
+            #          },
+            #          f,
+            #      )
 
         import argparse
         _parser = argparse.ArgumentParser(prog='Test task', description='Connects to served model and tests example MNIST images.')
@@ -406,8 +437,21 @@ spec:
           = np.argmax(response.json()[''predictions''], axis=1).tolist()\n    actual
           = np.argmax(examples[''val_y''], axis=1).tolist()\n    zipped = list(zip(predicted,
           actual))\n    accuracy = sum(1 for (p, a) in zipped if p == a) / len(predicted)\n\n    print(f\"Accuracy:
-          {accuracy:0.2f}\")\n\nimport argparse\n_parser = argparse.ArgumentParser(prog=''Test
-          task'', description=''Connects to served model and tests example MNIST images.'')\n_parser.add_argument(\"--model\",
+          {accuracy:0.2f}\")\n    # TODO: Figure out how to access artifacts via pipelines
+          UI\n    #  print(\"Generating confusion matrix\")\n    #  labels = list(range(10))\n    #  cm
+          = [[0] * 10 for _ in range(10)]\n    #  for pred, target in zipped:\n    #      cm[target][pred]
+          += 1\n    #  for target in range(10):\n    #      for predicted in range(10):\n    #          count
+          = cm[target][predicted]\n    #          confusion_matrix.write(f''{target},{predicted},{count}\\n'')\n    #\n    #  with
+          open(''/output/mlpipeline-ui-metadata.json'', ''w'') as f:\n    #      json.dump(\n    #          {\n    #              \"version\":
+          1,\n    #              \"outputs\": [\n    #                  {\n    #                      \"type\":
+          \"confusion_matrix\",\n    #                      \"format\": \"csv\",\n    #                      \"source\":
+          \"minio://mlpipeline/cm.tgz\",\n    #                      \"schema\": [\n    #                          {\"name\":
+          \"target\", \"type\": \"CATEGORY\"},\n    #                          {\"name\":
+          \"predicted\", \"type\": \"CATEGORY\"},\n    #                          {\"name\":
+          \"count\", \"type\": \"NUMBER\"},\n    #                      ],\n    #                      \"labels\":
+          list(map(str, labels)),\n    #                  }\n    #              ],\n    #          },\n    #          f,\n    #      )\n\nimport
+          argparse\n_parser = argparse.ArgumentParser(prog=''Test task'', description=''Connects
+          to served model and tests example MNIST images.'')\n_parser.add_argument(\"--model\",
           dest=\"model_file\", type=argparse.FileType(''rb''), required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"--examples\",
           dest=\"examples_file\", type=argparse.FileType(''rb''), required=True, default=argparse.SUPPRESS)\n_parser.add_argument(\"--confusion-matrix\",
           dest=\"confusion_matrix\", type=_parent_dirs_maker_that_returns_open_file(''wt''),
@@ -572,10 +616,10 @@ spec:
           "epochs": "{{inputs.parameters.train_epochs}}"}'}
   arguments:
     parameters:
-    - {name: train_images, value: 'https://people.canonical.com/~knkski/train-images-idx3-ubyte.gz'}
-    - {name: train_labels, value: 'https://people.canonical.com/~knkski/train-labels-idx1-ubyte.gz'}
-    - {name: test_images, value: 'https://people.canonical.com/~knkski/t10k-images-idx3-ubyte.gz'}
-    - {name: test_labels, value: 'https://people.canonical.com/~knkski/t10k-labels-idx1-ubyte.gz'}
+    - {name: train_images, value: 'https://github.com/canonical/bundle-kubeflow/raw/test-artifacts/tests/pipelines/artifacts/train-images-idx3-ubyte.gz'}
+    - {name: train_labels, value: 'https://github.com/canonical/bundle-kubeflow/raw/test-artifacts/tests/pipelines/artifacts/train-labels-idx1-ubyte.gz'}
+    - {name: test_images, value: 'https://github.com/canonical/bundle-kubeflow/raw/test-artifacts/tests/pipelines/artifacts/t10k-images-idx3-ubyte.gz'}
+    - {name: test_labels, value: 'https://github.com/canonical/bundle-kubeflow/raw/test-artifacts/tests/pipelines/artifacts/t10k-labels-idx1-ubyte.gz'}
     - {name: train_epochs, value: '2'}
     - {name: train_batch_size, value: '128'}
   serviceAccountName: pipeline-runner

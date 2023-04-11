@@ -288,10 +288,10 @@ def test_task(
     description='Trains an example Convolutional Neural Network on MNIST dataset.',
 )
 def mnist_pipeline(
-    train_images='https://people.canonical.com/~knkski/train-images-idx3-ubyte.gz',
-    train_labels='https://people.canonical.com/~knkski/train-labels-idx1-ubyte.gz',
-    test_images='https://people.canonical.com/~knkski/t10k-images-idx3-ubyte.gz',
-    test_labels='https://people.canonical.com/~knkski/t10k-labels-idx1-ubyte.gz',
+    train_images='https://github.com/canonical/bundle-kubeflow/raw/test-artifacts/tests/pipelines/artifacts/train-images-idx3-ubyte.gz',
+    train_labels='https://github.com/canonical/bundle-kubeflow/raw/test-artifacts/tests/pipelines/artifacts/train-labels-idx1-ubyte.gz',
+    test_images='https://github.com/canonical/bundle-kubeflow/raw/test-artifacts/tests/pipelines/artifacts/t10k-images-idx3-ubyte.gz',
+    test_labels='https://github.com/canonical/bundle-kubeflow/raw/test-artifacts/tests/pipelines/artifacts/t10k-labels-idx1-ubyte.gz',
     train_epochs: int = 2,
     train_batch_size: int = 128,
 ):
