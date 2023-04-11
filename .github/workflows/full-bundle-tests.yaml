@@ -13,6 +13,8 @@ jobs:
           sudo snap install juju --classic --channel=2.9/stable
           sudo usermod -a -G microk8s $USER
 
+      - run: |
+          sg microk8s -c "microk8s status --wait-ready"
       - name: Setup operator environment
         uses: charmed-kubernetes/actions-operator@1.1.0
         with:
