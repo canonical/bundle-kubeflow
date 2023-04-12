@@ -19,20 +19,21 @@ class EnvDefault(argparse.Action):
     def __init__(self, option_strings, dest, envvar, **kwargs):
         # Determine the values for `required` and `default` based on whether defaults are available
         # from an environment variable
-        if envvar:
-            if envvar in os.environ:
-                # An environment variable of this name exists, use that as a default
-                default = os.environ[envvar]
-                required = False
+        required = False
+        if not kwargs["default"]:
+            if envvar:
+                if envvar in os.environ:
+                    # An environment variable of this name exists, use that as a default
+                    kwargs["default"] = os.environ[envvar]
+                else:
+                    # We have no default, require a value from the CLI
+                    required = True
+                    kwargs["default"] = None
             else:
-                # We have no default, require a value from the CLI
-                required = True
-                default = None
-        else:
-            raise ValueError(f"EnvDefault requires non-null envvar, got '{envvar}'")
+                raise ValueError(f"EnvDefault requires non-null envvar, got '{envvar}'")
         self.envvar = envvar
 
-        super(EnvDefault, self).__init__(option_strings, dest, default=default, required=required, **kwargs)
+        super(EnvDefault, self).__init__(option_strings, dest, required=required, **kwargs)
 
     def __call__(self, parser, namespace, values, option_string):
         # Actually set values to the destination arg in the namespace
@@ -49,6 +50,7 @@ def pytest_addoption(parser):
         "--username",
         action=EnvDefault,
         envvar=username_envvar,
+        default="admin",
         help=f"Dex username (email address).  Required, but can be passed either through CLI or "
              f"via environment variable '{username_envvar}",
     )
@@ -58,6 +60,7 @@ def pytest_addoption(parser):
         "--password",
         action=EnvDefault,
         envvar=password_envvar,
+        default="admin",
         help=f"Dex password.  Required, but can be passed either through CLI or "
              f"via environment variable '{password_envvar}"
     )
