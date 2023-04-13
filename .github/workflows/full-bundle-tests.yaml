@@ -11,6 +11,12 @@ jobs:
       - run: |
           sudo snap install microk8s --classic --channel=1.24/stable
           sudo usermod -a -G microk8s $USER
+          sg microk8s -c "microk8s inspect"
+      - name: Archive mk8s tarball
+          uses: actions/upload-artifact@v3
+          with:
+            name: mk8s-inspection-report
+            path: /var/snap/microk8s/4950/*.tar.gz
 
       - run: |
           sg microk8s -c "microk8s status --wait-ready"
