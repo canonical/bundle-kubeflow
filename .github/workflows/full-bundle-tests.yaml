@@ -12,7 +12,7 @@ jobs:
           sudo snap install microk8s --classic --channel=1.24/stable
           sudo usermod -a -G microk8s $USER
       - run: |
-          sleep 300
+          sg microk8s -c "microk8s status --wait-ready --timeout 300"
           sg microk8s -c "microk8s inspect"
       - name: Archive mk8s tarball
         uses: actions/upload-artifact@v3
