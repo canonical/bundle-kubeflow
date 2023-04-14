@@ -8,20 +8,6 @@ jobs:
     runs-on: [self-hosted, linux, X64, xlarge]
     steps:
       - uses: actions/checkout@v3
-      - run: |
-          sudo snap install microk8s --classic --channel=1.24/stable
-          sudo usermod -a -G microk8s $USER
-      - run: |
-          sg microk8s -c "microk8s status --wait-ready --timeout 150"
-          sg microk8s -c "microk8s inspect"
-      - name: Archive mk8s tarball
-        uses: actions/upload-artifact@v3
-        with:
-          name: mk8s-inspection-report
-          path: /var/snap/microk8s/4950/*.tar.gz
-
-      - run: |
-          sg microk8s -c "microk8s status --wait-ready"
       - name: Setup operator environment
         uses: charmed-kubernetes/actions-operator@1.1.0
         with:
