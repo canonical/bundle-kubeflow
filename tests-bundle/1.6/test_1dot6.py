@@ -1,4 +1,5 @@
 import shlex
+from time import sleep
 
 import pytest
 from helpers import get_ingress_url
@@ -14,6 +15,8 @@ async def test_deploy_1dot6(ops_test: OpsTest, lightkube_client, deploy_cmd):
     print(f"Deploying bundle to {ops_test.model_full_name} using cmd '{deploy_cmd}'")
     rc, stdout, stderr = await ops_test.run(*shlex.split(deploy_cmd))
 
+    sleep(15)
+    print(rc, stdout, stderr)
     print("Waiting for bundle to be ready")
     await ops_test.model.wait_for_idle(
         status="active",
