@@ -13,7 +13,7 @@ jobs:
         run: |
           dns_server=$(grep -oPm1 'Current DNS Server: \K[^\s]+' <<< "$(resolvectl status)")
           echo $dns_server
-          echo "MY_ADDONS=storage dns:$dns_server rbac registry" >> $GITHUB_OUTPUT
+          echo "MY_ADDONS=hostpath-storage dns:$dns_server rbac registry" >> $GITHUB_OUTPUT
 
       - name: Setup operator environment
         uses: charmed-kubernetes/actions-operator@1.1.0
