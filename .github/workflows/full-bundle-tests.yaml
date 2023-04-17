@@ -27,6 +27,8 @@ jobs:
       - name: Configure kubectl
         run: |
           sg microk8s -c "microk8s config > ~/.kube/config"
+          cat ~/.kube/config
+          cat /home/ubuntu/.kube/config
       - run: |
           sg microk8s -c "microk8s enable metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'"
 
