@@ -16,8 +16,8 @@ jobs:
           /usr/bin/mkdir -p /home/ubuntu/.local/share/juju
           /usr/bin/sudo snap install microk8s --classic --channel=1.24/stable
           /usr/bin/bash -c sudo usermod -a -G microk8s $USER
-          /usr/bin/sg microk8s -c microk8s status --wait-ready
-          /usr/bin/sg microk8s -c sudo microk8s enable storage dns:$dns_server rbac registry
+          /usr/bin/sg microk8s -c "microk8s status --wait-ready"
+          /usr/bin/sg microk8s -c microk8s enable storage dns:$dns_server rbac registry
           /usr/bin/sg microk8s -c juju bootstrap --debug --model-default test-mode=true --model-default automatically-retry-hooks=false --model-default logging-config="<root>=DEBUG" --agent-version="2.9.42" --bootstrap-constraints=""
 
 #      - name: Setup operator environment
