@@ -9,9 +9,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Parse and enable DNS server
+        id: dns-name
         run: |
           dns_server=$(grep -oPm1 'Current DNS Server: \K[^\s]+' <<< "$(resolvectl status)")
           echo $dns_server
+          echo "DNS_SERVER=$dns_server" >> $GITHUB_OUTPUT
+
       - name: Setup operator environment
         uses: charmed-kubernetes/actions-operator@1.1.0
         with:
@@ -19,7 +22,7 @@ jobs:
           channel: 1.24/stable
           charmcraft-channel: latest/candidate
           bootstrap-options: '--agent-version="2.9.42"'
-          microk8s-addons: "storage dns:$dns_server rbac registry"
+          microk8s-addons: "storage dns:${{ steps.dns-name.outputs.DNS_SERVER }}" rbac registry"
 
       - name: Configure kubectl
         run: |
