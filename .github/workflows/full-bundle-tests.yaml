@@ -22,7 +22,7 @@ jobs:
           channel: 1.24/stable
           charmcraft-channel: latest/candidate
           bootstrap-options: '--agent-version="2.9.42"'
-          microk8s-addons: "storage dns:${{ steps.dns-name.outputs.DNS_SERVER }}" rbac registry"
+#          microk8s-addons: "storage dns:${{ steps.dns-name.outputs.DNS_SERVER }}" rbac registry"
 
       - name: Configure kubectl
         run: |
