@@ -9,25 +9,28 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Parse and enable DNS server
+        id: dns-name
         run: |
           dns_server=$(grep -oPm1 'Current DNS Server: \K[^\s]+' <<< "$(resolvectl status)")
           echo $dns_server
-          sudo snap install juju --classic --channel=latest/stable
-          mkdir -p /home/ubuntu/.local/share/juju
-          sudo snap install microk8s --classic --channel=1.24/stable
-          sudo usermod -a -G microk8s $USER
-          sg microk8s -c "microk8s status --wait-ready"
-          sg microk8s -c "microk8s enable storage dns:$dns_server rbac registry"
-          sg microk8s -c "juju bootstrap --debug --model-default test-mode=true --model-default automatically-retry-hooks=false --model-default logging-config='<root>=DEBUG' --agent-version='2.9.42'"
+          echo "MY_ADDONS=storage dns:$dns_server rbac registry" >> $GITHUB_OUTPUT
 
-#      - name: Setup operator environment
-#        uses: charmed-kubernetes/actions-operator@1.1.0
-#        with:
-#          provider: microk8s
-#          channel: 1.24/stable
-#          charmcraft-channel: latest/candidate
-#          bootstrap-options: '--agent-version="2.9.42"'
-#          microk8s-addons: "storage dns:$dns_server rbac registry"
+#          sudo snap install juju --classic --channel=latest/stable
+#          mkdir -p /home/ubuntu/.local/share/juju
+#          sudo snap install microk8s --classic --channel=1.24/stable
+#          sudo usermod -a -G microk8s $USER
+#          sg microk8s -c "microk8s status --wait-ready"
+#          sg microk8s -c "microk8s enable storage dns:$dns_server rbac registry"
+#          sg microk8s -c "juju bootstrap --debug --model-default test-mode=true --model-default automatically-retry-hooks=false --model-default logging-config='<root>=DEBUG' --agent-version='2.9.42'"
+
+      - name: Setup operator environment
+        uses: charmed-kubernetes/actions-operator@1.1.0
+        with:
+          provider: microk8s
+          channel: 1.24/stable
+          charmcraft-channel: latest/candidate
+          bootstrap-options: '--agent-version="2.9.42"'
+          microk8s-addons: ${{ steps.dns-name.outputs.MY_ADDONS }}"
 
       - name: Configure kubectl
         run: |
