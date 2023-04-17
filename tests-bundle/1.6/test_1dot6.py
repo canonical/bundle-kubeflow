@@ -21,6 +21,8 @@ async def test_deploy_1dot6(ops_test: OpsTest, lightkube_client, deploy_cmd):
         raise_on_error=True,
         timeout=3000,
     )
+    print("All applications are active")
+
     url = get_ingress_url(lightkube_client, ops_test.model_name)
 
     print("Update Dex and OIDC configs")

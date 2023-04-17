@@ -12,7 +12,8 @@ jobs:
         id: dns-name
         run: |
           dns_server=$(grep -oPm1 'Current DNS Server: \K[^\s]+' <<< "$(resolvectl status)")
-          echo $dns_server
+          echo "Using following DNS Server: $dns_server"
+
           echo "MY_ADDONS=hostpath-storage dns:$dns_server rbac registry" >> $GITHUB_OUTPUT
 
       - name: Setup operator environment
@@ -37,3 +38,9 @@ jobs:
           sg microk8s -c "juju add-model kubeflow --config default-series=focal"
       - run: |
           sg microk8s -c "tox -e test_bundle_1.6 --recreate -- --model kubeflow --channel 1.6/stable"
+
+      - name: Dump Juju/k8s logs on failure
+        if: failure()
+        run: |
+          sg microk8s -c "juju status"
+          sg microk8s -c "microk8s kubectl get all -A"
