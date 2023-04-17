@@ -20,21 +20,17 @@ jobs:
         with:
           provider: microk8s
           channel: 1.24/stable
-          charmcraft-channel: latest/candidate
           bootstrap-options: '--agent-version="2.9.42"'
           microk8s-addons: ${{ steps.dns-name.outputs.MY_ADDONS }}
 
-      - name: Configure kubectl
-        run: |
-          sg microk8s -c "microk8s config > ~/.kube/config"
-          cat ~/.kube/config
-          cat /home/ubuntu/.kube/config
       - run: |
           sg microk8s -c "microk8s enable metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'"
 
+      - run: |
+          sg microk8s -c "microk8s status --wait-ready --timeout 150"
+
       - name: Show all pods status
         run: |
-          sleep 15  # give time for pods to start
           sg microk8s -c "microk8s kubectl get pods --all-namespaces"
 
       - run: |

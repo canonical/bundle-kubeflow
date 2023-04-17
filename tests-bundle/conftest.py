@@ -21,7 +21,7 @@ def pytest_addoption(parser: Parser):
 @pytest.fixture(scope="module")
 def lightkube_client(ops_test):
     yield lightkube.Client(
-        namespace=ops_test.model_name,
+        namespace=ops_test.model_name, trust_env=False
     )
 
 
