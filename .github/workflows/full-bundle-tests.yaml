@@ -12,13 +12,13 @@ jobs:
         run: |
           dns_server=$(grep -oPm1 'Current DNS Server: \K[^\s]+' <<< "$(resolvectl status)")
           echo $dns_server
-          /usr/bin/sudo snap install juju --classic --channel=latest/stable
-          /usr/bin/mkdir -p /home/ubuntu/.local/share/juju
-          /usr/bin/sudo snap install microk8s --classic --channel=1.24/stable
-          /usr/bin/bash -c sudo usermod -a -G microk8s $USER
-          /usr/bin/sg microk8s -c "microk8s status --wait-ready"
-          /usr/bin/sg microk8s -c microk8s enable storage dns:$dns_server rbac registry
-          /usr/bin/sg microk8s -c juju bootstrap --debug --model-default test-mode=true --model-default automatically-retry-hooks=false --model-default logging-config="<root>=DEBUG" --agent-version="2.9.42" --bootstrap-constraints=""
+          sudo snap install juju --classic --channel=latest/stable
+          mkdir -p /home/ubuntu/.local/share/juju
+          sudo snap install microk8s --classic --channel=1.24/stable
+          sudo usermod -a -G microk8s $USER
+          sg microk8s -c "microk8s status --wait-ready"
+          sg microk8s -c microk8s enable storage dns:$dns_server rbac registry
+          sg microk8s -c juju bootstrap --debug --model-default test-mode=true --model-default automatically-retry-hooks=false --model-default logging-config="<root>=DEBUG" --agent-version="2.9.42" --bootstrap-constraints=""
 
 #      - name: Setup operator environment
 #        uses: charmed-kubernetes/actions-operator@1.1.0
