@@ -16,6 +16,12 @@ jobs:
           charmcraft-channel: latest/candidate
           bootstrap-options: '--agent-version="2.9.42"'
 
+      - name: Parse and enable DNS server
+        run: |
+          dns_server=$(grep -oPm1 'Current DNS Server: \K[^\s]+' <<< "$(resolvectl status)")
+          echo $dns_server
+          sg microk8s -c "microk8s enable dns:$dns_server"
+
       - name: Configure kubectl
         run: |
           sg microk8s -c "microk8s config > ~/.kube/config"
