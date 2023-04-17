@@ -15,14 +15,6 @@ jobs:
           echo $dns_server
           echo "MY_ADDONS=storage dns:$dns_server rbac registry" >> $GITHUB_OUTPUT
 
-#          sudo snap install juju --classic --channel=latest/stable
-#          mkdir -p /home/ubuntu/.local/share/juju
-#          sudo snap install microk8s --classic --channel=1.24/stable
-#          sudo usermod -a -G microk8s $USER
-#          sg microk8s -c "microk8s status --wait-ready"
-#          sg microk8s -c "microk8s enable storage dns:$dns_server rbac registry"
-#          sg microk8s -c "juju bootstrap --debug --model-default test-mode=true --model-default automatically-retry-hooks=false --model-default logging-config='<root>=DEBUG' --agent-version='2.9.42'"
-
       - name: Setup operator environment
         uses: charmed-kubernetes/actions-operator@1.1.0
         with:
@@ -37,6 +29,15 @@ jobs:
           sg microk8s -c "microk8s config > ~/.kube/config"
       - run: |
           sg microk8s -c "microk8s enable metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'"
+
+      - name: Show all pods status
+        run: |
+          sg microk8s -c "microk8s kubectl get pods --all-namespaces"
+
+      - name: Sleep for 10 minutes
+        run: |
+          sleep 600
+
       - run: |
           sg microk8s -c "juju add-model kubeflow --config default-series=focal"
       - run: |
