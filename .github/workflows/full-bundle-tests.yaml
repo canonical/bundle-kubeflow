@@ -30,7 +30,7 @@ jobs:
           channel: 1.24/stable
           charmcraft-channel: latest/candidate
           bootstrap-options: '--agent-version="2.9.42"'
-          microk8s-addons: ${{ steps.dns-name.outputs.MY_ADDONS }}"
+          microk8s-addons: ${{ steps.dns-name.outputs.MY_ADDONS }}
 
       - name: Configure kubectl
         run: |
