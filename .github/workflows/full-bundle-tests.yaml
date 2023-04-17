@@ -32,6 +32,7 @@ jobs:
 
       - name: Show all pods status
         run: |
+          sleep 30
           sg microk8s -c "microk8s kubectl get pods --all-namespaces"
 
       - name: Sleep for 10 minutes
