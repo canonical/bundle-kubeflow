@@ -32,12 +32,8 @@ jobs:
 
       - name: Show all pods status
         run: |
-          sleep 30
+          sleep 15  # give time for pods to start
           sg microk8s -c "microk8s kubectl get pods --all-namespaces"
-
-      - name: Sleep for 10 minutes
-        run: |
-          sleep 600
 
       - run: |
           sg microk8s -c "juju add-model kubeflow --config default-series=focal"
