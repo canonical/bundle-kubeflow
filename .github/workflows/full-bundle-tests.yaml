@@ -53,5 +53,7 @@ jobs:
         run: |
           sg microk8s -c "kubectl get pods --field-selector=status.phase!=Running --all-namespaces -o=name | xargs -I{} kubectl logs -f {}"
 
-      - run: |
+      - name: Sleep for 15 minutes
+        if: failure()
+        run: |
           sleep 900
