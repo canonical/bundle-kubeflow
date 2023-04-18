@@ -51,7 +51,7 @@ jobs:
       - name: Get logs from failed pods
         if: failure()
         run: |
-          sg microk8s -c "kubectl get pods --field-selector=status.phase!=Running --all-namespaces -o=name | xargs -I{} kubectl logs -f {}"
+          sg microk8s -c "kubectl get pods --field-selector=status.phase!=Running --all-namespaces -o=name | xargs -I{} kubectl logs --all-namespaces -f {}"
 
       - name: Sleep for 15 minutes
         if: failure()
