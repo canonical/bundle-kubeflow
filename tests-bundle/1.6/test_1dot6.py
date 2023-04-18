@@ -15,8 +15,9 @@ async def test_deploy_1dot6(ops_test: OpsTest, lightkube_client, deploy_cmd):
     print(f"Deploying bundle to {ops_test.model_full_name} using cmd '{deploy_cmd}'")
     rc, stdout, stderr = await ops_test.run(*shlex.split(deploy_cmd))
 
-    sleep(15)
-    print(rc, stdout, stderr)
+    if rc != 0:
+        raise Exception(f"Deploy failed with code: {rc}, \nstdout: {stdout}, \nstderr {stderr}")
+
     print("Waiting for bundle to be ready")
     await ops_test.model.wait_for_idle(
         status="active",
