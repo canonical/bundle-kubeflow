@@ -44,4 +44,11 @@ jobs:
         if: failure()
         run: |
           sg microk8s -c "juju status"
-          sg microk8s -c "microk8s kubectl get all -A"
+
+          echo "Dumping k8s logs"
+          sg microk8s -c "microk8s kubectl get all --all-namespaces"
+
+      - name: Get logs from failed pods
+        if: failure()
+        run: |
+          sg microk8s -c "kubectl get pods --field-selector=status.phase!=Running --all-namespaces -o=name | xargs -I{} kubectl logs -f {}"
