@@ -21,7 +21,7 @@ async def test_deploy_1dot6(ops_test: OpsTest, lightkube_client, deploy_cmd):
     await ops_test.model.wait_for_idle(
         status="active",
         raise_on_blocked=False,
-        raise_on_error=False,
+        raise_on_error=True,
         timeout=3000,
     )
     print("All applications are active")
