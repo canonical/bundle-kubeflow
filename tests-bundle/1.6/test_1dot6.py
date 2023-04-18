@@ -1,5 +1,4 @@
 import shlex
-from time import sleep
 
 import pytest
 from helpers import get_ingress_url
