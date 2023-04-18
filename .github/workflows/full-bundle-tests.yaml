@@ -21,6 +21,7 @@ jobs:
         with:
           provider: microk8s
           channel: 1.24/stable
+          juju-channel: 2.9/stable
           bootstrap-options: '--agent-version="2.9.42"'
           microk8s-addons: ${{ steps.dns-name.outputs.MY_ADDONS }}
 
