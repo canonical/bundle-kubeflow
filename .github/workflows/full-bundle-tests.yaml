@@ -38,7 +38,7 @@ jobs:
       - run: |
           sg microk8s -c "juju add-model kubeflow --config default-series=focal"
       - run: |
-          sg microk8s -c "tox -e test_bundle_1.6 --recreate -- --model kubeflow --channel 1.6/stable"
+          sg microk8s -c "tox -e test_bundle_1.6 --recreate -- --keep-models --channel 1.6/stable"
 
       - name: Dump Juju/k8s logs on failure
         if: failure()
@@ -52,4 +52,6 @@ jobs:
         if: failure()
         run: |
           sg microk8s -c "kubectl get pods --field-selector=status.phase!=Running --all-namespaces -o=name | xargs -I{} kubectl logs -f {}"
+
+      - run: |
           sleep 900
