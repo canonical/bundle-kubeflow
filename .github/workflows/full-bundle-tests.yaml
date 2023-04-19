@@ -26,6 +26,9 @@ jobs:
           microk8s-addons: ${{ steps.dns-name.outputs.MY_ADDONS }}
 
       - run: |
+          sudo cat /var/snap/microk8s/current/args/certs.d/docker.io/hosts.toml
+
+      - run: |
           sg microk8s -c "microk8s enable metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'"
 
       - run: |
