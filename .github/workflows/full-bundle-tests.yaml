@@ -16,10 +16,12 @@ jobs:
 
           echo "MY_ADDONS=hostpath-storage dns:$dns_server rbac registry metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'" >> $GITHUB_OUTPUT
 
-      - run: |
+      - name: Install tools
+        run: |
           sudo apt-get update -yqq
           sudo apt-get install -yqq python3-pip
           sudo --preserve-env=http_proxy,https_proxy,no_proxy pip3 install tox
+          sudo snap install charmcraft --classic --channel=latest/stable
 
       - name: Setup microk8s
         run: |
@@ -45,9 +47,6 @@ jobs:
           password = \"${{ secrets.MAKSIM_DOCKERHUB_PASSWORD }}\"
           EOF"
 
-      - run: |
-          sudo cat /var/snap/microk8s/current/args/containerd-template.toml
-
       - name: Restart microk8s
         run: |
           sg microk8s -c "microk8s stop"
@@ -58,8 +57,9 @@ jobs:
         run: |
           sg microk8s -c "microk8s enable ${{ steps.dns-name.outputs.MY_ADDONS }}"
 
-      - run: |
-          sleep 45
+      - name: Wait for microk8s to be ready and give time for addons
+        run: |
+          sleep 90
           sg microk8s -c "microk8s status --wait-ready --timeout 150"
 
       - name: Install and bootstrap juju
