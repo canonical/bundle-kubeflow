@@ -45,6 +45,7 @@ jobs:
         run: |
           sg microk8s -c "microk8s stop"
           sg microk8s -c "microk8s start"
+          sg microk8s -c "microk8s status --wait-ready --timeout 150"
 
       - name: Enable addons
         run: |
