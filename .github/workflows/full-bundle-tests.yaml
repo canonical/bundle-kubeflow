@@ -101,3 +101,4 @@ jobs:
 
           echo "Actual Logs"
           sg microk8s -c "microk8s kubectl get pods --all-namespaces -o 'custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,CONTAINERS:.status.containerStatuses[*].ready'" | awk '$3 == "false" {print $1,$2}' | xargs -L1 sh -c 'sg microk8s -c "microk8s kubectl logs $0 -n $1"'
+
