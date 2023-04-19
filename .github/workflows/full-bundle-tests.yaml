@@ -16,6 +16,11 @@ jobs:
 
           echo "MY_ADDONS=hostpath-storage dns:$dns_server rbac registry metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'" >> $GITHUB_OUTPUT
 
+      - run: |
+          sudo apt-get update -yqq
+          sudo apt-get install -yqq python3-pip
+          sudo --preserve-env=http_proxy,https_proxy,no_proxy pip3 install tox
+
       - name: Setup microk8s
         run: |
           sudo snap install microk8s --classic --channel=1.24/stable
@@ -83,12 +88,12 @@ jobs:
       - name: Descript all pods
         if: failure()
         run: |
-          sg microk8s -c "kubectl describe pods --all-namespaces"
+          sg microk8s -c "microk8s kubectl describe pods --all-namespaces"
 
       - name: Get logs from failed pods
         if: failure()
         run: |
-          sg microk8s -c "kubectl get pods --all-namespaces -o 'custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,CONTAINERS:.status.containerStatuses[*].ready'" | awk '$3 == "false" {print $1,$2}'
+          sg microk8s -c "microk8s kubectl get pods --all-namespaces -o 'custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,CONTAINERS:.status.containerStatuses[*].ready'" | awk '$3 == "false" {print $1,$2}'
 
           echo "Actual Logs"
-          sg microk8s -c "kubectl get pods --all-namespaces -o 'custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,CONTAINERS:.status.containerStatuses[*].ready'" | awk '$3 == "false" {print $1,$2}' | xargs -L1 sh -c 'sg microk8s -c "kubectl logs $0 -n $1"'
+          sg microk8s -c "microk8s kubectl get pods --all-namespaces -o 'custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,CONTAINERS:.status.containerStatuses[*].ready'" | awk '$3 == "false" {print $1,$2}' | xargs -L1 sh -c 'sg microk8s -c "microk8s kubectl logs $0 -n $1"'
