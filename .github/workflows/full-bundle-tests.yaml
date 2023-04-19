@@ -14,7 +14,7 @@ jobs:
           dns_server=$(grep -oPm1 'Current DNS Server: \K[^\s]+' <<< "$(resolvectl status)")
           echo "Using following DNS Server: $dns_server"
 
-          echo "MY_ADDONS=hostpath-storage dns:$dns_server rbac registry metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'" >> $GITHUB_OUTPUT
+          echo "MY_ADDONS=hostpath-storage ingress dns:$dns_server rbac registry metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'" >> $GITHUB_OUTPUT
 
       - name: Install tools
         run: |
@@ -73,6 +73,11 @@ jobs:
         run: |
           sg microk8s -c "microk8s kubectl get pods --all-namespaces"
 
+      - name: Increase file system limits
+        run: |
+          sudo sysctl fs.inotify.max_user_instances=1280
+          sudo sysctl fs.inotify.max_user_watches=655360
+
       - run: |
           sg microk8s -c "juju add-model kubeflow --config default-series=focal --config automatically-retry-hooks=true"
           sg microk8s -c "juju model-config"
@@ -97,8 +102,15 @@ jobs:
       - name: Get logs from failed pods
         if: failure()
         run: |
-          sg microk8s -c "microk8s kubectl get pods --all-namespaces -o 'custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,CONTAINERS:.status.containerStatuses[*].ready'" | awk '$3 == "false" {print $1,$2}'
+          POD_LIST = $(sg microk8s -c "microk8s kubectl get pods --all-namespaces -o 'custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,CONTAINERS:.status.containerStatuses[*].ready'" | awk '$3 == "false" {print $1,$2}')
 
           echo "Actual Logs"
-          sg microk8s -c "microk8s kubectl get pods --all-namespaces -o 'custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,CONTAINERS:.status.containerStatuses[*].ready'" | awk '$3 == "false" {print $1,$2}' | xargs -L1 sh -c 'sg microk8s -c "microk8s kubectl logs $0 -n $1"'
+          while read -r POD NAMESPACE; do
+            echo "\n\n\nPod: $POD"
+            sg microk8s -c "microk8s kubectl logs -n $NAMESPACE $POD"
+          done <<< "$POD_LIST"
 
+      - name: All logs
+        if: failure()
+        run: |
+          sg microk8s -c "microk8s kubectl logs --all-containers --all-namespaces"
