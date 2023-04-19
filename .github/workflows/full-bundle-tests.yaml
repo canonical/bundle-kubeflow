@@ -54,6 +54,7 @@ jobs:
           sg microk8s -c "microk8s enable ${{ steps.dns-name.outputs.MY_ADDONS }}"
 
       - run: |
+          sleep 90
           sg microk8s -c "microk8s status --wait-ready --timeout 150"
 
       - name: Install and bootstrap juju
