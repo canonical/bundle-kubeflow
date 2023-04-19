@@ -17,7 +17,7 @@ jobs:
           echo "MY_ADDONS=hostpath-storage dns:$dns_server rbac registry" >> $GITHUB_OUTPUT
 
       - name: Setup operator environment
-        uses: charmed-kubernetes/actions-operator@1.1.0
+        uses: beliaev-maksim/actions-operator@add-registry
         with:
           provider: microk8s
           channel: 1.24/stable
