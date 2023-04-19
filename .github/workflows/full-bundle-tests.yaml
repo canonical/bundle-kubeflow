@@ -14,36 +14,53 @@ jobs:
           dns_server=$(grep -oPm1 'Current DNS Server: \K[^\s]+' <<< "$(resolvectl status)")
           echo "Using following DNS Server: $dns_server"
 
-          echo "MY_ADDONS=hostpath-storage dns:$dns_server rbac registry" >> $GITHUB_OUTPUT
+          echo "MY_ADDONS=hostpath-storage dns:$dns_server rbac registry metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'" >> $GITHUB_OUTPUT
 
-      - name: Setup operator environment
-        uses: beliaev-maksim/actions-operator@add-registry
-        with:
-          provider: microk8s
-          channel: 1.24/stable
-          juju-channel: 2.9/stable
-          bootstrap-options: '--agent-version="2.9.42"'
-          microk8s-addons: ${{ steps.dns-name.outputs.MY_ADDONS }}
+#      - name: Setup operator environment
+#        uses: beliaev-maksim/actions-operator@add-registry
+#        with:
+#          provider: microk8s
+#          channel: 1.24/stable
+#          juju-channel: 2.9/stable
+#          bootstrap-options: '--agent-version="2.9.42"'
+#          microk8s-addons: ${{ steps.dns-name.outputs.MY_ADDONS }}
+
+      - name: Setup microk8s
+        run: |
+          sudo snap install microk8s --classic --channel=1.24/stable
+          sudo snap install juju --classic --channel=2.9/stable
+          sudo usermod -a -G microk8s $USER
+          sg microk8s -c "microk8s enable ${{ steps.dns-name.outputs.MY_ADDONS }}"
+
+      - name: update registry
+        run: |
+          sudo cat > /var/snap/microk8s/current/args/certs.d/docker.io/hosts.toml << EOF
+          server = "https://rocks.canonical.com"
+          [host."https://rocks.canonical.com"]
+          capabilities = ["pull", "resolve"]
+          EOF
 
       - run: |
           sudo cat /var/snap/microk8s/current/args/certs.d/docker.io/hosts.toml
 
-      - run: |
-          sg microk8s -c "microk8s enable metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'"
+      - name: Restart microk8s
+        run: |
+          sg microk8s -c "microk8s stop"
+          sg microk8s -c "microk8s start"
 
       - run: |
           sg microk8s -c "microk8s status --wait-ready --timeout 150"
+
+      - name: Bootstrap juju
+        run: |
+          sg microk8s -c 'juju bootstrap microk8s bundle-controller --model-default test-mode=true --model-default logging-config="<root>=DEBUG" --agent-version="2.9.42" --debug --verbose'
 
       - name: Show all pods status
         run: |
           sg microk8s -c "microk8s kubectl get pods --all-namespaces"
 
       - run: |
-          sg microk8s -c "juju add-model kubeflow --config default-series=focal"
-
-      - name: Override juju model config to allow retry and set series
-        run: |
-          sg microk8s -c "juju model-config automatically-retry-hooks=true default-series=focal"
+          sg microk8s -c "juju add-model kubeflow --config default-series=focal automatically-retry-hooks=true"
 
       - run: |
           sg microk8s -c "tox -e test_bundle_1.7 --recreate -- --keep-models"
