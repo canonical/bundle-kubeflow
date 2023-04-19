@@ -16,30 +16,32 @@ jobs:
 
           echo "MY_ADDONS=hostpath-storage dns:$dns_server rbac registry metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'" >> $GITHUB_OUTPUT
 
-#      - name: Setup operator environment
-#        uses: beliaev-maksim/actions-operator@add-registry
-#        with:
-#          provider: microk8s
-#          channel: 1.24/stable
-#          juju-channel: 2.9/stable
-#          bootstrap-options: '--agent-version="2.9.42"'
-#          microk8s-addons: ${{ steps.dns-name.outputs.MY_ADDONS }}
-
       - name: Setup microk8s
         run: |
           sudo snap install microk8s --classic --channel=1.24/stable
           sudo usermod -a -G microk8s $USER
 
-      - name: update registry
+#      - name: update registry
+#        run: |
+#          sg microk8s -c "cat > /var/snap/microk8s/current/args/certs.d/docker.io/hosts.toml << EOF
+#          server = \"https://rocks.canonical.com\"
+#          [host.\"https://rocks.canonical.com\"]
+#          capabilities = [\"pull\", \"resolve\"]
+#          EOF"
+#
+#      - run: |
+#          sudo cat /var/snap/microk8s/current/args/certs.d/docker.io/hosts.toml
+
+      - name: update credentials
         run: |
-          sg microk8s -c "cat > /var/snap/microk8s/current/args/certs.d/docker.io/hosts.toml << EOF
-          server = \"https://rocks.canonical.com\"
-          [host.\"https://rocks.canonical.com\"]
-          capabilities = [\"pull\", \"resolve\"]
+          sg microk8s -c "cat > /var/snap/microk8s/current/args/containerd-template.toml << EOF
+          [plugins."io.containerd.grpc.v1.cri".registry.configs."registry-1.docker.io".auth]
+          username = ${{ secrets.MAKSIM_DOCKERHUB_USER }}
+          password = ${{ secrets.MAKSIM_DOCKERHUB_PASSWORD }}
           EOF"
 
       - run: |
-          sudo cat /var/snap/microk8s/current/args/certs.d/docker.io/hosts.toml
+          sudo cat /var/snap/microk8s/current/args/containerd-template.toml
 
       - name: Restart microk8s
         run: |
