@@ -61,6 +61,8 @@ jobs:
         run: |
           sleep 90
           sg microk8s -c "microk8s status --wait-ready --timeout 150"
+          sg microk8s -c "mkdir -p ~/.kube"
+          sg microk8s -c "microk8s config > ~/.kube/config"
 
       - name: Install and bootstrap juju
         run: |
