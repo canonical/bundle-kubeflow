@@ -5,7 +5,7 @@ on:
 
 jobs:
   test-bundle:
-    runs-on: [self-hosted, linux, X64, two-xlarge]
+    runs-on: [self-hosted, linux, X64, xlarge]
     steps:
       - uses: actions/checkout@v3
       - name: Parse and enable DNS server
@@ -68,4 +68,3 @@ jobs:
 
           echo "Actual Logs"
           sg microk8s -c "kubectl get pods --all-namespaces -o 'custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,CONTAINERS:.status.containerStatuses[*].ready'" | awk '$3 == "false" {print $1,$2}' | xargs -L1 sh -c 'sg microk8s -c "kubectl logs $0 -n $1"'
-
