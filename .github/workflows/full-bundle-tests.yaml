@@ -5,7 +5,7 @@ on:
 
 jobs:
   test-bundle:
-    runs-on: [self-hosted, linux, X64, large]
+    runs-on: [self-hosted, linux, X64, xlarge]
     steps:
       - uses: actions/checkout@v3
       - name: Parse and enable DNS server
@@ -54,7 +54,7 @@ jobs:
           sg microk8s -c "microk8s enable ${{ steps.dns-name.outputs.MY_ADDONS }}"
 
       - run: |
-          sleep 90
+          sleep 45
           sg microk8s -c "microk8s status --wait-ready --timeout 150"
 
       - name: Install and bootstrap juju
@@ -67,7 +67,7 @@ jobs:
           sg microk8s -c "microk8s kubectl get pods --all-namespaces"
 
       - run: |
-          sg microk8s -c "juju add-model kubeflow --config default-series=focal automatically-retry-hooks=true"
+          sg microk8s -c "juju add-model kubeflow --config default-series=focal --config automatically-retry-hooks=true"
 
       - run: |
           sg microk8s -c "tox -e test_bundle_1.7 --recreate -- --keep-models"
