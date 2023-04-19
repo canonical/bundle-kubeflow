@@ -5,7 +5,7 @@ on:
 
 jobs:
   test-bundle:
-    runs-on: [self-hosted, linux, X64, two-xlarge]
+    runs-on: [self-hosted, linux, X64, xlarge]
     steps:
       - uses: actions/checkout@v3
       - name: Parse and enable DNS server
