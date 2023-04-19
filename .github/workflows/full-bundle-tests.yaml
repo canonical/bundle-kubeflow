@@ -30,15 +30,16 @@ jobs:
           sudo snap install microk8s --classic --channel=1.24/stable
           sudo snap install juju --classic --channel=2.9/stable
           sudo usermod -a -G microk8s $USER
-          sg microk8s -c "microk8s enable ${{ steps.dns-name.outputs.MY_ADDONS }}"
+#          sg microk8s -c "microk8s enable ${{ steps.dns-name.outputs.MY_ADDONS }}"
 
       - name: update registry
         run: |
-          sudo cat > /var/snap/microk8s/current/args/certs.d/docker.io/hosts.toml << EOF
-          server = "https://rocks.canonical.com"
-          [host."https://rocks.canonical.com"]
-          capabilities = ["pull", "resolve"]
-          EOF
+          sg microk8s -c "cat > /var/snap/microk8s/current/args/certs.d/docker.io/hosts.toml << EOF
+                    server = \"https://rocks.canonical.com\"
+                    [host.\"https://rocks.canonical.com\"]
+                    capabilities = [\"pull\", \"resolve\"]
+                    EOF"
+
 
       - run: |
           sudo cat /var/snap/microk8s/current/args/certs.d/docker.io/hosts.toml
@@ -47,6 +48,10 @@ jobs:
         run: |
           sg microk8s -c "microk8s stop"
           sg microk8s -c "microk8s start"
+
+      - name: Enable addons
+        run: |
+          sg microk8s -c "microk8s enable ${{ steps.dns-name.outputs.MY_ADDONS }}"
 
       - run: |
           sg microk8s -c "microk8s status --wait-ready --timeout 150"
