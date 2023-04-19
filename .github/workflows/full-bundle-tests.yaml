@@ -75,6 +75,9 @@ jobs:
 
       - run: |
           sg microk8s -c "juju add-model kubeflow --config default-series=focal --config automatically-retry-hooks=true"
+          sg microk8s -c "juju model-config"
+          sg microk8s -c "juju status"
+
 
       - run: |
           sg microk8s -c "tox -e test_bundle_1.7 --recreate -- --keep-models"
