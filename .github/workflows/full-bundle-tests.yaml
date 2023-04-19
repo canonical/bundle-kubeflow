@@ -28,18 +28,15 @@ jobs:
       - name: Setup microk8s
         run: |
           sudo snap install microk8s --classic --channel=1.24/stable
-          sudo snap install juju --classic --channel=2.9/stable
           sudo usermod -a -G microk8s $USER
-#          sg microk8s -c "microk8s enable ${{ steps.dns-name.outputs.MY_ADDONS }}"
 
       - name: update registry
         run: |
           sg microk8s -c "cat > /var/snap/microk8s/current/args/certs.d/docker.io/hosts.toml << EOF
-                    server = \"https://rocks.canonical.com\"
-                    [host.\"https://rocks.canonical.com\"]
-                    capabilities = [\"pull\", \"resolve\"]
-                    EOF"
-
+          server = \"https://rocks.canonical.com\"
+          [host.\"https://rocks.canonical.com\"]
+          capabilities = [\"pull\", \"resolve\"]
+          EOF"
 
       - run: |
           sudo cat /var/snap/microk8s/current/args/certs.d/docker.io/hosts.toml
@@ -56,8 +53,9 @@ jobs:
       - run: |
           sg microk8s -c "microk8s status --wait-ready --timeout 150"
 
-      - name: Bootstrap juju
+      - name: Install and bootstrap juju
         run: |
+          sudo snap install juju --classic --channel=2.9/stable
           sg microk8s -c 'juju bootstrap microk8s bundle-controller --model-default test-mode=true --model-default logging-config="<root>=DEBUG" --agent-version="2.9.42" --debug --verbose'
 
       - name: Show all pods status
