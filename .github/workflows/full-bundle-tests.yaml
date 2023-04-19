@@ -35,7 +35,7 @@ jobs:
       - name: update credentials
         run: |
           sg microk8s -c "cat > /var/snap/microk8s/current/args/containerd-template.toml << EOF
-          [plugins."io.containerd.grpc.v1.cri".registry.configs."registry-1.docker.io".auth]
+          [plugins.\"io.containerd.grpc.v1.cri\".registry.configs.\"registry-1.docker.io\".auth]
           username = ${{ secrets.MAKSIM_DOCKERHUB_USER }}
           password = ${{ secrets.MAKSIM_DOCKERHUB_PASSWORD }}
           EOF"
