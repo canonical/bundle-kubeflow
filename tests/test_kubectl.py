@@ -32,7 +32,6 @@ def get_statuses():
 @pytest.mark.full
 @pytest.mark.lite
 async def test_all_charms_running(ops_test: OpsTest):
-
     await ops_test.model.wait_for_idle(
         status="active",
         raise_on_blocked=True,
