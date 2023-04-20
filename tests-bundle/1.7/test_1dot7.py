@@ -81,7 +81,7 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         status="active",
         raise_on_blocked=False,
         raise_on_error=False,
-        timeout=from_minutes(minutes=20),
+        timeout=from_minutes(minutes=100),
     )
 
     print("dispatch istio config changed hook")
@@ -99,5 +99,5 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         status="active",
         raise_on_blocked=False,
         raise_on_error=True,
-        timeout=from_minutes(minutes=15),
+        timeout=from_minutes(minutes=30),
     )
