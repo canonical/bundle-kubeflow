@@ -102,7 +102,7 @@ jobs:
       - name: Get logs from failed pods
         if: failure()
         run: |
-          POD_LIST = $(sg microk8s -c "microk8s kubectl get pods --all-namespaces -o 'custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,CONTAINERS:.status.containerStatuses[*].ready'" | awk '$3 == "false" {print $1,$2}')
+          POD_LIST=$(sg microk8s -c "microk8s kubectl get pods --all-namespaces -o 'custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,CONTAINERS:.status.containerStatuses[*].ready'" | awk '$3 == "false" {print $1,$2}')
 
           echo "Actual Logs"
           while read -r POD NAMESPACE; do
