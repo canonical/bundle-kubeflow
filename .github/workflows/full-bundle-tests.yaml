@@ -109,8 +109,3 @@ jobs:
             echo "\n\n\nPod: $POD"
             sg microk8s -c "microk8s kubectl logs -n $NAMESPACE $POD"
           done <<< "$POD_LIST"
-
-      - name: All logs
-        if: failure()
-        run: |
-          sg microk8s -c "microk8s kubectl logs --all-containers --all-namespaces"
