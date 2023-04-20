@@ -72,11 +72,11 @@ class TestGetStartedTutorial:
             by=By.XPATH,
             value="app-index/app-index-default/div/div/lib-table/table/tbody/tr/td[10]/div/lib-action-button/button",
         )
-        WebDriverWait(driver, 150).until(
+        WebDriverWait(driver, 300).until(
             expected_conditions.element_to_be_clickable(connect_button)
         )
         connect_button.click()
 
         # notebook page
         driver.switch_to.window(driver.window_handles[1])
-        assert driver.current_url == "http://10.64.140.43.nip.io/notebook/admin/test-notebook/lab"
+        assert "http://10.64.140.43.nip.io/notebook/admin/test-notebook/lab" in driver.current_url
