@@ -66,3 +66,17 @@ class TestGetStartedTutorial:
         WebDriverWait(driver, 10).until(expected_conditions.element_to_be_clickable(launch_button))
         launch_button.click()
         time.sleep(3)  # wait for notebook to start
+
+        app_root = driver.find_element(by=By.XPATH, value="/html/body/app-root")
+        connect_button = app_root.find_element(
+            by=By.XPATH,
+            value="app-index/app-index-default/div/div/lib-table/table/tbody/tr/td[10]/div/lib-action-button/button",
+        )
+        WebDriverWait(driver, 150).until(
+            expected_conditions.element_to_be_clickable(connect_button)
+        )
+        connect_button.click()
+
+        # notebook page
+        driver.switch_to.window(driver.window_handles[1])
+        assert driver.current_url == "http://10.64.140.43.nip.io/notebook/admin/test-notebook/lab"

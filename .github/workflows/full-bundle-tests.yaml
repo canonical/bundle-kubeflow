@@ -104,8 +104,10 @@ jobs:
         run: |
           POD_LIST=$(sg microk8s -c "microk8s kubectl get pods --all-namespaces -o 'custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,CONTAINERS:.status.containerStatuses[*].ready'" | awk '$3 == "false" {print $1,$2}')
 
-          echo "Actual Logs"
-          while read -r POD NAMESPACE; do
-            echo "\n\n\nPod: $POD"
-            sg microk8s -c "microk8s kubectl logs -n $NAMESPACE $POD"
-          done <<< "$POD_LIST"
+          if [ -n "$POD_LIST" ]; then
+            echo "Actual Logs"
+            while read -r POD NAMESPACE; do
+              echo "\n\n\nPod: $POD"
+              sg microk8s -c "microk8s kubectl logs -n $NAMESPACE $POD"
+            done <<< "$POD_LIST"
+          fi
