@@ -58,8 +58,6 @@ applications:
     charm: mysql-k8s
     channel: 8.0/stable
     scale: 1
-    options:
-      database: katib
   katib-db-manager:
     charm: katib-db-manager
     channel: 0.15/edge
@@ -80,8 +78,6 @@ applications:
     charm: mysql-k8s
     channel: 8.0/stable
     scale: 1
-    options:
-      database: mlpipeline
   kfp-persistence:
     charm: kfp-persistence
     channel: 2.0/edge
