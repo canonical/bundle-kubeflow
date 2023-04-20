@@ -73,7 +73,7 @@ applications:
     _github_repo_name: katib-operators
   kfp-api:
     charm: kfp-api
-    channel: latest/edge
+    channel: 2.0/beta
     scale: 1
     _github_repo_name: kfp-operators
   kfp-db:
@@ -84,37 +84,37 @@ applications:
       database: mlpipeline
   kfp-persistence:
     charm: kfp-persistence
-    channel: latest/edge
+    channel: 2.0/beta
     scale: 1
     _github_repo_name: kfp-operators
   kfp-profile-controller:
     charm: kfp-profile-controller
-    channel: latest/edge
+    channel: 2.0/beta
     scale: 1
     _github_repo_name: kfp-operators
   kfp-schedwf:
     charm: kfp-schedwf
-    channel: latest/edge
+    channel: 2.0/beta
     scale: 1
     _github_repo_name: kfp-operators
   kfp-ui:
     charm: kfp-ui
-    channel: latest/edge
+    channel: 2.0/beta
     scale: 1
     _github_repo_name: kfp-operators
   kfp-viewer:
     charm: kfp-viewer
-    channel: latest/edge
+    channel: 2.0/beta
     scale: 1
     _github_repo_name: kfp-operators
   kfp-viz:
     charm: kfp-viz
-    channel: latest/edge
+    channel: 2.0/beta
     scale: 1
     _github_repo_name: kfp-operators
   knative-eventing:
     charm: knative-eventing
-    channel: latest/edge
+    channel: 1.8/beta
     scale: 1
     trust: true
     options:
@@ -122,13 +122,13 @@ applications:
     _github_repo_name: knative-operators
   knative-operator:
     charm: knative-operator
-    channel: latest/edge
+    channel: 1.8/beta
     scale: 1
     trust: true
     _github_repo_name: knative-operators
   knative-serving:
     charm: knative-serving
-    channel: latest/edge
+    channel: 1.8/beta
     scale: 1
     trust: true
     options:
@@ -178,7 +178,7 @@ applications:
     _github_repo_name: minio-operator
   oidc-gatekeeper:
     charm: oidc-gatekeeper
-    channel: ckf-1.6/beta
+    channel: ckf-1.7/beta
     scale: 1
     _github_repo_name: oidc-gatekeeper-operator
   seldon-controller-manager:

@@ -1,0 +1,111 @@
+name: Tests
+
+on:
+  pull_request:
+
+jobs:
+  test-bundle:
+    runs-on: [self-hosted, linux, X64, two-xlarge]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Parse and enable DNS server
+        id: dns-name
+        run: |
+          dns_server=$(grep -oPm1 'Current DNS Server: \K[^\s]+' <<< "$(resolvectl status)")
+          echo "Using following DNS Server: $dns_server"
+
+          echo "MY_ADDONS=hostpath-storage ingress dns:$dns_server rbac registry metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'" >> $GITHUB_OUTPUT
+
+      - name: Install tools
+        run: |
+          sudo apt-get update -yqq
+          sudo apt-get install -yqq python3-pip
+          sudo --preserve-env=http_proxy,https_proxy,no_proxy pip3 install tox
+          sudo snap install charmcraft --classic --channel=latest/stable
+
+      - name: Setup microk8s
+        run: |
+          sudo snap install microk8s --classic --channel=1.24/stable
+          sudo usermod -a -G microk8s $USER
+
+#      - name: update registry
+#        run: |
+#          sg microk8s -c "cat > /var/snap/microk8s/current/args/certs.d/docker.io/hosts.toml << EOF
+#          server = \"https://rocks.canonical.com\"
+#          [host.\"https://rocks.canonical.com\"]
+#          capabilities = [\"pull\", \"resolve\"]
+#          EOF"
+#
+#      - run: |
+#          sudo cat /var/snap/microk8s/current/args/certs.d/docker.io/hosts.toml
+
+      - name: update credentials
+        run: |
+          sg microk8s -c "cat >> /var/snap/microk8s/current/args/containerd-template.toml << EOF
+          [plugins.\"io.containerd.grpc.v1.cri\".registry.configs.\"registry-1.docker.io\".auth]
+          username = \"${{ secrets.MAKSIM_DOCKERHUB_USER }}\"
+          password = \"${{ secrets.MAKSIM_DOCKERHUB_PASSWORD }}\"
+          EOF"
+
+      - name: Restart microk8s
+        run: |
+          sg microk8s -c "microk8s stop"
+          sg microk8s -c "microk8s start"
+          sg microk8s -c "microk8s status --wait-ready --timeout 150"
+
+      - name: Enable addons
+        run: |
+          sg microk8s -c "microk8s enable ${{ steps.dns-name.outputs.MY_ADDONS }}"
+
+      - name: Wait for microk8s to be ready and give time for addons
+        run: |
+          sleep 90
+          sg microk8s -c "microk8s status --wait-ready --timeout 150"
+          sg microk8s -c "mkdir -p ~/.kube"
+          sg microk8s -c "microk8s config > ~/.kube/config"
+
+      - name: Install and bootstrap juju
+        run: |
+          sudo snap install juju --classic --channel=2.9/stable
+          sg microk8s -c 'juju bootstrap microk8s bundle-controller --model-default test-mode=true --model-default logging-config="<root>=DEBUG" --agent-version="2.9.42" --debug --verbose'
+
+      - name: Show all pods status
+        run: |
+          sg microk8s -c "microk8s kubectl get pods --all-namespaces"
+
+      - name: Increase file system limits
+        run: |
+          sudo sysctl fs.inotify.max_user_instances=1280
+          sudo sysctl fs.inotify.max_user_watches=655360
+
+      - run: |
+          sg microk8s -c "juju add-model kubeflow --config default-series=focal --config automatically-retry-hooks=true"
+          sg microk8s -c "juju model-config"
+          sg microk8s -c "juju status"
+
+      - run: |
+          sg microk8s -c "tox -e test_bundle_1.7 --recreate -- --keep-models"
+
+      - name: Dump Juju/k8s logs on failure
+        if: failure()
+        run: |
+          sg microk8s -c "juju status"
+
+          echo "Dumping k8s logs"
+          sg microk8s -c "microk8s kubectl get all --all-namespaces"
+
+      - name: Descript all pods
+        if: failure()
+        run: |
+          sg microk8s -c "microk8s kubectl describe pods --all-namespaces"
+
+      - name: Get logs from failed pods
+        if: failure()
+        run: |
+          POD_LIST=$(sg microk8s -c "microk8s kubectl get pods --all-namespaces -o 'custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,CONTAINERS:.status.containerStatuses[*].ready'" | awk '$3 == "false" {print $1,$2}')
+
+          echo "Actual Logs"
+          while read -r POD NAMESPACE; do
+            echo "\n\n\nPod: $POD"
+            sg microk8s -c "microk8s kubectl logs -n $NAMESPACE $POD"
+          done <<< "$POD_LIST"
