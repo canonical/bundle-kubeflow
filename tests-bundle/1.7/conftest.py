@@ -30,12 +30,15 @@ def driver(request):
 
     # must have linked snap geckodriver to ~/bin
     # see https://stackoverflow.com/a/74405816/7453765
+    bin_user = Path("~/bin").expanduser()
+    bin_user.mkdir(parents=True, exist_ok=True)
     source_file = Path("/snap/bin/firefox.geckodriver")
-    geckodriver = tmp_user / "geckodriver"
+    geckodriver = bin_user / "firefox.geckodriver"
     if not geckodriver.exists():
-        geckodriver.symlink_to(source_file.resolve())
+        geckodriver.symlink_to(source_file)
 
-    service = Service(executable_path=str(geckodriver))
+    executable_path = str(bin_user)
+    service = Service(executable_path=executable_path)
     driver = webdriver.Firefox(options=options, service=service)
     driver.set_window_size(1920, 1080)
     driver.maximize_window()
