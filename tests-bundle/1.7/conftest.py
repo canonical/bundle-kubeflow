@@ -18,12 +18,13 @@ def driver(request):
     options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
-    options.binary = "/snap/bin/firefox"
+    # options.binary = "/snap/bin/firefox"
+    options.binary_location = "/snap/bin/firefox"
 
     # must create path,
     # see https://github.com/mozilla/geckodriver/releases/tag/v0.31.0
-    os.environ["TMPDIR"] = "~/tmp"
-    Path("~/tmp").mkdir(parents=True, exist_ok=True)
+    # os.environ["TMPDIR"] = "~/tmp"
+    # Path("~/tmp").mkdir(parents=True, exist_ok=True)
 
     # must have linked snap geckodriver to ~/bin
     # see https://stackoverflow.com/a/74405816/7453765
