@@ -26,6 +26,9 @@ def driver(request):
     driver.maximize_window()
     driver.implicitly_wait(10)
 
+    print("Driver to call")
+    print(service.path)
+
     yield driver
     driver.quit()
 
