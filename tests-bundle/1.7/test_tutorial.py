@@ -7,7 +7,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 
 class TestGetStartedTutorial:
-    @pytest.mark.deploy
+    @pytest.mark.selenium
     def test_create_notebook(self, driver):
         # this test relies on the name ordering to be executed after deployment
         driver.get("http://10.64.140.43.nip.io")
@@ -83,3 +83,5 @@ class TestGetStartedTutorial:
         # notebook page
         driver.switch_to.window(driver.window_handles[1])
         assert "http://10.64.140.43.nip.io/notebook/admin/test-notebook/lab" in driver.current_url
+
+        a = 1
