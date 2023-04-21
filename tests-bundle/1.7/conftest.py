@@ -3,33 +3,26 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
-from selenium import webdriver as selenium_webdriver
+from selenium import webdriver
 
-# we must use Chrome since shadow DOM is not supported by Firefox
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.core.utils import ChromeType
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
+
 
 
 @pytest.fixture(scope='session')
 def driver(request):
     """Set up webdriver fixture."""
-    chrome_options = Options()
-    chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--remote-debugging-port=9222')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument('--disable-infobars')
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--ignore-certificate-errors")
-    chrome_options.binary_location = "/snap/bin/chromium"
+    options = Options()
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.binary = "/snap/bin/firefox"
 
-    # service = Service(ChromeDriverManager(path="/snap/bin/chromium.chromedriver", chrome_type=ChromeType.CHROMIUM, cache_valid_range=5).install())
-
-    service = Service(executable_path='/snap/bin/chromium.chromedriver')
-    driver = selenium_webdriver.Chrome(options=chrome_options, service=service)
+    # must have linked snap geckodriver to ~/bin
+    # see https://stackoverflow.com/a/74405816/7453765
+    service = Service(executable_path="~/bin/firefox.geckodriver")
+    driver = webdriver.Firefox(options=options, service=service)
     driver.set_window_size(1920, 1080)
     driver.maximize_window()
     driver.implicitly_wait(10)

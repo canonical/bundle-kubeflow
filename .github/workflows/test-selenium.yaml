@@ -13,7 +13,10 @@ jobs:
           sudo apt-get update -yqq
           sudo apt-get install -yqq python3-pip
           sudo --preserve-env=http_proxy,https_proxy,no_proxy pip3 install tox
-          sudo snap install chromium
+
+      - run: |
+          mkdir ~/bin
+          ln -s /snap/bin/firefox.geckodriver  ~/bin/geckodriver
 
       - run: |
           tox -e test_bundle_1.7 --recreate
