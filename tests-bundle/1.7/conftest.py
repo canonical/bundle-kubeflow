@@ -23,7 +23,7 @@ def driver(request):
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--ignore-certificate-errors")
 
-    service = Service(ChromeDriverManager(cache_valid_range=5).install())
+    service = Service(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM, cache_valid_range=5).install())
 
     print("Driver to call")
     print(Path(service.path).exists())
