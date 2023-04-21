@@ -24,9 +24,4 @@ jobs:
           sudo snap install firefox
 
       - run: |
-          mkdir ~/bin
-          ln -s /snap/bin/firefox.geckodriver ~/bin/geckodriver
-          ~/bin/geckodriver --version  # check that it works
-
-      - run: |
           tox -e test_bundle_1.7 --recreate
