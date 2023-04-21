@@ -16,6 +16,8 @@ jobs:
           sudo snap install firefox
 
       - run: |
+          export $XDG_RUNTIME_DIR=/run/user/$(id -u)
+          export $DBUS_SESSION_BUS_ADDRESS=unix:path=$XDG_RUNTIME_DIR/bus
           sudo apt-get install dbus-user-session
           systemctl --user start dbus.service
           mkdir ~/bin
