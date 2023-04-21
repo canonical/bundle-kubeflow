@@ -18,6 +18,7 @@ Access to dashboard of exising Charmed Kubeflow 1.6 deployment.
 - [Before charms upgrade](#before-charms-upgrade)
   - [Update default 'admin' profile to prevent its deletion](#update-default-admin-profile-to-prevent-its-deletion)
   - [Enable trust on deployed charms](#enable-trust-on-deployed-charms)
+  - [Re-deploy `kubeflow-roles` charm](#re-deploy-kubeflow-roles-charm)
 - [Upgrade charms](#upgrade-charms)
 - [Deploy KNative and KServe charms](#deploy-knative-and-kserve-charms)
 - [Verify upgrade](#verify-upgrade)
@@ -161,7 +162,7 @@ kubectl label profile admin app.kubernetes.io/name-
 kubectl label profile admin model.juju.is/name-
 ```
 
-### Re-deploy `kubeflow-roles`
+### Re-deploy `kubeflow-roles` charm
 
 There is a difference how charms are handling Roles and ClusterRoles in 1.7 release. As a result, `kubeflow-roles` charm needs to be re-deployed rather than refreshed:
 
