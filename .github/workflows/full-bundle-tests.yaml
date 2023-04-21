@@ -22,6 +22,7 @@ jobs:
           sudo apt-get install -yqq python3-pip
           sudo --preserve-env=http_proxy,https_proxy,no_proxy pip3 install tox
           sudo snap install charmcraft --classic --channel=latest/stable
+          sudo snap install firefox
 
       - name: Setup microk8s
         run: |
@@ -91,13 +92,6 @@ jobs:
           loginctl enable-linger $USER
           sudo apt-get install dbus-user-session -yqq
           systemctl --user start dbus.service
-
-      - name: Install firefox
-          run: |
-            sudo snap install firefox
-            mkdir ~/bin
-            ln -s /snap/bin/firefox.geckodriver ~/bin/geckodriver
-            ~/bin/geckodriver --version  # check that it works
 
       - run: |
           sg microk8s -c "tox -e test_bundle_1.7 -- --keep-models"
