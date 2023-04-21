@@ -16,18 +16,19 @@ from webdriver_manager.core.utils import ChromeType
 def driver(request):
     """Set up webdriver fixture."""
     chrome_options = Options()
-    chrome_options.add_argument('--headless')
+    # chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--remote-debugging-port=9222')
     chrome_options.add_argument('--disable-dev-shm-usage')
     chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument('--disable-infobars')
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--ignore-certificate-errors")
     chrome_options.binary_location = "/snap/bin/chromium"
 
-    service = Service(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM, cache_valid_range=5).install())
+    # service = Service(ChromeDriverManager(path="/snap/bin/chromium.chromedriver", chrome_type=ChromeType.CHROMIUM, cache_valid_range=5).install())
 
-    driver = selenium_webdriver.Chrome(options=chrome_options, service=service)
+    driver = selenium_webdriver.Chrome(options=chrome_options, executable_path='/snap/bin/chromium.chromedriver')
     driver.set_window_size(1920, 1080)
     driver.maximize_window()
     driver.implicitly_wait(10)
