@@ -19,13 +19,13 @@ def driver(request):
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     # options.binary = "/snap/bin/firefox"
-    options.binary_location = "/snap/bin/firefox"
+    options.binary_location = "~/bin/firefox"
 
     # must create path,
     # see https://github.com/mozilla/geckodriver/releases/tag/v0.31.0
-    tmp_user = Path("~/tmp").expanduser()
-    os.environ["TMPDIR"] = str(tmp_user)
-    tmp_user.mkdir(parents=True, exist_ok=True)
+    # tmp_user = Path("~/tmp").expanduser()
+    # os.environ["TMPDIR"] = str(tmp_user)
+    # tmp_user.mkdir(parents=True, exist_ok=True)
 
     geko = Path("~/bin/geckodriver").expanduser()
 
