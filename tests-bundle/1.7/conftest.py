@@ -18,7 +18,8 @@ def driver(request):
     options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
-    options.binary_location = "/snap/firefox/current/firefox.launcher"
+    # options.binary_location = "/snap/firefox/current/firefox.launcher"
+    options.binary_location = "/snap/bin/firefox"
 
     # must create path,
     # see https://github.com/mozilla/geckodriver/releases/tag/v0.31.0
@@ -29,7 +30,12 @@ def driver(request):
 
     # must have linked snap geckodriver to ~/bin
     # see https://stackoverflow.com/a/74405816/7453765
-    service = Service(executable_path="/snap/bin/firefox.geckodriver")
+    source_file = Path("/snap/bin/firefox.geckodriver")
+    geckodriver = tmp_user / "geckodriver"
+    if not geckodriver.exists():
+        geckodriver.symlink_to(source_file.resolve())
+
+    service = Service(executable_path=str(geckodriver))
     driver = webdriver.Firefox(options=options, service=service)
     driver.set_window_size(1920, 1080)
     driver.maximize_window()
