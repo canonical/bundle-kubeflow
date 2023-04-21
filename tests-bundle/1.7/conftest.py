@@ -15,6 +15,7 @@ if DEBUG:
     firefox_binary = "/snap/bin/firefox"
 else:
     firefox_binary = "/snap/firefox/current/firefox.launcher"
+    firefox_binary = "/snap/bin/firefox"
 
 
 @pytest.fixture(scope='session')
