@@ -11,7 +11,8 @@ jobs:
       - run: |
           export XDG_RUNTIME_DIR="/run/user/$(id -u)"
           export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
-          loginctl enable-linger USER
+          echo "$(id -u)"
+          loginctl enable-linger $USER
           sudo apt-get install dbus-user-session -yqq
           systemctl --user start dbus.service
 
