@@ -161,6 +161,17 @@ kubectl label profile admin app.kubernetes.io/name-
 kubectl label profile admin model.juju.is/name-
 ```
 
+### Re-deploy `kubeflow-roles`
+
+There is a difference how charms are handling Roles and ClusterRoles in 1.7 release. As a result, `kubeflow-roles` charm needs to be re-deployed rather than refreshed:
+
+
+```python
+# redeploy kubeflow-roles
+juju remove-application kubeflow-roles
+juju deploy kubeflow-roles --channel 1.7/stable
+```
+
 ## Upgrade charms
 
 To upgrade Charmed Kubeflow each charm needs to be refreshed. It is recommended to wait for each charm to finish its upgrade before proceeding with the next.
@@ -193,7 +204,6 @@ juju refresh kfp-viewer --channel 2.0/stable
 juju refresh kfp-viz --channel 2.0/stable
 juju refresh kubeflow-dashboard --channel 1.7/stable
 juju refresh kubeflow-profiles --channel 1.7/stable
-juju refresh kubeflow-roles --channel 1.7/stable
 juju refresh kubeflow-volumes --channel 1.7/stable
 juju refresh metacontroller-operator --channel 2.0/stable
 juju refresh minio --channel ckf-1.7/stable
