@@ -22,6 +22,9 @@ def driver(request):
     options = Options()
     if not DEBUG:
         options.add_argument('--headless')
+    else:
+        options.log.level = "trace"
+
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     options.binary_location = firefox_binary
