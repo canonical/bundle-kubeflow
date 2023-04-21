@@ -8,17 +8,27 @@ from selenium import webdriver
 
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
+from webdriver_manager.firefox import GeckoDriverManager
 
+DEBUG = False
+if DEBUG:
+    firefox_binary = "/snap/bin/firefox"
+else:
+    firefox_binary = "/snap/firefox/current/firefox.launcher"
 
 
 @pytest.fixture(scope='session')
 def driver(request):
     """Set up webdriver fixture."""
     options = Options()
-    options.add_argument('--headless')
+    if not DEBUG:
+        options.add_argument('--headless')
+    else:
+        options.log.level = "trace"
+
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
-    options.binary_location = "/snap/firefox/current/firefox.launcher"
+    options.binary_location = firefox_binary
 
     # must create path,
     # see https://github.com/mozilla/geckodriver/releases/tag/v0.31.0
@@ -26,10 +36,7 @@ def driver(request):
     os.environ["TMPDIR"] = str(tmp_user)
     tmp_user.mkdir(parents=True, exist_ok=True)
 
-
-    # must have linked snap geckodriver to ~/bin
-    # see https://stackoverflow.com/a/74405816/7453765
-    service = Service(executable_path="/snap/bin/firefox.geckodriver")
+    service = Service(GeckoDriverManager().install())
     driver = webdriver.Firefox(options=options, service=service)
     driver.set_window_size(1920, 1080)
     driver.maximize_window()
