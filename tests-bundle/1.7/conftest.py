@@ -10,12 +10,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from webdriver_manager.firefox import GeckoDriverManager
 
-DEBUG = False
-if DEBUG:
-    firefox_binary = "/snap/bin/firefox"
-else:
-    firefox_binary = "/snap/firefox/current/firefox.launcher"
-    firefox_binary = "/snap/bin/firefox"
+DEBUG = os.environ.get("DEBUG_KF", False)
 
 
 @pytest.fixture(scope='session')
@@ -29,7 +24,7 @@ def driver(request):
 
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
-    options.binary_location = firefox_binary
+    options.binary_location = "/snap/bin/firefox"
 
     # must create path,
     # see https://github.com/mozilla/geckodriver/releases/tag/v0.31.0

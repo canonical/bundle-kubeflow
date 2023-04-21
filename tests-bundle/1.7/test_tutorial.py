@@ -1,4 +1,5 @@
 import time
+from pathlib import Path
 
 import pytest
 from selenium.webdriver.common.by import By
@@ -7,6 +8,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
+
+TESTS_DIR = Path(__file__).resolve().parent
 
 
 class TestGetStartedTutorial:
@@ -128,7 +131,8 @@ class TestGetStartedTutorial:
                 "div/div[3]/div[2]/div[2]/div/div[1]/textarea"
             ),
         )
-        with open("advanced_notebook.py.tmpl") as f:
+
+        with open(TESTS_DIR / "advanced_notebook.py.tmpl") as f:
             text_field.send_keys(f.read())
 
         time.sleep(2)
