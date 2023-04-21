@@ -23,8 +23,9 @@ def driver(request):
 
     # must create path,
     # see https://github.com/mozilla/geckodriver/releases/tag/v0.31.0
-    # os.environ["TMPDIR"] = "~/tmp"
-    # Path("~/tmp").mkdir(parents=True, exist_ok=True)
+    tmp_user = Path("~/tmp").expanduser()
+    os.environ["TMPDIR"] = str(tmp_user)
+    tmp_user.mkdir(parents=True, exist_ok=True)
 
     # must have linked snap geckodriver to ~/bin
     # see https://stackoverflow.com/a/74405816/7453765
