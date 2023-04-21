@@ -22,7 +22,7 @@ jobs:
           sudo apt-get install -yqq python3-pip
           sudo --preserve-env=http_proxy,https_proxy,no_proxy pip3 install tox
           sudo snap install charmcraft --classic --channel=latest/stable
-          sudo snap install firefox
+          sudo snap install firefox --channel=latest/beta  # need 113.0b1 or later
 
       - name: Setup microk8s
         run: |
