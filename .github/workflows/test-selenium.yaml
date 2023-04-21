@@ -29,4 +29,5 @@ jobs:
           ~/bin/geckodriver --version
 
       - run: |
+          export TMPDIR=$HOME/tmp
           tox -e test_bundle_1.7 --recreate
