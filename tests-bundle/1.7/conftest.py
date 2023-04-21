@@ -27,9 +27,11 @@ def driver(request):
     os.environ["TMPDIR"] = str(tmp_user)
     tmp_user.mkdir(parents=True, exist_ok=True)
 
+    geko = Path("~/bin/geckodriver").expanduser()
+
     # must have linked snap geckodriver to ~/bin
     # see https://stackoverflow.com/a/74405816/7453765
-    service = Service(executable_path="~/bin/geckodriver")
+    service = Service(executable_path=str(geko))
     driver = webdriver.Firefox(options=options, service=service)
     driver.set_window_size(1920, 1080)
     driver.maximize_window()
