@@ -19,7 +19,7 @@ def driver(request):
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     # options.binary = "/snap/bin/firefox"
-    options.binary_location = "~/bin/firefox"
+    options.binary_location = "/snap/firefox/current/firefox.launcher"
 
     # must create path,
     # see https://github.com/mozilla/geckodriver/releases/tag/v0.31.0
