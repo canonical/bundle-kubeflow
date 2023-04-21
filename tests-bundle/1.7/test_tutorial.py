@@ -35,23 +35,43 @@ class TestGetStartedTutorial:
         driver.switch_to.frame(iframe)
         print("switched to iframe")
 
-        app_root = driver.find_element(by=By.XPATH, value="/html/body/app-root")
-        new_notebook_button = WebDriverWait(driver, 600).until(expected_conditions.presence_of_element_located((
-            By.XPATH,
-            "/html/body/app-root/app-index/app-index-default/div/lib-title-actions-toolbar/div/div[4]/div/button",
-        )))
+        new_notebook_button = WebDriverWait(driver, 600).until(
+            expected_conditions.presence_of_element_located(
+                (
+                    By.XPATH,
+                    (
+                        "/html/body/app-root/app-index/app-index-default/"
+                        "div/lib-title-actions-toolbar/div/div[4]/div/button"
+                    ),
+                )
+            )
+        )
         new_notebook_button.click()
-        notebook_name_input = WebDriverWait(driver, 600).until(expected_conditions.presence_of_element_located((By.XPATH,
-                                        "/html/body/app-root/app-form-new/div/div/form/app-form-name/lib-form-section/div/lib-name-input/mat-form-field/div/div[1]/div[3]/input")))
+        notebook_name_input = WebDriverWait(driver, 600).until(
+            expected_conditions.presence_of_element_located(
+                (
+                    By.XPATH,
+                    "/html/body/app-root/app-form-new/div/div/form/app-form-name/"
+                    "lib-form-section/div/lib-name-input/mat-form-field/div/div[1]/div[3]/input",
+                )
+            )
+        )
         notebook_name_input.send_keys("test-notebook")
-        custom_notebook_menu = app_root.find_element(
+        custom_notebook_menu = driver.find_element(
             by=By.XPATH,
-            value="app-form-new/div/div/form/app-form-image/lib-form-section/div/div[2]/mat-accordion/mat-expansion-panel/mat-expansion-panel-header",
+            value=(
+                "/html/body/app-root/app-form-new/div/div/form/app-form-image/"
+                "lib-form-section/div/div[2]/mat-accordion/mat-expansion-panel/mat-expansion-panel-header"
+            ),
         )
         custom_notebook_menu.click()
-        images_drop_down_menu = app_root.find_element(
+        images_drop_down_menu = driver.find_element(
             by=By.XPATH,
-            value="app-form-new/div/div/form/app-form-image/lib-form-section/div/div[2]/mat-accordion/mat-expansion-panel/div/div/mat-form-field/div/div[1]/div[3]",
+            value=(
+                "/html/body/app-root/app-form-new/div/div/form/app-form-image/"
+                "lib-form-section/div/div[2]/mat-accordion/"
+                "mat-expansion-panel/div/div/mat-form-field/div/div[1]/div[3]"
+            ),
         )
         images_drop_down_menu.click()
         all_notebook_images = driver.find_elements(by=By.CLASS_NAME, value="mat-option-text")
@@ -69,8 +89,8 @@ class TestGetStartedTutorial:
         else:
             raise Exception("jupyter-tensorflow-full image not found")
 
-        launch_button = app_root.find_element(
-            by=By.XPATH, value="app-form-new/div/div/div/div/button"
+        launch_button = driver.find_element(
+            by=By.XPATH, value="/html/body/app-root/app-form-new/div/div/div/div/button"
         )
         WebDriverWait(driver, 10).until(expected_conditions.element_to_be_clickable(launch_button))
         launch_button.click()
@@ -91,12 +111,23 @@ class TestGetStartedTutorial:
         assert "http://10.64.140.43.nip.io/notebook/admin/test-notebook/lab" in driver.current_url
 
         time.sleep(2)
-        new_kernel = WebDriverWait(driver, 600).until(expected_conditions.presence_of_element_located((By.XPATH,
-                                      "/html/body/div[1]/div[3]/div[2]/div[1]/div[3]/div[3]/div[3]/div/div/div[2]/div[2]/div")))
+        new_kernel = WebDriverWait(driver, 600).until(
+            expected_conditions.presence_of_element_located(
+                (
+                    By.XPATH,
+                    "/html/body/div[1]/div[3]/div[2]/div[1]/div[3]/div[3]/div[3]/div/div/div[2]/div[2]/div",
+                )
+            )
+        )
         new_kernel.click()
 
-        text_field = driver.find_element(by=By.XPATH,
-                                         value="/html/body/div[1]/div[3]/div[2]/div[1]/div[3]/div[3]/div[3]/div/div[3]/div[2]/div[2]/div/div[1]/textarea")
+        text_field = driver.find_element(
+            by=By.XPATH,
+            value=(
+                "/html/body/div[1]/div[3]/div[2]/div[1]/div[3]/div[3]/div[3]/"
+                "div/div[3]/div[2]/div[2]/div/div[1]/textarea"
+            ),
+        )
         with open("advanced_notebook.py.tmpl") as f:
             text_field.send_keys(f.read())
 
@@ -107,7 +138,15 @@ class TestGetStartedTutorial:
 
         # wait for the notebook to finish
         for i in range(600):
-            output_field = WebDriverWait(driver, 600).until(expected_conditions.presence_of_element_located((By.XPATH, "/html/body/div[1]/div[3]/div[2]/div[1]/div[3]/div[3]/div[3]/div/div[5]/div[2]/div[4]/div[2]/pre")))
+            output_field = WebDriverWait(driver, 600).until(
+                expected_conditions.presence_of_element_located(
+                    (
+                        By.XPATH,
+                        "/html/body/div[1]/div[3]/div[2]/div[1]/div[3]/div[3]/"
+                        "div[3]/div/div[5]/div[2]/div[4]/div[2]/pre",
+                    )
+                )
+            )
             print(f"Waiting for notebook to finish, current output: {output_field.text}")
             if "Epoch 5" not in output_field.text:
                 time.sleep(15)

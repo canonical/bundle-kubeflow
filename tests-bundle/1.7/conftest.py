@@ -46,7 +46,6 @@ def driver(request):
     driver.quit()
 
 
-
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     """Set up a hook to be able to check if a test has failed."""
