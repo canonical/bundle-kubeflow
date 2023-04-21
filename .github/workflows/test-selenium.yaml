@@ -8,6 +8,12 @@ jobs:
     runs-on: [self-hosted, linux, X64, large]
     steps:
       - uses: actions/checkout@v3
+      - run: |
+          export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+          export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
+          sudo apt-get install dbus-user-session -yqq
+          systemctl --user start dbus.service
+
       - name: Install tools
         run: |
           sudo apt-get update -yqq
@@ -16,10 +22,6 @@ jobs:
           sudo snap install firefox
 
       - run: |
-          export XDG_RUNTIME_DIR="/run/user/$(id -u)"
-          export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
-          sudo apt-get install dbus-user-session
-          systemctl --user start dbus.service
           mkdir ~/bin
           ln -s /snap/bin/firefox.geckodriver ~/bin/geckodriver
           ~/bin/geckodriver --version
