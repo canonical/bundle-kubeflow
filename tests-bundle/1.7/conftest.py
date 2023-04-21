@@ -9,6 +9,7 @@ from selenium import webdriver as selenium_webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
+from webdriver_manager.core.utils import ChromeType
 
 
 @pytest.fixture(scope='session')
@@ -18,8 +19,11 @@ def driver(request):
     chrome_options.add_argument('--headless')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--disable-dev-shm-usage')
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--ignore-certificate-errors")
 
-    service = Service(ChromeDriverManager().install())
+    service = Service(ChromeDriverManager(cache_valid_range=5, chrome_type=ChromeType.CHROMIUM).install())
 
     print("Driver to call")
     print(Path(service.path).exists())
