@@ -19,7 +19,10 @@ jobs:
       - run: |
 
           mkdir ~/bin
-          ln -s /snap/bin/firefox.geckodriver  ~/bin/geckodriver
+          cd ~/bin
+          ln -s /snap/bin/firefox.geckodriver geckodriver
 
       - run: |
+          mkdir ~/tmp
+          export TMPDIR="~/tmp"
           tox -e test_bundle_1.7 --recreate
