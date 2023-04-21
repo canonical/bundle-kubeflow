@@ -8,6 +8,7 @@ from selenium import webdriver
 
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
+from webdriver_manager.firefox import GeckoDriverManager
 
 DEBUG = True
 if DEBUG:
@@ -35,17 +36,7 @@ def driver(request):
     os.environ["TMPDIR"] = str(tmp_user)
     tmp_user.mkdir(parents=True, exist_ok=True)
 
-    # must have linked snap geckodriver to ~/bin
-    # see https://stackoverflow.com/a/74405816/7453765
-    bin_user = Path("~/bin").expanduser()
-    bin_user.mkdir(parents=True, exist_ok=True)
-    source_file = Path("/snap/bin/firefox.geckodriver")
-    geckodriver = bin_user / "firefox.geckodriver"
-    if not geckodriver.exists():
-        geckodriver.symlink_to(source_file)
-
-    executable_path = str(bin_user)
-    service = Service(executable_path=executable_path)
+    service = Service(GeckoDriverManager().install())
     driver = webdriver.Firefox(options=options, service=service)
     driver.set_window_size(1920, 1080)
     driver.maximize_window()

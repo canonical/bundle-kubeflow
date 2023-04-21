@@ -5,6 +5,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+
 
 class TestGetStartedTutorial:
     @pytest.mark.selenium
@@ -17,27 +20,30 @@ class TestGetStartedTutorial:
         shadow_root = driver.find_element(by=By.XPATH, value="/html/body/main-page").shadow_root
         sidepanel_menu = shadow_root.find_elements(by=By.CLASS_NAME, value="menu-item")
         for menu_item in sidepanel_menu:
-            if menu_item.text == "Notebooks":
+            if menu_item.accessible_name == "Notebooks":
                 menu_item.click()
                 break
+        else:
+            raise Exception("Notebooks menu item not found")
 
+        time.sleep(3)
         notebooks_content = shadow_root.find_element(by=By.ID, value="Content")
         notebooks_shadow_root = notebooks_content.find_element(
             by=By.XPATH, value="neon-animated-pages/neon-animatable[4]/iframe-container"
         ).shadow_root
         iframe = notebooks_shadow_root.find_element(by=By.ID, value="iframe")
         driver.switch_to.frame(iframe)
+        print("switched to iframe")
 
         app_root = driver.find_element(by=By.XPATH, value="/html/body/app-root")
-        new_notebook_button = app_root.find_element(
-            by=By.XPATH,
-            value="app-index/app-index-default/div/lib-title-actions-toolbar/div/div[4]/div/button",
-        )
+        new_notebook_button = WebDriverWait(driver, 600).until(expected_conditions.presence_of_element_located((
+            By.XPATH,
+            "/html/body/app-root/app-index/app-index-default/div/lib-title-actions-toolbar/div/div[4]/div/button",
+        )))
         new_notebook_button.click()
-        app_root.find_element(
-            by=By.XPATH,
-            value="app-form-new/div/div/form/app-form-name/lib-form-section/div/lib-name-input/mat-form-field/div/div[1]/div[3]/input",
-        ).send_keys("test-notebook")
+        notebook_name_input = WebDriverWait(driver, 600).until(expected_conditions.presence_of_element_located((By.XPATH,
+                                        "/html/body/app-root/app-form-new/div/div/form/app-form-name/lib-form-section/div/lib-name-input/mat-form-field/div/div[1]/div[3]/input")))
+        notebook_name_input.send_keys("test-notebook")
         custom_notebook_menu = app_root.find_element(
             by=By.XPATH,
             value="app-form-new/div/div/form/app-form-image/lib-form-section/div/div[2]/mat-accordion/mat-expansion-panel/mat-expansion-panel-header",
@@ -84,4 +90,28 @@ class TestGetStartedTutorial:
         driver.switch_to.window(driver.window_handles[1])
         assert "http://10.64.140.43.nip.io/notebook/admin/test-notebook/lab" in driver.current_url
 
-        a = 1
+        time.sleep(2)
+        new_kernel = WebDriverWait(driver, 600).until(expected_conditions.presence_of_element_located((By.XPATH,
+                                      "/html/body/div[1]/div[3]/div[2]/div[1]/div[3]/div[3]/div[3]/div/div/div[2]/div[2]/div")))
+        new_kernel.click()
+
+        text_field = driver.find_element(by=By.XPATH,
+                                         value="/html/body/div[1]/div[3]/div[2]/div[1]/div[3]/div[3]/div[3]/div/div[3]/div[2]/div[2]/div/div[1]/textarea")
+        with open("advanced_notebook.py.tmpl") as f:
+            text_field.send_keys(f.read())
+
+        time.sleep(2)
+
+        action = ActionChains(driver)
+        action.key_down(Keys.CONTROL).key_down(Keys.ENTER).perform()
+
+        # wait for the notebook to finish
+        for i in range(600):
+            output_field = WebDriverWait(driver, 600).until(expected_conditions.presence_of_element_located((By.XPATH, "/html/body/div[1]/div[3]/div[2]/div[1]/div[3]/div[3]/div[3]/div/div[5]/div[2]/div[4]/div[2]/pre")))
+            print(f"Waiting for notebook to finish, current output: {output_field.text}")
+            if "Epoch 5" not in output_field.text:
+                time.sleep(15)
+            else:
+                break
+        else:
+            raise Exception("Notebook did not finish in 600 seconds")
