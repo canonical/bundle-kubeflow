@@ -13,7 +13,8 @@ jobs:
           sudo apt-get update -yqq
           sudo apt-get install -yqq python3-pip
           sudo --preserve-env=http_proxy,https_proxy,no_proxy pip3 install tox
-          sudo apt-get install -y chromium-browser
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt install ./google-chrome-stable_current_amd64.deb
 
       - run: |
           tox -e test_bundle_1.7 --recreate
