@@ -141,7 +141,7 @@ class TestGetStartedTutorial:
         action.key_down(Keys.CONTROL).key_down(Keys.ENTER).perform()
 
         # wait for the notebook to finish
-        for i in range(600):
+        for i in range(60):
             output_field = WebDriverWait(driver, 600).until(
                 expected_conditions.presence_of_element_located(
                     (
