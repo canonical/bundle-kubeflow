@@ -8,13 +8,13 @@ jobs:
     runs-on: [self-hosted, linux, X64, large]
     steps:
       - uses: actions/checkout@v3
-      - run: |
-          export XDG_RUNTIME_DIR="/run/user/$(id -u)"
-          export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
-          echo "$(id -u)"
-          loginctl enable-linger $USER
-          sudo apt-get install dbus-user-session -yqq
-          systemctl --user start dbus.service
+#      - run: |
+#          export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+#          export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
+#          echo "$(id -u)"
+#          loginctl enable-linger $USER
+#          sudo apt-get install dbus-user-session -yqq
+#          systemctl --user start dbus.service
 
       - name: Install tools
         run: |
