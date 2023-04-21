@@ -84,7 +84,23 @@ jobs:
           sg microk8s -c "juju status"
 
       - run: |
-          sg microk8s -c "tox -e test_bundle_1.7 --recreate -- --keep-models"
+          # required for gecko driver
+          export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+          export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
+          echo "$(id -u)"
+          loginctl enable-linger $USER
+          sudo apt-get install dbus-user-session -yqq
+          systemctl --user start dbus.service
+
+      - name: Install firefox
+          run: |
+            sudo snap install firefox
+            mkdir ~/bin
+            ln -s /snap/bin/firefox.geckodriver ~/bin/geckodriver
+            ~/bin/geckodriver --version  # check that it works
+
+      - run: |
+          sg microk8s -c "tox -e test_bundle_1.7 -- --keep-models"
 
       - name: Dump Juju/k8s logs on failure
         if: failure()

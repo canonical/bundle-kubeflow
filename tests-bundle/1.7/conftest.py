@@ -1,27 +1,37 @@
+import os
 import time
 from datetime import datetime
 from pathlib import Path
 
 import pytest
-from selenium import webdriver as selenium_webdriver
+from selenium import webdriver
 
-# we must use Chrome since shadow DOM is not supported by Firefox
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
+
 
 
 @pytest.fixture(scope='session')
 def driver(request):
     """Set up webdriver fixture."""
-    chrome_options = Options()
-    chrome_options.add_argument('--headless')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
+    options = Options()
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.binary_location = "/snap/firefox/current/firefox.launcher"
 
-    service = Service(ChromeDriverManager().install())
+    # must create path,
+    # see https://github.com/mozilla/geckodriver/releases/tag/v0.31.0
+    tmp_user = Path("~/tmp").expanduser()
+    os.environ["TMPDIR"] = str(tmp_user)
+    tmp_user.mkdir(parents=True, exist_ok=True)
 
-    driver = selenium_webdriver.Chrome(options=chrome_options, service=service)
+
+    # must have linked snap geckodriver to ~/bin
+    # see https://stackoverflow.com/a/74405816/7453765
+    geko = Path("~/bin/geckodriver").expanduser()
+    service = Service(executable_path=str(geko))
+    driver = webdriver.Firefox(options=options, service=service)
     driver.set_window_size(1920, 1080)
     driver.maximize_window()
     driver.implicitly_wait(10)

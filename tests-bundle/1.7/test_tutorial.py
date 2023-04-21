@@ -9,6 +9,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 class TestGetStartedTutorial:
     @pytest.mark.deploy
     def test_create_notebook(self, driver):
+        # this test relies on the name ordering to be executed after deployment
         driver.get("http://10.64.140.43.nip.io")
         driver.find_element(by=By.ID, value="login").send_keys("admin")
         driver.find_element(by=By.ID, value="password").send_keys("admin")
