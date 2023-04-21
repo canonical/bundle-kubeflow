@@ -21,13 +21,17 @@ def driver(request):
 
     service = Service(ChromeDriverManager().install())
 
-    driver = selenium_webdriver.Chrome(options=chrome_options, service=service)
-    driver.set_window_size(1920, 1080)
-    driver.maximize_window()
-    driver.implicitly_wait(10)
-
     print("Driver to call")
     print(service.path)
+
+
+    driver = selenium_webdriver.Chrome(options=chrome_options, service=service)
+    print(1)
+    driver.set_window_size(1920, 1080)
+    print(2)
+    driver.maximize_window()
+    print(3)
+    driver.implicitly_wait(10)
 
     yield driver
     driver.quit()
