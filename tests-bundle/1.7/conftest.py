@@ -22,7 +22,7 @@ def driver(request):
     service = Service(ChromeDriverManager().install())
 
     print("Driver to call")
-    print(service.path)
+    print(Path(service.path).exists())
 
 
     driver = selenium_webdriver.Chrome(options=chrome_options, service=service)
