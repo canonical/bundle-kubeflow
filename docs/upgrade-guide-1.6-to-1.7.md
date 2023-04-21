@@ -181,7 +181,6 @@ Depending on original deployment of Charmed Kuberflow version 1.6, refresh comma
 During the upgrade some charms can temporarily  go into `error` or `blocked` state, but they should go `active` after a while.
 
 
-
 ```python
 # upgrade charms
 juju refresh admission-webhook --channel 1.7/stable
