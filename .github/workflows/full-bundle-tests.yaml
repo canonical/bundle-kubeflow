@@ -97,7 +97,7 @@ jobs:
           sg microk8s -c "tox -e test_bundle_1.7 -- --keep-models"
 
       - name: Dump Juju/k8s logs on failure
-        if: failure()
+        if: failure() || cancelled()
         run: |
           sg microk8s -c "juju status"
 
@@ -110,7 +110,7 @@ jobs:
           sg microk8s -c "microk8s kubectl describe pods --all-namespaces"
 
       - name: Get logs from failed pods
-        if: failure()
+        if: failure() || cancelled()
         run: |
           POD_LIST=$(sg microk8s -c "microk8s kubectl get pods --all-namespaces -o 'custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,CONTAINERS:.status.containerStatuses[*].ready'" | awk '$3 == "false" {print $1,$2}')
 
