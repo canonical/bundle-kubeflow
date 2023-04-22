@@ -41,7 +41,7 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         'kfp-viz',
         # 'knative-eventing', # this is expected to wait for config
         'knative-operator',
-        'knative-serving',  # this is expected to wait for config
+        # 'knative-serving', # this is expected to wait for config
         'kserve-controller',
         'kubeflow-dashboard',
         'kubeflow-profiles',
@@ -100,4 +100,5 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         raise_on_blocked=False,
         raise_on_error=True,
         timeout=from_minutes(minutes=30),
+        idle_period=from_minutes(minutes=3),
     )

@@ -22,6 +22,7 @@ jobs:
           sudo apt-get install -yqq python3-pip
           sudo --preserve-env=http_proxy,https_proxy,no_proxy pip3 install tox
           sudo snap install charmcraft --classic --channel=latest/stable
+          sudo snap install firefox --channel=latest/beta  # need 113.6b1 or later
 
       - name: Setup microk8s
         run: |
@@ -84,10 +85,40 @@ jobs:
           sg microk8s -c "juju status"
 
       - run: |
-          sg microk8s -c "tox -e test_bundle_1.7 --recreate -- --keep-models"
+          # required for gecko driver
+          export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+          export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
+          echo "$(id -u)"
+          loginctl enable-linger $USER
+          sudo apt-get install dbus-user-session -yqq
+          systemctl --user start dbus.service
+
+      - name: Run bundle tests
+        run: |
+          sg microk8s -c "tox -e test_bundle_1.7 -- --keep-models"
+
+      - name: Run selenium tests
+        if: success()
+        run: |
+          sg microk8s -c "tox -e test_selenium_1.7"
+
+      - name: Upload selenium screenshots
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: selenium-screenshots
+          path: |
+            sel-screenshots
+            **/sel-screenshots
+            **/**/sel-screenshots
+
+      - name: Run connectivity check
+        if: always()
+        run: |
+          sg microk8s -c "curl http://10.64.140.43.nip.io"
 
       - name: Dump Juju/k8s logs on failure
-        if: failure()
+        if: failure() || cancelled()
         run: |
           sg microk8s -c "juju status"
 
@@ -100,12 +131,14 @@ jobs:
           sg microk8s -c "microk8s kubectl describe pods --all-namespaces"
 
       - name: Get logs from failed pods
-        if: failure()
+        if: failure() || cancelled()
         run: |
           POD_LIST=$(sg microk8s -c "microk8s kubectl get pods --all-namespaces -o 'custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,CONTAINERS:.status.containerStatuses[*].ready'" | awk '$3 == "false" {print $1,$2}')
 
-          echo "Actual Logs"
-          while read -r POD NAMESPACE; do
-            echo "\n\n\nPod: $POD"
-            sg microk8s -c "microk8s kubectl logs -n $NAMESPACE $POD"
-          done <<< "$POD_LIST"
+          if [ -n "$POD_LIST" ]; then
+            echo "Actual Logs"
+            while read -r POD NAMESPACE; do
+              echo "\n\n\nPod: $POD"
+              sg microk8s -c "microk8s kubectl logs -n $NAMESPACE $POD"
+            done <<< "$POD_LIST"
+          fi
