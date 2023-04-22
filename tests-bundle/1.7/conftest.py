@@ -70,4 +70,5 @@ def take_screenshot(driver, node_name):
     time.sleep(1)
     Path("screenshots").mkdir(parents=True, exist_ok=True)
     file_name = f'screenshots/{node_name}_{datetime.today().strftime("%m-%d_%H:%M")}.png'
+    print(f"Taking screenshot: {file_name}")
     driver.save_screenshot(file_name)

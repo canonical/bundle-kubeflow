@@ -102,6 +102,13 @@ jobs:
         run: |
           sg microk8s -c "tox -e test_selenium_1.7"
 
+      - name: Upload selenium screenshots
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: selenium-screenshots
+          path: tests-bundle/1.7/screenshots/
+
       - name: Run connectivity check
         if: always()
         run: |
