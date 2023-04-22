@@ -16,6 +16,9 @@ jobs:
 
           echo "MY_ADDONS=hostpath-storage ingress dns:$dns_server rbac registry metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'" >> $GITHUB_OUTPUT
 
+      - run: |  # todo, remove once tested curl
+          echo curl https://quay.io/
+
       - name: Install tools
         run: |
           sudo apt-get update -yqq
@@ -93,8 +96,19 @@ jobs:
           sudo apt-get install dbus-user-session -yqq
           systemctl --user start dbus.service
 
-      - run: |
+      - name: Run bundle tests
+        run: |
           sg microk8s -c "tox -e test_bundle_1.7 -- --keep-models"
+
+      - name: Run selenium tests
+        if: success()
+        run: |
+          sg microk8s -c "tox -e test_selenium_1.7"
+
+      - name: Run connectivity check
+        if: always()
+        run: |
+          sg microk8s -c "curl http://10.64.140.43.nip.io"
 
       - name: Dump Juju/k8s logs on failure
         if: failure() || cancelled()
