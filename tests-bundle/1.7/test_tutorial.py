@@ -13,6 +13,17 @@ TESTS_DIR = Path(__file__).resolve().parent
 
 
 class TestGetStartedTutorial:
+    """Test that covers 'get started tutorial'.
+
+    Current test is based on the following tutorial:
+    https://charmed-kubeflow.io/docs/get-started-with-charmed-kubeflow
+
+    It will execute on the deployed kubeflow bundle and will create a notebook.
+    Once notebook is created, it will be executed with an example code.
+    For code see advanced_notebook.py.tmpl file.
+
+    Once notebook is executed, we will check that all 5 Epochs are completed.
+    """
     @pytest.mark.selenium
     def test_create_notebook(self, driver):
         # this test relies on the name ordering to be executed after deployment
