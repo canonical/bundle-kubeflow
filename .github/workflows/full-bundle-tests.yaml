@@ -17,7 +17,7 @@ jobs:
           echo "MY_ADDONS=hostpath-storage ingress dns:$dns_server rbac registry metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'" >> $GITHUB_OUTPUT
 
       - run: |  # todo, remove once tested curl
-          echo curl https://quay.io/
+          curl https://quay.io/
 
       - name: Install tools
         run: |
