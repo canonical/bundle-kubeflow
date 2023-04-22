@@ -17,7 +17,15 @@ class TestGetStartedTutorial:
     def test_create_notebook(self, driver):
         # this test relies on the name ordering to be executed after deployment
         driver.get("http://10.64.140.43.nip.io")
-        driver.find_element(by=By.ID, value="login").send_keys("admin")
+        login_field = WebDriverWait(driver, 200).until(
+            expected_conditions.presence_of_element_located(
+                (
+                    By.ID,
+                    "login",
+                )
+            )
+        )
+        login_field.send_keys("admin")
         driver.find_element(by=By.ID, value="password").send_keys("admin")
         driver.find_element(by=By.ID, value="submit-login").click()
         shadow_root = driver.find_element(by=By.XPATH, value="/html/body/main-page").shadow_root
@@ -38,7 +46,7 @@ class TestGetStartedTutorial:
         driver.switch_to.frame(iframe)
         print("switched to iframe")
 
-        new_notebook_button = WebDriverWait(driver, 600).until(
+        new_notebook_button = WebDriverWait(driver, 300).until(
             expected_conditions.presence_of_element_located(
                 (
                     By.XPATH,
@@ -50,7 +58,7 @@ class TestGetStartedTutorial:
             )
         )
         new_notebook_button.click()
-        notebook_name_input = WebDriverWait(driver, 600).until(
+        notebook_name_input = WebDriverWait(driver, 300).until(
             expected_conditions.presence_of_element_located(
                 (
                     By.XPATH,
@@ -104,7 +112,7 @@ class TestGetStartedTutorial:
             by=By.XPATH,
             value="app-index/app-index-default/div/div/lib-table/table/tbody/tr/td[10]/div/lib-action-button/button",
         )
-        WebDriverWait(driver, 300).until(
+        WebDriverWait(driver, 400).until(
             expected_conditions.element_to_be_clickable(connect_button)
         )
         connect_button.click()
@@ -114,7 +122,7 @@ class TestGetStartedTutorial:
         assert "http://10.64.140.43.nip.io/notebook/admin/test-notebook/lab" in driver.current_url
 
         time.sleep(2)
-        new_kernel = WebDriverWait(driver, 600).until(
+        new_kernel = WebDriverWait(driver, 60).until(
             expected_conditions.presence_of_element_located(
                 (
                     By.XPATH,
