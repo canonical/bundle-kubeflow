@@ -18,7 +18,9 @@ def driver(request):
     """Set up webdriver fixture."""
     options = Options()
     if not DEBUG:
+        print("Running in headless mode")
         options.add_argument('--headless')
+        options.add_argument('--disable-gpu')
     else:
         options.log.level = "trace"
 
