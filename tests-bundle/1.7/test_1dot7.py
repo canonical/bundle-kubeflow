@@ -41,7 +41,7 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         'kfp-viz',
         # 'knative-eventing', # this is expected to wait for config
         'knative-operator',
-        'knative-serving',
+        # 'knative-serving', # this is expected to wait for config
         'kserve-controller',
         'kubeflow-dashboard',
         'kubeflow-profiles',
