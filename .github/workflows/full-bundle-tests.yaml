@@ -107,7 +107,10 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: selenium-screenshots
-          path: tests-bundle/1.7/screenshots/
+          path: |
+            sel-screenshots
+            **/sel-screenshots
+            **/**/sel-screenshots
 
       - name: Run connectivity check
         if: always()
