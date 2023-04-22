@@ -100,4 +100,5 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         raise_on_blocked=False,
         raise_on_error=True,
         timeout=from_minutes(minutes=30),
+        idle_period=from_minutes(minutes=3),
     )
