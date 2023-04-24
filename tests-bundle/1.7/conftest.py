@@ -71,6 +71,6 @@ def failed_check(request):
 def take_screenshot(driver, node_name):
     time.sleep(1)
     Path("sel-screenshots").mkdir(parents=True, exist_ok=True)
-    file_name = f'sel-screenshots/{node_name}_{datetime.today().strftime("%m-%d_%H:%M")}.png'
+    file_name = f'sel-screenshots/{node_name}_{datetime.today().strftime("%m-%d_%H-%M")}.png'
     print(f"Taking screenshot: {file_name}")
     driver.save_screenshot(file_name)
