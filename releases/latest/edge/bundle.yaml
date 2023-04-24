@@ -4,6 +4,7 @@ applications:
   admission-webhook:
     charm: admission-webhook
     channel: latest/edge
+    trust: true
     scale: 1
     _github_repo_name: admission-webhook-operator
   argo-controller:
@@ -42,6 +43,7 @@ applications:
     charm: jupyter-controller
     channel: latest/edge
     scale: 1
+    trust: true
     _github_repo_name: notebook-operators
   jupyter-ui:
     charm: jupyter-ui
@@ -58,10 +60,12 @@ applications:
     charm: mysql-k8s
     channel: 8.0/stable
     scale: 1
+    trust: true
   katib-db-manager:
     charm: katib-db-manager
     channel: latest/edge
     scale: 1
+    trust: true
     _github_repo_name: katib-operators
   katib-ui:
     charm: katib-ui
@@ -73,11 +77,13 @@ applications:
     charm: kfp-api
     channel: latest/edge
     scale: 1
+    trust: true
     _github_repo_name: kfp-operators
   kfp-db:
     charm: mysql-k8s
     channel: 8.0/stable
     scale: 1
+    trust: true
   kfp-persistence:
     charm: kfp-persistence
     channel: latest/edge
@@ -138,7 +144,7 @@ applications:
     scale: 1
     trust: true
     options:
-      deployment-mode: serverless
+      deployment-mode: rawdeployment
     _github_repo_name: kserve-operators
   kubeflow-dashboard:
     charm: kubeflow-dashboard
