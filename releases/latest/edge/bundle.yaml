@@ -217,7 +217,7 @@ relations:
   - [istio-pilot:ingress, tensorboards-web-app:ingress]
   - [istio-pilot:gateway-info, tensorboard-controller:gateway-info]
   - [katib-db-manager:relational-db, kf-mysql-db:database]
-  - [kf-mysql-db:database, kfp-api:relational-db]
+  - [kfp-api:relational-db, kf-mysql-db:database]
   - [kfp-api:kfp-api, kfp-persistence:kfp-api]
   - [kfp-api:kfp-api, kfp-ui:kfp-api]
   - [kfp-api:kfp-viz, kfp-viz:kfp-viz]
