@@ -56,7 +56,7 @@ applications:
     _github_repo_name: katib-operators
   katib-db:
     charm: mysql-k8s
-    channel: latest/stable
+    channel: 8.0/stable
     scale: 1
   katib-db-manager:
     charm: katib-db-manager
@@ -76,7 +76,7 @@ applications:
     _github_repo_name: kfp-operators
   kfp-db:
     charm: mysql-k8s
-    channel: latest/stable
+    channel: 8.0/stable
     scale: 1
   kfp-persistence:
     charm: kfp-persistence
