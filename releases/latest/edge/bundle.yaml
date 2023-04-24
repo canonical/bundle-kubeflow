@@ -144,7 +144,7 @@ applications:
     scale: 1
     trust: true
     options:
-      deployment-mode: serverless
+      deployment-mode: rawdeployment
     _github_repo_name: kserve-operators
   kubeflow-dashboard:
     charm: kubeflow-dashboard
