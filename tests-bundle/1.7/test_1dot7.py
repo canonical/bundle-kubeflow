@@ -5,7 +5,7 @@ from helpers import get_ingress_url, from_minutes
 from pytest_operator.plugin import OpsTest
 
 USERNAME = "admin"
-PASSWORD = "secret"
+PASSWORD = "admin"
 
 
 @pytest.mark.abort_on_fail
