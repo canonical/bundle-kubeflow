@@ -61,6 +61,7 @@ applications:
     channel: 8.0/stable
     scale: 1
     trust: true
+    constraints: mem=2G
   katib-db-manager:
     charm: katib-db-manager
     channel: latest/edge
@@ -84,6 +85,7 @@ applications:
     channel: 8.0/stable
     scale: 1
     trust: true
+    constraints: mem=2G
   kfp-persistence:
     charm: kfp-persistence
     channel: latest/edge
