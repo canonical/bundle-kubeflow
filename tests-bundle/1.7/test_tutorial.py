@@ -24,6 +24,7 @@ class TestGetStartedTutorial:
 
     Once notebook is executed, we will check that all 5 Epochs are completed.
     """
+
     @pytest.mark.selenium
     def test_create_notebook(self, driver):
         # this test relies on the name ordering to be executed after deployment

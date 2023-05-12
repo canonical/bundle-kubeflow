@@ -102,3 +102,7 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         timeout=from_minutes(minutes=30),
         idle_period=from_minutes(minutes=3),
     )
+
+    await ops_test.model.applications["kubeflow-profiles"].units[0].run_action(
+        "create-profile", profilename="demo-namespace", username=USERNAME
+    )
