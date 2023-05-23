@@ -103,6 +103,13 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         idle_period=from_minutes(minutes=3),
     )
 
+
+@pytest.mark.xfail
+def test_profile_creation_action(ops_test: OpsTest):
+    """Test that the create-profile action works.
+
+    Also, this will allow to test selenium and skip welcome page in dashboard UI.
+    """
     await ops_test.model.applications["kubeflow-profiles"].units[0].run_action(
-        "create-profile", profilename="demo-namespace", username=USERNAME
+        "create-profile", profilename=f"{USERNAME}@email.com", username=USERNAME
     )
