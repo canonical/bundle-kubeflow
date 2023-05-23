@@ -44,7 +44,8 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         'knative-serving',
         'kserve-controller',
         'kubeflow-dashboard',
-        'kubeflow-profiles',
+        # due to https://github.com/canonical/kubeflow-profiles-operator/issues/117
+        # 'kubeflow-profiles',
         'kubeflow-roles',
         'kubeflow-volumes',
         'metacontroller-operator',
