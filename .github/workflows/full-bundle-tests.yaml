@@ -118,7 +118,7 @@ jobs:
       - name: Run connectivity check
         if: always()
         run: |
-          sg microk8s -c "curl http://10.64.140.43.nip.io"
+          sg microk8s -c "curl --max-time=10 --connect-timeout=10 http://10.64.140.43.nip.io"
 
       - name: Dump Juju/k8s logs on failure
         if: failure() || cancelled()
