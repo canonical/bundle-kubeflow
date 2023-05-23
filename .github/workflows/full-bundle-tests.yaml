@@ -2,6 +2,13 @@ name: Tests
 
 on:
   workflow_dispatch:
+    inputs:
+      bundle-test-path:
+        description: 'Test folder to run'
+        required: true
+      bundle-source:
+        description: 'Either `--channel <channel_name>` or `--file <bundle_file>.yaml`'
+        required: true
 
 jobs:
   test-bundle:
@@ -95,12 +102,8 @@ jobs:
 
       - name: Run bundle tests
         run: |
-          sg microk8s -c "tox -e test_bundle_1.7 -- --keep-models"
-
-      - name: Run selenium tests
-        if: success()
-        run: |
-          sg microk8s -c "tox -e test_selenium_1.7"
+          export BUNDLE_TEST_PATH=${{ github.event.inputs.bundle-test-path }}
+          sg microk8s -c "tox -e full_bundle_tests -- ${{ github.event.inputs.bundle-source }}"
 
       - name: Upload selenium screenshots
         if: failure()
