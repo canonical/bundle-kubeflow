@@ -23,8 +23,8 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         'argo-controller',
         'argo-server',
         'dex-auth',
-        'istio-ingressgateway',
-        'istio-pilot',
+        # 'istio-ingressgateway',  # this is expected to wait for OIDC
+        # 'istio-pilot',  # this is expected to wait for OIDC
         'jupyter-controller',
         'jupyter-ui',
         'katib-controller',
@@ -74,6 +74,8 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
 
     # append apps since they should be configured now
     apps.append("oidc-gatekeeper")
+    apps.append("istio-ingressgateway")
+    apps.append("istio-pilot")
     await ops_test.model.wait_for_idle(
         apps=apps,
         status="active",
