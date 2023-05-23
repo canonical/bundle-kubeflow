@@ -39,17 +39,17 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         'kfp-ui',
         'kfp-viewer',
         'kfp-viz',
-        # 'knative-eventing', # this is expected to wait for config
+        'knative-eventing',
         'knative-operator',
-        # 'knative-serving', # this is expected to wait for config
+        'knative-serving',
         'kserve-controller',
         'kubeflow-dashboard',
         'kubeflow-profiles',
-        # 'kubeflow-roles',  # this is expected to wait for config
+        'kubeflow-roles',
         'kubeflow-volumes',
         'metacontroller-operator',
         'minio',
-        'oidc-gatekeeper',
+        # 'oidc-gatekeeper',  # this is expected to wait for public-url config
         'seldon-controller-manager',
         # 'tensorboard-controller',  # this is expected to wait for config
         'tensorboards-web-app',
@@ -73,9 +73,7 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
     await ops_test.model.applications["oidc-gatekeeper"].set_config({"public-url": url})
 
     # append apps since they should be configured now
-    apps.append("knative-serving")
-    apps.append("knative-eventing")
-    apps.append("kubeflow-roles")
+    apps.append("oidc-gatekeeper")
     await ops_test.model.wait_for_idle(
         apps=apps,
         status="active",
