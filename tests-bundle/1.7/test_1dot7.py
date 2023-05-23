@@ -104,7 +104,7 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
     )
 
 
-@pytest.mark.xfail
+@pytest.mark.abort_on_fail
 def test_profile_creation_action(ops_test: OpsTest):
     """Test that the create-profile action works.
 
