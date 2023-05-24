@@ -23,7 +23,12 @@ class TestGetStartedTutorial:
     For code see advanced_notebook.py.tmpl file.
 
     Once notebook is executed, we will check that all 5 Epochs are completed.
+
+    Prerequisites for the test:
+        - Full bundle is deployed
+        - User namespace is created (in order to skip welcome page)
     """
+
     @pytest.mark.selenium
     def test_create_notebook(self, driver):
         # this test relies on the name ordering to be executed after deployment
