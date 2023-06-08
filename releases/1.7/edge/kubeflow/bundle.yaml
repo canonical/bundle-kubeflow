@@ -55,11 +55,11 @@ applications:
     scale: 1
     _github_repo_name: katib-operators
   katib-db:
-    charm: charmed-osm-mariadb-k8s
-    channel: latest/stable
+    charm: mysql-k8s
+    channel: 8.0/stable
     scale: 1
-    options:
-      database: katib
+    trust: true
+    constraints: mem=2G
   katib-db-manager:
     charm: katib-db-manager
     channel: 0.15/edge
@@ -219,7 +219,7 @@ relations:
   - [istio-pilot:istio-pilot, istio-ingressgateway:istio-pilot]
   - [istio-pilot:ingress, tensorboards-web-app:ingress]
   - [istio-pilot:gateway-info, tensorboard-controller:gateway-info]
-  - [katib-db-manager, katib-db]
+  - [katib-db-manager:relational-db, katib-db:database]
   - [kfp-api:relational-db, kfp-db:database]
   - [kfp-api:kfp-api, kfp-persistence:kfp-api]
   - [kfp-api:kfp-api, kfp-ui:kfp-api]
