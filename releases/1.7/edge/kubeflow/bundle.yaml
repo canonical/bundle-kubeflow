@@ -64,6 +64,7 @@ applications:
     charm: katib-db-manager
     channel: 0.15/edge
     scale: 1
+    trust: true
     _github_repo_name: katib-operators
   katib-ui:
     charm: katib-ui
