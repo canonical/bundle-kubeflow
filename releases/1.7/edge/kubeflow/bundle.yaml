@@ -75,6 +75,7 @@ applications:
     charm: kfp-api
     channel: 2.0/edge
     scale: 1
+    trust: true
     _github_repo_name: kfp-operators
   kfp-db:
     charm: charmed-osm-mariadb-k8s
