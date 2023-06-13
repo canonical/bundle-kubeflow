@@ -13,6 +13,7 @@ applications:
     channel: 3.3/edge
     scale: 1
     _github_repo_name: argo-operators
+    _path_in_github_repo: charms/argo-controller
   dex-auth:
     charm: dex-auth
     channel: 2.31/edge
@@ -24,32 +25,37 @@ applications:
     channel: 1.11/edge
     scale: 1
     trust: true
-    _github_repo_name: istio-operators
     options:
       kind: ingress
+    _github_repo_name: istio-operators
+    _path_in_github_repo: charms/istio-gateway
   istio-pilot:
     charm: istio-pilot
     channel: 1.11/edge
     scale: 1
     trust: true
-    _github_repo_name: istio-operators
     options:
       default-gateway: kubeflow-gateway
+    _github_repo_name: istio-operators
+    _path_in_github_repo: charms/istio-pilot
   jupyter-controller:
     charm: jupyter-controller
     channel: 1.6/edge
     scale: 1
     _github_repo_name: notebook-operators
+    _path_in_github_repo: charms/jupyter-controller
   jupyter-ui:
     charm: jupyter-ui
     channel: 1.6/edge
     scale: 1
     _github_repo_name: notebook-operators
+    _path_in_github_repo: charms/jupyter-ui
   kfp-api:
     charm: kfp-api
     channel: 2.0/edge
     scale: 1
     _github_repo_name: kfp-operators
+    _path_in_github_repo: charms/kfp-api
   kfp-db:
     charm: charmed-osm-mariadb-k8s
     channel: latest/stable
@@ -61,31 +67,37 @@ applications:
     channel: 2.0/edge
     scale: 1
     _github_repo_name: kfp-operators
+    _path_in_github_repo: charms/kfp-persistence
   kfp-profile-controller:
     charm: kfp-profile-controller
     channel: 2.0/edge
     scale: 1
     _github_repo_name: kfp-operators
+    _path_in_github_repo: charms/kfp-profile-controller
   kfp-schedwf:
     charm: kfp-schedwf
     channel: 2.0/edge
     scale: 1
     _github_repo_name: kfp-operators
+    _path_in_github_repo: charms/kfp-schedwf
   kfp-ui:
     charm: kfp-ui
     channel: 2.0/edge
     scale: 1
     _github_repo_name: kfp-operators
+    _path_in_github_repo: charms/kfp-ui
   kfp-viewer:
     charm: kfp-viewer
     channel: 2.0/edge
     scale: 1
     _github_repo_name: kfp-operators
+    _path_in_github_repo: charms/kfp-viewer
   kfp-viz:
     charm: kfp-viz
     channel: 2.0/edge
     scale: 1
     _github_repo_name: kfp-operators
+    _path_in_github_repo: charms/kfp-viz
   kubeflow-dashboard:
     charm: kubeflow-dashboard
     channel: 1.6/edge

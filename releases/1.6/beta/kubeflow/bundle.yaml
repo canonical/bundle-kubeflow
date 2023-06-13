@@ -11,11 +11,13 @@ applications:
     channel: 3.3/beta
     scale: 1
     _github_repo_name: argo-operators
+    _path_in_github_repo: charms/argo-controller
   argo-server:
     charm: argo-server
     channel: 3.3/beta
     scale: 1
     _github_repo_name: argo-operators
+    _path_in_github_repo: charms/argo-server
   dex-auth:
     charm: dex-auth
     channel: 2.31/beta
@@ -27,32 +29,37 @@ applications:
     channel: 1.11/beta
     scale: 1
     trust: true
-    _github_repo_name: istio-operators
     options:
       kind: ingress
+    _github_repo_name: istio-operators
+    _path_in_github_repo: charms/istio-gateway
   istio-pilot:
     charm: istio-pilot
     channel: 1.11/beta
     scale: 1
     trust: true
-    _github_repo_name: istio-operators
     options:
       default-gateway: kubeflow-gateway
+    _github_repo_name: istio-operators
+    _path_in_github_repo: charms/istio-pilot
   jupyter-controller:
     charm: jupyter-controller
     channel: 1.6/beta
     scale: 1
     _github_repo_name: notebook-operators
+    _path_in_github_repo: charms/jupyter-controller
   jupyter-ui:
     charm: jupyter-ui
     channel: 1.6/beta
     scale: 1
     _github_repo_name: notebook-operators
+    _path_in_github_repo: charms/jupyter-ui
   katib-controller:
     charm: katib-controller
     channel: 0.14/beta
     scale: 1
     _github_repo_name: katib-operators
+    _path_in_github_repo: charms/katib-controller
   katib-db:
     charm: charmed-osm-mariadb-k8s
     channel: latest/stable
@@ -64,16 +71,19 @@ applications:
     channel: 0.14/beta
     scale: 1
     _github_repo_name: katib-operators
+    _path_in_github_repo: charms/katib-db-manager
   katib-ui:
     charm: katib-ui
     channel: 0.14/beta
     scale: 1
     _github_repo_name: katib-operators
+    _path_in_github_repo: charms/katib-ui
   kfp-api:
     charm: kfp-api
     channel: 2.0/beta
     scale: 1
     _github_repo_name: kfp-operators
+    _path_in_github_repo: charms/kfp-api
   kfp-db:
     charm: charmed-osm-mariadb-k8s
     channel: latest/stable
@@ -85,31 +95,37 @@ applications:
     channel: 2.0/beta
     scale: 1
     _github_repo_name: kfp-operators
+    _path_in_github_repo: charms/kfp-persistence
   kfp-profile-controller:
     charm: kfp-profile-controller
     channel: 2.0/beta
     scale: 1
     _github_repo_name: kfp-operators
+    _path_in_github_repo: charms/kfp-profile-controller
   kfp-schedwf:
     charm: kfp-schedwf
     channel: 2.0/beta
     scale: 1
     _github_repo_name: kfp-operators
+    _path_in_github_repo: charms/kfp-schedwf
   kfp-ui:
     charm: kfp-ui
     channel: 2.0/beta
     scale: 1
     _github_repo_name: kfp-operators
+    _path_in_github_repo: charms/kfp-ui
   kfp-viewer:
     charm: kfp-viewer
     channel: 2.0/beta
     scale: 1
     _github_repo_name: kfp-operators
+    _path_in_github_repo: charms/kfp-viewer
   kfp-viz:
     charm: kfp-viz
     channel: 2.0/beta
     scale: 1
     _github_repo_name: kfp-operators
+    _path_in_github_repo: charms/kfp-viz
   kubeflow-dashboard:
     charm: kubeflow-dashboard
     channel: 1.6/beta
@@ -157,11 +173,13 @@ applications:
     channel: 1.6/beta
     scale: 1
     _github_repo_name: kubeflow-tensorboards-operator
+    _path_in_github_repo: charms/tensorboard-controller
   tensorboards-web-app:
     charm: tensorboards-web-app
     channel: 1.6/beta
     scale: 1
     _github_repo_name: kubeflow-tensorboards-operator
+    _path_in_github_repo: charms/tensorboards-web-app
   training-operator:
     charm: training-operator
     channel: 1.5/beta
