@@ -1,3 +1,4 @@
+
 # How to upgrade Charmed Kubeflow from 1.6 to 1.7
 
 Version 1.7 of Charmed Kubeflow was released in March 2023, aligning with the upstream Kubeflow project [release](https://github.com/kubeflow/manifests/releases/tag/v1.7.0).
@@ -138,7 +139,9 @@ Because of changes in the charm code, some charms in Charmed Kubeflow 1.6 have t
 ```python
 # enable trust on charms
 juju trust jupyter-ui --scope=cluster
+juju trust katib-db-manager --scope=cluster
 juju trust katib-ui --scope=cluster
+juju trust katib-db-manager --scope=cluster
 juju trust kubeflow-dashboard --scope=cluster
 juju trust kubeflow-profiles --scope=cluster
 juju trust seldon-controller-manager --scope=cluster
@@ -167,7 +170,7 @@ There is a difference how charms are handling Roles and ClusterRoles in 1.7 rele
 ```python
 # redeploy kubeflow-roles
 juju remove-application kubeflow-roles
-juju deploy kubeflow-roles --channel 1.7/stable
+juju deploy kubeflow-roles --channel 1.7/stable --trust
 ```
 
 ## Upgrade charms
@@ -227,6 +230,7 @@ juju deploy knative-operator --channel 1.8/stable --trust
 juju deploy knative-serving --config namespace="knative-serving" --config istio.gateway.namespace=kubeflow --config istio.gateway.name=kubeflow-gateway --channel 1.8/stable --trust
 juju deploy knative-eventing --config namespace="knative-eventing" --channel 1.8/stable --trust
 juju deploy kserve-controller --channel 0.10/stable --trust
+juju relate istio-pilot:gateway-info kserve-controller:ingress-gateway
 ```
 
 ## Verify upgrade
