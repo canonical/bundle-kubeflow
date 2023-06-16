@@ -143,7 +143,6 @@ Because of changes in the charm code, some charms in Charmed Kubeflow 1.6 have t
 juju trust jupyter-ui --scope=cluster
 juju trust katib-db-manager --scope=cluster
 juju trust katib-ui --scope=cluster
-juju trust katib-db-manager --scope=cluster
 juju trust kfp-api --scope=cluster
 juju trust kubeflow-dashboard --scope=cluster
 juju trust kubeflow-profiles --scope=cluster
