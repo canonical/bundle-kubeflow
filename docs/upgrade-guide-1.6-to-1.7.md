@@ -144,6 +144,7 @@ juju trust jupyter-ui --scope=cluster
 juju trust katib-db-manager --scope=cluster
 juju trust katib-ui --scope=cluster
 juju trust katib-db-manager --scope=cluster
+juju trust kfp-api --scope=cluster
 juju trust kubeflow-dashboard --scope=cluster
 juju trust kubeflow-profiles --scope=cluster
 juju trust seldon-controller-manager --scope=cluster
