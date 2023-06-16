@@ -75,7 +75,7 @@ If required, remove `istio-ingressgateway` application with `--force` option and
     kubectl -n kubeflow delete deploy istio-ingressgateway-workload
 ```
 
-3. Upgrade `istio-pilot` charm in sequence. Wait for each `refresh` command to finish and upgrade to intermediate version is complete, i.e. `istio-pilot` application is in `active` state and unit is in `active/idle` state:
+3. Upgrade `istio-pilot` charm in sequence. For intermediate versions, Wait for each `refresh` command to finish and upgrade is complete, i.e. `istio-pilot` is in `Waiting` status with the message `"Missing istio-ingressgateway-workload service, deferring this event"`.
 
 
 ```python
@@ -108,6 +108,8 @@ juju refresh istio-pilot --channel 1.15/stable
 # upgrade istio-pilot from 1.15 to 1.16
 juju refresh istio-pilot --channel 1.16/stable
 ```
+
+After refreshing to 1.16, `istio-pilot` should reach `active` status within a few minutes. Otherwise, check out the troubleshooting tips below.
 
 <!-- This should be placed in [detail] section on Discourse -->
 #### Troubleshooting of Istio upgrade
