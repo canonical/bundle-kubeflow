@@ -1,3 +1,4 @@
+
 # How to upgrade Charmed Kubeflow from 1.6 to 1.7
 
 Version 1.7 of Charmed Kubeflow was released in March 2023, aligning with the upstream Kubeflow project [release](https://github.com/kubeflow/manifests/releases/tag/v1.7.0).
@@ -74,7 +75,7 @@ If required, remove `istio-ingressgateway` application with `--force` option and
     kubectl -n kubeflow delete deploy istio-ingressgateway-workload
 ```
 
-3. Upgrade `istio-pilot` charm in sequence. Wait for each `refresh` command to finish and upgrade to intermediate version is complete, i.e. `istio-pilot` application is in `active` state and unit is in `active/idle` state:
+3. Upgrade `istio-pilot` charm in sequence. For intermediate versions, Wait for each `refresh` command to finish and upgrade is complete, i.e. `istio-pilot` is in `Waiting` status with the message `"Missing istio-ingressgateway-workload service, deferring this event"`.
 
 
 ```python
@@ -108,6 +109,8 @@ juju refresh istio-pilot --channel 1.15/stable
 juju refresh istio-pilot --channel 1.16/stable
 ```
 
+After refreshing to 1.16, `istio-pilot` should reach `active` status within a few minutes. Otherwise, check out the troubleshooting tips below.
+
 <!-- This should be placed in [detail] section on Discourse -->
 #### Troubleshooting of Istio upgrade
 
@@ -138,7 +141,9 @@ Because of changes in the charm code, some charms in Charmed Kubeflow 1.6 have t
 ```python
 # enable trust on charms
 juju trust jupyter-ui --scope=cluster
+juju trust katib-db-manager --scope=cluster
 juju trust katib-ui --scope=cluster
+juju trust kfp-api --scope=cluster
 juju trust kubeflow-dashboard --scope=cluster
 juju trust kubeflow-profiles --scope=cluster
 juju trust seldon-controller-manager --scope=cluster
@@ -167,7 +172,7 @@ There is a difference how charms are handling Roles and ClusterRoles in 1.7 rele
 ```python
 # redeploy kubeflow-roles
 juju remove-application kubeflow-roles
-juju deploy kubeflow-roles --channel 1.7/stable
+juju deploy kubeflow-roles --channel 1.7/stable --trust
 ```
 
 ## Upgrade charms
@@ -227,6 +232,7 @@ juju deploy knative-operator --channel 1.8/stable --trust
 juju deploy knative-serving --config namespace="knative-serving" --config istio.gateway.namespace=kubeflow --config istio.gateway.name=kubeflow-gateway --channel 1.8/stable --trust
 juju deploy knative-eventing --config namespace="knative-eventing" --channel 1.8/stable --trust
 juju deploy kserve-controller --channel 0.10/stable --trust
+juju relate istio-pilot:gateway-info kserve-controller:ingress-gateway
 ```
 
 ## Verify upgrade
