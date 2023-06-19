@@ -5,7 +5,7 @@ from helpers import get_ingress_url, from_minutes
 from pytest_operator.plugin import OpsTest
 
 USERNAME = "admin"
-PASSWORD = "secret"
+PASSWORD = "admin"
 
 
 @pytest.mark.abort_on_fail
@@ -23,8 +23,8 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         'argo-controller',
         'argo-server',
         'dex-auth',
-        'istio-ingressgateway',
-        'istio-pilot',
+        # 'istio-ingressgateway',  # this is expected to wait for OIDC
+        # 'istio-pilot',  # this is expected to wait for OIDC
         'jupyter-controller',
         'jupyter-ui',
         'katib-controller',
@@ -39,17 +39,18 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         'kfp-ui',
         'kfp-viewer',
         'kfp-viz',
-        # 'knative-eventing', # this is expected to wait for config
+        'knative-eventing',
         'knative-operator',
-        # 'knative-serving', # this is expected to wait for config
+        'knative-serving',
         'kserve-controller',
         'kubeflow-dashboard',
-        'kubeflow-profiles',
-        # 'kubeflow-roles',  # this is expected to wait for config
+        # due to https://github.com/canonical/kubeflow-profiles-operator/issues/117
+        # 'kubeflow-profiles',
+        'kubeflow-roles',
         'kubeflow-volumes',
         'metacontroller-operator',
         'minio',
-        'oidc-gatekeeper',
+        # 'oidc-gatekeeper',  # this is expected to wait for public-url config
         'seldon-controller-manager',
         # 'tensorboard-controller',  # this is expected to wait for config
         'tensorboards-web-app',
@@ -73,9 +74,9 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
     await ops_test.model.applications["oidc-gatekeeper"].set_config({"public-url": url})
 
     # append apps since they should be configured now
-    apps.append("knative-serving")
-    apps.append("knative-eventing")
-    apps.append("kubeflow-roles")
+    apps.append("oidc-gatekeeper")
+    apps.append("istio-ingressgateway")
+    apps.append("istio-pilot")
     await ops_test.model.wait_for_idle(
         apps=apps,
         status="active",
@@ -101,4 +102,16 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         raise_on_error=True,
         timeout=from_minutes(minutes=30),
         idle_period=from_minutes(minutes=3),
+    )
+
+
+@pytest.mark.deploy
+@pytest.mark.abort_on_fail
+async def test_profile_creation_action(ops_test: OpsTest):
+    """Test that the create-profile action works.
+
+    Also, this will allow to test selenium and skip welcome page in dashboard UI.
+    """
+    await ops_test.model.applications["kubeflow-profiles"].units[0].run_action(
+        "create-profile", profilename=f"{USERNAME}@email.com", username=USERNAME
     )

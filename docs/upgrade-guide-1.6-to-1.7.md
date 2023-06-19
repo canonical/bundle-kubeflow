@@ -1,4 +1,3 @@
-
 # How to upgrade Charmed Kubeflow from 1.6 to 1.7
 
 Version 1.7 of Charmed Kubeflow was released in March 2023, aligning with the upstream Kubeflow project [release](https://github.com/kubeflow/manifests/releases/tag/v1.7.0).
@@ -25,8 +24,6 @@ Access to dashboard of exising Charmed Kubeflow 1.6 deployment.
 
 
 ## Before Charmed Kubeflow upgrade
-
-**WARNING: To prevent data loss, all important data should be backed up according to the policies of your organisation.**
 
 Before upgrading Charmed Kubeflow it is recommended to do the following:
 
