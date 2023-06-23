@@ -3,3 +3,6 @@ __pycache__/
 *.charm
 build/
 .idea
+sel-screenshots/*
+geckodriver.log
+.vscode/*
