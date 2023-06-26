@@ -57,7 +57,7 @@ def pytest_runtest_makereport(item, call):
     setattr(item, "rep_" + rep.when, rep)
 
 
-@pytest.fixture(scope="function", autouse=True)
+@pytest.fixture(scope="function")
 def failed_check(request):
     """Check if a test has failed and take a screenshot if it has."""
     yield
