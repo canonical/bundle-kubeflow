@@ -10,21 +10,21 @@ The test order is enforced to ensure that the deployment test runs and succeeds 
 
 ## How to Run the Tests as a GitHub Action
 
+These steps assume that you are familiar with GitHub Actions and have the necessary permissions to trigger and run actions in the repository.
+
 To run the tests as a GitHub Action, follow these steps:
 
 1. Trigger the full bundle tests [GitHub action](/.github/workflows/full-bundle-tests.yaml) by selecting `View Runs -> Run workflow`.
 2. Provide the following inputs:
 
-   - **Folder**: Path from the content root to the directory for the version of Kubeflow you want to test. 
+   - **Folder**: Path from the content root to the directory for the version of Kubeflow you want to test. Example: `tests-bundle/1.7`.
 
-   - **TOX Posargs**: The deployment source for `juju deploy`. This will either be a published channel e.g. `--channel=1.7/stable` or the path from the content root of an unpublished `bundle.yaml` file within the repo.
+   - **Deployment Source**: The deployment source for `juju deploy`. This will either be a published channel e.g. `--channel=1.7/stable` or the path from the content root of an unpublished `bundle.yaml` file within the repo.
 
-3. The GitHub action will start executing and perform the following steps:
+3. The GitHub action will start executing on Canonical's self-hosted runners and perform the following steps:
 
    - Set up the prerequisite installation and configuration for Kubeflow, including microk8s and Juju.
    - Run the bundle tests, which are Python tests, to deploy Kubeflow and perform further tests on the deployed Kubeflow.
    - Perform post-processing of the test results and gather information in case of failures.
 
 Please refer to the GitHub Action YAML file in the parent repository for more detailed information on the action setup and configuration.
-
-Note: This README assumes that you are familiar with GitHub Actions and have the necessary permissions to trigger and run actions in the repository.
