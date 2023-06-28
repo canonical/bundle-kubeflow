@@ -14,7 +14,7 @@ These steps assume that you are familiar with GitHub Actions and have the necess
 
 To run the tests as a GitHub Action, follow these steps:
 
-1. Trigger the full bundle tests [GitHub action]({{ repository_url }}/actions/workflows/full-bundle-tests.yaml) by selecting `Run workflow`.
+1. Trigger the full bundle tests [GitHub action](/../../actions/workflows/full-bundle-tests.yaml) by selecting `Run workflow`.
 2. Provide the following inputs:
 
    - **Folder**: Path from the content root to the directory for the version of Kubeflow you want to test. Example: `tests-bundle/1.7`.
