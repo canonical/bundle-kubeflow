@@ -56,7 +56,7 @@ applications:
     _github_repo_name: katib-operators
   katib-db:
     charm: mysql-k8s
-    channel: 8.0/stable
+    channel: 8.0/edge
     scale: 1
     trust: true
     constraints: mem=2G
@@ -80,7 +80,7 @@ applications:
     _github_repo_name: kfp-operators
   kfp-db:
     charm: mysql-k8s
-    channel: 8.0/stable
+    channel: 8.0/edge
     scale: 1
     trust: true
     constraints: mem=2G
