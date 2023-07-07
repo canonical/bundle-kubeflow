@@ -1,0 +1,20 @@
+apiVersion: kubeflow.org/v1
+kind: Notebook
+metadata:
+  labels:
+    app: {{ notebook }}
+    access-minio: "true"
+    access-ml-pipeline: "true"
+    mlflow-server-minio: "true"
+  name: {{ notebook }}
+spec:
+  template:
+    spec:
+      containers:
+      - name: {{ notebook }}
+        image: kubeflownotebookswg/jupyter-scipy:v1.7.0
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
