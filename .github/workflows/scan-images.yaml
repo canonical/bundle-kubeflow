@@ -36,8 +36,8 @@ jobs:
           ./kubeflow-ci/scripts/images/scan-images.sh ./image_list.txt
           echo "Testing" > scan-summary.txt
       - name: Setup tmate session
-        if: ${{ failure() }}
         uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 15
       # - name: Prepare artifacts
       #   run: |
       #     tar zcvf trivy-reports-${{ strategy.job-index }}.tar.gz ./trivy-reports
