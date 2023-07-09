@@ -30,8 +30,10 @@ jobs:
           git pull -q origin kf-3783-feat-scan-images
           cd -
           IMAGES=$(./kubeflow-ci/scripts/images/get-images.sh ${{ inputs.bundle-file }})
-          echo "$IMAGES" > image_list.txt
-          ./kubeflow-ci/scripts/images/scan-images.sh image_list.txt
+          echo "$IMAGES" > ./image_list.txt
+          echo "Image list:"
+          cat ./image_list.txt
+          ./kubeflow-ci/scripts/images/scan-images.sh ./image_list.txt
           echo "Testing" > scan-summary.txt
       # - name: Prepare artifacts
       #   run: |
