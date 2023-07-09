@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
       - name: Scan
         run: |
-          snap install yq jq
+          sudo snap install yq jq
           # get script that sends scan results from Kubeflow CI repo
           CI_REPO="https://github.com/canonical/kubeflow-ci.git"
           mkdir -p kubeflow-ci
