@@ -20,7 +20,6 @@ jobs:
       - name: Scan
         run: |
           sudo snap install yq jq
-          # get script that sends scan results from Kubeflow CI repo
           CI_REPO="https://github.com/canonical/kubeflow-ci.git"
           mkdir -p kubeflow-ci
           cd kubeflow-ci
@@ -36,6 +35,9 @@ jobs:
           cat ./image_list.txt
           ./kubeflow-ci/scripts/images/scan-images.sh ./image_list.txt
           echo "Testing" > scan-summary.txt
+      - name: Setup tmate session
+        if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3
       # - name: Prepare artifacts
       #   run: |
       #     tar zcvf trivy-reports-${{ strategy.job-index }}.tar.gz ./trivy-reports
