@@ -1,0 +1,49 @@
+name: Scan images
+on:
+  workflow_dispatch:
+    inputs:
+      bundle-file:
+        description: Location of bundle file for the release
+        default: ''
+        required: true
+        type: string
+
+jobs:
+  scan:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Scan
+        run: |
+          sudo snap install yq
+          CI_REPO="https://github.com/canonical/kubeflow-ci.git"
+          mkdir -p kubeflow-ci
+          cd kubeflow-ci
+          git init -q
+          git remote add -f origin "$CI_REPO" &> /dev/null
+          git sparse-checkout set scripts/images/
+          # using test branch
+          git pull -q origin main
+          cd -
+          IMAGES=$(./kubeflow-ci/scripts/images/get-images.sh ${{ inputs.bundle-file }})
+          echo "$IMAGES" > ./image_list.txt
+          echo "Image list:"
+          cat ./image_list.txt
+          ./kubeflow-ci/scripts/images/scan-images.sh ./image_list.txt
+      - name: Prepare artifacts
+        run: |
+          tar zcvf trivy-reports-${{ strategy.job-index }}.tar.gz ./trivy-reports
+      - name: Upload Trivy reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: trivy-reports
+          path: trivy-reports-${{ strategy.job-index }}.tar.gz
+      - name: Upload summary
+        uses: actions/upload-artifact@v3
+        with:
+          name: summary
+          path: scan-summary.csv
