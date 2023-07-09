@@ -37,7 +37,7 @@ jobs:
           echo "Testing" > scan-summary.txt
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 15
+        timeout-minutes: 60
       # - name: Prepare artifacts
       #   run: |
       #     tar zcvf trivy-reports-${{ strategy.job-index }}.tar.gz ./trivy-reports
