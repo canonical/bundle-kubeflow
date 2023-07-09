@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
       - name: Scan
         run: |
-          sudo snap install yq jq
+          sudo snap install yq
           CI_REPO="https://github.com/canonical/kubeflow-ci.git"
           mkdir -p kubeflow-ci
           cd kubeflow-ci
@@ -34,18 +34,14 @@ jobs:
           echo "Image list:"
           cat ./image_list.txt
           ./kubeflow-ci/scripts/images/scan-images.sh ./image_list.txt
-          echo "Testing" > scan-summary.txt
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        timeout-minutes: 60
-      # - name: Prepare artifacts
-      #   run: |
-      #     tar zcvf trivy-reports-${{ strategy.job-index }}.tar.gz ./trivy-reports
-      # - name: Upload Trivy reports
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: trivy-reports
-      #     path: trivy-reports-${{ strategy.job-index }}.tar.gz
+      - name: Prepare artifacts
+        run: |
+          tar zcvf trivy-reports-${{ strategy.job-index }}.tar.gz ./trivy-reports
+      - name: Upload Trivy reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: trivy-reports
+          path: trivy-reports-${{ strategy.job-index }}.tar.gz
       - name: Upload summary
         uses: actions/upload-artifact@v3
         with:
