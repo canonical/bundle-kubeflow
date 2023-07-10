@@ -63,7 +63,7 @@ def assert_replicas(
     assert replicas == target_replicas, f"Waited too long for {resource}!"
 
 
-def is_microk8s_cluster():
+def kubectl_available():
     """Check if the current cluster is a MicroK8s cluster."""
     return shutil.which("kubectl") is None
 
@@ -76,7 +76,7 @@ def copy_to_pod(pod_name, namespace, src_path, dst_path=None):
         src_path,
         f"{namespace}/{pod_name}:{dst_path or os.path.basename(src_path)}",
     ]
-    if is_microk8s_cluster():
+    if not kubectl_available():
         command.insert(0, "microk8s")
     # execute the kubectl command and raise a CalledProcessError on failure
     subprocess.run(command, check=True)
@@ -85,10 +85,7 @@ def copy_to_pod(pod_name, namespace, src_path, dst_path=None):
 def run_in_pod(pod_name, namespace, command):
     """Run a command in a Pod."""
     command = ["kubectl", "exec", "-n", namespace, pod_name, "--", "bash", "-c", *command]
-    if is_microk8s_cluster():
+    if not kubectl_available():
         command.insert(0, "microk8s")
     # execute the kubectl command and capture the output
     return subprocess.run(command, capture_output=True, text=True)
-    # print the captured output
-    # print(result.stdout.decode())
-    # print(result.stderr.decode())

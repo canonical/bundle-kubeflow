@@ -1,4 +1,5 @@
 import logging
+import os
 from pathlib import Path
 
 import pytest
@@ -14,10 +15,10 @@ from utils import assert_namespace_active, assert_replicas, copy_to_pod, run_in_
 
 log = logging.getLogger(__name__)
 
-ASSETS_DIR = Path("assets")
+ASSETS_DIR = Path("../assets")
 NOTEBOOK_TEMPLATE_FILE = ASSETS_DIR / "test-notebook.yaml.j2"
 PROFILE_TEMPLATE_FILE = ASSETS_DIR / "test-profile.yaml.j2"
-TESTS_DIR = Path("integrations")
+TESTS_DIR = os.path.abspath(Path("../integrations"))
 
 NAMESPACE = "kf-test"
 PROFILE_RESOURCE = create_global_resource(
@@ -142,5 +143,5 @@ async def test_copy_dir(notebook_pod):
 @pytest.mark.abort_on_fail
 async def test_run_bundle_tests(notebook_pod):
     """Run tests inside Notebook server."""
-    cmd = ["cd", TESTS_DIR, "&&", "tox"]
+    cmd = ["cd", os.path.basename(TESTS_DIR), "&&", "tox"]
     run_in_pod(notebook_pod, NAMESPACE, cmd)
