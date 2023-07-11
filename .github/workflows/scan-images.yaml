@@ -22,7 +22,7 @@ jobs:
         id: setup
         run: |
           sudo snap install yq
-          echo "::set-output name=date::$(date '+%Y-%m-%d-%H:%M:%S')"
+          echo "::set-output name=date::$(date '+%Y-%m-%d-%H-%M-%S')"
       - name: Checkout kubeflow-ci
         uses: actions/checkout@v3
         with:
