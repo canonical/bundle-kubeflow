@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       bundle-file:
-        description: Location of bundle file
+        description: Location of bundle file for the release
         default: ''
         required: true
         type: string
@@ -29,7 +29,7 @@ jobs:
           # using test branch
           git pull -q origin kf-3783-feat-scan-images
           cd -
-          IMAGES=$(./kubeflow-ci/scripts/images/get-images.sh ${{ inputs.bundle-file }})
+          IMAGES=$(./kubeflow-ci/scripts/images/get-all-images.sh ${{ inputs.bundle-file }})
           echo "$IMAGES" > ./image_list.txt
           echo "Image list:"
           cat ./image_list.txt
