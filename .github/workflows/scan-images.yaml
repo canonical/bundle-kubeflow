@@ -31,7 +31,7 @@ jobs:
           path: kubeflow-ci
       - name: Get images
         run: |
-          IMAGES=$(./kubeflow-ci/scripts/images/get-images.sh releases/${{ matrix.release }}/${{ matrix.risk }}/kubeflow/bundle.yaml
+          IMAGES=$(./kubeflow-ci/scripts/images/get-images.sh releases/${{ matrix.release }}/${{ matrix.risk }}/kubeflow/bundle.yaml)
           echo "$IMAGES" > ./image_list.txt
           echo "Image list:"
           cat ./image_list.txt
