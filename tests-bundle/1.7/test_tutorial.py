@@ -11,6 +11,7 @@ from selenium.webdriver.common.keys import Keys
 
 TESTS_DIR = Path(__file__).resolve().parent
 
+
 @pytest.mark.usefixtures("failed_check")
 class TestGetStartedTutorial:
     """Test that covers 'get started tutorial'.
