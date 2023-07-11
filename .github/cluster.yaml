@@ -1,0 +1,40 @@
+apiVersion: eksctl.io/v1alpha5
+availabilityZones:
+- eu-central-1a
+- eu-central-1b
+cloudWatch:
+  clusterLogging: {}
+iam:
+  vpcResourceControllerPolicy: true
+  withOIDC: false
+addons:
+- name: aws-ebs-csi-driver
+  serviceAccountRoleARN: "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+  wellKnownPolicies:
+   ebsCSIController: true
+kind: ClusterConfig
+kubernetesNetworkConfig:
+  ipFamily: IPv4
+managedNodeGroups:
+- amiFamily: Ubuntu2004
+  iam:
+    withAddonPolicies:
+      ebs: true
+  instanceType: t2.2xlarge
+  labels:
+    alpha.eksctl.io/cluster-name: scrumptious-wardrobe-1684842095
+    alpha.eksctl.io/nodegroup-name: ng-d06bd84e
+  maxSize: 2
+  minSize: 2
+  name: ng-d06bd84e
+  releaseVersion: ""
+  ssh:
+    allow: false
+  tags:
+    alpha.eksctl.io/nodegroup-name: ng-d06bd84e
+    alpha.eksctl.io/nodegroup-type: managed
+  volumeSize: 100
+metadata:
+  name: kubeflow-test
+  region: eu-central-1
+  version: "1.24"
