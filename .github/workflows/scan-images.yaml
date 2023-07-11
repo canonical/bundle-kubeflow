@@ -1,49 +1,55 @@
 name: Scan images
 on:
+  schedule:
+  # every day at 1:12AM UTC
+  - cron: '12 1 * * *'
   workflow_dispatch:
-    inputs:
-      bundle-file:
-        description: Location of bundle file for the release
-        default: ''
-        required: true
-        type: string
 
 jobs:
-  scan:
+  scan-images:
+    name: Scan images in bundle
+    strategy:
+      matrix:
+        release: [ 1.7, 1.6 ]
+        risk: [ stable ]
     runs-on: ubuntu-20.04
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Scan
+      - name: Setup tools
+        id: setup
         run: |
           sudo snap install yq
-          CI_REPO="https://github.com/canonical/kubeflow-ci.git"
-          mkdir -p kubeflow-ci
-          cd kubeflow-ci
-          git init -q
-          git remote add -f origin "$CI_REPO" &> /dev/null
-          git sparse-checkout set scripts/images/
-          # using test branch
-          git pull -q origin main
-          cd -
-          IMAGES=$(./kubeflow-ci/scripts/images/get-images.sh ${{ inputs.bundle-file }})
+          echo "date=$(date '+%Y-%m-%d-%H-%M-%S')" >> $GITHUB_OUTPUT
+      - name: Checkout kubeflow-ci
+        uses: actions/checkout@v3
+        with:
+          repository: canonical/kubeflow-ci.git
+          sparse-checkout: scripts/images/
+          ref: main
+          path: kubeflow-ci
+      - name: Get images
+        run: |
+          IMAGES=$(./kubeflow-ci/scripts/images/get-images.sh releases/${{ matrix.release }}/${{ matrix.risk }}/kubeflow/bundle.yaml)
           echo "$IMAGES" > ./image_list.txt
           echo "Image list:"
           cat ./image_list.txt
+      - name: Scan images
+        run: |
           ./kubeflow-ci/scripts/images/scan-images.sh ./image_list.txt
+          cp scan-summary.csv scan-summary-${{ steps.setup.outputs.date}}-${{ matrix.release }}-${{ matrix.risk }}.csv
       - name: Prepare artifacts
         run: |
-          tar zcvf trivy-reports-${{ strategy.job-index }}.tar.gz ./trivy-reports
+          tar zcvf trivy-reports-${{ steps.setup.outputs.date}}-${{ matrix.release }}-${{ matrix.risk }}-${{ strategy.job-index }}.tar.gz ./trivy-reports
       - name: Upload Trivy reports
         uses: actions/upload-artifact@v3
         with:
           name: trivy-reports
-          path: trivy-reports-${{ strategy.job-index }}.tar.gz
+          path: trivy-reports-${{ steps.setup.outputs.date}}-${{ matrix.release }}-${{ matrix.risk }}-${{ strategy.job-index }}.tar.gz
       - name: Upload summary
         uses: actions/upload-artifact@v3
         with:
           name: summary
-          path: scan-summary.csv
+          path: scan-summary-${{ steps.setup.outputs.date}}-${{ matrix.release }}-${{ matrix.risk }}.csv
