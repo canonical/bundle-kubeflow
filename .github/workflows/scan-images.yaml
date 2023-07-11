@@ -26,8 +26,7 @@ jobs:
         with:
           repository: https://github.com/canonical/kubeflow-ci.git
           sparse-checkout: scripts/images/
-        run: |
-          git pull -q origin main
+          ref: main
       - name: Get images
         run: |
           DATE=$(date '+%Y-%m-%d-%H:%M:%S')
