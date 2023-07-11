@@ -6,12 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  bundles:
-    strategy:
-      matrix:
-        release: [ 1.7 ]
-        risk: [ stable ]
-  scan:
+  scan-images:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
