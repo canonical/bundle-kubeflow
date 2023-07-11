@@ -25,15 +25,18 @@ jobs:
       - name: Checkout kubeflow-ci
         uses: actions/checkout@v3
         with:
-          repository: https://github.com/canonical/kubeflow-ci.git
+          repository: canonical/kubeflow-ci.git
           sparse-checkout: scripts/images/
           ref: main
-      - name: Scan images
+          path: kubeflow-ci
+      - name: Get images
         run: |
           IMAGES=$(./kubeflow-ci/scripts/images/get-images.sh releases/${{ matrix.release }}/${{ matrix.risk }}/kubeflow/bundle.yaml
           echo "$IMAGES" > ./image_list.txt
           echo "Image list:"
           cat ./image_list.txt
+      - name: Scan images
+        run: |
           ./kubeflow-ci/scripts/images/scan-images.sh ./image_list.txt
           cp scan-summary.csv scan-summary-$DATE.csv
       - name: Prepare artifacts
