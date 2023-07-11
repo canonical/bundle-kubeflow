@@ -39,7 +39,7 @@ jobs:
       - name: Scan images
         run: |
           ./kubeflow-ci/scripts/images/scan-images.sh ./image_list.txt
-          cp scan-summary.csv scan-summary-${{ steps.setup.outputs.date}}.csv
+          cp scan-summary.csv scan-summary-${{ steps.setup.outputs.date}}-${{ matrix.release }}-${{ matrix.risk }}.csv
       - name: Prepare artifacts
         run: |
           tar zcvf trivy-reports-${{ steps.setup.outputs.date}}-${{ matrix.release }}-${{ matrix.risk }}-${{ strategy.job-index }}.tar.gz ./trivy-reports
