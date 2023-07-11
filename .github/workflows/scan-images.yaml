@@ -29,13 +29,12 @@ jobs:
           sparse-checkout: scripts/images/
           ref: main
       - name: Scan images
-        bundles:
-          strategy:
-            matrix:
-              release: [ 1.7, 1.6 ]
-              risk: [ stable ]
+        strategy:
+          matrix:
+            release: [ 1.7, 1.6 ]
+            risk: [ stable ]
         run: |
-          IMAGES=$(./kubeflow-ci/scripts/images/get-images.sh releases/${{ bundles.release }}/${{ bundles.risk }}/kubeflow/bundle.yaml
+          IMAGES=$(./kubeflow-ci/scripts/images/get-images.sh releases/${{ matrix.release }}/${{ matrix.risk }}/kubeflow/bundle.yaml
           echo "$IMAGES" > ./image_list.txt
           echo "Image list:"
           cat ./image_list.txt
@@ -43,14 +42,14 @@ jobs:
           cp scan-summary.csv scan-summary-$DATE.csv
       - name: Prepare artifacts
         run: |
-          tar zcvf trivy-reports-$DATE-${{ bundles.release }}-${{ bundles.risk }}-${{ strategy.job-index }}.tar.gz ./trivy-reports
+          tar zcvf trivy-reports-$DATE-${{ matrix.release }}-${{ matrix.risk }}-${{ strategy.job-index }}.tar.gz ./trivy-reports
       - name: Upload Trivy reports
         uses: actions/upload-artifact@v3
         with:
           name: trivy-reports
-          path: trivy-reports-$DATE-${{ bundles.release }}-${{ bundles.risk }}-${{ strategy.job-index }}.tar.gz
+          path: trivy-reports-$DATE-${{ matrix.release }}-${{ matrix.risk }}-${{ strategy.job-index }}.tar.gz
       - name: Upload summary
         uses: actions/upload-artifact@v3
         with:
           name: summary
-          path: scan-summary-$DATE-${{ bundles.release }}-${{ bundles.risk }}.csv
+          path: scan-summary-$DATE-${{ matrix.release }}-${{ matrix.risk }}.csv
