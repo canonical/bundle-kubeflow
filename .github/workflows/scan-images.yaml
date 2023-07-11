@@ -21,21 +21,24 @@ jobs:
       - name: Setup tools
         run: |
           sudo snap install yq
+          DATE=$(date '+%Y-%m-%d-%H:%M:%S')
       - name: Checkout kubeflow-ci
         uses: actions/checkout@v3
         with:
           repository: https://github.com/canonical/kubeflow-ci.git
           sparse-checkout: scripts/images/
           ref: main
-      - name: Get images
+      - name: Scan images
+        bundles:
+          strategy:
+            matrix:
+              release: [ 1.7, 1.6 ]
+              risk: [ stable ]
         run: |
-          DATE=$(date '+%Y-%m-%d-%H:%M:%S')
           IMAGES=$(./kubeflow-ci/scripts/images/get-images.sh releases/${{ bundles.release }}/${{ bundles.risk }}/kubeflow/bundle.yaml
           echo "$IMAGES" > ./image_list.txt
           echo "Image list:"
           cat ./image_list.txt
-      - name: Scan images
-        run: |
           ./kubeflow-ci/scripts/images/scan-images.sh ./image_list.txt
           cp scan-summary.csv scan-summary-$DATE.csv
       - name: Prepare artifacts
