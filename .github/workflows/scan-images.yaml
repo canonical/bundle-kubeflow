@@ -7,6 +7,11 @@ on:
 
 jobs:
   scan-images:
+    name: Scan images in bundle
+    strategy:
+      matrix:
+        release: [ 1.7, 1.6 ]
+        risk: [ stable ]
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -24,10 +29,6 @@ jobs:
           sparse-checkout: scripts/images/
           ref: main
       - name: Scan images
-        strategy:
-          matrix:
-            release: [ 1.7, 1.6 ]
-            risk: [ stable ]
         run: |
           IMAGES=$(./kubeflow-ci/scripts/images/get-images.sh releases/${{ matrix.release }}/${{ matrix.risk }}/kubeflow/bundle.yaml
           echo "$IMAGES" > ./image_list.txt
