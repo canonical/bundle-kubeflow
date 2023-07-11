@@ -19,9 +19,10 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup tools
+        id: setup
         run: |
           sudo snap install yq
-          DATE=$(date '+%Y-%m-%d-%H:%M:%S')
+          echo "::set-output name=date::$(date '+%Y-%m-%d-%H:%M:%S')
       - name: Checkout kubeflow-ci
         uses: actions/checkout@v3
         with:
@@ -38,17 +39,17 @@ jobs:
       - name: Scan images
         run: |
           ./kubeflow-ci/scripts/images/scan-images.sh ./image_list.txt
-          cp scan-summary.csv scan-summary-$DATE.csv
+          cp scan-summary.csv scan-summary-${{ steps.setup.outputs.date}}.csv
       - name: Prepare artifacts
         run: |
-          tar zcvf trivy-reports-$DATE-${{ matrix.release }}-${{ matrix.risk }}-${{ strategy.job-index }}.tar.gz ./trivy-reports
+          tar zcvf trivy-reports-${{ steps.setup.outputs.date}}-${{ matrix.release }}-${{ matrix.risk }}-${{ strategy.job-index }}.tar.gz ./trivy-reports
       - name: Upload Trivy reports
         uses: actions/upload-artifact@v3
         with:
           name: trivy-reports
-          path: trivy-reports-$DATE-${{ matrix.release }}-${{ matrix.risk }}-${{ strategy.job-index }}.tar.gz
+          path: trivy-reports-${{ steps.setup.outputs.date}}-${{ matrix.release }}-${{ matrix.risk }}-${{ strategy.job-index }}.tar.gz
       - name: Upload summary
         uses: actions/upload-artifact@v3
         with:
           name: summary
-          path: scan-summary-$DATE-${{ matrix.release }}-${{ matrix.risk }}.csv
+          path: scan-summary-${{ steps.setup.outputs.date}}-${{ matrix.release }}-${{ matrix.risk }}.csv
