@@ -2,16 +2,23 @@ import subprocess
 import json
 
 import aiohttp
+import lightkube
 import pytest
 import requests
 from pytest_operator.plugin import OpsTest
+from lightkube.resources.core_v1 import Service
 
 BUNDLE_PATH = "./releases/1.7/edge/kubeflow/bundle.yaml"
+BUNDLE_NAME = "kubeflow"
 
+@pytest.fixture()
+def lightkube_client() -> lightkube.Client:
+    client = lightkube.Client(field_manager=BUNDLE_NAME)
+    return client
 
 class TestCharm:
     @pytest.mark.abort_on_fail
-    async def test_bundle_deployment_works(self, ops_test: OpsTest):
+    async def test_bundle_deployment_works(self, ops_test: OpsTest, lightkube_client):
         subprocess.Popen(["juju", "deploy", f"{BUNDLE_PATH}", "--trust"])
 
         await ops_test.model.wait_for_idle(
@@ -30,13 +37,12 @@ class TestCharm:
             timeout=1500,
         )
 
-        url = get_public_url()
+        url = get_public_url(lightkube_client, BUNDLE_NAME)
         subprocess.Popen(["juju", "config", "dex-auth", f"public-url={url}"])
         subprocess.Popen(["juju", "config", "oidc-gatekeeper", f"public-url={url}"])
 
-        applications = ops_test.model.applications
         await ops_test.model.wait_for_idle(
-            apps=list(applications.keys()),
+            status="active",
             raise_on_blocked=False,
             raise_on_error=False,
             timeout=1500,
@@ -48,29 +54,15 @@ class TestCharm:
         assert "Email Address" in result_text
         assert "Password" in result_text
 
-
-def get_public_url():
+def get_public_url(lightkube_client: lightkube.Client, bundle_name: str):
     """Extracts public url from service istio-ingressgateway-workload for EKS deployment.
     As a next step, this could be generalized in order for the above test to run in MicroK8s as well.
     """
-    p = subprocess.Popen(
-        [
-            "kubectl",
-            "-n",
-            "kubeflow",
-            "get",
-            "svc",
-            "istio-ingressgateway-workload",
-            "-o",
-            "jsonpath={.status.loadBalancer.ingress[0].hostname}",
-        ],
-        stdout=subprocess.PIPE,
-        text=True,
+    ingressgateway_svc = lightkube_client.get(
+        Service, "istio-ingressgateway-workload", namespace=bundle_name
     )
-    url, err = p.communicate()
-    url = "http://" + url
-    return url
-
+    public_url = f"http://{ingressgateway_svc.status.loadBalancer.ingress[0].hostname}"
+    return public_url
 
 async def fetch_response(url, headers=None):
     """Fetch provided URL and return pair - status and text (int, string)."""
