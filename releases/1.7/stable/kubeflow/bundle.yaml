@@ -69,8 +69,8 @@ applications:
     scale: 1
     trust: true
     constraints: mem=2G
-    _github_repo_name: mysql-k8s-operator
-    _github_repo_branch: main
+    _github_dependency_repo_name: mysql-k8s-operator
+    _github_dependency_repo_branch: main
   katib-db-manager:
     charm: katib-db-manager
     channel: 0.15/stable
@@ -98,8 +98,8 @@ applications:
     scale: 1
     trust: true
     constraints: mem=2G
-    _github_repo_name: mysql-k8s-operator
-    _github_repo_branch: main
+    _github_dependency_repo_name: mysql-k8s-operator
+    _github_dependency_repo_branch: main
   kfp-persistence:
     charm: kfp-persistence
     channel: 2.0/stable
