@@ -74,6 +74,7 @@ jobs:
         if: always()
         run: |
           pip install boto3
+          pip install tenacity
           python scripts/delete_volumes.py
 
       # On failure, capture debugging resources
