@@ -75,7 +75,7 @@ jobs:
         run: |
           pip install boto3
           pip install tenacity
-          python scripts/delete_volumes.py
+          python scripts/delete_volumes.py eu-central-1
 
       # On failure, capture debugging resources
       - name: Get juju status

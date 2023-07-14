@@ -6,6 +6,11 @@ on:
         required: true
       BUNDLE_KUBEFLOW_EKS_AWS_SECRET_ACCESS_KEY:
         required: true
+    inputs:
+      region:
+        description: 'Insert the AWS Region name in which the script will delete unattached volumes. Running it with an empty region means that it will delete unattached volumes in the ALL available regions.'
+        required: false
+        default: ''
 jobs:
   delete-volumes:
     runs-on: ubuntu-22.04
@@ -30,4 +35,4 @@ jobs:
           pip install tenacity
 
       - name: Run delete volumes script
-        run: python scripts/delete_volumes.py
+        run: python scripts/delete_volumes.py ${{ github.event.inputs.region }}
