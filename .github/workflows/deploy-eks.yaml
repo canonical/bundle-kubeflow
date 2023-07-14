@@ -70,13 +70,6 @@ jobs:
         run: |
           eksctl delete cluster --region eu-central-1 --name=kubeflow-test
 
-      - name: Delete unattached volumes
-        if: always()
-        run: |
-          pip install boto3
-          pip install tenacity
-          python scripts/delete_volumes.py eu-central-1
-
       # On failure, capture debugging resources
       - name: Get juju status
         run: juju status
@@ -101,3 +94,10 @@ jobs:
       - name: Get logs from pods with status = CrashLoopBackOff
         run: kubectl -n kubeflow get pods | tail -n +2 | grep CrashLoopBackOff | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
         if: failure()
+
+  delete-unattached-volumes:
+    if: always()
+    uses: ./.github/workflows/delete-aws-volumes.yaml
+    secrets: inherit
+    with:
+      region: eu-central-1
