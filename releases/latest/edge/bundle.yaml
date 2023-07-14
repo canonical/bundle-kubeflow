@@ -235,3 +235,8 @@ relations:
   - [kserve-controller:ingress-gateway, istio-pilot:gateway-info]
   - [kserve-controller:local-gateway, knative-serving:local-gateway]
   - [kubeflow-profiles, kubeflow-dashboard]
+  - [kubeflow-dashboard:links, jupyter-ui:dashboard-links]
+  - [kubeflow-dashboard:links, katib-ui:dashboard-links]
+  - [kubeflow-dashboard:links, kfp-ui:dashboard-links]
+  - [kubeflow-dashboard:links, kubeflow-volumes:dashboard-links]
+  - [kubeflow-dashboard:links, tensorboards-web-app:dashboard-links]
