@@ -34,6 +34,7 @@ def delete_volumes() -> None:
             count = delete_volumes_in_region(region_name, count)
         else:
             print("Region from input isn't being used in this AWS account.")
+            raise Exception
     else:
         ec2 = boto3.client("ec2")
         for region in ec2.describe_regions()["Regions"]:
