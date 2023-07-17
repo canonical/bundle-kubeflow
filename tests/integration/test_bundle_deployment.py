@@ -38,8 +38,8 @@ class TestCharm:
         )
 
         url = get_public_url(lightkube_client, BUNDLE_NAME)
-        subprocess.Popen(["juju", "config", "dex-auth", f"public-url={url}"])
-        subprocess.Popen(["juju", "config", "oidc-gatekeeper", f"public-url={url}"])
+        await ops_test.model.applications["dex-auth"].set_config({"public-url": url})
+        await ops_test.model.applications["oidc-gatekeeper"].set_config({"public-url": url})
 
         await ops_test.model.wait_for_idle(
             status="active",

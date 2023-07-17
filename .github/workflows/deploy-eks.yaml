@@ -7,7 +7,7 @@ on:
       BUNDLE_KUBEFLOW_EKS_AWS_SECRET_ACCESS_KEY:
         required: true
   schedule:
-    - cron: "0 0 * * 2"
+    - cron: "23 0 * * 2"
 jobs:
   deploy-ckf-to-eks:
     runs-on: ubuntu-22.04
