@@ -198,11 +198,13 @@ applications:
     charm: tensorboard-controller
     channel: latest/edge
     scale: 1
+    trust: true
     _github_repo_name: kubeflow-tensorboards-operator
   tensorboards-web-app:
     charm: tensorboards-web-app
     channel: latest/edge
     scale: 1
+    trust: true
     _github_repo_name: kubeflow-tensorboards-operator
   training-operator:
     charm: training-operator
