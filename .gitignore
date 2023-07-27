@@ -6,3 +6,4 @@ build/
 sel-screenshots/*
 geckodriver.log
 .vscode/*
+.tox
