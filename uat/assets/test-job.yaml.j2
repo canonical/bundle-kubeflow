@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ job_name }}
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+          access-minio: "true"
+          access-ml-pipeline: "true"
+          mlflow-server-minio: "true"
+    spec:
+      serviceAccountName: default-editor
+      containers:
+        - name: {{ job_name }}
+          image: {{ test_image }}
+          command:
+            - bash
+            - -c
+          args:
+            - |
+              cd /tests;
+              pip install -r requirements.txt >/dev/null;
+              pytest;
+              # Kill Istio Sidecar after workload completes to have the Job status properly updated
+              # https://github.com/istio/istio/issues/6324
+              x=$(echo $?);
+              curl -fsI -X POST http://localhost:15020/quitquitquit >/dev/null && exit $x;
+          volumeMounts:
+            - name: test-volume
+              mountPath: /tests
+      volumes:
+        - name: test-volume
+          hostPath:
+            path: {{ test_dir }}
+      restartPolicy: Never
