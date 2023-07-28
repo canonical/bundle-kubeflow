@@ -19,7 +19,7 @@ PROFILE_TEMPLATE_FILE = ASSETS_DIR / "test-profile.yaml.j2"
 TESTS_DIR = os.path.abspath(Path("integrations"))
 TESTS_IMAGE = "kubeflownotebookswg/jupyter-scipy:v1.7.0"
 
-NAMESPACE = "test"
+NAMESPACE = "test-kubeflow"
 PROFILE_RESOURCE = create_global_resource(
     group="kubeflow.org",
     version="v1",
