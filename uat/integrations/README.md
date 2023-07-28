@@ -2,6 +2,7 @@
 
 Run Python notebooks with Pytest inside a Notebook Server to verify the integration of Kubeflow
 with different components. The following tests are currently provided:
+* [Test Katib Integration](examples/katib-integration.ipynb)
 * [Test KFP Integration](examples/kfp-integration.ipynb)
 * [Test MinIO Integration](examples/minio-integration.ipynb)
 * [Test MLFlow Integration](examples/mlflow-integration.ipynb)

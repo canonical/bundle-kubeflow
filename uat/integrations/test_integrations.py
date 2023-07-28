@@ -17,6 +17,7 @@ EXAMPLES_DIR = "examples"
 examples_directory = os.path.join(current_directory, EXAMPLES_DIR)
 os.chdir(examples_directory)
 
+KATIB_INTEGRATION = {"path": "katib-integration.ipynb", "id": "katib"}
 KFP_INTEGRATION = {"path": "kfp-integration.ipynb", "id": "kfp"}
 MINIO_INTEGRATION = {"path": "minio-integration.ipynb", "id": "minio"}
 MLFLOW_INTEGRATION = {"path": "mlflow-integration.ipynb", "id": "mlflow"}
@@ -34,11 +35,13 @@ def format_error_message(traceback: list):
     # notebook - ipynb file to execute
     "test_notebook",
     [
+        KATIB_INTEGRATION["path"],
         KFP_INTEGRATION["path"],
         MINIO_INTEGRATION["path"],
         MLFLOW_INTEGRATION["path"],
     ],
     ids=[
+        KATIB_INTEGRATION["id"],
         KFP_INTEGRATION["id"],
         MINIO_INTEGRATION["id"],
         MLFLOW_INTEGRATION["id"],
