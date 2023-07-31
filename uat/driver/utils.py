@@ -52,7 +52,16 @@ def wait_for_job(
     job_name: str,
     namespace: str,
 ):
-    """Wait for a Kubernetes Job to complete."""
+    """Wait for a Kubernetes Job to complete.
+
+    Keep retrying (up to a maximum of 3600 seconds) while the Job is active or just not yet ready,
+    and stop once it becomes successful. This is implemented using the built-in
+    `retry_if_not_result` tenacity function, along with `wait_for_job` returning False or True,
+    respectively.
+
+    If the Job fails or lands in an unexpected state, this function will raise a ValueError and
+    fail immediately.
+    """
     # raises a 404 ApiError if the Job doesn't exist
     job = client.get(Job, name=job_name, namespace=namespace)
     if job.status.succeeded:
