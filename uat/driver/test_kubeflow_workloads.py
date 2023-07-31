@@ -80,7 +80,7 @@ async def test_create_profile(lightkube_client, create_profile):
     assert_namespace_active(lightkube_client, NAMESPACE)
 
 
-def test_kubeflow(lightkube_client):
+def test_kubeflow_workloads(lightkube_client):
     """Run a K8s Job to execute the notebook tests."""
     log.info(f"Starting Kubernetes Job {NAMESPACE}/{JOB_NAME} to run notebook tests...")
     resources = list(
