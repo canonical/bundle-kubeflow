@@ -8,47 +8,25 @@ import nbformat
 import pytest
 from nbclient.exceptions import CellExecutionError
 from nbconvert.preprocessors import ExecutePreprocessor
+from utils import discover_notebooks, format_error_message
 
-# get the current working directory
-current_directory = os.getcwd()
-
-# change the working directory to the "examples" directory
 EXAMPLES_DIR = "examples"
-examples_directory = os.path.join(current_directory, EXAMPLES_DIR)
-os.chdir(examples_directory)
-
-KATIB_INTEGRATION = {"path": "katib-integration.ipynb", "id": "katib"}
-KFP_INTEGRATION = {"path": "kfp-integration.ipynb", "id": "kfp"}
-MINIO_INTEGRATION = {"path": "minio-integration.ipynb", "id": "minio"}
-MLFLOW_INTEGRATION = {"path": "mlflow-integration.ipynb", "id": "mlflow"}
+NOTEBOOKS = discover_notebooks(EXAMPLES_DIR)
 
 log = logging.getLogger(__name__)
-
-
-def format_error_message(traceback: list):
-    """Format error message."""
-    return "".join(traceback[-2:])
 
 
 @pytest.mark.ipynb
 @pytest.mark.parametrize(
     # notebook - ipynb file to execute
     "test_notebook",
-    [
-        KATIB_INTEGRATION["path"],
-        KFP_INTEGRATION["path"],
-        MINIO_INTEGRATION["path"],
-        MLFLOW_INTEGRATION["path"],
-    ],
-    ids=[
-        KATIB_INTEGRATION["id"],
-        KFP_INTEGRATION["id"],
-        MINIO_INTEGRATION["id"],
-        MLFLOW_INTEGRATION["id"],
-    ],
+    NOTEBOOKS.values(),
+    ids=NOTEBOOKS.keys(),
 )
 def test_integration(test_notebook):
     """Test Integration Generic Wrapper."""
+    os.chdir(os.path.dirname(test_notebook))
+
     with open(test_notebook) as nb:
         notebook = nbformat.read(nb, as_version=nbformat.NO_CONVERT)
 
@@ -56,7 +34,7 @@ def test_integration(test_notebook):
     ep.skip_cells_with_tag = "pytest-skip"
 
     try:
-        log.info(f"Running {test_notebook}...")
+        log.info(f"Running {os.path.basename(test_notebook)}...")
         output_notebook, _ = ep.preprocess(notebook, {"metadata": {"path": "./"}})
     except CellExecutionError as e:
         # handle underlying error
