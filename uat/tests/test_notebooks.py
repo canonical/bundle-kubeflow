@@ -8,7 +8,7 @@ import nbformat
 import pytest
 from nbclient.exceptions import CellExecutionError
 from nbconvert.preprocessors import ExecutePreprocessor
-from utils import discover_notebooks, format_error_message
+from utils import discover_notebooks, format_error_message, save_notebook
 
 EXAMPLES_DIR = "notebooks"
 NOTEBOOKS = discover_notebooks(EXAMPLES_DIR)
@@ -36,6 +36,8 @@ def test_notebook(test_notebook):
     try:
         log.info(f"Running {os.path.basename(test_notebook)}...")
         output_notebook, _ = ep.preprocess(notebook, {"metadata": {"path": "./"}})
+        # persist the notebook output to the original file for debugging purposes
+        save_notebook(output_notebook, test_notebook)
     except CellExecutionError as e:
         # handle underlying error
         pytest.fail(f"Notebook execution failed with {e.ename}: {e.evalue}")

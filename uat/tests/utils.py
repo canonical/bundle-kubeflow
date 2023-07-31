@@ -3,6 +3,8 @@
 
 import os
 
+import nbformat
+
 
 def format_error_message(traceback: list):
     """Format error message."""
@@ -31,3 +33,9 @@ def discover_notebooks(directory):
                 # file name - absolute file path
                 notebooks[file.split(".ipynb")[0]] = os.path.abspath(os.path.join(root, file))
     return dict(sorted(notebooks.items()))
+
+
+def save_notebook(notebook, file_path):
+    """Save notebook to a file."""
+    with open(file_path, "w", encoding="utf-8") as nb_file:
+        nbformat.write(notebook, nb_file)
