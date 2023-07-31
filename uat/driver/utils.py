@@ -41,7 +41,7 @@ def _log_before_sleep(retry_state):
 
 
 @tenacity.retry(
-    wait=tenacity.wait_exponential(multiplier=2, min=1, max=64),
+    wait=tenacity.wait_exponential(multiplier=2, min=1, max=32),
     retry=tenacity.retry_if_not_result(lambda result: result),
     before_sleep=_log_before_sleep,
     reraise=True,
