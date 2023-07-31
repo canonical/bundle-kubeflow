@@ -10,7 +10,7 @@ from nbclient.exceptions import CellExecutionError
 from nbconvert.preprocessors import ExecutePreprocessor
 from utils import discover_notebooks, format_error_message
 
-EXAMPLES_DIR = "examples"
+EXAMPLES_DIR = "notebooks"
 NOTEBOOKS = discover_notebooks(EXAMPLES_DIR)
 
 log = logging.getLogger(__name__)
@@ -23,8 +23,8 @@ log = logging.getLogger(__name__)
     NOTEBOOKS.values(),
     ids=NOTEBOOKS.keys(),
 )
-def test_integration(test_notebook):
-    """Test Integration Generic Wrapper."""
+def test_notebook(test_notebook):
+    """Test Notebook Generic Wrapper."""
     os.chdir(os.path.dirname(test_notebook))
 
     with open(test_notebook) as nb:
