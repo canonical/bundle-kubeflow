@@ -4,7 +4,7 @@ Run Python notebooks with Pytest inside a Notebook Server to verify the integrat
 with different components. The following tests are currently provided:
 * [Test Katib Integration](notebooks/katib-integration.ipynb)
 * [Test KFP Integration](notebooks/kfp-integration.ipynb)
-* [Test MinIO Integration](notebooks/minio-integration.ipynb)
+* [Test MinIO Integration](notebooks/minio-integration/minio-integration.ipynb)
 * [Test MLFlow Integration](notebooks/mlflow-integration.ipynb)
 
 The above are regular Python notebooks, which you can view and run manually without any
