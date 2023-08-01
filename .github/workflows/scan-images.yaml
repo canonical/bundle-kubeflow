@@ -43,8 +43,6 @@ jobs:
           sparse-checkout: scripts/images/
           ref: fix-remove-logs
           path: kubeflow-ci
-          ref: main
-          path: kubeflow-ci
       - name: Get images
         run: |
           IMAGES=$(./kubeflow-ci/scripts/images/get-all-images.sh releases/${{ matrix.release }}/${{ matrix.risk }}/kubeflow/bundle.yaml ${{ matrix.release }}-${{ matrix.risk }})
