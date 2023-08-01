@@ -1,0 +1,103 @@
+name: Create EKS cluster, deploy CKF and run bundle test
+on:
+  workflow_dispatch: # This event allows manual triggering from the Github UI
+    secrets:
+      BUNDLE_KUBEFLOW_EKS_AWS_ACCESS_KEY_ID:
+        required: true
+      BUNDLE_KUBEFLOW_EKS_AWS_SECRET_ACCESS_KEY:
+        required: true
+  schedule:
+    - cron: "23 0 * * 2"
+jobs:
+  deploy-ckf-to-eks:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install tox
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox
+      
+      - name: Configure AWS Credentials
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.BUNDLE_KUBEFLOW_EKS_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUNDLE_KUBEFLOW_EKS_AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          aws configure set default.region eu-central-1
+      
+      - name: Install kubectl
+        run: |
+          sudo snap install kubectl --classic --channel=1.24/stable
+          mkdir ~/.kube
+          kubectl version --client
+      
+      - name: Install eksctl
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y unzip
+          curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+          sudo mv /tmp/eksctl /usr/local/bin
+          eksctl version
+      
+      - name: Install juju
+        run: |
+          sudo snap install juju --classic --channel=2.9/stable
+          sudo snap install charmcraft --classic
+          juju version
+      
+      - name: Create cluster
+        run: |
+          eksctl create cluster -f .github/cluster.yaml
+          kubectl get nodes
+      
+      - name: Setup juju
+        run: |
+          juju add-k8s kubeflow --client
+          juju bootstrap --no-gui kubeflow kubeflow-controller
+          juju add-model kubeflow
+      
+      - name: Test bundle deployment
+        run: |
+          tox -vve test_bundle_deployment -- --model kubeflow --keep-models -vv -s
+      
+      - name: Delete EKS cluster
+        if: always()
+        run: |
+          eksctl delete cluster --region eu-central-1 --name=kubeflow-test
+
+      # On failure, capture debugging resources
+      - name: Get juju status
+        run: juju status
+        if: failure()
+
+      - name: Get juju debug logs
+        run: juju debug-log --replay --no-tail
+        if: failure()
+
+      - name: Get all kubernetes resources
+        run: kubectl get all -A
+        if: failure()
+
+      - name: Get logs from pods with status = Pending
+        run: kubectl -n kubeflow get pods | tail -n +2 | grep Pending | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
+        if: failure()
+
+      - name: Get logs from pods with status = Failed
+        run: kubectl -n kubeflow get pods | tail -n +2 | grep Failed | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
+        if: failure()
+
+      - name: Get logs from pods with status = CrashLoopBackOff
+        run: kubectl -n kubeflow get pods | tail -n +2 | grep CrashLoopBackOff | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
+        if: failure()
+
+  delete-unattached-volumes:
+    if: always()
+    uses: ./.github/workflows/delete-aws-volumes.yaml
+    secrets: inherit
+    with:
+      region: eu-central-1

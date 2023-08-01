@@ -1,5 +1,6 @@
 bundle: kubernetes
 name: kubeflow
+docs: https://discourse.charmhub.io/t/3749
 applications:
   admission-webhook:
     charm: admission-webhook
@@ -197,11 +198,13 @@ applications:
     charm: tensorboard-controller
     channel: latest/edge
     scale: 1
+    trust: true
     _github_repo_name: kubeflow-tensorboards-operator
   tensorboards-web-app:
     charm: tensorboards-web-app
     channel: latest/edge
     scale: 1
+    trust: true
     _github_repo_name: kubeflow-tensorboards-operator
   training-operator:
     charm: training-operator
@@ -234,3 +237,8 @@ relations:
   - [kserve-controller:ingress-gateway, istio-pilot:gateway-info]
   - [kserve-controller:local-gateway, knative-serving:local-gateway]
   - [kubeflow-profiles, kubeflow-dashboard]
+  - [kubeflow-dashboard:links, jupyter-ui:dashboard-links]
+  - [kubeflow-dashboard:links, katib-ui:dashboard-links]
+  - [kubeflow-dashboard:links, kfp-ui:dashboard-links]
+  - [kubeflow-dashboard:links, kubeflow-volumes:dashboard-links]
+  - [kubeflow-dashboard:links, tensorboards-web-app:dashboard-links]

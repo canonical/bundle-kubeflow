@@ -10,10 +10,23 @@ jobs:
     name: Scan images in bundle
     strategy:
       matrix:
-        release: [ 1.7, 1.6 ]
+        release: [ 1.7 ]
         risk: [ stable ]
     runs-on: ubuntu-20.04
     steps:
+      # Ideally we'd use self-hosted runners, but this effort is still not stable
+      # This action will remove unused software (dotnet, haskell, android libs, codeql,
+      # and docker images) from the GH runner, which will liberate around 60 GB of storage
+      # distributed in 40GB for root and around 20 for a mnt point.
+      - name: Maximise GH runner space
+        uses: easimon/maximize-build-space@v7
+        with:
+          root-reserve-mb: 40960
+          remove-dotnet: 'true'
+          remove-haskell: 'true'
+          remove-android: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -30,9 +43,11 @@ jobs:
           sparse-checkout: scripts/images/
           ref: fix-remove-logs
           path: kubeflow-ci
+          ref: main
+          path: kubeflow-ci
       - name: Get images
         run: |
-          IMAGES=$(./kubeflow-ci/scripts/images/get-images.sh releases/${{ matrix.release }}/${{ matrix.risk }}/kubeflow/bundle.yaml)
+          IMAGES=$(./kubeflow-ci/scripts/images/get-all-images.sh releases/${{ matrix.release }}/${{ matrix.risk }}/kubeflow/bundle.yaml ${{ matrix.release }}-${{ matrix.risk }})
           echo "$IMAGES" > ./image_list.txt
           echo "Image list:"
           cat ./image_list.txt

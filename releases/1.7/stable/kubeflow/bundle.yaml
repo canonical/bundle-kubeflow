@@ -1,33 +1,39 @@
 bundle: kubernetes
 name: kubeflow
+docs: https://discourse.charmhub.io/t/3749
 applications:
   admission-webhook:
     charm: admission-webhook
     channel: 1.7/stable
     scale: 1
     _github_repo_name: admission-webhook-operator
+    _github_repo_branch: track/1.7
   argo-controller:
     charm: argo-controller
     channel: 3.3/stable
     scale: 1
     _github_repo_name: argo-operators
+    _github_repo_branch: track/3.3
   argo-server:
     charm: argo-server
     channel: 3.3/stable
     scale: 1
     _github_repo_name: argo-operators
+    _github_repo_branch: track/3.3
   dex-auth:
     charm: dex-auth
     channel: 2.31/stable
     scale: 1
     trust: true
     _github_repo_name: dex-auth-operator
+    _github_repo_branch: track/2.31
   istio-ingressgateway:
     charm: istio-gateway
     channel: 1.16/stable
     scale: 1
     trust: true
     _github_repo_name: istio-operators
+    _github_repo_branch: track/1.16
     options:
       kind: ingress
   istio-pilot:
@@ -36,6 +42,7 @@ applications:
     scale: 1
     trust: true
     _github_repo_name: istio-operators
+    _github_repo_branch: track/1.16
     options:
       default-gateway: kubeflow-gateway
   jupyter-controller:
@@ -43,77 +50,93 @@ applications:
     channel: 1.7/stable
     scale: 1
     _github_repo_name: notebook-operators
+    _github_repo_branch: track/1.7
   jupyter-ui:
     charm: jupyter-ui
     channel: 1.7/stable
     scale: 1
     trust: true
     _github_repo_name: notebook-operators
+    _github_repo_branch: track/1.7
   katib-controller:
     charm: katib-controller
     channel: 0.15/stable
     scale: 1
     _github_repo_name: katib-operators
+    _github_repo_branch: track/0.15
   katib-db:
     charm: mysql-k8s
     channel: 8.0/stable
     scale: 1
     trust: true
     constraints: mem=2G
+    _github_dependency_repo_name: mysql-k8s-operator
+    _github_dependency_repo_branch: main
   katib-db-manager:
     charm: katib-db-manager
     channel: 0.15/stable
     scale: 1
     trust: true
     _github_repo_name: katib-operators
+    _github_repo_branch: track/0.15
   katib-ui:
     charm: katib-ui
     channel: 0.15/stable
     scale: 1
     trust: true
     _github_repo_name: katib-operators
+    _github_repo_branch: track/0.15
   kfp-api:
     charm: kfp-api
     channel: 2.0/stable
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
+    _github_repo_branch: track/2.0
   kfp-db:
     charm: mysql-k8s
     channel: 8.0/stable
     scale: 1
     trust: true
     constraints: mem=2G
+    _github_dependency_repo_name: mysql-k8s-operator
+    _github_dependency_repo_branch: main
   kfp-persistence:
     charm: kfp-persistence
     channel: 2.0/stable
     scale: 1
     _github_repo_name: kfp-operators
+    _github_repo_branch: track/2.0
   kfp-profile-controller:
     charm: kfp-profile-controller
     channel: 2.0/stable
     scale: 1
     _github_repo_name: kfp-operators
+    _github_repo_branch: track/2.0
   kfp-schedwf:
     charm: kfp-schedwf
     channel: 2.0/stable
     scale: 1
     _github_repo_name: kfp-operators
+    _github_repo_branch: track/2.0
   kfp-ui:
     charm: kfp-ui
     channel: 2.0/stable
     scale: 1
     _github_repo_name: kfp-operators
+    _github_repo_branch: track/2.0
   kfp-viewer:
     charm: kfp-viewer
     channel: 2.0/stable
     scale: 1
     _github_repo_name: kfp-operators
+    _github_repo_branch: track/2.0
   kfp-viz:
     charm: kfp-viz
     channel: 2.0/stable
     scale: 1
     _github_repo_name: kfp-operators
+    _github_repo_branch: track/2.0
   knative-eventing:
     charm: knative-eventing
     channel: 1.8/stable
@@ -122,12 +145,14 @@ applications:
     options:
       namespace: knative-eventing
     _github_repo_name: knative-operators
+    _github_repo_branch: track/1.8
   knative-operator:
     charm: knative-operator
     channel: 1.8/stable
     scale: 1
     trust: true
     _github_repo_name: knative-operators
+    _github_repo_branch: track/1.8
   knative-serving:
     charm: knative-serving
     channel: 1.8/stable
@@ -138,73 +163,86 @@ applications:
       istio.gateway.namespace: kubeflow
       istio.gateway.name: kubeflow-gateway
     _github_repo_name: knative-operators
+    _github_repo_branch: track/1.8
   kserve-controller:
     charm: kserve-controller
     channel: 0.10/stable
     scale: 1
     trust: true
     _github_repo_name: kserve-operators
+    _github_repo_branch: track/0.10
   kubeflow-dashboard:
     charm: kubeflow-dashboard
     channel: 1.7/stable
     scale: 1
     trust: true
     _github_repo_name: kubeflow-dashboard-operator
+    _github_repo_branch: track/1.7
   kubeflow-profiles:
     charm: kubeflow-profiles
     channel: 1.7/stable
     scale: 1
     trust: true
     _github_repo_name: kubeflow-profiles-operator
+    _github_repo_branch: track/1.7
   kubeflow-roles:
     charm: kubeflow-roles
     channel: 1.7/stable
     scale: 1
     trust: true
     _github_repo_name: kubeflow-roles-operator
+    _github_repo_branch: track/1.7
   kubeflow-volumes:
     charm: kubeflow-volumes
     channel: 1.7/stable
     scale: 1
     _github_repo_name: kubeflow-volumes-operator
+    _github_repo_branch: track/1.7
   metacontroller-operator:
     charm: metacontroller-operator
     channel: 2.0/stable
     scale: 1
     trust: true
     _github_repo_name: metacontroller-operator
+    _github_repo_branch: track/2.0
   minio:
     charm: minio
     channel: ckf-1.7/stable
     scale: 1
     _github_repo_name: minio-operator
+    _github_repo_branch: track/ckf-1.7
   oidc-gatekeeper:
     charm: oidc-gatekeeper
     channel: ckf-1.7/stable
     scale: 1
     _github_repo_name: oidc-gatekeeper-operator
+    _github_repo_branch: track/ckf-1.7
   seldon-controller-manager:
     charm: seldon-core
     channel: 1.15/stable
     scale: 1
     trust: true
     _github_repo_name: seldon-core-operator
+    _github_repo_branch: track/1.15
   tensorboard-controller:
     charm: tensorboard-controller
     channel: 1.7/stable
     scale: 1
     _github_repo_name: kubeflow-tensorboards-operator
+    _github_repo_branch: track/1.7
   tensorboards-web-app:
     charm: tensorboards-web-app
     channel: 1.7/stable
     scale: 1
     _github_repo_name: kubeflow-tensorboards-operator
+    _github_repo_branch: track/1.7
   training-operator:
     charm: training-operator
     channel: 1.6/stable
     scale: 1
     trust: true
     _github_repo_name: training-operator
+    _github_repo_branch: track/1.6
 relations:
   - [argo-controller, minio]
   - [dex-auth:oidc-client, oidc-gatekeeper:oidc-client]
