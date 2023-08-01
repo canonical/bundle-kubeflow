@@ -28,7 +28,7 @@ jobs:
         with:
           repository: canonical/kubeflow-ci.git
           sparse-checkout: scripts/images/
-          ref: main
+          ref: fix-remove-logs
           path: kubeflow-ci
       - name: Get images
         run: |
