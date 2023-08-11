@@ -75,7 +75,7 @@ jobs:
       - name: Install and bootstrap juju
         run: |
           sudo snap install juju --classic --channel=2.9/stable
-          sg microk8s -c 'juju bootstrap microk8s bundle-controller --model-default test-mode=true --model-default logging-config="<root>=DEBUG" --agent-version="2.9.42" --debug --verbose'
+          sg microk8s -c 'juju bootstrap microk8s bundle-controller --model-default test-mode=true --model-default logging-config="<root>=DEBUG" --agent-version="2.9.44" --debug --verbose'
 
       - name: Show all pods status
         run: |
