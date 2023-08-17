@@ -113,6 +113,6 @@ async def test_profile_creation_action(ops_test: OpsTest):
     Also, this will allow to test selenium and skip welcome page in dashboard UI.
     """
     action = await ops_test.model.applications["kubeflow-profiles"].units[0].run_action(
-        "create-profile", profilename=f"{USERNAME}@email.com", username=USERNAME
+        "create-profile", profilename=USERNAME, username=USERNAME
     )
     await action.wait()
