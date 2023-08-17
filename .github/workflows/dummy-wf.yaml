@@ -1,0 +1,24 @@
+name: dummy 1
+on:
+  workflow_call:
+    inputs:
+      bundle-test-path:
+        description: 'Test folder to run'
+        type: string
+        required: true
+      bundle-source:
+        description: 'Either `--channel <channel_name>` or `--file <bundle_file>.yaml`'
+        type: string
+        required: true
+jobs:
+  fake-run-tests-job:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Echo received values
+        run: |
+          echo "github.event.inputs.bundle-test-path is ${{ github.event.inputs.bundle-test-path}}"
+          echo "inputs.bundle-test-path is ${{ inputs.bundle-test-path}}"
+          echo "github.event.inputs.bundle-source is ${{ github.event.inputs.bundle-source}}"
+          echo "github.event.inputs.bundle-source is ${{ inputs.bundle-source}}"

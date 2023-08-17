@@ -1,0 +1,18 @@
+name: dummy 2
+on:
+  workflow_call:
+    inputs:
+      bundle-path:
+        description: 'Test folder to run'
+        type: string
+        required: true
+jobs:
+  fake-publish-job:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Echo received values
+        run: |
+          echo "github.event.inputs.bundle-path is ${{ github.event.inputs.bundle-path}}"
+          echo "inputs.bundle-path is ${{ inputs.bundle-path}}"
