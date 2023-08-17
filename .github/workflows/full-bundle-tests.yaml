@@ -33,11 +33,35 @@ jobs:
 
           echo "MY_ADDONS=hostpath-storage ingress dns:$dns_server rbac registry metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'" >> $GITHUB_OUTPUT
 
+      - name: Setup Python
+        run: |
+          echo "deb-src http://archive.ubuntu.com/ubuntu/ jammy main" | sudo tee -a /etc/apt/sources.list
+
+          sudo apt-get update -yqq
+          sudo apt-get build-dep -yqq python3
+          sudo apt-get install -yqq pkg-config
+
+          sudo apt-get install -yqq build-essential gdb lcov pkg-config \
+            libbz2-dev libffi-dev libgdbm-dev libgdbm-compat-dev liblzma-dev \
+            libncurses5-dev libreadline6-dev libsqlite3-dev libssl-dev \
+            lzma lzma-dev tk-dev uuid-dev zlib1g-dev
+
+          curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
+
+          export PYENV_ROOT="$HOME/.pyenv" >> "$GITHUB_ENV"
+          command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH" >> "$GITHUB_ENV"
+
+          pyenv install 3.8.16
+          pyenv global 3.8.16
+
+          # configure environment variables to be available in subsequent steps
+          echo "PYENV_ROOT=$PYENV_ROOT" >> "$GITHUB_ENV"
+          echo "PATH=$PATH" >> "$GITHUB_ENV"
+
       - name: Install tools
         run: |
-          sudo apt-get update -yqq
-          sudo apt-get install -yqq python3-pip
-          sudo --preserve-env=http_proxy,https_proxy,no_proxy pip3 install tox
+          eval "$(pyenv init -)"
+          pip install tox
           sudo snap install charmcraft --classic
           sudo snap install firefox
 
@@ -57,7 +81,7 @@ jobs:
 #      - run: |
 #          sudo cat /var/snap/microk8s/current/args/certs.d/docker.io/hosts.toml
 
-      - name: update credentials
+      - name: Update credentials
         run: |
           sg microk8s -c "cat >> /var/snap/microk8s/current/args/containerd-template.toml << EOF
           [plugins.\"io.containerd.grpc.v1.cri\".registry.configs.\"registry-1.docker.io\".auth]
@@ -82,7 +106,7 @@ jobs:
           sg microk8s -c "mkdir -p ~/.kube"
           sg microk8s -c "microk8s config > ~/.kube/config"
 
-      - name: Install and bootstrap juju
+      - name: Install and bootstrap Juju
         run: |
           sudo snap install juju --classic --channel=2.9/stable
           sg microk8s -c 'juju bootstrap microk8s bundle-controller --model-default test-mode=true --model-default logging-config="<root>=DEBUG" --agent-version="2.9.44" --debug --verbose'
@@ -96,12 +120,14 @@ jobs:
           sudo sysctl fs.inotify.max_user_instances=1280
           sudo sysctl fs.inotify.max_user_watches=655360
 
-      - run: |
+      - name: Configure Juju model
+        run: |
           sg microk8s -c "juju add-model kubeflow --config default-series=focal --config automatically-retry-hooks=true"
           sg microk8s -c "juju model-config"
           sg microk8s -c "juju status"
 
-      - run: |
+      - name: Configure env for Gecko driver
+        run: |
           # required for gecko driver
           export XDG_RUNTIME_DIR="/run/user/$(id -u)"
           export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
@@ -112,9 +138,21 @@ jobs:
 
       - name: Run bundle tests
         run: |
+          eval "$(pyenv init -)"
           export BUNDLE_TEST_PATH=${{ inputs.bundle-test-path }}
           export GH_TOKEN=${{ secrets.GITHUB_TOKEN }}
           sg microk8s -c "tox -e full_bundle_tests -- ${{ inputs.bundle-source }}"
+
+      - name: Checkout Kubeflow UATs
+        run: |
+          git clone https://github.com/canonical/charmed-kubeflow-uats.git ~/charmed-kubeflow-uats
+          cd ~/charmed-kubeflow-uats
+          git checkout main
+
+      - name: Run UATs
+        run: |
+          eval "$(pyenv init -)"
+          sg microk8s -c "tox -c ~/charmed-kubeflow-uats/ -e kubeflow"
 
       - name: Upload selenium screenshots
         if: failure()
@@ -156,3 +194,7 @@ jobs:
               sg microk8s -c "microk8s kubectl logs -n $NAMESPACE $POD"
             done <<< "$POD_LIST"
           fi
+
+      - name: Save debug artifacts
+        uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main
+        if: always()
