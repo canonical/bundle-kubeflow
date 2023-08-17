@@ -65,11 +65,6 @@ jobs:
         run: |
           tox -vve test_bundle_deployment -- --model kubeflow --keep-models -vv -s
       
-      - name: Delete EKS cluster
-        if: always()
-        run: |
-          eksctl delete cluster --region eu-central-1 --name=kubeflow-test
-
       # On failure, capture debugging resources
       - name: Get juju status
         run: juju status
@@ -95,9 +90,15 @@ jobs:
         run: kubectl -n kubeflow get pods | tail -n +2 | grep CrashLoopBackOff | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
         if: failure()
 
+      - name: Delete EKS cluster
+        if: always()
+        run: |
+          eksctl delete cluster --region eu-central-1 --name=kubeflow-test
+
   delete-unattached-volumes:
     if: always()
     uses: ./.github/workflows/delete-aws-volumes.yaml
     secrets: inherit
     with:
       region: eu-central-1
+    needs: [deploy-ckf-to-eks]
