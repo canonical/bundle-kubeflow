@@ -1,0 +1,39 @@
+name: Publish bundle to Charmhub
+on:
+  push:
+    branches:
+    - main
+    paths:
+      - releases/**
+
+jobs:
+
+  get-releases-affected:
+    name: Get releases affected
+    runs-on: ubuntu-22.04
+    outputs:
+      releases_affected: ${{ steps.get-releases-affected.outputs.releases_affected_json }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get files changed
+        id: changed-files
+        uses: tj-actions/changed-files@v37
+
+      - name: Get releases affected
+        id: get-releases-affected
+        run: python scripts/get_releases_affected.py ${{ steps.changed-files.outputs.all_changed_files }}
+
+  run-tests-and-publish-bundle-for-releases-affected:
+    name: Run bundle tests and publish to Charmhub
+    needs: [get-releases-affected]
+    strategy:
+      fail-fast: false
+      matrix:
+        release: ${{ fromJson(needs.get-releases-affected.outputs.releases_affected) }}
+    uses: ./.github/workflows/run-tests-and-publish-bundle.yaml
+    with:
+      release: ${{ matrix.release }}
+    secrets: inherit
