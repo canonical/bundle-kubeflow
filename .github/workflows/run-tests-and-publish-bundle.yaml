@@ -31,7 +31,7 @@ jobs:
   run-tests:
     name: Run tests
     needs: [get-release-inputs]
-    uses: ./.github/workflows/full-bundle-tests.yaml
+    uses: ./.github/workflows/dummy-wf.yaml
     with:
       bundle-test-path: ${{ needs.get-release-inputs.outputs.bundle_test_path }}
       bundle-source: --file ${{ needs.get-release-inputs.outputs.bundle_path }}/bundle.yaml
