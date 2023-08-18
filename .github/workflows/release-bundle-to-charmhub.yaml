@@ -5,6 +5,10 @@ on:
     - main
     paths:
       - releases/**
+# only for testing purposes
+  pull_request:
+    paths:
+      - releases/**
 
 jobs:
 

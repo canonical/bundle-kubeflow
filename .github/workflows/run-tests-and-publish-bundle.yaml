@@ -49,4 +49,4 @@ jobs:
           credentials: ${{ secrets.CHARMCRAFT_CREDENTIALS }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
           bundle-path: ${{ needs.get-release-inputs.outputs.bundle_path }}
-          channel: ${{ inputs.release }}
+          channel: ${{ inputs.release }}/test-branch
