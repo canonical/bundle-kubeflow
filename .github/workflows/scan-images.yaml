@@ -41,7 +41,7 @@ jobs:
         with:
           repository: canonical/kubeflow-ci.git
           sparse-checkout: scripts/images/
-          ref: fix-update-scan-script # FOR DEBUGGING
+          ref: main
           path: kubeflow-ci
       - name: Get images
         run: |
