@@ -51,7 +51,8 @@ jobs:
           cat ./image_list.txt
       - name: Scan images
         run: |
-          ./kubeflow-ci/scripts/images/scan-images.sh ./image_list.txt
+          cd ./kubeflow-ci/scripts/images/
+          ./scan-images.sh ./image_list.txt
           cp scan-summary.csv scan-summary-${{ steps.setup.outputs.date}}-${{ matrix.release }}-${{ matrix.risk }}.csv
       - name: Prepare artifacts
         run: |
