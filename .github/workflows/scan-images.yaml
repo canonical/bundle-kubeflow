@@ -41,7 +41,7 @@ jobs:
         with:
           repository: canonical/kubeflow-ci.git
           sparse-checkout: scripts/images/
-          ref: main
+          ref: fix-update-scan-script # FOR DEBUGGING
           path: kubeflow-ci
       - name: Get images
         run: |
@@ -51,9 +51,8 @@ jobs:
           cat ./image_list.txt
       - name: Scan images
         run: |
-          cd ./kubeflow-ci/scripts/images/
-          ./scan-images.sh ./image_list.txt
-          cp scan-summary.csv scan-summary-${{ steps.setup.outputs.date}}-${{ matrix.release }}-${{ matrix.risk }}.csv
+          ./kubeflow-ci/scripts/images/scan-images.sh ./image_list.txt
+          ./kubeflow-ci/scripts/images/get-summary.py --report-path ./trivy-reports --print-header > scan-summary-${{ steps.setup.outputs.date}}-${{ matrix.release }}-${{ matrix.risk }}.csv
       - name: Prepare artifacts
         run: |
           tar zcvf trivy-reports-${{ steps.setup.outputs.date}}-${{ matrix.release }}-${{ matrix.risk }}-${{ strategy.job-index }}.tar.gz ./trivy-reports
