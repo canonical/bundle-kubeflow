@@ -121,6 +121,7 @@ applications:
     charm: kfp-viz
     channel: latest/edge
     scale: 1
+    trust: true
     _github_repo_name: kfp-operators
   knative-eventing:
     charm: knative-eventing
