@@ -9,6 +9,16 @@ on:
       bundle-source:
         description: 'Either `--channel <channel_name>` or `--file <bundle_file>.yaml`'
         required: true
+  workflow_call:
+    inputs:
+      bundle-test-path:
+        description: 'Test folder to run'
+        type: string
+        required: true
+      bundle-source:
+        description: 'Either `--channel <channel_name>` or `--file <bundle_file>.yaml`'
+        type: string
+        required: true
 
 jobs:
   test-bundle:
@@ -102,9 +112,9 @@ jobs:
 
       - name: Run bundle tests
         run: |
-          export BUNDLE_TEST_PATH=${{ github.event.inputs.bundle-test-path }}
+          export BUNDLE_TEST_PATH=${{ inputs.bundle-test-path }}
           export GH_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          sg microk8s -c "tox -e full_bundle_tests -- ${{ github.event.inputs.bundle-source }}"
+          sg microk8s -c "tox -e full_bundle_tests -- ${{ inputs.bundle-source }}"
 
       - name: Upload selenium screenshots
         if: failure()
