@@ -9,6 +9,11 @@ on:
       bundle-source:
         description: 'Either `--channel <channel_name>` or `--file <bundle_file>.yaml`'
         required: true
+      uats-branch:
+        description: 'The branch of `charmed-kubeflow-uats` to run, e.g. `track/1.7`'
+        type: string
+        default: 'main'
+        required: true
   workflow_call:
     inputs:
       bundle-test-path:
@@ -18,6 +23,11 @@ on:
       bundle-source:
         description: 'Either `--channel <channel_name>` or `--file <bundle_file>.yaml`'
         type: string
+        required: true
+      uats-branch:
+        description: 'The branch of `charmed-kubeflow-uats` to run, e.g. `track/1.7`'
+        type: string
+        default: 'main'
         required: true
 
 jobs:
@@ -147,7 +157,7 @@ jobs:
         run: |
           git clone https://github.com/canonical/charmed-kubeflow-uats.git ~/charmed-kubeflow-uats
           cd ~/charmed-kubeflow-uats
-          git checkout main
+          git checkout ${{ inputs.uats-branch }}
 
       - name: Run UATs
         run: |
