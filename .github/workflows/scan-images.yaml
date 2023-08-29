@@ -10,8 +10,8 @@ jobs:
     name: Scan images in bundle
     strategy:
       matrix:
-        release: [ 1.7 ]
-        risk: [ stable ]
+        # specfy location of bundle(s) to be scanned
+        bundle: [ releases/1.7/stable/kubeflow, releases/latest/edge ]
     runs-on: ubuntu-20.04
     steps:
       # Ideally we'd use self-hosted runners, but this effort is still not stable
@@ -45,7 +45,11 @@ jobs:
           path: kubeflow-ci
       - name: Get images
         run: |
-          IMAGES=$(./kubeflow-ci/scripts/images/get-all-images.sh releases/${{ matrix.release }}/${{ matrix.risk }}/kubeflow/bundle.yaml ${{ matrix.release }}-${{ matrix.risk }})
+          BUNDLE="${{ matrix.bundle }}"
+          BUNDLE_SPLIT=(${BUNDLE//\// })
+          RELEASE=${BUNDLE_SPLIT[1]}
+          RISK=${BUNDLE_SPLIT[2]}
+          IMAGES=$(./kubeflow-ci/scripts/images/get-all-images.sh ${{ matrix.bundle }}/bundle.yaml ${RELEASE}-${RISK})
           echo "$IMAGES" > ./image_list.txt
           echo "Image list:"
           cat ./image_list.txt
