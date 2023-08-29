@@ -10,8 +10,8 @@ jobs:
     name: Scan images in bundle
     strategy:
       matrix:
-        release: [ 1.7 ]
-        risk: [ stable ]
+        release: [ 1.7, latest ]
+        risk: [ stable, edge ]
     runs-on: ubuntu-20.04
     steps:
       # Ideally we'd use self-hosted runners, but this effort is still not stable
