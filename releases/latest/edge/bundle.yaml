@@ -116,6 +116,7 @@ applications:
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
+    _github_repo_branch: main
   kfp-schedwf:
     charm: kfp-schedwf
     channel: latest/edge
