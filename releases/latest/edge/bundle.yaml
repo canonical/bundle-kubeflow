@@ -8,28 +8,33 @@ applications:
     trust: true
     scale: 1
     _github_repo_name: admission-webhook-operator
+    _github_repo_branch: main
   argo-controller:
     charm: argo-controller
     channel: latest/edge
     scale: 1
     _github_repo_name: argo-operators
+    _github_repo_branch: main
   argo-server:
     charm: argo-server
     channel: latest/edge
     scale: 1
     _github_repo_name: argo-operators
+    _github_repo_branch: main
   dex-auth:
     charm: dex-auth
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: dex-auth-operator
+    _github_repo_branch: main
   istio-ingressgateway:
     charm: istio-gateway
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: istio-operators
+    _github_repo_branch: main
     options:
       kind: ingress
   istio-pilot:
@@ -38,6 +43,7 @@ applications:
     scale: 1
     trust: true
     _github_repo_name: istio-operators
+    _github_repo_branch: main
     options:
       default-gateway: kubeflow-gateway
   jupyter-controller:
@@ -46,83 +52,99 @@ applications:
     scale: 1
     trust: true
     _github_repo_name: notebook-operators
+    _github_repo_branch: main
   jupyter-ui:
     charm: jupyter-ui
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: notebook-operators
+    _github_repo_branch: main
   katib-controller:
     charm: katib-controller
     channel: latest/edge
     scale: 1
     _github_repo_name: katib-operators
+    _github_repo_branch: main
   katib-db:
     charm: mysql-k8s
-    channel: 8.0/stable
+    channel: 8.0/edge
     scale: 1
     trust: true
     constraints: mem=2G
+    _github_dependency_repo_name: mysql-k8s-operator
+    _github_dependency_repo_branch: main
   katib-db-manager:
     charm: katib-db-manager
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: katib-operators
+    _github_repo_branch: main
   katib-ui:
     charm: katib-ui
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: katib-operators
+    _github_repo_branch: main
   kfp-api:
     charm: kfp-api
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
+    _github_repo_branch: main
   kfp-db:
     charm: mysql-k8s
-    channel: 8.0/stable
+    channel: 8.0/edge
     scale: 1
     trust: true
     constraints: mem=2G
+    _github_dependency_repo_name: mysql-k8s-operator
+    _github_dependency_repo_branch: main
   kfp-persistence:
     charm: kfp-persistence
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
+    _github_repo_branch: main
   kfp-profile-controller:
     charm: kfp-profile-controller
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
+    _github_repo_branch: main
   kfp-schedwf:
     charm: kfp-schedwf
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
+    _github_repo_branch: main
   kfp-ui:
     charm: kfp-ui
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
+    _github_repo_branch: main
   kfp-viewer:
     charm: kfp-viewer
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
+    _github_repo_branch: main
   kfp-viz:
     charm: kfp-viz
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
+    _github_repo_branch: main
   knative-eventing:
     charm: knative-eventing
     channel: latest/edge
@@ -131,12 +153,14 @@ applications:
     options:
       namespace: knative-eventing
     _github_repo_name: knative-operators
+    _github_repo_branch: main
   knative-operator:
     charm: knative-operator
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: knative-operators
+    _github_repo_branch: main
   knative-serving:
     charm: knative-serving
     channel: latest/edge
@@ -147,6 +171,7 @@ applications:
       istio.gateway.namespace: kubeflow
       istio.gateway.name: kubeflow-gateway
     _github_repo_name: knative-operators
+    _github_repo_branch: main
   kserve-controller:
     charm: kserve-controller
     channel: latest/edge
@@ -155,69 +180,81 @@ applications:
     options:
       deployment-mode: rawdeployment
     _github_repo_name: kserve-operators
+    _github_repo_branch: main
   kubeflow-dashboard:
     charm: kubeflow-dashboard
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: kubeflow-dashboard-operator
+    _github_repo_branch: main
   kubeflow-profiles:
     charm: kubeflow-profiles
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: kubeflow-profiles-operator
+    _github_repo_branch: main
   kubeflow-roles:
     charm: kubeflow-roles
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: kubeflow-roles-operator
+    _github_repo_branch: main
   kubeflow-volumes:
     charm: kubeflow-volumes
     channel: latest/edge
     scale: 1
     _github_repo_name: kubeflow-volumes-operator
+    _github_repo_branch: main
   metacontroller-operator:
     charm: metacontroller-operator
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: metacontroller-operator
+    _github_repo_branch: main
   minio:
     charm: minio
     channel: latest/edge
     scale: 1
     _github_repo_name: minio-operator
+    _github_repo_branch: track/ckf-1.7
   oidc-gatekeeper:
     charm: oidc-gatekeeper
     channel: latest/edge
     scale: 1
     _github_repo_name: oidc-gatekeeper-operator
+    _github_repo_branch: main
   seldon-controller-manager:
     charm: seldon-core
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: seldon-core-operator
+    _github_repo_branch: main
   tensorboard-controller:
     charm: tensorboard-controller
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: kubeflow-tensorboards-operator
+    _github_repo_branch: main
   tensorboards-web-app:
     charm: tensorboards-web-app
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: kubeflow-tensorboards-operator
+    _github_repo_branch: main
   training-operator:
     charm: training-operator
     channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: training-operator
+    _github_repo_branch: main
 relations:
   - [argo-controller, minio]
   - [dex-auth:oidc-client, oidc-gatekeeper:oidc-client]
