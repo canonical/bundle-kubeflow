@@ -10,7 +10,7 @@ jobs:
     name: Scan images in bundle
     strategy:
       matrix:
-        bundle: [ 1.7/stable, latest/edge ]
+        bundle: [ "1.7/stable", "latest/edge" ]
     runs-on: ubuntu-20.04
     steps:
       # Ideally we'd use self-hosted runners, but this effort is still not stable
