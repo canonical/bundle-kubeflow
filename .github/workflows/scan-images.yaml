@@ -48,7 +48,7 @@ jobs:
           BUNDLE_SPLIT=(${BUNDLE//\// })
           RELEASE=${BUNDLE_SPLIT[0]}
           RISK=${BUNDLE_SPLIT[1]}
-          IMAGES=$(./kubeflow-ci/scripts/images/get-all-images.sh releases/${RELEASE}/${RISK}/kubeflow/bundle.yaml ${RELEASE}-${RISK}
+          IMAGES=$(./kubeflow-ci/scripts/images/get-all-images.sh releases/${RELEASE}/${RISK}/kubeflow/bundle.yaml ${RELEASE}-${RISK})
           echo "$IMAGES" > ./image_list.txt
           echo "Image list:"
           cat ./image_list.txt
