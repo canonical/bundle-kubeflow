@@ -254,6 +254,7 @@ applications:
     scale: 1
     trust: true
     _github_repo_name: training-operator
+    _github_repo_branch: main
 relations:
   - [argo-controller, minio]
   - [dex-auth:oidc-client, oidc-gatekeeper:oidc-client]
