@@ -10,7 +10,7 @@ jobs:
     name: Scan images in bundle
     strategy:
       matrix:
-        bundle: [ "1.7/stable", "latest/edge" ]
+        bundle: [ 1.7/stable, latest/edge ]
     runs-on: ubuntu-20.04
     steps:
       # Ideally we'd use self-hosted runners, but this effort is still not stable
@@ -44,7 +44,7 @@ jobs:
           path: kubeflow-ci
       - name: Get images
         run: |
-          BUNDLE=${{ matrix.bundle }}
+          BUNDLE="${{ matrix.bundle }}"
           BUNDLE_SPLIT=(${BUNDLE//\// })
           RELEASE=${BUNDLE_SPLIT[0]}
           RISK=${BUNDLE_SPLIT[1]}
