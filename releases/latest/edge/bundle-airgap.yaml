@@ -34,7 +34,7 @@ applications:
       proxy-image: 172.17.0.2:5000/istio/proxyv2:1.17.3
       gateway_service_type: NodePort
   istio-pilot:
-    charm: ./istio-pilot_ubuntu-20.04-amd64.charm
+    charm: ./istio-pilot_bab17ec.charm
     scale: 1
     trust: true
     options:
