@@ -188,11 +188,11 @@ applications:
     resources:
       oci-image: 172.17.0.2:5000/kubeflownotebookswg/volumes-web-app:v1.7.0
   metacontroller-operator:
-    charm: ./metacontroller-operator_0adbc5a.charm
+    charm: ./metacontroller-operator_8e4339c.charm
     scale: 1
     trust: true
-    resources:
-      oci-image: 172.17.0.2:5000/metacontrollerio/metacontroller:v3.0.0
+    options:
+      metacontroller-image: 172.17.0.2:5000/metacontrollerio/metacontroller:v3.0.0
   minio:
     charm: ./minio_0d03693.charm
     scale: 1
