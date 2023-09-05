@@ -39,7 +39,7 @@ applications:
     trust: true
     options:
       default-gateway: kubeflow-gateway
-      image-configuration: '{"pilot-image": pilot, "global-tag": 1.17.3, "global-hub": 172.17.0.2:5000/istio, "global-proxy-image": proxyv2, "global-proxy-init-image": proxyv2, "grpc-bootstrap-init": busybox:1.28}'
+      image-configuration: '{"pilot-image": "pilot", "global-tag": "1.17.3", "global-hub": "172.17.0.2:5000/istio", "global-proxy-image": "proxyv2", "global-proxy-init-image": "proxyv2", "grpc-bootstrap-init": "busybox:1.28"}'
   jupyter-controller:
     charm: ./jupyter-controller_4b8d674.charm
     scale: 1
