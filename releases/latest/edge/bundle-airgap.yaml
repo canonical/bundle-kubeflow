@@ -1,0 +1,260 @@
+bundle: kubernetes
+name: kubeflow
+applications:
+  admission-webhook:
+    charm: ./admission-webhook_98aac65.charm
+    scale: 1
+    trust: true
+    resources:
+      oci-image: 172.17.0.2:5000/kubeflownotebookswg/poddefaults-webhook:v1.7.0
+  argo-controller:
+    charm: ./argo-controller_b59eaec.charm
+    scale: 1
+    resources:
+      oci-image: 172.17.0.2:5000/argoproj/workflow-controller:v3.3.8
+    options:
+      executor-image: 172.17.0.2:5000/argoproj/argoexec:v3.3.8
+  argo-server:
+    charm: ./argo-server_6d22972.charm
+    scale: 1
+    resources:
+      oci-image: 172.17.0.2:5000/argoproj/argocli:v3.3.8
+  dex-auth:
+    charm: ./dex-auth_f0211e2.charm
+    scale: 1
+    trust: true
+    resources:
+      oci-image: 172.17.0.2:5000/dexidp/dex:v2.36.0
+  istio-ingressgateway:
+    charm: ./istio-gateway_ubuntu-20.04-amd64.charm
+    scale: 1
+    trust: true
+    options:
+      kind: ingress
+      proxy-image: 172.17.0.2:5000/istio/proxyv2:1.17.3
+  istio-pilot:
+    charm: ./istio-pilot_ubuntu-20.04-amd64.charm
+    scale: 1
+    trust: true
+    options:
+      default-gateway: kubeflow-gateway
+      image-configuration: '{"pilot-image": pilot, "global-tag": 1.17.3, "global-hub": 172.17.0.2:5000/istio, "global-proxy-image": proxyv2, "global-proxy-init-image": proxyv2, "grpc-bootstrap-init": busybox:1.28}'
+  jupyter-controller:
+    charm: ./jupyter-controller_4b8d674.charm
+    scale: 1
+    trust: true
+    resources:
+      oci-image: 172.17.0.2:5000/kubeflownotebookswg/notebook-controller:v1.7.0
+  jupyter-ui:
+    charm: ./jupyter-ui_0af4218.charm
+    scale: 1
+    trust: true
+    resources:
+      oci-image: 172.17.0.2:5000/kubeflownotebookswg/jupyter-web-app:v1.7.0
+    options:
+      jupyter-images: "['172.17.0.2:5000/kubeflownotebookswg/jupyter-scipy:v1.7.0','172.17.0.2:5000/kubeflownotebookswg/jupyter-pytorch-full:v1.7.0','172.17.0.2:5000/kubeflownotebookswg/jupyter-pytorch-cuda-full:v1.7.0','172.17.0.2:5000/kubeflownotebookswg/jupyter-tensorflow-full:v1.7.0','172.17.0.2:5000/kubeflownotebookswg/jupyter-tensorflow-cuda-full:v1.7.0']"
+      rstudio-images: "['172.17.0.2:5000/kubeflownotebookswg/rstudio-tidyverse:v1.7.0']"
+      vscode-images: "['172.17.0.2:5000/kubeflownotebookswg/codeserver-python:v1.7.0']"
+  katib-controller:
+    charm: ./katib-controller_afbe7fb.charm
+    scale: 1
+    resources:
+      oci-image: 172.17.0.2:5000/kubeflowkatib/katib-controller:v0.16.0-rc.1
+    options:
+      custom_images: '{"default_trial_template": "172.17.0.2:5000/kubeflowkatib/mxnet-mnist:v0.16.0-rc.1","early_stopping__medianstop": "172.17.0.2:5000/kubeflowkatib/earlystopping-medianstop:v0.16.0-rc.1","enas_cpu_template": "172.17.0.2:5000/kubeflowkatib/enas-cnn-cifar10-cpu:v0.16.0-rc.1","metrics_collector_sidecar__stdout": "172.17.0.2:5000/kubeflowkatib/file-metrics-collector:v0.16.0-rc.1","metrics_collector_sidecar__file": "172.17.0.2:5000/kubeflowkatib/file-metrics-collector:v0.16.0-rc.1","metrics_collector_sidecar__tensorflow_event": "172.17.0.2:5000/kubeflowkatib/tfevent-metrics-collector:v0.16.0-rc.1","pytorch_job_template__master": "172.17.0.2:5000/kubeflowkatib/pytorch-mnist-cpu:v0.16.0-rc.1","pytorch_job_template__worker": "172.17.0.2:5000/kubeflowkatib/pytorch-mnist-cpu:v0.16.0-rc.1","suggestion__random": "172.17.0.2:5000/kubeflowkatib/suggestion-hyperopt:v0.16.0-rc.1","suggestion__tpe": "172.17.0.2:5000/kubeflowkatib/suggestion-hyperopt:v0.16.0-rc.1","suggestion__grid": "172.17.0.2:5000/kubeflowkatib/suggestion-optuna:v0.16.0-rc.1","suggestion__hyperband": "172.17.0.2:5000/kubeflowkatib/suggestion-hyperband:v0.16.0-rc.1","suggestion__bayesianoptimization": "172.17.0.2:5000/kubeflowkatib/suggestion-skopt:v0.16.0-rc.1","suggestion__cmaes": "172.17.0.2:5000/kubeflowkatib/suggestion-goptuna:v0.16.0-rc.1","suggestion__sobol": "172.17.0.2:5000/kubeflowkatib/suggestion-goptuna:v0.16.0-rc.1","suggestion__multivariate_tpe": "172.17.0.2:5000/kubeflowkatib/suggestion-optuna:v0.16.0-rc.1","suggestion__enas": "172.17.0.2:5000/kubeflowkatib/suggestion-enas:v0.16.0-rc.1","suggestion__darts": "172.17.0.2:5000/kubeflowkatib/suggestion-darts:v0.16.0-rc.1","suggestion__pbt": "172.17.0.2:5000/kubeflowkatib/suggestion-pbt:v0.16.0-rc.1", }'
+  katib-db:
+    charm: ./mysql-k8s_10afaca.charm
+    scale: 1
+    trust: true
+    constraints: mem=2G
+    resources:
+      mysql-image: 172.17.0.2:5000/canonical/charmed-mysql:753477ce39712221f008955b746fcf01a215785a215fe3de56f525380d14ad97
+  katib-db-manager:
+    charm: ./katib-db-manager_cb61fe0.charm
+    scale: 1
+    trust: true
+    resources:
+      oci-image: 172.17.0.2:5000/kubeflowkatib/katib-db-manager:v0.16.0-rc.1
+  katib-ui:
+    charm: ./katib-ui_d317886.charm
+    scale: 1
+    trust: true
+    resources:
+      oci-image: 172.17.0.2:5000/kubeflowkatib/katib-ui:v0.16.0-rc.1
+  kfp-api:
+    charm: ./kfp-api_5708923.charm
+    scale: 1
+    trust: true
+    resources:
+      oci-image: 172.17.0.2:5000/charmedkubeflow/api-server:2.0.0-alpha.7_20.04_1
+  kfp-db:
+    charm: ./mysql-k8s_10afaca.charm
+    scale: 1
+    trust: true
+    constraints: mem=2G
+    resources:
+      mysql-image: 172.17.0.2:5000/canonical/charmed-mysql:753477ce39712221f008955b746fcf01a215785a215fe3de56f525380d14ad97
+  kfp-persistence:
+    charm: ./kfp-persistence_a7d1ba7.charm
+    scale: 1
+    trust: true
+    resources:
+      oci-image: 172.17.0.2:5000/charmedkubeflow/persistenceagent:2.0.0-alpha.7_22.04_1
+  kfp-profile-controller:
+    charm: ./kfp-profile-controller_527ffbc.charm
+    scale: 1
+    trust: true
+    resources:
+      oci-image: 172.17.0.2:5000/python:3.7
+  kfp-schedwf:
+    charm: ./kfp-schedwf_31d7d73.charm
+    scale: 1
+    trust: true
+    resources:
+      oci-image: 172.17.0.2:5000/charmedkubeflow/scheduledworkflow:2.0.0-alpha.7_22.04_1
+  kfp-ui:
+    charm: ./kfp-ui_dd3a136.charm
+    scale: 1
+    trust: true
+    resources:
+      ml-pipeline-ui: 172.17.0.2:5000/ml-pipeline/frontend:2.0.0-alpha.7
+  kfp-viewer:
+    charm: ./kfp-viewer_17bb76d.charm
+    scale: 1
+    trust: true
+    resources:
+      kfp-viewer-image: 172.17.0.2:5000/charmedkubeflow/viewer-crd-controller:2.0.0-alpha.7_22.04_1
+  kfp-viz:
+    charm: ./kfp-viz_874d439.charm
+    scale: 1
+    trust: true
+    resources:
+      oci-image: 172.17.0.2:5000/ml-pipeline/visualization-server:2.0.0-alpha.7
+  knative-eventing:
+    charm: ./knative-eventing_d160a86.charm
+    scale: 1
+    trust: true
+    options:
+      namespace: knative-eventing
+      custom_images: '{ "eventing-webhook/eventing-webhook": "172.17.0.2:5000/knative-releases/knative.dev/eventing/cmd/webhook:c9c582f530155d22c01b43957ae0dba549b1cc903f77ec6cc1acb9ae9085be62", "eventing-controller/eventing-controller": "172.17.0.2:5000/knative-releases/knative.dev/eventing/cmd/controller:cbc452f35842cc8a78240642adc1ebb11a4c4d7c143c8277edb49012f6cfc5d3", "mt-broker-filter/filter": "172.17.0.2:5000/knative-releases/knative.dev/eventing/cmd/broker/filter:33ea8a657b974d7bf3d94c0b601a4fc287c1fb33430b3dda028a1a189e3d9526", "mt-broker-ingress/ingress": "172.17.0.2:5000/knative-releases/knative.dev/eventing/cmd/broker/ingress:f4a9dfce9eec5272c90a19dbdf791fffc98bc5a6649ee85cb8a29bd5145635b1", "mt-broker-controller/mt-broker-controller": "172.17.0.2:5000/knative-releases/knative.dev/eventing/cmd/mtchannel_broker:c5d3664780b394f6d3e546eb94c972965fbd9357da5e442c66455db7ca94124c", "imc-controller/controller": "172.17.0.2:5000/knative-releases/knative.dev/eventing/cmd/in_memory/channel_controller:3ced549336c7ccf3bb2adf23a558eb55bd1aec7be17837062d21c749dfce8ce5", "imc-dispatcher/dispatcher": "172.17.0.2:5000/knative-releases/knative.dev/eventing/cmd/in_memory/channel_dispatcher:e17bbdf951868359424cd0a0465da8ef44c66ba7111292444ce555c83e280f1a", "pingsource-mt-adapter/dispatcher": "172.17.0.2:5000/knative-releases/knative.dev/eventing/cmd/mtping:bc200a12cbad35bea51aabe800a365f28a5bd1dd65b3934b3db2e7e22df37efd", "migrate": "172.17.0.2:5000/knative-releases/knative.dev/pkg/apiextensions/storageversion/cmd/migrate:59431cf8337532edcd9a4bcd030591866cc867f13bee875d81757c960a53668d", }'
+  knative-operator:
+    charm: ./knative-operator_fa7a1d1.charm
+    scale: 1
+    trust: true
+    resources:
+      knative-operator-image: 172.17.0.2:5000/knative-releases/knative.dev/operator/cmd/operator:v1.10.3
+      knative-operator-webhook-image: 172.17.0.2:5000/knative-releases/knative.dev/operator/cmd/webhook:v1.10.3
+  knative-serving:
+    charm: ./knative-serving_a506810.charm
+    scale: 1
+    trust: true
+    options:
+      namespace: knative-serving
+      istio.gateway.namespace: kubeflow
+      istio.gateway.name: kubeflow-gateway
+      version: 1.8.0
+      custom_images: '{ "activator": "172.17.0.2:5000/knative-releases/knative.dev/serving/cmd/activator:c3bbf3a96920048869dcab8e133e00f59855670b8a0bbca3d72ced2f512eb5e1", "autoscaler": "172.17.0.2:5000/knative-releases/knative.dev/serving/cmd/autoscaler:caae5e34b4cb311ed8551f2778cfca566a77a924a59b775bd516fa8b5e3c1d7f", "controller": "172.17.0.2:5000/knative-releases/knative.dev/serving/cmd/controller:38f9557f4d61ec79cc2cdbe76da8df6c6ae5f978a50a2847c22cc61aa240da95", "webhook": "172.17.0.2:5000/knative-releases/knative.dev/serving/cmd/webhook:bc13765ba4895c0fa318a065392d05d0adc0e20415c739e0aacb3f56140bf9ae", "autoscaler-hpa": "172.17.0.2:5000/knative-releases/knative.dev/serving/cmd/autoscaler-hpa:7003443f0faabbaca12249aa16b73fa171bddf350abd826dd93b06f5080a146d", "net-istio-controller/controller": "172.17.0.2:5000/knative-releases/knative.dev/net-istio/cmd/controller:2b484d982ef1a5d6ff93c46d3e45f51c2605c2e3ed766e20247d1727eb5ce918", "net-istio-webhook/webhook": "172.17.0.2:5000/knative-releases/knative.dev/net-istio/cmd/webhook:59b6a46d3b55a03507c76a3afe8a4ee5f1a38f1130fd3d65c9fe57fff583fa8d", "domain-mapping": "172.17.0.2:5000/knative-releases/knative.dev/serving/cmd/domain-mapping:763d648bf1edee2b4471b0e211dbc53ba2d28f92e4dae28ccd39af7185ef2c96", "domainmapping-webhook": "172.17.0.2:5000/knative-releases/knative.dev/serving/cmd/domain-mapping-webhook:a4ba0076df2efaca2eed561339e21b3a4ca9d90167befd31de882bff69639470", "migrate": "172.17.0.2:5000/knative-releases/knative.dev/pkg/apiextensions/storageversion/cmd/migrate:d0095787bc1687e2d8180b36a66997733a52f8c49c3e7751f067813e3fb54b66", "queue-proxy": "172.17.0.2:5000/knative-releases/knative.dev/serving/cmd/queue:505179c0c4892ea4a70e78bc52ac21b03cd7f1a763d2ecc78e7bbaa1ae59c86c", }'
+  kserve-controller:
+    charm: ./kserve-controller_4bd19bf.charm
+    scale: 1
+    trust: true
+    options:
+      deployment-mode: rawdeployment
+      custom_images: '{ "configmap__agent": "172.17.0.2:5000/kserve/agent:v0.10.0", "configmap__batcher": "172.17.0.2:5000/kserve/agent:v0.10.0", "configmap__explainers__alibi": "172.17.0.2:5000/kserve/alibi-explainer:latest", "configmap__explainers__aix": "172.17.0.2:5000/kserve/aix-explainer:latest", "configmap__explainers__art": "172.17.0.2:5000/kserve/art-explainer:latest", "configmap__logger": "172.17.0.2:5000/kserve/agent:v0.10.0", "configmap__router": "172.17.0.2:5000/kserve/router:v0.10.0", "configmap__storageInitializer": "172.17.0.2:5000/kserve/storage-initializer:v0.10.0", "serving_runtimes__lgbserver": "172.17.0.2:5000/kserve/lgbserver:v0.10.0", "serving_runtimes__kserve_mlserver": "172.17.0.2:5000/seldonio/mlserver:1.0.0", "serving_runtimes__paddleserver": "172.17.0.2:5000/kserve/paddleserver:v0.10.0", "serving_runtimes__pmmlserver": "172.17.0.2:5000/kserve/pmmlserver:v0.10.0", "serving_runtimes__sklearnserver": "172.17.0.2:5000/kserve/sklearnserver:v0.10.0", "serving_runtimes__tensorflow_serving": "172.17.0.2:5000/tensorflow/serving:2.6.2", "serving_runtimes__torchserve": "172.17.0.2:5000/pytorch/torchserve-kfs:0.7.0", "serving_runtimes__tritonserver": "172.17.0.2:5000/nvidia/tritonserver:21.09-py3", "serving_runtimes__xgbserver": "172.17.0.2:5000/kserve/xgbserver:v0.10.0", }'
+    resources:
+      kserve-controller-image: 172.17.0.2:5000/kserve/kserve-controller:v0.10.0
+      kube-rbac-proxy-image: 172.17.0.2:5000/kubebuilder/kube-rbac-proxy:v0.10.0
+  kubeflow-dashboard:
+    charm: ./kubeflow-dashboard_f138e5a.charm
+    scale: 1
+    trust: true
+    resources:
+      oci-image: 172.17.0.2:5000/kubeflownotebookswg/centraldashboard:v1.7.0
+  kubeflow-profiles:
+    charm: ./kubeflow-profiles_52cc101.charm
+    scale: 1
+    trust: true
+    resources:
+      profile-image: 172.17.0.2:5000/kubeflownotebookswg/profile-controller:v1.7.0
+      kfam-image: 172.17.0.2:5000/kubeflownotebookswg/kfam:v1.7.0
+  kubeflow-roles:
+    charm: ./kubeflow-roles_d034aa7.charm
+    scale: 1
+    trust: true
+  kubeflow-volumes:
+    charm: ./kubeflow-volumes_c647a89.charm
+    scale: 1
+    resources:
+      oci-image: 172.17.0.2:5000/kubeflownotebookswg/volumes-web-app:v1.7.0
+  metacontroller-operator:
+    charm: ./metacontroller-operator_0adbc5a.charm
+    scale: 1
+    trust: true
+    resources:
+      oci-image: 172.17.0.2:5000/metacontrollerio/metacontroller:v3.0.0
+  minio:
+    charm: ./minio_0d03693.charm
+    scale: 1
+    resources:
+      oci-image: 172.17.0.2:5000/minio/minio:RELEASE.2021-09-03T03-56-13Z
+  oidc-gatekeeper:
+    charm: ./oidc-gatekeeper_2d6d677.charm
+    scale: 1
+    resources:
+      oci-image: 172.17.0.2:5000/arrikto/kubeflow/oidc-authservice:e236439
+  seldon-controller-manager:
+    charm: ./seldon-core_9a712f3.charm
+    scale: 1
+    trust: true
+    resources:
+      oci-image: 172.17.0.2:5000/charmedkubeflow/seldon-core-operator:v1.15.0_22.04_1
+    options:
+      custom_images: '{ "configmap__predictor__tensorflow__tensorflow": "172.17.0.2:5000/tensorflow/serving:2.1.0", "configmap__predictor__tensorflow__seldon": "172.17.0.2:5000/seldonio/tfserving-proxy:1.15.0", "configmap__predictor__sklearn__seldon": "172.17.0.2:5000/charmedkubeflow/sklearnserver:v1.16.0_20.04_1", "configmap__predictor__sklearn__v2": "172.17.0.2:5000/charmedkubeflow/mlserver-sklearn:1.2.0_22.04_1", "configmap__predictor__xgboost__seldon": "172.17.0.2:5000/seldonio/xgboostserver:1.15.0", "configmap__predictor__xgboost__v2": "172.17.0.2:5000/charmedkubeflow/mlserver-xgboost:1.2.0_22.04_1", "configmap__predictor__mlflow__seldon": "172.17.0.2:5000/seldonio/mlflowserver:1.15.0", "configmap__predictor__mlflow__v2": "172.17.0.2:5000/charmedkubeflow/mlserver-mlflow:1.2.0_22.04_1", "configmap__predictor__triton__v2": "172.17.0.2:5000/nvidia/tritonserver:21.08-py3", "configmap__predictor__huggingface__v2": "172.17.0.2:5000/charmedkubeflow/mlserver-huggingface:1.2.4_22.04_1", "configmap__predictor__tempo_server__v2": "172.17.0.2:5000/seldonio/mlserver:1.2.0-slim", "configmap_storageInitializer": "172.17.0.2:5000/seldonio/rclone-storage-initializer:1.14.1", "configmap_explainer": "172.17.0.2:5000/seldonio/alibiexplainer:1.15.0", "configmap_explainer_v2": "172.17.0.2:5000/seldonio/mlserver:1.2.0-alibi-explain", }'
+  tensorboard-controller:
+    charm: ./tensorboard-controller_9cc1392.charm
+    scale: 1
+    trust: true
+    resources:
+      tensorboard-controller-image: 172.17.0.2:5000/kubeflownotebookswg/tensorboard-controller:v1.7.0
+  tensorboards-web-app:
+    charm: ./tensorboards-web-app_97ed301.charm
+    scale: 1
+    trust: true
+    resources:
+      tensorboards-web-app-image: 172.17.0.2:5000/kubeflownotebookswg/tensorboards-web-app:v1.7.0
+  training-operator:
+    charm: ./training-operator_6151cbb.charm
+    scale: 1
+    trust: true
+    resources:
+      training-operator-image: 172.17.0.2:5000/kubeflow/training-operator:v1-66aa635
+relations:
+  - [argo-controller, minio]
+  - [dex-auth:oidc-client, oidc-gatekeeper:oidc-client]
+  - [istio-pilot:ingress, dex-auth:ingress]
+  - [istio-pilot:ingress, jupyter-ui:ingress]
+  - [istio-pilot:ingress, katib-ui:ingress]
+  - [istio-pilot:ingress, kfp-ui:ingress]
+  - [istio-pilot:ingress, kubeflow-dashboard:ingress]
+  - [istio-pilot:ingress, kubeflow-volumes:ingress]
+  - [istio-pilot:ingress, oidc-gatekeeper:ingress]
+  - [istio-pilot:ingress-auth, oidc-gatekeeper:ingress-auth]
+  - [istio-pilot:istio-pilot, istio-ingressgateway:istio-pilot]
+  - [istio-pilot:ingress, tensorboards-web-app:ingress]
+  - [istio-pilot:gateway-info, tensorboard-controller:gateway-info]
+  - [katib-db-manager:relational-db, katib-db:database]
+  - [kfp-api:relational-db, kfp-db:database]
+  - [kfp-api:kfp-api, kfp-persistence:kfp-api]
+  - [kfp-api:kfp-api, kfp-ui:kfp-api]
+  - [kfp-api:kfp-viz, kfp-viz:kfp-viz]
+  - [kfp-api:object-storage, minio:object-storage]
+  - [kfp-profile-controller:object-storage, minio:object-storage]
+  - [kfp-ui:object-storage, minio:object-storage]
+  - [kserve-controller:ingress-gateway, istio-pilot:gateway-info]
+  - [kserve-controller:local-gateway, knative-serving:local-gateway]
+  - [kubeflow-profiles, kubeflow-dashboard]
+  - [kubeflow-dashboard:links, jupyter-ui:dashboard-links]
+  - [kubeflow-dashboard:links, katib-ui:dashboard-links]
+  - [kubeflow-dashboard:links, kfp-ui:dashboard-links]
+  - [kubeflow-dashboard:links, kubeflow-volumes:dashboard-links]
+  - [kubeflow-dashboard:links, tensorboards-web-app:dashboard-links]
