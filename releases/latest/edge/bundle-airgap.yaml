@@ -26,7 +26,7 @@ applications:
     resources:
       oci-image: 172.17.0.2:5000/dexidp/dex:v2.36.0
   istio-ingressgateway:
-    charm: ./istio-gateway_ubuntu-20.04-amd64.charm
+    charm: ./istio-gateway_926d88d.charm
     scale: 1
     trust: true
     options:
