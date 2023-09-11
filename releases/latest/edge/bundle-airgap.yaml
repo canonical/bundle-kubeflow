@@ -10,6 +10,7 @@ applications:
   argo-controller:
     charm: ./argo-controller_b59eaec.charm
     scale: 1
+    trust: true
     resources:
       oci-image: 172.17.0.2:5000/argoproj/workflow-controller:v3.3.8
     options:
