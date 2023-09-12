@@ -44,6 +44,7 @@ jobs:
           ref: main
           path: kubeflow-ci
       - name: Get images
+        id: images
         run: |
           BUNDLE="${{ matrix.bundle }}"
           BUNDLE_SPLIT=(${BUNDLE//\// })
@@ -53,20 +54,21 @@ jobs:
           echo "$IMAGES" > ./image_list.txt
           echo "Image list:"
           cat ./image_list.txt
+          echo "release_risk=${RELEASE}-${RISK}" >> $GITHUB_OUTPUT
       - name: Scan images
         run: |
           ./kubeflow-ci/scripts/images/scan-images.sh ./image_list.txt
-          ./kubeflow-ci/scripts/images/get-summary.py --report-path ./trivy-reports --print-header > scan-summary-${{ steps.setup.outputs.date}}-${{ matrix.release }}-${{ matrix.risk }}.csv
+          ./kubeflow-ci/scripts/images/get-summary.py --report-path ./trivy-reports --print-header > scan-summary-${{ steps.setup.outputs.date}}-${{ steps.images.output.release_risk }}.csv
       - name: Prepare artifacts
         run: |
-          tar zcvf trivy-reports-${{ steps.setup.outputs.date}}-${{ matrix.release }}-${{ matrix.risk }}-${{ strategy.job-index }}.tar.gz ./trivy-reports
+          tar zcvf trivy-reports-${{ steps.setup.outputs.date}}-${{ steps.images.output.release_risk }}-${{ strategy.job-index }}.tar.gz ./trivy-reports
       - name: Upload Trivy reports
         uses: actions/upload-artifact@v3
         with:
           name: trivy-reports
-          path: trivy-reports-${{ steps.setup.outputs.date}}-${{ matrix.release }}-${{ matrix.risk }}-${{ strategy.job-index }}.tar.gz
+          path: trivy-reports-${{ steps.setup.outputs.date}}-${{ steps.images.output.release_risk }}-${{ strategy.job-index }}.tar.gz
       - name: Upload summary
         uses: actions/upload-artifact@v3
         with:
           name: summary
-          path: scan-summary-${{ steps.setup.outputs.date}}-${{ matrix.release }}-${{ matrix.risk }}.csv
+          path: scan-summary-${{ steps.setup.outputs.date}}-${{ steps.images.output.release_risk }}.csv
