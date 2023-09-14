@@ -192,7 +192,7 @@ applications:
     scale: 1
     trust: true
     options:
-      metacontroller-image: 172.17.0.2:5000/metacontrollerio/metacontroller:v3.0.0
+      metacontroller-image: 172.17.0.2:5000/metacontrollerio/metacontroller:v2.0.4
   minio:
     charm: ./minio_0d03693.charm
     scale: 1
