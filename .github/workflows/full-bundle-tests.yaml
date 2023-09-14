@@ -73,6 +73,7 @@ jobs:
           eval "$(pyenv init -)"
           pip install tox
           sudo snap install charmcraft --classic
+          sudo snap install kubectl --classic
           sudo snap install firefox
 
       - name: Setup microk8s
