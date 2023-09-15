@@ -72,7 +72,6 @@ jobs:
         run: |
           eval "$(pyenv init -)"
           pip install tox
-          pip install jinja-cli
           sudo snap install charmcraft --classic
           sudo snap install kubectl --classic
           sudo snap install firefox
@@ -161,18 +160,20 @@ jobs:
           cd ~/charmed-kubeflow-uats
           git checkout ${{ inputs.uats-branch }}
 
-      - name: Configure proxy for UATs workload
+      - name: Create UAT environment configuration file
         run: |
-          eval "$(pyenv init -)"
-          jinja -E HTTP_PROXY -E HTTPS_PROXY \
-            ~/charmed-kubeflow-uats/assets/installs/test-cm.yaml.j2 -o test-cm.yaml
+          # Define the environment variables to include in the configuration file
+          variables=("HTTP_PROXY" "HTTPS_PROXY")
 
-          kubectl apply -f test-cm.yaml
+          # Create the params.env file and populate it with the values of the specified variables
+          for var in "${variables[@]}"; do
+            echo "$var=$(eval echo \$$var)" >> params.env
+          done
 
       - name: Run UATs
         run: |
           eval "$(pyenv init -)"
-          sg microk8s -c "tox -c ~/charmed-kubeflow-uats/ -e kubeflow"
+          sg microk8s -c "tox -c ~/charmed-kubeflow-uats/ -e kubeflow -- --env params.env"
 
       - name: Upload selenium screenshots
         if: failure()
