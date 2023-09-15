@@ -12,6 +12,7 @@ applications:
   argo-controller:
     charm: argo-controller
     channel: latest/edge
+    trust: true
     scale: 1
     _github_repo_name: argo-operators
     _github_repo_branch: main
