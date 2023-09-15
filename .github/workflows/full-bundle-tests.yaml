@@ -58,8 +58,8 @@ jobs:
 
           curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
 
-          export PYENV_ROOT="$HOME/.pyenv" >> "$GITHUB_ENV"
-          command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH" >> "$GITHUB_ENV"
+          export PYENV_ROOT="$HOME/.pyenv"
+          command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 
           pyenv install 3.8.16
           pyenv global 3.8.16
@@ -72,6 +72,7 @@ jobs:
         run: |
           eval "$(pyenv init -)"
           pip install tox
+          pip install jinja-cli
           sudo snap install charmcraft --classic
           sudo snap install kubectl --classic
           sudo snap install firefox
@@ -159,6 +160,14 @@ jobs:
           git clone https://github.com/canonical/charmed-kubeflow-uats.git ~/charmed-kubeflow-uats
           cd ~/charmed-kubeflow-uats
           git checkout ${{ inputs.uats-branch }}
+
+      - name: Configure proxy for UATs workload
+        run: |
+          eval "$(pyenv init -)"
+          jinja -E HTTP_PROXY -E HTTPS_PROXY \
+            ~/charmed-kubeflow-uats/assets/installs/test-cm.yaml.j2 -o test-cm.yaml
+
+          kubectl apply -f test-cm.yaml
 
       - name: Run UATs
         run: |
