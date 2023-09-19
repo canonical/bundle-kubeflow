@@ -6,19 +6,7 @@ applications:
     scale: 1
     trust: true
     resources:
-      oci-image: 172.17.0.2:5000/kubeflownotebookswg/poddefaults-webhook:v1.7.0
-  argo-controller:
-    charm: ./argo-controller_b59eaec.charm
-    scale: 1
-    resources:
-      oci-image: 172.17.0.2:5000/argoproj/workflow-controller:v3.3.8
-    options:
-      executor-image: 172.17.0.2:5000/argoproj/argoexec:v3.3.8
-  argo-server:
-    charm: ./argo-server_6d22972.charm
-    scale: 1
-    resources:
-      oci-image: 172.17.0.2:5000/argoproj/argocli:v3.3.8
+      oci-image: 172.17.0.2:5000/kubeflownotebookswg/poddefaults-webhook:v1.8.0-rc.0
   dex-auth:
     charm: ./dex-auth_f0211e2.charm
     scale: 1
@@ -45,24 +33,17 @@ applications:
     scale: 1
     trust: true
     resources:
-      oci-image: 172.17.0.2:5000/kubeflownotebookswg/notebook-controller:v1.7.0
+      oci-image: 172.17.0.2:5000/kubeflownotebookswg/notebook-controller:v1.8.0-rc.0
   jupyter-ui:
     charm: ./jupyter-ui_0af4218.charm
     scale: 1
     trust: true
     resources:
-      oci-image: 172.17.0.2:5000/kubeflownotebookswg/jupyter-web-app:v1.7.0
+      oci-image: 172.17.0.2:5000/kubeflownotebookswg/jupyter-web-app:v1.8.0-rc.0
     options:
-      jupyter-images: "['172.17.0.2:5000/kubeflownotebookswg/jupyter-scipy:v1.7.0','172.17.0.2:5000/kubeflownotebookswg/jupyter-pytorch-full:v1.7.0','172.17.0.2:5000/kubeflownotebookswg/jupyter-pytorch-cuda-full:v1.7.0','172.17.0.2:5000/kubeflownotebookswg/jupyter-tensorflow-full:v1.7.0','172.17.0.2:5000/kubeflownotebookswg/jupyter-tensorflow-cuda-full:v1.7.0']"
-      rstudio-images: "['172.17.0.2:5000/kubeflownotebookswg/rstudio-tidyverse:v1.7.0']"
-      vscode-images: "['172.17.0.2:5000/kubeflownotebookswg/codeserver-python:v1.7.0']"
-  katib-controller:
-    charm: ./katib-controller_afbe7fb.charm
-    scale: 1
-    resources:
-      oci-image: 172.17.0.2:5000/kubeflowkatib/katib-controller:v0.16.0-rc.1
-    options:
-      custom_images: '{"default_trial_template": "172.17.0.2:5000/kubeflowkatib/mxnet-mnist:v0.16.0-rc.1","early_stopping__medianstop": "172.17.0.2:5000/kubeflowkatib/earlystopping-medianstop:v0.16.0-rc.1","enas_cpu_template": "172.17.0.2:5000/kubeflowkatib/enas-cnn-cifar10-cpu:v0.16.0-rc.1","metrics_collector_sidecar__stdout": "172.17.0.2:5000/kubeflowkatib/file-metrics-collector:v0.16.0-rc.1","metrics_collector_sidecar__file": "172.17.0.2:5000/kubeflowkatib/file-metrics-collector:v0.16.0-rc.1","metrics_collector_sidecar__tensorflow_event": "172.17.0.2:5000/kubeflowkatib/tfevent-metrics-collector:v0.16.0-rc.1","pytorch_job_template__master": "172.17.0.2:5000/kubeflowkatib/pytorch-mnist-cpu:v0.16.0-rc.1","pytorch_job_template__worker": "172.17.0.2:5000/kubeflowkatib/pytorch-mnist-cpu:v0.16.0-rc.1","suggestion__random": "172.17.0.2:5000/kubeflowkatib/suggestion-hyperopt:v0.16.0-rc.1","suggestion__tpe": "172.17.0.2:5000/kubeflowkatib/suggestion-hyperopt:v0.16.0-rc.1","suggestion__grid": "172.17.0.2:5000/kubeflowkatib/suggestion-optuna:v0.16.0-rc.1","suggestion__hyperband": "172.17.0.2:5000/kubeflowkatib/suggestion-hyperband:v0.16.0-rc.1","suggestion__bayesianoptimization": "172.17.0.2:5000/kubeflowkatib/suggestion-skopt:v0.16.0-rc.1","suggestion__cmaes": "172.17.0.2:5000/kubeflowkatib/suggestion-goptuna:v0.16.0-rc.1","suggestion__sobol": "172.17.0.2:5000/kubeflowkatib/suggestion-goptuna:v0.16.0-rc.1","suggestion__multivariate_tpe": "172.17.0.2:5000/kubeflowkatib/suggestion-optuna:v0.16.0-rc.1","suggestion__enas": "172.17.0.2:5000/kubeflowkatib/suggestion-enas:v0.16.0-rc.1","suggestion__darts": "172.17.0.2:5000/kubeflowkatib/suggestion-darts:v0.16.0-rc.1","suggestion__pbt": "172.17.0.2:5000/kubeflowkatib/suggestion-pbt:v0.16.0-rc.1", }'
+      jupyter-images: "['172.17.0.2:5000/kubeflownotebookswg/jupyter-scipy:v1.8.0-rc.0','172.17.0.2:5000/kubeflownotebookswg/jupyter-pytorch-full:v1.8.0-rc.0','172.17.0.2:5000/kubeflownotebookswg/jupyter-pytorch-cuda-full:v1.8.0-rc.0','172.17.0.2:5000/kubeflownotebookswg/jupyter-tensorflow-full:v1.8.0-rc.0','172.17.0.2:5000/kubeflownotebookswg/jupyter-tensorflow-cuda-full:v1.8.0-rc.0']"
+      rstudio-images: "['172.17.0.2:5000/kubeflownotebookswg/rstudio-tidyverse:v1.8.0-rc.0']"
+      vscode-images: "['172.17.0.2:5000/kubeflownotebookswg/codeserver-python:v1.8.0-rc.0']"
   katib-db:
     charm: ./mysql-k8s_10afaca.charm
     scale: 1
@@ -170,34 +151,24 @@ applications:
     scale: 1
     trust: true
     resources:
-      oci-image: 172.17.0.2:5000/kubeflownotebookswg/centraldashboard:v1.7.0
+      oci-image: 172.17.0.2:5000/kubeflownotebookswg/centraldashboard:v1.8.0-rc.0
   kubeflow-profiles:
     charm: ./kubeflow-profiles_52cc101.charm
     scale: 1
     trust: true
     resources:
-      profile-image: 172.17.0.2:5000/kubeflownotebookswg/profile-controller:v1.7.0
-      kfam-image: 172.17.0.2:5000/kubeflownotebookswg/kfam:v1.7.0
+      profile-image: 172.17.0.2:5000/kubeflownotebookswg/profile-controller:v1.8.0-rc.0
+      kfam-image: 172.17.0.2:5000/kubeflownotebookswg/kfam:v1.8.0-rc.0
   kubeflow-roles:
     charm: ./kubeflow-roles_d034aa7.charm
     scale: 1
     trust: true
-  kubeflow-volumes:
-    charm: ./kubeflow-volumes_c647a89.charm
-    scale: 1
-    resources:
-      oci-image: 172.17.0.2:5000/kubeflownotebookswg/volumes-web-app:v1.7.0
   metacontroller-operator:
     charm: ./metacontroller-operator_8e4339c.charm
     scale: 1
     trust: true
     options:
-      metacontroller-image: 172.17.0.2:5000/metacontrollerio/metacontroller:v3.0.0
-  minio:
-    charm: ./minio_0d03693.charm
-    scale: 1
-    resources:
-      oci-image: 172.17.0.2:5000/minio/minio:RELEASE.2021-09-03T03-56-13Z
+      metacontroller-image: 172.17.0.2:5000/metacontrollerio/metacontroller:v2.0.4
   oidc-gatekeeper:
     charm: ./oidc-gatekeeper_2d6d677.charm
     scale: 1
@@ -216,28 +187,26 @@ applications:
     scale: 1
     trust: true
     resources:
-      tensorboard-controller-image: 172.17.0.2:5000/kubeflownotebookswg/tensorboard-controller:v1.7.0
+      tensorboard-controller-image: 172.17.0.2:5000/kubeflownotebookswg/tensorboard-controller:v1.8.0-rc.0
   tensorboards-web-app:
     charm: ./tensorboards-web-app_97ed301.charm
     scale: 1
     trust: true
     resources:
-      tensorboards-web-app-image: 172.17.0.2:5000/kubeflownotebookswg/tensorboards-web-app:v1.7.0
+      tensorboards-web-app-image: 172.17.0.2:5000/kubeflownotebookswg/tensorboards-web-app:v1.8.0-rc.0
   training-operator:
     charm: ./training-operator_6151cbb.charm
     scale: 1
     trust: true
     resources:
-      training-operator-image: 172.17.0.2:5000/kubeflow/training-operator:v1-66aa635
+      training-operator-image: 172.17.0.2:5000/kubeflow/training-operator:v1-855e096
 relations:
-  - [argo-controller, minio]
   - [dex-auth:oidc-client, oidc-gatekeeper:oidc-client]
   - [istio-pilot:ingress, dex-auth:ingress]
   - [istio-pilot:ingress, jupyter-ui:ingress]
   - [istio-pilot:ingress, katib-ui:ingress]
   - [istio-pilot:ingress, kfp-ui:ingress]
   - [istio-pilot:ingress, kubeflow-dashboard:ingress]
-  - [istio-pilot:ingress, kubeflow-volumes:ingress]
   - [istio-pilot:ingress, oidc-gatekeeper:ingress]
   - [istio-pilot:ingress-auth, oidc-gatekeeper:ingress-auth]
   - [istio-pilot:istio-pilot, istio-ingressgateway:istio-pilot]
@@ -248,14 +217,11 @@ relations:
   - [kfp-api:kfp-api, kfp-persistence:kfp-api]
   - [kfp-api:kfp-api, kfp-ui:kfp-api]
   - [kfp-api:kfp-viz, kfp-viz:kfp-viz]
-  - [kfp-api:object-storage, minio:object-storage]
-  - [kfp-profile-controller:object-storage, minio:object-storage]
-  - [kfp-ui:object-storage, minio:object-storage]
   - [kserve-controller:ingress-gateway, istio-pilot:gateway-info]
   - [kserve-controller:local-gateway, knative-serving:local-gateway]
   - [kubeflow-profiles, kubeflow-dashboard]
   - [kubeflow-dashboard:links, jupyter-ui:dashboard-links]
   - [kubeflow-dashboard:links, katib-ui:dashboard-links]
   - [kubeflow-dashboard:links, kfp-ui:dashboard-links]
-  - [kubeflow-dashboard:links, kubeflow-volumes:dashboard-links]
   - [kubeflow-dashboard:links, tensorboards-web-app:dashboard-links]
+
