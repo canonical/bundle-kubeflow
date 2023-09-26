@@ -179,7 +179,7 @@ applications:
     scale: 1
     trust: true
     options:
-      deployment-mode: rawdeployment
+      deployment-mode: serverless
     _github_repo_name: kserve-operators
     _github_repo_branch: main
   kubeflow-dashboard:
