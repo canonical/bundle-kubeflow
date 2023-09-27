@@ -124,6 +124,7 @@ applications:
     channel: 2.0/edge
     scale: 1
     _github_repo_name: kfp-operators
+    _github_repo_branch: track/2.0
   kfp-viewer:
     charm: kfp-viewer
     channel: 2.0/edge
