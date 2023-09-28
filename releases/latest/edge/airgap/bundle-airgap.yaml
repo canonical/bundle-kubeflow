@@ -128,6 +128,8 @@ applications:
     resources:
       knative-operator-image: 172.17.0.2:5000/knative-releases/knative.dev/operator/cmd/operator:v1.10.3
       knative-operator-webhook-image: 172.17.0.2:5000/knative-releases/knative.dev/operator/cmd/webhook:v1.10.3
+    options:
+      otel-collector-image: 172.17.0.2:5000/otel/opentelemetry-collector:latest
   knative-serving:
     charm: ./knative-serving_a506810.charm
     scale: 1
