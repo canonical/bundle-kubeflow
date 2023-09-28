@@ -80,6 +80,8 @@ applications:
     resources:
       knative-operator-image: 172.17.0.2:5000/knative-releases/knative.dev/operator/cmd/operator:v1.8.1
       knative-operator-webhook-image: 172.17.0.2:5000/knative-releases/knative.dev/operator/cmd/webhook:v1.8.1
+    options:
+      otel-collector-image: 172.17.0.2:5000/otel/opentelemetry-collector:latest
   knative-serving:
     charm: ./knative-serving_1cdb59a.charm
     scale: 1
