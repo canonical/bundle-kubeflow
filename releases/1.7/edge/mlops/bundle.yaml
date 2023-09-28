@@ -234,6 +234,7 @@ applications:
     charm: oidc-gatekeeper
     channel: ckf-1.7/edge
     scale: 1
+    trust: true
     _github_repo_name: oidc-gatekeeper-operator
     _github_repo_branch: track/ckf-1.7
   seldon-controller-manager:
