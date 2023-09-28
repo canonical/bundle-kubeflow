@@ -67,14 +67,14 @@ applications:
     resources:
       mysql-image: 172.17.0.2:5000/canonical/charmed-mysql:3b6a4a63971acec3b71a0178cd093014a695ddf7c31d91d56ebb110eec6cdbe1
   knative-eventing:
-    charm: ./knative-eventing_6bfd1e2.charm
+    charm: ./knative-eventing_76a63a8.charm
     scale: 1
     trust: true
     options:
       namespace: knative-eventing
       custom_images: '{ "eventing-webhook/eventing-webhook": "172.17.0.2:5000/knative-releases/knative.dev/eventing/cmd/webhook:c9c582f530155d22c01b43957ae0dba549b1cc903f77ec6cc1acb9ae9085be62", "eventing-controller/eventing-controller": "172.17.0.2:5000/knative-releases/knative.dev/eventing/cmd/controller:cbc452f35842cc8a78240642adc1ebb11a4c4d7c143c8277edb49012f6cfc5d3", "mt-broker-filter/filter": "172.17.0.2:5000/knative-releases/knative.dev/eventing/cmd/broker/filter:33ea8a657b974d7bf3d94c0b601a4fc287c1fb33430b3dda028a1a189e3d9526", "mt-broker-ingress/ingress": "172.17.0.2:5000/knative-releases/knative.dev/eventing/cmd/broker/ingress:f4a9dfce9eec5272c90a19dbdf791fffc98bc5a6649ee85cb8a29bd5145635b1", "mt-broker-controller/mt-broker-controller": "172.17.0.2:5000/knative-releases/knative.dev/eventing/cmd/mtchannel_broker:c5d3664780b394f6d3e546eb94c972965fbd9357da5e442c66455db7ca94124c", "imc-controller/controller": "172.17.0.2:5000/knative-releases/knative.dev/eventing/cmd/in_memory/channel_controller:3ced549336c7ccf3bb2adf23a558eb55bd1aec7be17837062d21c749dfce8ce5", "imc-dispatcher/dispatcher": "172.17.0.2:5000/knative-releases/knative.dev/eventing/cmd/in_memory/channel_dispatcher:e17bbdf951868359424cd0a0465da8ef44c66ba7111292444ce555c83e280f1a", "pingsource-mt-adapter/dispatcher": "172.17.0.2:5000/knative-releases/knative.dev/eventing/cmd/mtping:bc200a12cbad35bea51aabe800a365f28a5bd1dd65b3934b3db2e7e22df37efd", "migrate": "172.17.0.2:5000/knative-releases/knative.dev/pkg/apiextensions/storageversion/cmd/migrate:59431cf8337532edcd9a4bcd030591866cc867f13bee875d81757c960a53668d", }'
   knative-operator:
-    charm: ./knative-operator_d75de15.charm
+    charm: ./knative-operator_30a6c0f.charm
     scale: 1
     trust: true
     resources:
@@ -83,7 +83,7 @@ applications:
     options:
       otel-collector-image: 172.17.0.2:5000/otel/opentelemetry-collector:latest
   knative-serving:
-    charm: ./knative-serving_1cdb59a.charm
+    charm: ./knative-serving_e1e00db.charm
     scale: 1
     trust: true
     options:
@@ -102,7 +102,7 @@ applications:
       kserve-controller-image: 172.17.0.2:5000/kserve/kserve-controller:v0.10.0
       kube-rbac-proxy-image: 172.17.0.2:5000/kubebuilder/kube-rbac-proxy:v0.10.0
   kubeflow-dashboard:
-    charm: ./kubeflow-dashboard_68694c9.charm
+    charm: ./kubeflow-dashboard_fc6c07a.charm
     scale: 1
     trust: true
     resources:
