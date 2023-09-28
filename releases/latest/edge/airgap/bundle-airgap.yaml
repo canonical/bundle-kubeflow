@@ -69,6 +69,8 @@ applications:
     trust: true
     resources:
       oci-image: 172.17.0.2:5000/charmedkubeflow/api-server:2.0.0-alpha.7_20.04_1
+    options:
+      cache-image: 172.17.0.2:5000/google-containers/busybox
   kfp-db:
     charm: ./mysql-k8s_10afaca.charm
     scale: 1
