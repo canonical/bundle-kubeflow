@@ -226,6 +226,7 @@ applications:
     charm: oidc-gatekeeper
     channel: latest/edge
     scale: 1
+    trust: true
     _github_repo_name: oidc-gatekeeper-operator
     _github_repo_branch: main
   seldon-controller-manager:
