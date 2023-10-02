@@ -225,7 +225,7 @@ applications:
     _github_repo_branch: main
   pvcviewer-operator:
     charm: pvcviewer-operator
-    channe: latest/edge
+    channel: latest/edge
     scale: 1
     trust: true
     _github_repo_name: pvcviewer-operator
