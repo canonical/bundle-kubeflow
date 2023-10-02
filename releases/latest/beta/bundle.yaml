@@ -209,7 +209,6 @@ applications:
     scale: 1
     trust: true
     _github_repo_name: kubeflow-tensorboards-operator
-    _github_repo_branch: main
   training-operator:
     charm: training-operator
     channel: latest/beta
