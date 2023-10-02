@@ -11,12 +11,7 @@ applications:
   argo-controller:
     charm: argo-controller
     channel: latest/beta
-    trust: True
-    scale: 1
-    _github_repo_name: argo-operators
-  argo-server:
-    charm: argo-server
-    channel: latest/beta
+    trust: true
     scale: 1
     _github_repo_name: argo-operators
   dex-auth:
@@ -63,6 +58,7 @@ applications:
     channel: 8.0/stable
     scale: 1
     trust: true
+    constraints: mem=2G
   katib-db-manager:
     charm: katib-db-manager
     channel: latest/beta
@@ -86,35 +82,42 @@ applications:
     channel: 8.0/stable
     scale: 1
     trust: true
+    constraints: mem=2G
   kfp-persistence:
     charm: kfp-persistence
     channel: latest/beta
     scale: 1
+    trust: true
     _github_repo_name: kfp-operators
   kfp-profile-controller:
     charm: kfp-profile-controller
     channel: latest/beta
     scale: 1
+    trust: true
     _github_repo_name: kfp-operators
   kfp-schedwf:
     charm: kfp-schedwf
     channel: latest/beta
     scale: 1
+    trust: true
     _github_repo_name: kfp-operators
   kfp-ui:
     charm: kfp-ui
     channel: latest/beta
     scale: 1
+    trust: true
     _github_repo_name: kfp-operators
   kfp-viewer:
     charm: kfp-viewer
     channel: latest/beta
     scale: 1
+    trust: true
     _github_repo_name: kfp-operators
   kfp-viz:
     charm: kfp-viz
     channel: latest/beta
     scale: 1
+    trust: true
     _github_repo_name: kfp-operators
   knative-eventing:
     charm: knative-eventing
@@ -146,7 +149,7 @@ applications:
     scale: 1
     trust: true
     options:
-      deployment-mode: rawdeployment
+      deployment-mode: serverless
     _github_repo_name: kserve-operators
   kubeflow-dashboard:
     charm: kubeflow-dashboard
@@ -186,6 +189,7 @@ applications:
     charm: oidc-gatekeeper
     channel: latest/beta
     scale: 1
+    trust: true
     _github_repo_name: oidc-gatekeeper-operator
   seldon-controller-manager:
     charm: seldon-core
@@ -197,12 +201,15 @@ applications:
     charm: tensorboard-controller
     channel: latest/beta
     scale: 1
+    trust: true
     _github_repo_name: kubeflow-tensorboards-operator
   tensorboards-web-app:
     charm: tensorboards-web-app
     channel: latest/beta
     scale: 1
+    trust: true
     _github_repo_name: kubeflow-tensorboards-operator
+    _github_repo_branch: main
   training-operator:
     charm: training-operator
     channel: latest/beta
@@ -234,3 +241,8 @@ relations:
   - [kserve-controller:ingress-gateway, istio-pilot:gateway-info]
   - [kserve-controller:local-gateway, knative-serving:local-gateway]
   - [kubeflow-profiles, kubeflow-dashboard]
+  - [kubeflow-dashboard:links, jupyter-ui:dashboard-links]
+  - [kubeflow-dashboard:links, katib-ui:dashboard-links]
+  - [kubeflow-dashboard:links, kfp-ui:dashboard-links]
+  - [kubeflow-dashboard:links, kubeflow-volumes:dashboard-links]
+  - [kubeflow-dashboard:links, tensorboards-web-app:dashboard-links]
