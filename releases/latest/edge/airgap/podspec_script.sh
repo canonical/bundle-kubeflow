@@ -1,6 +1,5 @@
 # A script to deploy PodSpec charms, these cannot be included in the bundle definition due to https://github.com/canonical/bundle-kubeflow/issues/693
 juju deploy ./argo-controller_980dd9f.charm --resource oci-image=172.17.0.2:5000/argoproj/workflow-controller:v3.3.10 --config executor-image=172.17.0.2:5000/argoproj/argoexec:v3.3.8
-juju deploy ./argo-server_2618292.charm --resource oci-image=172.17.0.2:5000/argoproj/argocli:v3.3.8
 juju deploy ./katib-controller_f371975.charm \
     --resource oci-image=172.17.0.2:5000/kubeflowkatib/katib-controller:v0.16.0-rc.1 \
     --config custom_images='{"default_trial_template": "172.17.0.2:5000/kubeflowkatib/mxnet-mnist:v0.16.0-rc.1", \

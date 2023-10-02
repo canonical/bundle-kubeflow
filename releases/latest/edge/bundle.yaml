@@ -16,12 +16,6 @@ applications:
     scale: 1
     _github_repo_name: argo-operators
     _github_repo_branch: main
-  argo-server:
-    charm: argo-server
-    channel: latest/edge
-    scale: 1
-    _github_repo_name: argo-operators
-    _github_repo_branch: main
   dex-auth:
     charm: dex-auth
     channel: latest/edge
