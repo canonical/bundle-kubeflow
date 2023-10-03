@@ -193,7 +193,7 @@ applications:
     _github_repo_name: oidc-gatekeeper-operator
   pvcviewer-operator:
     charm: pvcviewer-operator
-    channel: latest/edge
+    channel: latest/beta
     scale: 1
     trust: true
     _github_repo_name: pvcviewer-operator
