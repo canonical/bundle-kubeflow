@@ -148,8 +148,6 @@ applications:
     channel: latest/beta
     scale: 1
     trust: true
-    options:
-      deployment-mode: serverless
     _github_repo_name: kserve-operators
   kubeflow-dashboard:
     charm: kubeflow-dashboard
