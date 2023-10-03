@@ -223,6 +223,13 @@ applications:
     trust: true
     _github_repo_name: oidc-gatekeeper-operator
     _github_repo_branch: main
+  pvcviewer-operator:
+    charm: pvcviewer-operator
+    channel: latest/edge
+    scale: 1
+    trust: true
+    _github_repo_name: pvcviewer-operator
+    _github_repo_branch: main
   seldon-controller-manager:
     charm: seldon-core
     channel: latest/edge
