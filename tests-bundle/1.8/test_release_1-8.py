@@ -85,13 +85,6 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         timeout=from_minutes(minutes=100),
     )
 
-    print("dispatch istio config changed hook")
-    rc, stdout, stderr = await ops_test.run(
-        *shlex.split(
-            'juju run --unit istio-pilot/0 -- "export JUJU_DISPATCH_PATH=hooks/config-changed; ./dispatch"'
-        )
-    )
-
     if rc != 0:
         raise Exception(f"Dispatch failed with code: {rc}, \nstdout: {stdout}, \nstderr {stderr}")
 
