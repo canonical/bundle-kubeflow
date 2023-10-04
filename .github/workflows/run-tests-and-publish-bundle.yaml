@@ -42,6 +42,7 @@ jobs:
   publish-bundle-for-releases-affected:
     name: Publish bundle
     runs-on: ubuntu-22.04
+    # we'll need to add back `run-tests` in the `needs` part, once we bring it back
     needs: [get-release-inputs]
     steps:
       - uses: actions/checkout@v3
