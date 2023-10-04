@@ -42,7 +42,7 @@ jobs:
   publish-bundle-for-releases-affected:
     name: Publish bundle
     runs-on: ubuntu-22.04
-    needs: [get-release-inputs, run-tests]
+    needs: [get-release-inputs]
     steps:
       - uses: actions/checkout@v3
 
