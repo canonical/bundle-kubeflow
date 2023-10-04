@@ -10,7 +10,7 @@ applications:
     _github_repo_name: admission-webhook-operator
   argo-controller:
     charm: argo-controller
-    channel: latest/edge
+    channel: 3.3/stable
     trust: true
     scale: 1
     _github_repo_name: argo-operators
