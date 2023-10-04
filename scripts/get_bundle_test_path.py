@@ -1,6 +1,6 @@
 # Get bundle test path for specific release
-import sys
 import os
+import sys
 
 # For new releases, add a release/tests mapping to this dictionary
 RELEASE_TESTS = {
@@ -10,6 +10,9 @@ RELEASE_TESTS = {
     "1.7/beta": "./tests-bundle/1.7/",
     "1.7/edge": "./tests-bundle/1.7/",
     "1.7/stable": "./tests-bundle/1.7/",
+    "1.8/beta": "./tests-bundle/1.8/",
+    "1.8/edge": "./tests-bundle/1.8/",
+    "1.8/stable": "./tests-bundle/1.8/",
     "latest/beta": "./tests-bundle/1.7/",
     "latest/edge": "./tests-bundle/1.7/",
 }
