@@ -4,6 +4,9 @@ import os
 import re
 import sys
 
+ACCEPTED_TRACKS = ["1.7", "1.8", "latest"]
+ACCEPTED_RISKS = ["beta", "edge", "stable"]
+
 
 def get_releases_affected() -> None:
     releases_affected = set()
@@ -16,10 +19,8 @@ def get_releases_affected() -> None:
             directories = file_path.split('/')
             track = directories[1]
             risk = directories[2]
-            accepted_tracks = ["1.4", "1.6", "1.7", "1.8", "latest"]
-            accepted_risks = ["beta", "edge", "stable"]
 
-            if(track in accepted_tracks and risk in accepted_risks):
+            if(track in ACCEPTED_TRACKS and risk in ACCEPTED_RISKS):
                 release = f"{track}/{risk}"
                 releases_affected.add(release)
             else:
