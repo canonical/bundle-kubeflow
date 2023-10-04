@@ -73,7 +73,7 @@ applications:
     _github_repo_name: katib-operators
   kfp-api:
     charm: kfp-api
-    channel: latest/edge
+    channel: 2.0/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
@@ -85,37 +85,37 @@ applications:
     constraints: mem=2G
   kfp-persistence:
     charm: kfp-persistence
-    channel: latest/edge
+    channel: 2.0/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
   kfp-profile-controller:
     charm: kfp-profile-controller
-    channel: latest/edge
+    channel: 2.0/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
   kfp-schedwf:
     charm: kfp-schedwf
-    channel: latest/edge
+    channel: 2.0/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
   kfp-ui:
     charm: kfp-ui
-    channel: latest/edge
+    channel: 2.0/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
   kfp-viewer:
     charm: kfp-viewer
-    channel: latest/edge
+    channel: 2.0/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
   kfp-viz:
     charm: kfp-viz
-    channel: latest/edge
+    channel: 2.0/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
