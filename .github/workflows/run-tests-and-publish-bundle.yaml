@@ -9,6 +9,15 @@ on:
     secrets:
       CHARMCRAFT_CREDENTIALS:
         required: true
+  workflow_dispatch:
+    inputs:
+      release:
+        description: Bundle release to run tests on and publish to Charmhub
+        type: string
+        required: true
+    secrets:
+      CHARMCRAFT_CREDENTIALS:
+        required: true
 
 jobs:
   get-release-inputs:
