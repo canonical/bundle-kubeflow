@@ -75,7 +75,7 @@ applications:
     _github_repo_name: katib-operators
   kfp-api:
     charm: kfp-api
-    channel: 2.0/beta
+    channel: 2.0-alpha.7/beta
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
@@ -87,32 +87,32 @@ applications:
     constraints: mem=2G
   kfp-persistence:
     charm: kfp-persistence
-    channel: 2.0/beta
+    channel: 2.0-alpha.7/beta
     scale: 1
     _github_repo_name: kfp-operators
   kfp-profile-controller:
     charm: kfp-profile-controller
-    channel: 2.0/beta
+    channel: 2.0-alpha.7/beta
     scale: 1
     _github_repo_name: kfp-operators
   kfp-schedwf:
     charm: kfp-schedwf
-    channel: 2.0/beta
+    channel: 2.0-alpha.7/beta
     scale: 1
     _github_repo_name: kfp-operators
   kfp-ui:
     charm: kfp-ui
-    channel: 2.0/beta
+    channel: 2.0-alpha.7/beta
     scale: 1
     _github_repo_name: kfp-operators
   kfp-viewer:
     charm: kfp-viewer
-    channel: 2.0/beta
+    channel: 2.0-alpha.7/beta
     scale: 1
     _github_repo_name: kfp-operators
   kfp-viz:
     charm: kfp-viz
-    channel: 2.0/beta
+    channel: 2.0-alpha.7/beta
     scale: 1
     _github_repo_name: kfp-operators
   knative-eventing:
