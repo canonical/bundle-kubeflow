@@ -110,7 +110,7 @@ jobs:
           loginctl enable-linger $USER
           sudo apt-get install dbus-user-session -yqq
           systemctl --user start dbus.service
-
+      - run: sleep 7200
       - name: Run bundle tests
         run: |
           eval "$(pyenv init -)"
