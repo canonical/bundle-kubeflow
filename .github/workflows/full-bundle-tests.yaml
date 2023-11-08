@@ -1,34 +1,34 @@
 name: Test self hosted
 
 on:
-  workflow_dispatch:
-    inputs:
-      bundle-test-path:
-        description: 'Test folder to run'
-        required: true
-      bundle-source:
-        description: 'Either `--channel <channel_name>` or `--file <bundle_file>.yaml`'
-        required: true
-      uats-branch:
-        description: 'The branch of `charmed-kubeflow-uats` to run, e.g. `track/1.7`'
-        type: string
-        default: 'main'
-        required: true
-  workflow_call:
-    inputs:
-      bundle-test-path:
-        description: 'Test folder to run'
-        type: string
-        required: true
-      bundle-source:
-        description: 'Either `--channel <channel_name>` or `--file <bundle_file>.yaml`'
-        type: string
-        required: true
-      uats-branch:
-        description: 'The branch of `charmed-kubeflow-uats` to run, e.g. `track/1.7`'
-        type: string
-        default: 'main'
-        required: true
+  pull_request:
+          #inputs:
+          #bundle-test-path:
+          #description: 'Test folder to run'
+          #required: true
+          #bundle-source:
+          #description: 'Either `--channel <channel_name>` or `--file <bundle_file>.yaml`'
+          #required: true
+          #uats-branch:
+          #description: 'The branch of `charmed-kubeflow-uats` to run, e.g. `track/1.7`'
+          #type: string
+          #default: 'main'
+          #required: true
+          #workflow_call:
+          #inputs:
+          #bundle-test-path:
+          #description: 'Test folder to run'
+          #type: string
+          #required: true
+          #bundle-source:
+          #description: 'Either `--channel <channel_name>` or `--file <bundle_file>.yaml`'
+          #type: string
+          #required: true
+          #uats-branch:
+          #description: 'The branch of `charmed-kubeflow-uats` to run, e.g. `track/1.7`'
+          #type: string
+          #default: 'main'
+          #required: true
 
 jobs:
   test-bundle:
@@ -154,15 +154,15 @@ jobs:
       - name: Run bundle tests
         run: |
           eval "$(pyenv init -)"
-          export BUNDLE_TEST_PATH=${{ inputs.bundle-test-path }}
+          export BUNDLE_TEST_PATH=tests-bundle/1.7
           export GH_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          sg microk8s -c "tox -e full_bundle_tests -- ${{ inputs.bundle-source }}"
+          sg microk8s -c "tox -e full_bundle_tests -- 1.7/stable"
 
       - name: Checkout Kubeflow UATs
         run: |
           git clone https://github.com/canonical/charmed-kubeflow-uats.git ~/charmed-kubeflow-uats
           cd ~/charmed-kubeflow-uats
-          git checkout ${{ inputs.uats-branch }}
+          git checkout main
 
       - name: Create UAT environment configuration file
         run: |
