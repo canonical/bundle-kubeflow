@@ -156,7 +156,7 @@ jobs:
           eval "$(pyenv init -)"
           export BUNDLE_TEST_PATH=tests-bundle/1.7
           export GH_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          sg microk8s -c "tox -e full_bundle_tests -- 1.7/stable"
+          sg microk8s -c "tox -e full_bundle_tests -- releases/1.7/stable/kubeflow/bundle.yaml"
 
       - name: Checkout Kubeflow UATs
         run: |
