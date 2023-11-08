@@ -35,39 +35,6 @@ jobs:
     runs-on: [self-hosted, linux, X64, two-xlarge]
     steps:
       - uses: actions/checkout@v3
-      - name: Parse and enable DNS server
-        id: dns-name
-        run: |
-          dns_server=$(grep -oPm1 'Current DNS Server: \K[^\s]+' <<< "$(resolvectl status)")
-          echo "Using following DNS Server: $dns_server"
-
-          echo "MY_ADDONS=hostpath-storage ingress dns:$dns_server rbac registry metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'" >> $GITHUB_OUTPUT
-
-      - name: Setup Python
-        run: |
-          echo "deb-src http://archive.ubuntu.com/ubuntu/ jammy main" | sudo tee -a /etc/apt/sources.list
-
-          sudo apt-get update -yqq
-          sudo apt-get build-dep -yqq python3
-          sudo apt-get install -yqq pkg-config
-
-          sudo apt-get install -yqq build-essential gdb lcov pkg-config \
-            libbz2-dev libffi-dev libgdbm-dev libgdbm-compat-dev liblzma-dev \
-            libncurses5-dev libreadline6-dev libsqlite3-dev libssl-dev \
-            lzma lzma-dev tk-dev uuid-dev zlib1g-dev
-
-          curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
-
-          export PYENV_ROOT="$HOME/.pyenv"
-          command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-
-          pyenv install 3.8.16
-          pyenv global 3.8.16
-
-          # configure environment variables to be available in subsequent steps
-          echo "PYENV_ROOT=$PYENV_ROOT" >> "$GITHUB_ENV"
-          echo "PATH=$PATH" >> "$GITHUB_ENV"
-
       - name: Install tools
         run: |
           eval "$(pyenv init -)"
@@ -116,15 +83,8 @@ jobs:
 
       - name: Wait for microk8s to be ready and give time for addons
         run: |
-          sleep 90
-          sg microk8s -c "microk8s status --wait-ready --timeout 150"
           sg microk8s -c "mkdir -p ~/.kube"
           sg microk8s -c "microk8s config > ~/.kube/config"
-
-      - name: Install and bootstrap Juju
-        run: |
-          # sudo snap install juju --classic --channel=2.9/stable
-          sg microk8s -c 'juju bootstrap microk8s bundle-controller --model-default test-mode=true --model-default logging-config="<root>=DEBUG" --agent-version="2.9.44" --debug --verbose'
 
       - name: Show all pods status
         run: |
@@ -163,16 +123,6 @@ jobs:
           git clone https://github.com/canonical/charmed-kubeflow-uats.git ~/charmed-kubeflow-uats
           cd ~/charmed-kubeflow-uats
           git checkout main
-
-      - name: Create UAT environment configuration file
-        run: |
-          # Define the environment variables to include in the configuration file
-          variables=("HTTP_PROXY" "HTTPS_PROXY")
-
-          # Create the params.env file and populate it with the values of the specified variables
-          for var in "${variables[@]}"; do
-            echo "$var=$(eval echo \$$var)" >> params.env
-          done
 
       - name: Run UATs
         run: |
