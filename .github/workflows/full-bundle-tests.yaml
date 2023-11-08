@@ -1,4 +1,4 @@
-name: Tests
+name: Test self hosted
 
 on:
   workflow_dispatch:
@@ -68,22 +68,22 @@ jobs:
           echo "PYENV_ROOT=$PYENV_ROOT" >> "$GITHUB_ENV"
           echo "PATH=$PATH" >> "$GITHUB_ENV"
 
-        - name: Install tools
-          run: |
+      - name: Install tools
+        run: |
           eval "$(pyenv init -)"
           pip install tox
           #sudo snap install charmcraft --classic
           sudo snap install kubectl --classic
           sudo snap install firefox
 
-        - name: Setup operator environment
-          uses: charmed-kubernetes/actions-operator@main
-          with:
-            provider: microk8s
-            channel: 1.24/stable
-            juju-channel: 2.9/stable
-            charmcraft-channel: latest/candidate
-            microk8s-addons: "dns hostpath-storage rbac metallb:10.64.140.43-10.64.140.49"
+      - name: Setup operator environment
+        uses: charmed-kubernetes/actions-operator@main
+        with:
+          provider: microk8s
+          channel: 1.24/stable
+          juju-channel: 2.9/stable
+          charmcraft-channel: latest/candidate
+          microk8s-addons: "dns hostpath-storage rbac metallb:10.64.140.43-10.64.140.49"
 
 #      - name: update registry
 #        run: |
@@ -123,7 +123,7 @@ jobs:
 
       - name: Install and bootstrap Juju
         run: |
-                # sudo snap install juju --classic --channel=2.9/stable
+          # sudo snap install juju --classic --channel=2.9/stable
           sg microk8s -c 'juju bootstrap microk8s bundle-controller --model-default test-mode=true --model-default logging-config="<root>=DEBUG" --agent-version="2.9.44" --debug --verbose'
 
       - name: Show all pods status
