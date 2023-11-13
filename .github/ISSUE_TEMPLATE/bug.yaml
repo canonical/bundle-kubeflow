@@ -1,6 +1,6 @@
 name: Bug Report
 description: File a bug report
-labels: ["Type: bug"]
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
@@ -55,4 +55,3 @@ body:
     id: additional-context
     attributes:
       label: Additional Context
-
