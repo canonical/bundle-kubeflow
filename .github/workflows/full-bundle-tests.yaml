@@ -33,7 +33,27 @@ jobs:
 
           echo "MY_ADDONS=hostpath-storage ingress dns:$dns_server rbac registry metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'" >> $GITHUB_OUTPUT
 
-      - name: Install tools
+      - name: Setup aproxy
+        run: |
+          sudo snap install aproxy --edge
+          sudo snap set aproxy proxy=squid.internal:3128
+          sudo nft -f - << EOF
+          define default-ip = $(ip route get $(ip route show 0.0.0.0/0 | grep -oP 'via \K\S+') | grep -oP 'src \K\S+')
+          define private-ips = { 10.0.0.0/8, 127.0.0.1/8, 172.16.0.0/12, 192.168.0.0/16 }
+          table ip aproxy
+          flush table ip aproxy
+          table ip aproxy {
+                chain prerouting {
+                        type nat hook prerouting priority dstnat; policy accept;
+                        ip daddr != \$private-ips tcp dport { 80, 443 } counter dnat to \$default-ip:8443
+                }
+
+                chain output {
+                        type nat hook output priority -100; policy accept;
+                        ip daddr != \$private-ips tcp dport { 80, 443 } counter dnat to \$default-ip:8443
+                }
+          }
+          EOF
         run: |
           sudo apt-get update -yqq
           sudo apt-get install -yqq python3-pip
@@ -116,15 +136,9 @@ jobs:
           export GH_TOKEN=${{ secrets.GITHUB_TOKEN }}
           sg microk8s -c "tox -e full_bundle_tests -- ${{ inputs.bundle-source }}"
 
-      - name: Upload selenium screenshots
+      - name: Dump Aproxy logs on failure
         if: failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: selenium-screenshots
-          path: |
-            sel-screenshots
-            **/sel-screenshots
-            **/**/sel-screenshots
+        run: sudo snap logs aproxy.aproxy -n=all
 
       - name: Run connectivity check
         if: always()
