@@ -1,4 +1,4 @@
-name: Tests
+name: Deploy bundle and run UATs on self-hosted runners
 
 on:
   workflow_dispatch:
@@ -9,6 +9,14 @@ on:
       bundle-source:
         description: 'Either `--channel <channel_name>` or `--file <bundle_file>.yaml`'
         required: true
+      microk8s-version:
+        description: Branch to checkout at for charmed-kubeflow-uats repo
+        required: false
+        default: "1.25-strict/stable"
+      juju-version:
+        description: Branch to checkout at for charmed-kubeflow-uats repo
+        required: false
+        default: "3.1/stable"
   workflow_call:
     inputs:
       bundle-test-path:
@@ -19,6 +27,16 @@ on:
         description: 'Either `--channel <channel_name>` or `--file <bundle_file>.yaml`'
         type: string
         required: true
+      microk8s-version:
+        description: Branch to checkout at for charmed-kubeflow-uats repo
+        required: false
+        type: string
+        default: "1.25-strict/stable"
+      juju-version:
+        description: Branch to checkout at for charmed-kubeflow-uats repo
+        required: false
+        type: string
+        default: "3.1/stable"
 
 jobs:
   test-bundle:
@@ -80,53 +98,44 @@ jobs:
           echo "PYENV_ROOT=$PYENV_ROOT" >> "$GITHUB_ENV"
           echo "PATH=$PATH" >> "$GITHUB_ENV"
 
-      - name: Restart microk8s
+      - name: Install tox
         run: |
-          sg microk8s -c "microk8s stop"
-          sg microk8s -c "microk8s start"
-          sg microk8s -c "microk8s status --wait-ready --timeout 150"
+          eval "$(pyenv init -)"
+          pip install tox
 
-      - name: Enable addons
-        run: |
-          sg microk8s -c "microk8s enable ${{ steps.dns-name.outputs.MY_ADDONS }}"
+      - name: Setup operator environment
+        uses: charmed-kubernetes/actions-operator@main
+        with:
+          provider: microk8s
+          channel: ${{ inputs.microk8s-version }}
+          juju-channel: ${{ inputs.juju-version }}
+          charmcraft-channel: latest/candidate
+          microk8s-addons: ${{ steps.dns-name.outputs.MY_ADDONS }}
 
-      - name: Wait for microk8s to be ready and give time for addons
+      - name: Wait for microk8s to be ready and configure .kube/config
         run: |
-          sleep 90
-          sg microk8s -c "microk8s status --wait-ready --timeout 150"
+          sudo microk8s status --wait-ready --timeout 150
           sg microk8s -c "mkdir -p ~/.kube"
-          sg microk8s -c "microk8s config > ~/.kube/config"
-
-      - name: Install and bootstrap juju
-        run: |
-          sudo snap install juju --classic --channel=2.9/stable
-          sg microk8s -c 'juju bootstrap microk8s bundle-controller --model-default test-mode=true --model-default logging-config="<root>=DEBUG" --agent-version="2.9.44" --debug --verbose'
+          sudo microk8s config > ~/.kube/config
 
       - name: Show all pods status
         run: |
-          sg microk8s -c "microk8s kubectl get pods --all-namespaces"
+          sudo microk8s kubectl get pods --all-namespaces
 
       - name: Increase file system limits
         run: |
           sudo sysctl fs.inotify.max_user_instances=1280
           sudo sysctl fs.inotify.max_user_watches=655360
 
-      - run: |
+      - name: Configure Juju model
+        run: |
           sg microk8s -c "juju add-model kubeflow --config default-series=focal --config automatically-retry-hooks=true"
           sg microk8s -c "juju model-config"
           sg microk8s -c "juju status"
 
-      - run: |
-          # required for gecko driver
-          export XDG_RUNTIME_DIR="/run/user/$(id -u)"
-          export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
-          echo "$(id -u)"
-          loginctl enable-linger $USER
-          sudo apt-get install dbus-user-session -yqq
-          systemctl --user start dbus.service
-
       - name: Run bundle tests
         run: |
+          eval "$(pyenv init -)"
           export BUNDLE_TEST_PATH=${{ inputs.bundle-test-path }}
           export GH_TOKEN=${{ secrets.GITHUB_TOKEN }}
           sg microk8s -c "tox -e full_bundle_tests -- ${{ inputs.bundle-source }}"
@@ -146,22 +155,22 @@ jobs:
           sg microk8s -c "juju status"
 
           echo "Dumping k8s logs"
-          sg microk8s -c "microk8s kubectl get all --all-namespaces"
+          sudo microk8s kubectl get all --all-namespaces
 
       - name: Descript all pods
         if: failure()
         run: |
-          sg microk8s -c "microk8s kubectl describe pods --all-namespaces"
+          sudo microk8s kubectl describe pods --all-namespaces
 
       - name: Get logs from failed pods
         if: failure() || cancelled()
         run: |
-          POD_LIST=$(sg microk8s -c "microk8s kubectl get pods --all-namespaces -o 'custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,CONTAINERS:.status.containerStatuses[*].ready'" | awk '$3 == "false" {print $1,$2}')
+          POD_LIST=$(sudo microk8s kubectl get pods --all-namespaces -o 'custom-columns=NAME:.metadata.name,NAMESPACE:.metadata.namespace,CONTAINERS:.status.containerStatuses[*].ready' | awk '$3 == "false" {print $1,$2}')
 
           if [ -n "$POD_LIST" ]; then
             echo "Actual Logs"
             while read -r POD NAMESPACE; do
               echo "\n\n\nPod: $POD"
-              sg microk8s -c "microk8s kubectl logs -n $NAMESPACE $POD"
+              sudo microk8s kubectl logs -n $NAMESPACE $POD
             done <<< "$POD_LIST"
           fi
