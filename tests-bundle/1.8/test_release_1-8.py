@@ -21,8 +21,7 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
     apps = [
         'admission-webhook',
         'argo-controller',
-        'argo-server',
-        'dex-auth',
+        # 'dex-auth', # this is expected to wait for OIDC
         'envoy',
         # 'istio-ingressgateway',  # this is expected to wait for OIDC
         # 'istio-pilot',  # this is expected to wait for OIDC
@@ -46,7 +45,7 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         'knative-serving',
         'kserve-controller',
         'kubeflow-dashboard',
-        # due to https://github.com/canonical/kubeflow-profiles-operator/issues/117
+        # due to https://github.com/c   anonical/kubeflow-profiles-operator/issues/117
         # 'kubeflow-profiles',
         'kubeflow-roles',
         'kubeflow-volumes',
@@ -64,7 +63,7 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         status="active",
         raise_on_blocked=False,
         raise_on_error=False,
-        timeout=from_minutes(minutes=180),
+        timeout=from_minutes(minutes=30),
     )
     print("All applications are active")
 
@@ -77,15 +76,18 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
     await ops_test.model.applications["oidc-gatekeeper"].set_config({"public-url": url})
 
     # append apps since they should be configured now
+    apps.append("dex-auth")
     apps.append("oidc-gatekeeper")
     apps.append("istio-ingressgateway")
     apps.append("istio-pilot")
+    apps.append("kubeflow-profiles")
+    apps.append("tensorboard-controller")
     await ops_test.model.wait_for_idle(
         apps=apps,
         status="active",
         raise_on_blocked=False,
         raise_on_error=False,
-        timeout=from_minutes(minutes=100),
+        timeout=from_minutes(minutes=30),
     )
 
     if rc != 0:
@@ -97,7 +99,6 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         raise_on_blocked=False,
         raise_on_error=True,
         timeout=from_minutes(minutes=30),
-        idle_period=from_minutes(minutes=3),
     )
 
 
