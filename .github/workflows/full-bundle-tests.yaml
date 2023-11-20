@@ -54,36 +54,31 @@ jobs:
                 }
           }
           EOF
+
+      - name: Setup Python 3.8
         run: |
+          echo "deb-src http://archive.ubuntu.com/ubuntu/ jammy main" | sudo tee -a /etc/apt/sources.list
+
           sudo apt-get update -yqq
-          sudo apt-get install -yqq python3-pip
-          sudo --preserve-env=http_proxy,https_proxy,no_proxy pip3 install tox
-          sudo snap install charmcraft --classic
-          sudo snap install firefox
+          sudo apt-get build-dep -yqq python3
+          sudo apt-get install -yqq pkg-config
 
-      - name: Setup microk8s
-        run: |
-          sudo snap install microk8s --classic --channel=1.24/stable
-          sudo usermod -a -G microk8s $USER
+          sudo apt-get install -yqq build-essential gdb lcov pkg-config \
+            libbz2-dev libffi-dev libgdbm-dev libgdbm-compat-dev liblzma-dev \
+            libncurses5-dev libreadline6-dev libsqlite3-dev libssl-dev \
+            lzma lzma-dev tk-dev uuid-dev zlib1g-dev
 
-#      - name: update registry
-#        run: |
-#          sg microk8s -c "cat > /var/snap/microk8s/current/args/certs.d/docker.io/hosts.toml << EOF
-#          server = \"https://rocks.canonical.com\"
-#          [host.\"https://rocks.canonical.com\"]
-#          capabilities = [\"pull\", \"resolve\"]
-#          EOF"
-#
-#      - run: |
-#          sudo cat /var/snap/microk8s/current/args/certs.d/docker.io/hosts.toml
+          curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
 
-      - name: update credentials
-        run: |
-          sg microk8s -c "cat >> /var/snap/microk8s/current/args/containerd-template.toml << EOF
-          [plugins.\"io.containerd.grpc.v1.cri\".registry.configs.\"registry-1.docker.io\".auth]
-          username = \"${{ secrets.MAKSIM_DOCKERHUB_USER }}\"
-          password = \"${{ secrets.MAKSIM_DOCKERHUB_PASSWORD }}\"
-          EOF"
+          export PYENV_ROOT="$HOME/.pyenv"
+          command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+
+          pyenv install 3.8.16
+          pyenv global 3.8.16
+
+          # configure environment variables to be available in subsequent steps
+          echo "PYENV_ROOT=$PYENV_ROOT" >> "$GITHUB_ENV"
+          echo "PATH=$PATH" >> "$GITHUB_ENV"
 
       - name: Restart microk8s
         run: |
