@@ -8,21 +8,28 @@ applications:
     trust: true
     scale: 1
     _github_repo_name: admission-webhook-operator
+    _github_repo_branch: 1.8/beta
   argo-controller:
     charm: argo-controller
-    channel: 1.8/beta
+    channel: 3.3.10/beta
     trust: true
     scale: 1
     _github_repo_name: argo-operators
   dex-auth:
     charm: dex-auth
-    channel: 1.8/beta
+    channel: 2.36/beta
     scale: 1
     trust: true
     _github_repo_name: dex-auth-operator
+  envoy:
+    charm: envoy
+    channel: 2.0/beta
+    scale: 1
+    trust: true
+    _github_repo_name: envoy-operator
   istio-ingressgateway:
     charm: istio-gateway
-    channel: 1.8/beta
+    channel: 1.17/beta
     scale: 1
     trust: true
     _github_repo_name: istio-operators
@@ -30,7 +37,7 @@ applications:
       kind: ingress
   istio-pilot:
     charm: istio-pilot
-    channel: 1.8/beta
+    channel: 1.17/beta
     scale: 1
     trust: true
     _github_repo_name: istio-operators
@@ -67,13 +74,13 @@ applications:
     _github_repo_name: katib-operators
   katib-ui:
     charm: katib-ui
-    channel: 1.8/beta
+    channel: 0.16/beta
     scale: 1
     trust: true
     _github_repo_name: katib-operators
   kfp-api:
     charm: kfp-api
-    channel: 1.8/beta
+    channel: 2.0/beta
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
@@ -83,45 +90,51 @@ applications:
     scale: 1
     trust: true
     constraints: mem=2G
+  kfp-metadata-writer:
+    charm: kfp-metadata-writer
+    channel: 2.0/beta
+    scale: 1
+    trust: true
+    _github_repo_name: kfp-operators
   kfp-persistence:
     charm: kfp-persistence
-    channel: 1.8/beta
+    channel: 2.0/beta
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
   kfp-profile-controller:
     charm: kfp-profile-controller
-    channel: 1.8/beta
+    channel: 2.0/beta
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
   kfp-schedwf:
     charm: kfp-schedwf
-    channel: 1.8/beta
+    channel: 2.0/beta
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
   kfp-ui:
     charm: kfp-ui
-    channel: 1.8/beta
+    channel: 2.0/beta
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
   kfp-viewer:
     charm: kfp-viewer
-    channel: 1.8/beta
+    channel: 2.0/beta
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
   kfp-viz:
     charm: kfp-viz
-    channel: 1.8/beta
+    channel: 2.0/beta
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
   knative-eventing:
     charm: knative-eventing
-    channel: 1.8/beta
+    channel: 1.10/beta
     scale: 1
     trust: true
     options:
@@ -129,13 +142,13 @@ applications:
     _github_repo_name: knative-operators
   knative-operator:
     charm: knative-operator
-    channel: 1.8/beta
+    channel: 1.10/beta
     scale: 1
     trust: true
     _github_repo_name: knative-operators
   knative-serving:
     charm: knative-serving
-    channel: 1.8/beta
+    channel: 1.10/beta
     scale: 1
     trust: true
     options:
@@ -174,18 +187,23 @@ applications:
     _github_repo_name: kubeflow-volumes-operator
   metacontroller-operator:
     charm: metacontroller-operator
-    channel: 1.8/beta
+    channel: 3.0/beta
     scale: 1
     trust: true
     _github_repo_name: metacontroller-operator
+  mlmd:
+    charm: mlmd
+    channel: 1.14/beta
+    scale: 1
+    _github_repo_name: mlmd-operator
   minio:
     charm: minio
-    channel: 1.8/beta
+    channel: ckf-1.8/beta
     scale: 1
     _github_repo_name: minio-operator
   oidc-gatekeeper:
     charm: oidc-gatekeeper
-    channel: 1.8/beta
+    channel: ckf-1.8/beta
     scale: 1
     trust: true
     _github_repo_name: oidc-gatekeeper-operator
@@ -194,10 +212,11 @@ applications:
     channel: 1.8/beta
     scale: 1
     trust: true
+    series: focal
     _github_repo_name: pvcviewer-operator
   seldon-controller-manager:
     charm: seldon-core
-    channel: 1.8/beta
+    channel: 1.17/beta
     scale: 1
     trust: true
     _github_repo_name: seldon-core-operator
@@ -215,7 +234,7 @@ applications:
     _github_repo_name: kubeflow-tensorboards-operator
   training-operator:
     charm: training-operator
-    channel: 1.8/beta
+    channel: 1.7/beta
     scale: 1
     trust: true
     _github_repo_name: training-operator
@@ -223,6 +242,7 @@ relations:
   - [argo-controller, minio]
   - [dex-auth:oidc-client, oidc-gatekeeper:oidc-client]
   - [istio-pilot:ingress, dex-auth:ingress]
+  - [istio-pilot:ingress, envoy:ingress]
   - [istio-pilot:ingress, jupyter-ui:ingress]
   - [istio-pilot:ingress, katib-ui:ingress]
   - [istio-pilot:ingress, kfp-ui:ingress]
@@ -249,3 +269,5 @@ relations:
   - [kubeflow-dashboard:links, kfp-ui:dashboard-links]
   - [kubeflow-dashboard:links, kubeflow-volumes:dashboard-links]
   - [kubeflow-dashboard:links, tensorboards-web-app:dashboard-links]
+  - [mlmd:grpc, envoy:grpc]
+  - [mlmd:grpc, kfp-metadata-writer:grpc]
