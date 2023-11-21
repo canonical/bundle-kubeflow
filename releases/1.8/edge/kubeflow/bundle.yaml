@@ -57,7 +57,7 @@ applications:
     _github_repo_name: notebook-operators
   katib-controller:
     charm: katib-controller
-    channel: 1.8/edge
+    channel: 0.16/edge
     scale: 1
     _github_repo_name: katib-operators
   katib-db:
@@ -68,7 +68,7 @@ applications:
     constraints: mem=2G
   katib-db-manager:
     charm: katib-db-manager
-    channel: 1.8/edge
+    channel: 0.16/edge
     scale: 1
     trust: true
     _github_repo_name: katib-operators
@@ -158,7 +158,7 @@ applications:
     _github_repo_name: knative-operators
   kserve-controller:
     charm: kserve-controller
-    channel: 1.8/edge
+    channel: 0.11/edge
     scale: 1
     trust: true
     _github_repo_name: kserve-operators
