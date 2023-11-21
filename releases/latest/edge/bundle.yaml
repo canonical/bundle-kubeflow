@@ -23,6 +23,13 @@ applications:
     trust: true
     _github_repo_name: dex-auth-operator
     _github_repo_branch: main
+  envoy:
+    charm: envoy
+    channel: latest/edge
+    scale: 1
+    trust: true
+    _github_repo_name: envoy-operator
+    _github_repo_branch: main
   istio-ingressgateway:
     charm: istio-gateway
     channel: latest/edge
@@ -98,6 +105,13 @@ applications:
     constraints: mem=2G
     _github_dependency_repo_name: mysql-k8s-operator
     _github_dependency_repo_branch: main
+  kfp-metadata-writer:
+    charm: kfp-metadata-writer
+    channel: latest/edge
+    scale: 1
+    trust: true
+    _github_repo_name: kfp-operators
+    _github_repo_branch: main
   kfp-persistence:
     charm: kfp-persistence
     channel: latest/edge
@@ -210,12 +224,18 @@ applications:
     trust: true
     _github_repo_name: metacontroller-operator
     _github_repo_branch: main
+  mlmd:
+    charm: mlmd
+    channel: latest/edge
+    scale: 1
+    _github_repo_name: mlmd-operator
+    _github_repo_branch: main
   minio:
     charm: minio
     channel: latest/edge
     scale: 1
     _github_repo_name: minio-operator
-    _github_repo_branch: track/ckf-1.7
+    _github_repo_branch: main
   oidc-gatekeeper:
     charm: oidc-gatekeeper
     channel: latest/edge
@@ -228,6 +248,7 @@ applications:
     channel: latest/edge
     scale: 1
     trust: true
+    series: focal
     _github_repo_name: pvcviewer-operator
     _github_repo_branch: main
   seldon-controller-manager:
@@ -268,6 +289,7 @@ relations:
   - [istio-pilot:ingress, kubeflow-dashboard:ingress]
   - [istio-pilot:ingress, kubeflow-volumes:ingress]
   - [istio-pilot:ingress, oidc-gatekeeper:ingress]
+  - [istio-pilot:ingress, envoy:ingress]
   - [istio-pilot:ingress-auth, oidc-gatekeeper:ingress-auth]
   - [istio-pilot:istio-pilot, istio-ingressgateway:istio-pilot]
   - [istio-pilot:ingress, tensorboards-web-app:ingress]
@@ -288,3 +310,5 @@ relations:
   - [kubeflow-dashboard:links, kfp-ui:dashboard-links]
   - [kubeflow-dashboard:links, kubeflow-volumes:dashboard-links]
   - [kubeflow-dashboard:links, tensorboards-web-app:dashboard-links]
+  - [mlmd:grpc, envoy:grpc]
+  - [mlmd:grpc, kfp-metadata-writer:grpc]
