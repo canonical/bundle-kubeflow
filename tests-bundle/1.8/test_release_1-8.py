@@ -23,6 +23,7 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         'argo-controller',
         'argo-server',
         'dex-auth',
+        'envoy',
         # 'istio-ingressgateway',  # this is expected to wait for OIDC
         # 'istio-pilot',  # this is expected to wait for OIDC
         'jupyter-controller',
@@ -33,6 +34,7 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         'katib-ui',
         'kfp-api',
         'kfp-db',
+        'kfp-metadata-writer',
         'kfp-persistence',
         'kfp-profile-controller',
         'kfp-schedwf',
@@ -50,6 +52,7 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         'kubeflow-volumes',
         'metacontroller-operator',
         'minio',
+        'mlmd',
         # 'oidc-gatekeeper',  # this is expected to wait for public-url config
         'seldon-controller-manager',
         # 'tensorboard-controller',  # this is expected to wait for config
