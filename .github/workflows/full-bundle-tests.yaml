@@ -164,7 +164,7 @@ jobs:
         if: always()
 
       - name: Dump Aproxy logs on failure
-        if: failure()
+        if: failure() || cancelled()
         run: sudo snap logs aproxy.aproxy -n=all
 
       - name: Run connectivity check
@@ -180,8 +180,13 @@ jobs:
           echo "Dumping k8s logs"
           sudo microk8s kubectl get all --all-namespaces
 
+      - name: Dump juju debug-log on failure
+        if: failure() || cancelled()
+        run: |
+          sg microk8s -c "juju debug-log --replay --no-tail"
+
       - name: Descript all pods
-        if: failure()
+        if: failure() || cancelled()
         run: |
           sudo microk8s kubectl describe pods --all-namespaces
 
