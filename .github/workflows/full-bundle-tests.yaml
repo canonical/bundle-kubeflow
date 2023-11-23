@@ -9,6 +9,10 @@ on:
       bundle-source:
         description: 'Either `--channel <channel_name>` or `--file <bundle_file>.yaml`'
         required: true
+      uats-branch:
+        description: Branch to run the UATs from e.g. main or track/1.7
+        required: false
+        default: main
       microk8s-version:
         description: Branch to checkout at for charmed-kubeflow-uats repo
         required: false
@@ -27,6 +31,11 @@ on:
         description: 'Either `--channel <channel_name>` or `--file <bundle_file>.yaml`'
         type: string
         required: true
+      uats-branch:
+        description: Branch to run the UATs from e.g. main or track/1.7
+        required: false
+        type: string
+        default: main
       microk8s-version:
         description: Branch to checkout at for charmed-kubeflow-uats repo
         required: false
@@ -140,6 +149,15 @@ jobs:
           export GH_TOKEN=${{ secrets.GITHUB_TOKEN }}
           sg microk8s -c "tox -e full_bundle_tests -- ${{ inputs.bundle-source }}"
 
+      - name: Checkout Kubeflow UATs
+        run: |
+          git clone https://github.com/canonical/charmed-kubeflow-uats.git ~/charmed-kubeflow-uats
+          cd ~/charmed-kubeflow-uats
+          git checkout ${{ inputs.uats-branch }}
+      - name: Run UATs
+        run: |
+          eval "$(pyenv init -)"
+          sg microk8s -c "tox -c ~/charmed-kubeflow-uats/ -e kubeflow"
       - name: Dump Aproxy logs on failure
         if: failure()
         run: sudo snap logs aproxy.aproxy -n=all
