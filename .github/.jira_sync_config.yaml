@@ -20,7 +20,7 @@ settings:
   sync_description: true
 
   # (Optional) (Default: true) Synchronize comments from GitHub to Jira
-  sync_comments: true
+  sync_comments: false
 
   # (Optional) (Default: None) Parent Epic key to link the issue to
   epic_key: "KF-4805"
