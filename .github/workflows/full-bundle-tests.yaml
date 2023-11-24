@@ -186,7 +186,7 @@ jobs:
           sg microk8s -c "juju debug-log --replay --no-tail"
 
       - name: Get pod logs in namespace test-kubeflow
-        run: kubectl get pods -n test-kubeflow | tail -n +2 | awk '{print $1}' | xargs -n1 kubectl -n test-kubeflow logs
+        run: kubectl get pods -n test-kubeflow | tail -n +2 | awk '{print $1}' | xargs -n1 kubectl -n test-kubeflow logs --all-containers
 
       - name: Descript all pods
         if: failure() || cancelled()
