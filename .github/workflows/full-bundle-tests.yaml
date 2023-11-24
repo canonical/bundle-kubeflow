@@ -187,6 +187,7 @@ jobs:
 
       - name: Get pod logs in namespace test-kubeflow
         run: kubectl get pods -n test-kubeflow | tail -n +2 | awk '{print $1}' | xargs -n1 kubectl -n test-kubeflow logs --all-containers
+        if: failure() || cancelled()
 
       - name: Descript all pods
         if: failure() || cancelled()
