@@ -60,6 +60,8 @@ jobs:
 
           echo "MY_ADDONS=hostpath-storage ingress dns:$dns_server rbac registry metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'" >> $GITHUB_OUTPUT
 
+      # This is needed in order to configure internet connection for self-hosted runner.
+      # Source: https://discourse.canonical.com/t/introducing-aproxy-a-transparent-proxy-for-github-self-hosted-runners/2566
       - name: Setup aproxy
         run: |
           sudo snap install aproxy --edge
