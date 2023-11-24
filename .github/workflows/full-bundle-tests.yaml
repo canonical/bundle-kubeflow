@@ -14,11 +14,11 @@ on:
         required: false
         default: main
       microk8s-version:
-        description: Branch to checkout at for charmed-kubeflow-uats repo
+        description: Microk8s channel e.g. 1.25-strict/stable
         required: false
         default: "1.25-strict/stable"
       juju-version:
-        description: Branch to checkout at for charmed-kubeflow-uats repo
+        description: Juju channel e.g. 3.1/stable
         required: false
         default: "3.1/stable"
   workflow_call:
@@ -37,12 +37,12 @@ on:
         type: string
         default: main
       microk8s-version:
-        description: Branch to checkout at for charmed-kubeflow-uats repo
+        description: Microk8s channel e.g. 1.25-strict/stable
         required: false
         type: string
         default: "1.25-strict/stable"
       juju-version:
-        description: Branch to checkout at for charmed-kubeflow-uats repo
+        description: Juju channel e.g. 3.1/stable
         required: false
         type: string
         default: "3.1/stable"
