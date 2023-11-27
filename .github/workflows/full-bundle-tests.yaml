@@ -3,9 +3,6 @@ name: Deploy bundle and run UATs on self-hosted runners
 on:
   workflow_dispatch:
     inputs:
-      bundle-test-path:
-        description: 'Test folder to run'
-        required: true
       bundle-source:
         description: 'Either `--channel <channel_name>` or `--file <bundle_file>.yaml`'
         required: true
@@ -23,10 +20,6 @@ on:
         default: "3.1/stable"
   workflow_call:
     inputs:
-      bundle-test-path:
-        description: 'Test folder to run'
-        type: string
-        required: true
       bundle-source:
         description: 'Either `--channel <channel_name>` or `--file <bundle_file>.yaml`'
         type: string
@@ -144,10 +137,18 @@ jobs:
           sg microk8s -c "juju model-config"
           sg microk8s -c "juju status"
 
+      - name: Get release from bundle-source input
+        id: get-release-from-bundle-source
+        run: python scripts/get_release_from_bundle_source.py ${{ inputs.bundle-source }}
+
+      - name: Get bundle test path for ${{ steps.get-release-from-bundle-source.outputs.release }}
+        id: bundle-test-path
+        run: python scripts/get_bundle_test_path.py ${{ steps.get-release-from-bundle-source.outputs.release }}
+
       - name: Run bundle tests
         run: |
           eval "$(pyenv init -)"
-          export BUNDLE_TEST_PATH=${{ inputs.bundle-test-path }}
+          export BUNDLE_TEST_PATH=${{ steps.bundle-test-path.outputs.bundle_test_path }}
           export GH_TOKEN=${{ secrets.GITHUB_TOKEN }}
           sg microk8s -c "tox -e full_bundle_tests -- ${{ inputs.bundle-source }}"
 
