@@ -10,6 +10,14 @@ body:
         isn't already a prior issue concerning this. If there is,
         please join that discussion instead.
   - type: textarea
+    id: enhancement-proposal-why
+    attributes:
+      label: Why it needs to get done
+      description: >
+        Describe why it needs to get done
+    validations:
+      required: true
+  - type: textarea
     id: enhancement-proposal-what
     attributes:
       label: What needs to get done
@@ -18,10 +26,10 @@ body:
     validations:
       required: true
   - type: textarea
-    id: enhancement-proposal-why
+    id: enhancement-proposal-dod
     attributes:
-      label: Why it needs to get done
+      label: When is the task considered done
       description: >
-        Describe why it needs to get done
+        Describe what are the requirements for the task to be considered done
     validations:
       required: true
