@@ -10,11 +10,7 @@ cli = docker.client.from_env()
 
 log = logging.getLogger(__name__)
 
-RETAGGED_IMAGES_FILE = "retagged-images.txt"
 SHA_TOKEN = "@sha256"
-REGISTRIES = ["docker.io/library", "docker.io", "gcr.io", "quay.io",
-              "registry.k8s.io", "k8s.gcr.io", "public.ecr.aws", "ghcr.io",
-              "nvcr.io"]
 
 
 def retag_image_with_sha(image):
@@ -45,17 +41,17 @@ def get_retagged_image_name(image_nm: str, new_registry: str) -> str:
         # classic docker.io image, i.e. argoproj/workflow-controller
         return "%s/%s" % (new_registry, image_nm)
 
-    for registry in REGISTRIES:
-        if registry not in image_nm:
-            continue
-
-        return image_nm.replace(registry, new_registry)
+    # There are more than 2 / in the image name. Replace first part
+    # Example image: quay.io/metallb/speaker:v0.13.3
+    _, image_nm = image_nm.split("/", 1)
+    return "%s/%s" % (new_registry, image_nm)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Retag list of images")
     parser.add_argument("images")
     parser.add_argument("--new-registry", default="172.17.0.2:5000")
+    parser.add_argument("--retagged-images", default="retagged-images.txt")
     # The reason we are using this IP as new registry is because this will end
     # up being the IP of the Registry we'll run as a Container. We'll need to
     # do docker push <...> so we'll have to use the IP directly, or mess with
@@ -74,14 +70,14 @@ if __name__ == "__main__":
         )
 
         img = get_or_pull_image(image_nm)
-        logging.info("%s: Retagging to %s", image_nm, retagged_image_nm)
+        log.info("%s: Retagging to %s", image_nm, retagged_image_nm)
         img.tag(retagged_image_nm)
 
         new_images_ls.append(retagged_image_nm)
 
     log.info("Saving the produced list of images.")
-    delete_file_if_exists(RETAGGED_IMAGES_FILE)
-    with open(RETAGGED_IMAGES_FILE, "w+") as f:
+    delete_file_if_exists(args.retagged_images)
+    with open(args.retagged_images, "w+") as f:
         f.write("\n".join(new_images_ls))
 
-    log.info("Successfully saved list of images in '%s'", RETAGGED_IMAGES_FILE)
+    log.info("Successfully saved list of images in '%s'", args.retagged_images)

@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# This file includes helper functions for:
+# 1. setting up a Docker Registry
+# 2. configuring microk8s to use this registry (with http)
+#
+# The scripts are aimed to be run with access to the internet.
 
 function setup_docker_registry() {
   local NAME=$1

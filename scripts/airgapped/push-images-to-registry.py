@@ -5,7 +5,7 @@ import docker
 
 from utils import get_images_list_from_file
 
-cli = docker.client.from_env()
+docker_client = docker.client.from_env()
 
 log = logging.getLogger(__name__)
 
@@ -22,6 +22,6 @@ if __name__ == "__main__":
         log.info("%s/%s", idx + 1, images_len)
 
         logging.info("Pushing image: %s", image_nm)
-        cli.images.push(image_nm)
+        docker_client.images.push(image_nm)
 
     log.info("Successfully pushed all images!")

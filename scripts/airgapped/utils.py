@@ -1,5 +1,6 @@
 import logging
 import os
+import pathlib
 
 import docker
 
@@ -11,14 +12,17 @@ logging.basicConfig(format=LOG_FORMAT, level=logging.INFO)
 log = logging.getLogger(__name__)
 
 
+def delete_files_with_extension(dir_path, extension):
+    """Delete all files in dir_path that have a specific file extension."""
+    dir_files = os.listdir(dir_path)
+    for file in dir_files:
+        if file.endswith(extension):
+            os.remove(os.path.join(dir_path, file))
+
+
 def delete_file_if_exists(file_name):
     """Delete the file name if it exists."""
-    if os.path.exists(file_name):
-        try:
-            os.remove(file_name)
-            log.info("File '%s' deleted successfully.", file_name)
-        except Exception as e:
-            log.error("An error occurred while deleting the file:", e)
+    pathlib.Path(file_name).unlink(missing_ok=True)
 
 
 def get_images_list_from_file(file_name: str) -> list[str]:

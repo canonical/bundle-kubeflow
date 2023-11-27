@@ -1,4 +1,7 @@
 # Testing Airgapped Installation
+> :warning: **Those scripts require at least 500Gb**: Since they download all images of Kubeflow, both in host and inside the LXC container
+>
+> :warning: **Those scripts require Python 3.10**
 
 For running the tests we expect an environment that can:
 1. Spin up LXC containers
@@ -24,13 +27,30 @@ You can run the script that will spin up an airgapped microk8s cluster with:
 ```bash
 ./tests/airgapped/airgap.sh \
   --node-name airgapped-microk8s \
-  --microk8s-channel 1.24/stable
+  --microk8s-channel 1.24/stable \
   --bundle-path releases/latest/edge/bundle.yaml
 ```
 
+### Size considerations
+
+As stated in the beginning these scripts require a lot of storage, if run with
+the full set of images of Kubeflow. To better expose this, we'll take for
+granted that the total of all OCI images of Kubeflow is 125Gb. Then the amount
+of storage needed is:
+- 125Gb, for host to pull all images locally
+- 125Gb, for the compressed `images.tar.gz` (the size almost always will be
+  smaller, but here I'll use the worst case scenario
+- 125Gb, to copy this tarbal inside the airgapped LXC machine
+- 125Gb, to copy the contents of the tarball into the container registry inside
+  the airgapped LXC machine
+
+So in the worst case, we need to have at least 500Gb to be able to run those
+scripts and use all images of Kubeflow.
+
 ### Running with a subset of images
 
-By default, if no `images.tar.gz` file is found, the script will try to download
+By default, if no `images.tar.gz` file is found, in working directory from where
+the script was executed from, then the script will try to download
 all the CKF images. These are 125Gb, which will make it difficult for running a
 lot of tests locally.
 

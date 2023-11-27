@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
-set -xe
+# This is the driver script for:
+# 1. Pulling all the images/charms in host env
+# 2. Create an airgapped lxd VM and install MicroK8s in it
+# 3. Setup a registry mirror in that VM
+#
+# The script is also made to use some "caching". Specifically, if a charms.tar.gz
+# or an images.tar.gz file is present then it won't regenerate them, to save time.
 
 source tests/airgapped/utils.sh
 source tests/airgapped/ckf.sh

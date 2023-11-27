@@ -6,6 +6,7 @@ build/
 sel-screenshots/*
 geckodriver.log
 .vscode/*
+*.tar.gz
 
 # vim
 [._]*.s[a-v][a-z]
@@ -16,8 +17,6 @@ geckodriver.log
 [._]sw[a-p]
 
 # airgapped
-images.tar.gz
-charms.tar.gz
 images.txt
 charms.txt
 retagged-images.txt

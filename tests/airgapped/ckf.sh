@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# This file includes helper functions for 
+# 1. Fetching CKF artifacts (images,tars)
+# 2. Pushing the artifacts to the airgapped VM
+# 3. Initialising juju and preparing the model for CKF
+
 function create_images_tar() {
   local BUNDLE_PATH=$1
 
