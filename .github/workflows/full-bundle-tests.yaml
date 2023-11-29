@@ -139,7 +139,7 @@ jobs:
 
       - name: Get release from bundle-source input
         id: get-release-from-bundle-source
-        run: python scripts/get_release_from_bundle_source.py ${{ inputs.bundle-source }}
+        run: python scripts/get_release_from_bundle_source.py "${{ inputs.bundle-source }}"
 
       - name: Get bundle test path for ${{ steps.get-release-from-bundle-source.outputs.release }}
         id: bundle-test-path
