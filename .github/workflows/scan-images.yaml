@@ -11,7 +11,10 @@ jobs:
     strategy:
       matrix:
         # specfy location of bundle(s) to be scanned
-        bundle: [ releases/1.7/stable/kubeflow, releases/latest/edge ]
+        bundle:
+          - releases/1.7/stable/kubeflow
+          - releases/1.8/stable/kubeflow
+          - releases/latest/edge
     runs-on: ubuntu-20.04
     steps:
       # Ideally we'd use self-hosted runners, but this effort is still not stable
