@@ -10,11 +10,11 @@ on:
         description: Branch to run the UATs from e.g. main or track/1.7
         required: false
         default: main
-      microk8s-version:
+      microk8s-channel:
         description: Microk8s channel e.g. 1.25-strict/stable
         required: false
         default: "1.25-strict/stable"
-      juju-version:
+      juju-channel:
         description: Juju channel e.g. 3.1/stable
         required: false
         default: "3.1/stable"
@@ -29,12 +29,12 @@ on:
         required: false
         type: string
         default: main
-      microk8s-version:
+      microk8s-channel:
         description: Microk8s channel e.g. 1.25-strict/stable
         required: false
         type: string
         default: "1.25-strict/stable"
-      juju-version:
+      juju-channel:
         description: Juju channel e.g. 3.1/stable
         required: false
         type: string
@@ -111,8 +111,8 @@ jobs:
         uses: charmed-kubernetes/actions-operator@main
         with:
           provider: microk8s
-          channel: ${{ inputs.microk8s-version }}
-          juju-channel: ${{ inputs.juju-version }}
+          channel: ${{ inputs.microk8s-channel }}
+          juju-channel: ${{ inputs.juju-channel }}
           charmcraft-channel: latest/candidate
           microk8s-addons: ${{ steps.dns-name.outputs.MY_ADDONS }}
 
