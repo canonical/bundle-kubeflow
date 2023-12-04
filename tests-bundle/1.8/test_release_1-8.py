@@ -7,7 +7,7 @@ from pytest_operator.plugin import OpsTest
 USERNAME = "admin"
 PASSWORD = "admin"
 
-
+@pytest.mark.asyncio
 @pytest.mark.abort_on_fail
 @pytest.mark.deploy
 async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
@@ -101,7 +101,7 @@ async def test_deploy(ops_test: OpsTest, lightkube_client, deploy_cmd):
         timeout=from_minutes(minutes=30),
     )
 
-
+@pytest.mark.asyncio
 @pytest.mark.deploy
 @pytest.mark.abort_on_fail
 async def test_profile_creation_action(ops_test: OpsTest):
