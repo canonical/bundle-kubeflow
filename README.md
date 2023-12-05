@@ -1,4 +1,8 @@
 # Kubeflow Operators
+[![CharmHub Badge](https://charmhub.io/kubeflow/badge.svg)](https://charmhub.io/kubeflow)
+[![Release](https://github.com/canonical/bundle-kubeflow/actions/workflows/release-bundle-to-charmhub.yaml/badge.svg)](https://github.com/canonical/bundle-kubeflow/actions/workflows/release-bundle-to-charmhub.yaml)
+[![Scan Images](https://github.com/canonical/bundle-kubeflow/actions/workflows/scan-images.yaml/badge.svg)](https://github.com/canonical/bundle-kubeflow/actions/workflows/scan-images.yaml)
+[![EKS Tests](https://github.com/canonical/bundle-kubeflow/actions/workflows/deploy-eks.yaml/badge.svg)](https://github.com/canonical/bundle-kubeflow/actions/workflows/deploy-eks.yaml)
 
 ## Introduction
 
