@@ -10,11 +10,12 @@ body:
         isn't already a prior issue concerning this. If there is,
         please join that discussion instead.
   - type: textarea
-    id: enhancement-proposal-why
+    id: enhancement-proposal-context
     attributes:
-      label: Why it needs to get done
+      label: Context
       description: >
-        Describe why it needs to get done
+        Describe why we should work on this task/enhancement, as well as
+        existing context we should be aware of
     validations:
       required: true
   - type: textarea
@@ -23,13 +24,21 @@ body:
       label: What needs to get done
       description: >
         Describe what needs to get done
+      placeholder: |
+        1. Look into X
+        2. Implement Y
+        3. Create file Z
     validations:
       required: true
   - type: textarea
     id: enhancement-proposal-dod
     attributes:
-      label: When is the task considered done
+      label: Definition of Done
       description: >
-        Describe what are the requirements for the task to be considered done
+        What are the requirements for the task to be considered done
+      placeholder: |
+        1. We know how X works (spike)
+        2. Code is doing Y
+        3. Charm has functionality Z
     validations:
       required: true
