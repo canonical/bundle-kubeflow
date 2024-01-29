@@ -6,3 +6,17 @@ build/
 sel-screenshots/*
 geckodriver.log
 .vscode/*
+*.tar.gz
+
+# vim
+[._]*.s[a-v][a-z]
+!*.svg  # comment out if you don't need vector files
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# airgapped
+images.txt
+charms.txt
+retagged-images.txt
