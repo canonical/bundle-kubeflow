@@ -63,7 +63,7 @@ jobs:
       
       - name: Test bundle deployment
         run: |
-          tox -vve test_bundle_deployment -- --model kubeflow --keep-models -vv -s
+          tox -vve test_bundle_deployment-1.7 -- --model kubeflow --keep-models -vv -s
       
       # On failure, capture debugging resources
       - name: Get juju status
