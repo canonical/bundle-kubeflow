@@ -215,6 +215,7 @@ applications:
     charm: kubeflow-volumes
     channel: latest/edge
     scale: 1
+    trust: true
     _github_repo_name: kubeflow-volumes-operator
     _github_repo_branch: main
   metacontroller-operator:
