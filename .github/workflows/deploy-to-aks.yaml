@@ -76,15 +76,15 @@ jobs:
 
       - name: Get juju status
         run: juju status
-        if: failure()
+        if: failure() || cancelled()
 
       - name: Get juju debug logs
         run: juju debug-log --replay --no-tail
-        if: failure()
+        if: failure() || cancelled()
 
       - name: Get all kubernetes resources
         run: kubectl get all -A
-        if: failure()
+        if: failure() || cancelled()
 
       - name: Describe all pods
         if: failure() || cancelled()
@@ -93,15 +93,15 @@ jobs:
 
       - name: Get logs from pods with status = Pending
         run: kubectl -n kubeflow get pods | tail -n +2 | grep Pending | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
-        if: failure()
+        if: failure() || cancelled()
 
       - name: Get logs from pods with status = Failed
         run: kubectl -n kubeflow get pods | tail -n +2 | grep Failed | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
-        if: failure()
+        if: failure() || cancelled()
 
       - name: Get logs from pods with status = CrashLoopBackOff
         run: kubectl -n kubeflow get pods | tail -n +2 | grep CrashLoopBackOff | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
-        if: failure()
+        if: failure() || cancelled()
 
       - name: Delete AKS resources
         if: always()
