@@ -70,6 +70,10 @@ jobs:
           tox -vve test_bundle_deployment-${{ matrix.bundle_version }} -- --model kubeflow --keep-models -vv -s
 
       # On failure, capture debugging resources
+      - name: Save debug artifacts
+        uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main
+        if: always()
+
       - name: Get juju status
         run: juju status
         if: failure()
@@ -81,6 +85,11 @@ jobs:
       - name: Get all kubernetes resources
         run: kubectl get all -A
         if: failure()
+
+      - name: Describe all pods
+        if: failure() || cancelled()
+        run: |
+          sudo microk8s kubectl describe pods --all-namespaces
 
       - name: Get logs from pods with status = Pending
         run: kubectl -n kubeflow get pods | tail -n +2 | grep Pending | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
