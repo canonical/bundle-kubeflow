@@ -106,6 +106,10 @@ jobs:
         run: kubectl -n kubeflow get pods | tail -n +2 | grep CrashLoopBackOff | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
         if: failure() || cancelled()
 
-      - name: Delete AKS resources
+      - name: Delete AKS cluster
+        if: always()
+        run: az aks delete --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.NAME }} --yes
+
+      - name: Delete resource group
         if: always()
         run: az group delete --name ${{ env.RESOURCE_GROUP }} --yes
