@@ -116,13 +116,13 @@ jobs:
         if: always()
         run: |
           az group delete --name ${{ env.RESOURCE_GROUP }} --yes
-          if [ $(az group exists --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }}) = true ]; then
+          if [ "$(az group exists --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }})" = "true" ]; then
             az group delete --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }} --yes
           fi
 
       - name: Check that resource groups have been deleted, else fail
         if: always()
         run: |
-          if [ $(az group exists --name ${{ env.RESOURCE_GROUP }} ) = true ] || [ $(az group exists --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }}) = true ]; then
+          if [ "$(az group exists --name ${{ env.RESOURCE_GROUP }} )" = "true" ] || [ "$(az group exists --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }})" = "true" ]; then
             exit 1
           fi
