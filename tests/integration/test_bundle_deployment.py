@@ -65,7 +65,8 @@ def get_public_url(lightkube_client: lightkube.Client, bundle_name: str):
     ingressgateway_svc = lightkube_client.get(
         Service, "istio-ingressgateway-workload", namespace=bundle_name
     )
-    public_url = f"http://{ingressgateway_svc.status.loadBalancer.ingress[0].hostname}"
+    address = ingressgateway_svc.status.loadBalancer.ingress[0].hostname or ingressgateway_svc.status.loadBalancer.ingress[0].ip
+    public_url = f"http://{address}"
     return public_url
 
 async def fetch_response(url, headers=None):
