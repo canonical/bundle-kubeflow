@@ -117,7 +117,7 @@ jobs:
         run: |
           az group delete --name ${{ env.RESOURCE_GROUP }} --yes
           if [ $(az group exists --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }}) = true ]; then
-            az group delete --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }}) --yes
+            az group delete --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }} --yes
           fi
 
       - name: Check that resource groups have been deleted, else fail
