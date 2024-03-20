@@ -47,9 +47,11 @@ jobs:
           KF_VERSION="kf-${version//.}"
           RESOURCE_GROUP=${KF_VERSION}-ResourceGroup
           NAME=${KF_VERSION}-AKSCluster
+          LOCATION=westeurope
           echo "RESOURCE_GROUP=${RESOURCE_GROUP}" >> $GITHUB_ENV
           echo "NAME=${NAME}" >> $GITHUB_ENV
-          az group create --name ${RESOURCE_GROUP} --location westeurope
+          echo "LOCATION=${LOCATION}" >> $GITHUB_ENV
+          az group create --name ${RESOURCE_GROUP} --location ${LOCATION}
           az aks create \
             --resource-group ${RESOURCE_GROUP} \
             --name ${NAME} \
@@ -110,6 +112,17 @@ jobs:
         if: always()
         run: az aks delete --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.NAME }} --yes
 
-      - name: Delete resource group
+      - name: Delete resource groups
         if: always()
-        run: az group delete --name ${{ env.RESOURCE_GROUP }} --yes
+        run: |
+          az group delete --name ${{ env.RESOURCE_GROUP }} --yes
+          if [ $(az group exists --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }}) = true ]; then
+            az group delete --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }})
+          fi
+
+      - name: Check that resource groups have been deleted, else fail
+        if: always()
+        run: |
+          if [ $(az group exists --name ${{ env.RESOURCE_GROUP }} ) = true ] || [ $(az group exists --name MC_${{ env.RESOURCE_GROUP }}_${{ env.NAME }}_${{ env.LOCATION }}) = true ]; then
+            exit 1
+          fi
