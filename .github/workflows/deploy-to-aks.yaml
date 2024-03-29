@@ -88,14 +88,12 @@ jobs:
         run: |
           tox -vve test_bundle_deployment-${{ matrix.bundle_version }} -- --model kubeflow --keep-models -vv -s
 
-      - name: Checkout Kubeflow UATs
+      - name: Run Kubeflow UATs
         run: |
           git clone https://github.com/canonical/charmed-kubeflow-uats.git ~/charmed-kubeflow-uats
           cd ~/charmed-kubeflow-uats
           git checkout ${{ env.UATS_BRANCH }}
-
-      - name: Run UATs
-        run: tox -e kubeflow-remote
+          tox -e kubeflow-remote
 
       # On failure, capture debugging resources
       - name: Save debug artifacts
@@ -116,8 +114,7 @@ jobs:
 
       - name: Describe all pods
         if: failure() || cancelled()
-        run: |
-          sudo microk8s kubectl describe pods --all-namespaces
+        run: kubectl describe pods --all-namespaces
 
       - name: Get logs from pods with status = Pending
         run: kubectl -n kubeflow get pods | tail -n +2 | grep Pending | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
