@@ -160,7 +160,7 @@ jobs:
       - name: Run UATs
         run: |
           eval "$(pyenv init -)"
-          sg microk8s -c "tox -c ~/charmed-kubeflow-uats/ -e kubeflow"
+          sg microk8s -c "tox -c ~/charmed-kubeflow-uats/ -e kubeflow-local"
 
       - name: Save debug artifacts
         uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main
