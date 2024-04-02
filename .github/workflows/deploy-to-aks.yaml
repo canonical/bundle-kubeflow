@@ -9,6 +9,9 @@ on:
       k8s_version:
         description: 'Kubernetes version to be used for the AKS cluster'
         required: false
+      uats_branch:
+        description: 'Branch to run the UATs from e.g. main or track/1.8. By default, the workflow uses main.'
+        required: false
 
   schedule:
     - cron: "17 0 * * 2"
@@ -23,14 +26,25 @@ jobs:
       AZURE_CORE_OUTPUT: none
       K8S_VERSION: ${{ inputs.k8s_version || fromJSON('{"1.8":"1.26", "latest":"1.26"}')[matrix.bundle_version] }}
       JUJU_VERSION: ${{ fromJSON('{"1.8":"3.1","latest":"3.1"}')[ matrix.bundle_version ] }}
+      UATS_BRANCH: ${{ inputs.uats_branch || fromJSON('{"1.8":"main", "latest":"main"}')[matrix.bundle_version] }}
+      PYTHON_VERSION: "3.8"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # Remove once https://github.com/canonical/bundle-kubeflow/issues/761
+      # is resolved and applied to uats repository.
+      - name: Install python ${{ env.PYTHON_VERSION }}
+        run: |
+          sudo add-apt-repository ppa:deadsnakes/ppa -y
+          sudo apt update -y
+          sudo apt install python${{ env.PYTHON_VERSION }} python${{ env.PYTHON_VERSION }}-distutils python${{ env.PYTHON_VERSION }}-venv -y
+
       - name: Install CLI tools
         run: |
-          python -m pip install --upgrade pip
-          pip install tox
+          wget https://bootstrap.pypa.io/get-pip.py
+          python${{ env.PYTHON_VERSION }} get-pip.py
+          python${{ env.PYTHON_VERSION }} -m pip install tox
           sudo snap install juju --classic --channel=${{ env.JUJU_VERSION }}/stable
           sudo snap install charmcraft --classic
           juju version
@@ -74,6 +88,13 @@ jobs:
         run: |
           tox -vve test_bundle_deployment-${{ matrix.bundle_version }} -- --model kubeflow --keep-models -vv -s
 
+      - name: Run Kubeflow UATs
+        run: |
+          git clone https://github.com/canonical/charmed-kubeflow-uats.git ~/charmed-kubeflow-uats
+          cd ~/charmed-kubeflow-uats
+          git checkout ${{ env.UATS_BRANCH }}
+          tox -e kubeflow-remote
+
       # On failure, capture debugging resources
       - name: Save debug artifacts
         uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main
@@ -93,8 +114,7 @@ jobs:
 
       - name: Describe all pods
         if: failure() || cancelled()
-        run: |
-          sudo microk8s kubectl describe pods --all-namespaces
+        run: kubectl describe pods --all-namespaces
 
       - name: Get logs from pods with status = Pending
         run: kubectl -n kubeflow get pods | tail -n +2 | grep Pending | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
