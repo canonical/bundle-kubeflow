@@ -34,17 +34,17 @@ jobs:
 
       # Remove once https://github.com/canonical/bundle-kubeflow/issues/761
       # is resolved and applied to uats repository.
-      - name: Install python 3.8
+      - name: Install python ${{ env.PYTHON_VERSION }}
         run: |
           sudo add-apt-repository ppa:deadsnakes/ppa -y
           sudo apt update -y
-          sudo apt install python${PYTHON_VERSION} python${PYTHON_VERSION}-distutils python${PYTHON_VERSION}-venv -y
+          sudo apt install python${{ env.PYTHON_VERSION }} python${{ env.PYTHON_VERSION }}-distutils python${{ env.PYTHON_VERSION }}-venv -y
 
       - name: Install CLI tools
         run: |
           wget https://bootstrap.pypa.io/get-pip.py
-          python${PYTHON_VERSION} get-pip.py
-          python${PYTHON_VERSION} -m pip install tox
+          python${{ env.PYTHON_VERSION }} get-pip.py
+          python${{ env.PYTHON_VERSION }} -m pip install tox
           sudo snap install juju --classic --channel=${{ env.JUJU_VERSION }}/stable
           sudo snap install charmcraft --classic
           juju version
