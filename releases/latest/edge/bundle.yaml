@@ -229,6 +229,7 @@ applications:
     charm: mlmd
     channel: latest/edge
     scale: 1
+    trust: true
     _github_repo_name: mlmd-operator
     _github_repo_branch: main
   minio:
