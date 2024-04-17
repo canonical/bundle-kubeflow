@@ -66,6 +66,7 @@ applications:
     charm: katib-controller
     channel: latest/edge
     scale: 1
+    trust: true
     _github_repo_name: katib-operators
     _github_repo_branch: main
   katib-db:
