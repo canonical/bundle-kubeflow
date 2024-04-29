@@ -10,6 +10,9 @@ on:
         default: releases/1.7/stable/kubeflow/bundle.yaml
   pull_request:
 
+env:
+  bundle: releases/1.7/stable/kubeflow/bundle.yaml
+
 jobs:
   self-hosted:
     name: Create images
@@ -31,7 +34,7 @@ jobs:
       - name: Create images.txt
         id: images
         run: |
-          ./scripts/airgapped/get-all-images.sh ${{ inputs.bundle }} > images.txt
+          ./scripts/airgapped/get-all-images.sh ${{ env.bundle }} > images.txt
           echo "Created images list:"
           cat ./images.txt
 
