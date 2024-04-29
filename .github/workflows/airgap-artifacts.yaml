@@ -1,0 +1,42 @@
+name: Create Airgapped Artifacts
+
+on:
+  workflow_dispatch:
+    inputs:
+      bundle:
+        description: 'Path to bundle file in the repo'
+        required: true
+        type: string
+        default: releases/1.7/stable/kubeflow/bundle.yaml
+  pull_request:
+
+jobs:
+  self-hosted:
+    name: Create images
+    # runs-on: [self-hosted, linux, X64, jammy, two-xlarge]
+    runs-on: [self-hosted, linux, X64, jammy, large]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Install prerequisites
+        run: |
+          # ./scripts/airgapped/prerequisites.sh
+          pip3 install -r requirements.txt
+          sudo apt install pigz
+          sudo snap install docker
+          sudo snap install yq
+          sudo snap install jq
+
+      - name: Create images.txt
+        id: images
+        run: |
+          ./scripts/airgapped/get-all-images.sh ${{ inputs.bundle }} > images.txt
+          echo "Created images list:"
+          cat ./images.txt
+
+      - name: Upload images.txt
+        uses: actions/upload-artifact@v3
+        with:
+          name: images-list
+          path: images.txt
