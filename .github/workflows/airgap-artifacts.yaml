@@ -35,8 +35,13 @@ jobs:
         id: images
         run: |
           ./scripts/airgapped/get-all-images.sh ${{ env.bundle }} > images.txt
-          echo "Created images list:"
+          echo -e "/nCreated images list:"
           cat ./images.txt
+
+      - name: Create charms.tar.gz
+        id: images
+        run: |
+          python3 scripts/airgapped/save-charms-to-tar.py ${{ env.bundle }}
 
       - name: Upload images.txt
         uses: actions/upload-artifact@v3
