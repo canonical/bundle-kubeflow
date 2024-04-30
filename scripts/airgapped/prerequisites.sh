@@ -7,7 +7,7 @@ echo "Installing dependencies..."
 pip3 install -r $SCRIPT_DIR/requirements.txt
 sudo apt update
 
-if [ ! command -v docker ]
+if ! command -v docker
 then
   echo "Installing Docker"
   sudo snap install docker
