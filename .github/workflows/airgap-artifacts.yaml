@@ -24,12 +24,12 @@ jobs:
 
       - name: Install prerequisites
         run: |
-          # ./scripts/airgapped/prerequisites.sh
-          pip3 install -r scripts/airgapped/requirements.txt
-          sudo apt install pigz
-          sudo snap install docker
-          sudo snap install yq
-          sudo snap install jq
+          ./scripts/airgapped/prerequisites.sh
+          # pip3 install -r scripts/airgapped/requirements.txt
+          # sudo apt install pigz
+          # sudo snap install docker
+          # sudo snap install yq
+          # sudo snap install jq
 
       - name: Create images.txt
         run: |
