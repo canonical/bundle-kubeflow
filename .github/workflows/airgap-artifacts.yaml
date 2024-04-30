@@ -25,7 +25,7 @@ jobs:
       - name: Install prerequisites
         run: |
           # ./scripts/airgapped/prerequisites.sh
-          pip3 install -r requirements.txt
+          pip3 install -r scripts/airgap/requirements.txt
           sudo apt install pigz
           sudo snap install docker
           sudo snap install yq
