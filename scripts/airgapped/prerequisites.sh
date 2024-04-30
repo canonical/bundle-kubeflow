@@ -21,5 +21,8 @@ echo "Installing parsers"
 sudo snap install yq
 sudo snap install jq
 
+echo "Installing Juju"
+sudo snap install juju --channel=$JUJU_CHANNEL --classic
+
 echo "Installing pigz for compression"
 sudo apt install pigz
