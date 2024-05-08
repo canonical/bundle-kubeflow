@@ -25,7 +25,7 @@ jobs:
     env:
       AZURE_CORE_OUTPUT: none
       K8S_VERSION: ${{ inputs.k8s_version || fromJSON('{"1.8":"1.26", "latest":"1.26"}')[matrix.bundle_version] }}
-      JUJU_VERSION: ${{ fromJSON('{"1.8":"3.1","latest":"3.1"}')[ matrix.bundle_version ] }}
+      JUJU_VERSION: ${{ fromJSON('{"1.8":"3.5","latest":"3.5"}')[ matrix.bundle_version ] }}
       UATS_BRANCH: ${{ inputs.uats_branch || fromJSON('{"1.8":"main", "latest":"main"}')[matrix.bundle_version] }}
       PYTHON_VERSION: "3.8"
     steps:

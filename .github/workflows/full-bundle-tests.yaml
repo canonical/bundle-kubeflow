@@ -15,9 +15,9 @@ on:
         required: false
         default: "1.25-strict/stable"
       juju-channel:
-        description: Juju channel e.g. 3.1/stable
+        description: Juju channel e.g. 3.5/stable
         required: false
-        default: "3.1/stable"
+        default: "3.5/stable"
   workflow_call:
     inputs:
       bundle-source:
@@ -35,10 +35,10 @@ on:
         type: string
         default: "1.25-strict/stable"
       juju-channel:
-        description: Juju channel e.g. 3.1/stable
+        description: Juju channel e.g. 3.5/stable
         required: false
         type: string
-        default: "3.1/stable"
+        default: "3.5/stable"
 
 jobs:
   test-bundle:
