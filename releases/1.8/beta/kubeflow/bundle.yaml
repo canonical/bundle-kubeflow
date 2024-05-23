@@ -74,6 +74,8 @@ applications:
     scale: 1
     trust: true
     constraints: mem=2G
+    _github_dependency_repo_name: mysql-k8s-operator
+    _github_dependency_repo_branch: main
   katib-db-manager:
     charm: katib-db-manager
     channel: 0.16/beta
@@ -101,6 +103,8 @@ applications:
     scale: 1
     trust: true
     constraints: mem=2G
+    _github_dependency_repo_name: mysql-k8s-operator
+    _github_dependency_repo_branch: main
   kfp-metadata-writer:
     charm: kfp-metadata-writer
     channel: 2.0/beta
