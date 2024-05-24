@@ -2,6 +2,8 @@
 set -xe
 
 cat tests/airgapped/lxd.profile | lxd init --preseed
+sudo apt-get update
+sudo apt-get -y install python3-pip
 pip3 install -r scripts/airgapped/requirements.txt
 
 ./scripts/airgapped/prerequisites.sh

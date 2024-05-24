@@ -9,8 +9,9 @@ sudo apt update
 
 echo "Installing Docker"
 sudo snap install docker
-sudo groupadd docker
-sudo usermod -aG docker $USER
+sudo addgroup --system docker
+sudo adduser $USER docker
+newgrp docker
 sudo snap disable docker
 sudo snap enable docker
 

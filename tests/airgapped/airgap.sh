@@ -7,6 +7,7 @@
 #
 # The script is also made to use some "caching". Specifically, if a charms.tar.gz
 # or an images.tar.gz file is present then it won't regenerate them, to save time.
+set -e
 
 source tests/airgapped/utils.sh
 source tests/airgapped/ckf.sh
@@ -18,7 +19,7 @@ function wait_all_pods() {
 
   echo "Waiting for all pods to start"
   lxc exec "$container" -- bash -c "
-    microk8s kubectl wait --for=condition=Ready pods --all --all-namespaces
+    sudo microk8s kubectl wait --for=condition=Ready pods --all --all-namespaces
   "
 
   echo "All pods are ready"
@@ -28,17 +29,17 @@ function airgap_wait_for_pods() {
   container="$1"
 
   lxc exec "$container" -- bash -c "
-    while ! microk8s kubectl wait -n kube-system ds/calico-node --for=jsonpath='{.status.numberReady}'=1; do
+    while ! sudo microk8s kubectl wait -n kube-system ds/calico-node --for=jsonpath='{.status.numberReady}'=1; do
       echo waiting for calico
       sleep 3
     done
 
-    while ! microk8s kubectl wait -n kube-system deploy/hostpath-provisioner --for=jsonpath='{.status.readyReplicas}'=1; do
+    while ! sudo microk8s kubectl wait -n kube-system deploy/hostpath-provisioner --for=jsonpath='{.status.readyReplicas}'=1; do
       echo waiting for hostpath provisioner
       sleep 3
     done
 
-    while ! microk8s kubectl wait -n kube-system deploy/coredns --for=jsonpath='{.status.readyReplicas}'=1; do
+    while ! sudo microk8s kubectl wait -n kube-system deploy/coredns --for=jsonpath='{.status.readyReplicas}'=1; do
       echo waiting for coredns
       sleep 3
     done
@@ -71,8 +72,9 @@ function setup_microk8s() {
   lxc exec "$NAME" -- snap install microk8s --classic --channel="$MICROK8S_CHANNEL"
 
   lxc exec "$NAME" -- bash -c "
-    microk8s enable ingress dns hostpath-storage metallb:10.64.140.43-10.64.140.49
-    microk8s enable dns:\$(resolvectl status | grep 'Current DNS Server' | awk '{print \$NF}')
+    sudo microk8s status --wait-ready --timeout=600
+    sudo microk8s enable dns:\$(resolvectl status | grep 'Current DNS Server' | awk '{print \$NF}')
+    sudo microk8s enable ingress hostpath-storage metallb:10.64.140.43-10.64.140.49
   "
 
   echo "Wait for MicroK8s to come up"
