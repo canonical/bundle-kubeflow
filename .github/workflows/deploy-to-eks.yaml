@@ -52,7 +52,7 @@ jobs:
       
       - name: Install juju
         run: |
-          sudo snap install juju --classic --channel=2.9/stable
+          sudo snap install juju --classic --channel=3.1/stable
           sudo snap install charmcraft --classic
           juju version
       
