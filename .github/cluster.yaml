@@ -37,4 +37,4 @@ managedNodeGroups:
 metadata:
   name: kubeflow-test
   region: eu-central-1
-  version: "1.24"
+  version: "1.26"
