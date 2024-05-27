@@ -3,7 +3,7 @@ on:
   workflow_dispatch: # This event allows manual triggering from the Github UI
     inputs:
       uats_branch:
-        description: 'Branch to run the UATs from e.g. main or track/1.8. By default, the workflow uses main.'
+        description: 'Branch to run the UATs from e.g. main or track/1.8. By default, the workflow uses 1.8.'
         required: false
         default: '"1.8"'
     secrets:
