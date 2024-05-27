@@ -5,7 +5,7 @@ on:
       uats_branch:
         description: 'Branch to run the UATs from e.g. main or track/1.8. By default, the workflow uses 1.8.'
         required: false
-        default: '"1.8"'
+        default: "main"
     secrets:
       BUNDLE_KUBEFLOW_EKS_AWS_ACCESS_KEY_ID:
         required: true
