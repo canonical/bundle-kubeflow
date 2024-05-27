@@ -17,7 +17,6 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       UATS_BRANCH: ${{ inputs.uats_branch }}
-      JUJU_VERSION: "3.5"
       PYTHON_VERSION: "3.8"
 
     steps:
@@ -37,8 +36,10 @@ jobs:
           wget https://bootstrap.pypa.io/get-pip.py
           python${{ env.PYTHON_VERSION }} get-pip.py
           python${{ env.PYTHON_VERSION }} -m pip install tox
-          sudo snap install juju --classic --channel=${{ env.JUJU_VERSION }}/stable
           sudo snap install charmcraft --classic
+          curl -LO https://launchpad.net/juju/3.5/3.5.0/+download/juju-3.5.0-linux-amd64.tar.xz
+          tar xf juju-3.5.0-linux-amd64.tar.xz
+          sudo install -o root -g root -m 0755 juju /usr/local/bin/juju
           juju version
       
       - name: Configure AWS Credentials
