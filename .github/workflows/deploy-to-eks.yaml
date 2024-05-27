@@ -1,15 +1,16 @@
 name: Create EKS cluster, deploy CKF and run bundle test
 on:
   workflow_dispatch: # This event allows manual triggering from the Github UI
+    inputs:
+      uats_branch:
+        description: 'Branch to run the UATs from e.g. main or track/1.8. By default, the workflow uses main.'
+        required: false
+        default: '"1.8"'
     secrets:
       BUNDLE_KUBEFLOW_EKS_AWS_ACCESS_KEY_ID:
         required: true
       BUNDLE_KUBEFLOW_EKS_AWS_SECRET_ACCESS_KEY:
         required: true
-      uats_branch:
-        description: 'Branch to run the UATs from e.g. main or track/1.8. By default, the workflow uses main.'
-        required: false
-        default: '"1.8"'
   schedule:
     - cron: "23 0 * * 2"
 jobs:
@@ -37,6 +38,7 @@ jobs:
           python${{ env.PYTHON_VERSION }} get-pip.py
           python${{ env.PYTHON_VERSION }} -m pip install tox
           sudo snap install charmcraft --classic
+          # We need to install form binrary because of this https://bugs.launchpad.net/juju/+bug/2007848
           curl -LO https://launchpad.net/juju/3.5/3.5.0/+download/juju-3.5.0-linux-amd64.tar.xz
           tar xf juju-3.5.0-linux-amd64.tar.xz
           sudo install -o root -g root -m 0755 juju /usr/local/bin/juju
