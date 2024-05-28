@@ -16,7 +16,7 @@ jobs:
   deploy-ckf-to-eks:
     runs-on: ubuntu-22.04
     env:
-      UATS_BRANCH: ${{ inputs.uats_branch || "main" }}
+      UATS_BRANCH: ${{ inputs.uats_branch || 'main' }}
       PYTHON_VERSION: "3.8"
 
     steps:
