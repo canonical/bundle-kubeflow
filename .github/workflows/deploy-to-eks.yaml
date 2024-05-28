@@ -1,6 +1,10 @@
 name: Create EKS cluster, deploy CKF and run bundle test
 on:
   workflow_dispatch: # This event allows manual triggering from the Github UI
+    inputs:
+      uats_branch:
+        description: 'Branch to run the UATs from e.g. main or track/1.8. By default, the workflow uses main.'
+        required: false
     secrets:
       BUNDLE_KUBEFLOW_EKS_AWS_ACCESS_KEY_ID:
         required: true
@@ -11,15 +15,33 @@ on:
 jobs:
   deploy-ckf-to-eks:
     runs-on: ubuntu-22.04
+    env:
+      UATS_BRANCH: ${{ inputs.uats_branch || 'main' }}
+      PYTHON_VERSION: "3.8"
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install tox
+      # Remove once https://github.com/canonical/bundle-kubeflow/issues/761
+      # is resolved and applied to uats repository.
+      - name: Install python ${{ env.PYTHON_VERSION }}
         run: |
-          python -m pip install --upgrade pip
-          pip install tox
+          sudo add-apt-repository ppa:deadsnakes/ppa -y
+          sudo apt update -y
+          sudo apt install python${{ env.PYTHON_VERSION }} python${{ env.PYTHON_VERSION }}-distutils python${{ env.PYTHON_VERSION }}-venv -y
+
+      - name: Install CLI tools
+        run: |
+          wget https://bootstrap.pypa.io/get-pip.py
+          python${{ env.PYTHON_VERSION }} get-pip.py
+          python${{ env.PYTHON_VERSION }} -m pip install tox
+          sudo snap install charmcraft --classic
+          # We need to install from binrary because of this https://bugs.launchpad.net/juju/+bug/2007848
+          curl -LO https://launchpad.net/juju/3.5/3.5.0/+download/juju-3.5.0-linux-amd64.tar.xz
+          tar xf juju-3.5.0-linux-amd64.tar.xz
+          sudo install -o root -g root -m 0755 juju /usr/local/bin/juju
+          juju version
       
       - name: Configure AWS Credentials
         env:
@@ -44,12 +66,6 @@ jobs:
           sudo mv /tmp/eksctl /usr/local/bin
           eksctl version
       
-      - name: Install juju
-        run: |
-          sudo snap install juju --classic --channel=2.9/stable
-          sudo snap install charmcraft --classic
-          juju version
-      
       - name: Create cluster
         run: |
           eksctl create cluster -f .github/cluster.yaml
@@ -57,38 +73,50 @@ jobs:
       
       - name: Setup juju
         run: |
-          juju add-k8s kubeflow --client
-          juju bootstrap --no-gui kubeflow kubeflow-controller
+          juju add-k8s eks --client
+          juju bootstrap eks kubeflow-controller
           juju add-model kubeflow
       
       - name: Test bundle deployment
         run: |
-          tox -vve test_bundle_deployment-1.7 -- --model kubeflow --keep-models -vv -s
-      
+          tox -vve test_bundle_deployment-1.8 -- --model kubeflow --keep-models -vv -s
+
+      - name: Run Kubeflow UATs
+        run: |
+          git clone https://github.com/canonical/charmed-kubeflow-uats.git ~/charmed-kubeflow-uats
+          cd ~/charmed-kubeflow-uats
+          git checkout ${{ env.UATS_BRANCH }}
+          tox -e kubeflow-remote
+
+      # On failure, capture debugging resources
+      - name: Save debug artifacts
+        uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main
+        if: failure() || cancelled()
+
       # On failure, capture debugging resources
       - name: Get juju status
         run: juju status
-        if: failure()
+        if: failure() || cancelled()
 
       - name: Get juju debug logs
         run: juju debug-log --replay --no-tail
-        if: failure()
+        if: failure() || cancelled()
 
       - name: Get all kubernetes resources
         run: kubectl get all -A
-        if: failure()
+        if: failure() || cancelled()
 
       - name: Get logs from pods with status = Pending
         run: kubectl -n kubeflow get pods | tail -n +2 | grep Pending | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
-        if: failure()
+        if: failure() || cancelled()
 
       - name: Get logs from pods with status = Failed
         run: kubectl -n kubeflow get pods | tail -n +2 | grep Failed | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
-        if: failure()
+        if: failure() || cancelled()
 
       - name: Get logs from pods with status = CrashLoopBackOff
         run: kubectl -n kubeflow get pods | tail -n +2 | grep CrashLoopBackOff | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
-        if: failure()
+        if: failure() || cancelled()
 
       - name: Delete EKS cluster
         if: always()
