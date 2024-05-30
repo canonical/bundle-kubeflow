@@ -73,7 +73,10 @@ juju deploy --trust --debug ./$(charm kfp-api) --resource oci-image=$(img api-se
 juju deploy --trust --debug ./$(charm mysql-k8s) kfp-db --constraints="mem=2G" --resource mysql-image=$(img canonical/charmed-mysql)
 juju deploy --trust --debug ./$(charm kfp-metadata-writer) --resource oci-image=$(img metadata-writer)
 juju deploy --trust --debug ./$(charm kfp-persistence) --resource oci-image=$(img persistenceagent)
-juju deploy --trust --debug ./$(charm kfp-profile-controller) --resource oci-image=$(img python:3.11.9-alpine)
+juju deploy --trust --debug ./$(charm kfp-profile-controller) --resource oci-image=$(img python:3.11.9-alpine) \
+    --config custom_images="visualization_server: '$(img visualization-server)'
+frontend_image : '$(img frontend)'
+"
 juju deploy --trust --debug ./$(charm kfp-schedwf) --resource oci-image=$(img scheduledworkflow)
 juju deploy --trust --debug ./$(charm kfp-ui) --resource ml-pipeline-ui=$(img frontend)
 juju deploy --trust --debug ./$(charm kfp-viewer) --resource kfp-viewer-image=$(img viewer-crd-controller)
@@ -84,11 +87,13 @@ juju deploy --trust --debug ./$(charm knative-serving) --config namespace=knativ
     --config custom_images="activator: $(img knative-releases/knative.dev/serving/cmd/activator)
 autoscaler: $(img knative-releases/knative.dev/serving/cmd/autoscaler)
 controller: $(img knative-releases/knative.dev/serving/cmd/controller)
-webhook: $(img knative-releases/knative.dev/serving/cmd/controller)
+webhook: $(img knative-releases/knative.dev/serving/cmd/webhook)
 autoscaler-hpa: $(img knative-releases/knative.dev/serving/cmd/autoscaler-hpa)
 net-istio-controller/controller: $(img knative-releases/knative.dev/net-istio/cmd/controller)
 net-istio-webhook/webhook: $(img knative-releases/knative.dev/net-istio/cmd/webhook)
 queue-proxy: $(img knative-releases/knative.dev/serving/cmd/queue)
+domain-mapping: $(img knative-releases/knative.dev/serving/cmd/domain-mapping:)
+domainmapping-webhook: $(img knative-releases/knative.dev/serving/cmd/domain-mapping-webhook)
 "
 
 juju deploy --trust --debug ./$(charm kserve-controller) --resource kserve-controller-image=$(img kserve-controller) --resource kube-rbac-proxy-image=$(img kubebuilder/kube-rbac-proxy) --config custom_images="configmap__agent: '$(img kserve/agent)'
