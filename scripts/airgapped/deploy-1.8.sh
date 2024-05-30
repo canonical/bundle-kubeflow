@@ -20,12 +20,16 @@ charm(){
 sudo chown -R "$USER:" $CHARMS_DIR
 cd $CHARMS_DIR
 
+# Deploy the charms by dynamically retrieving the local charm files and images in local registry
+# with the help of the `img()` and `charm()` functions defined above.
+
 juju deploy --trust --debug ./$(charm admission-webhook) --resource oci-image=$(img poddefaults-webhook)
 juju deploy --trust --debug ./$(charm argo-controller) --resource oci-image=$(img workflow-controller)  --config executor-image=$(img argoexec)
 juju deploy --trust --debug ./$(charm dex-auth) --resource oci-image=$(img dex) --config public-url=http://dex-auth.kubeflow.svc:5556
 juju deploy --trust --debug ./$(charm envoy) --resource oci-image=$(img metadata-envoy)
 juju deploy --trust --debug ./$(charm istio-gateway) istio-ingressgateway --config kind=ingress --config proxy-image=$(img istio/proxyv2)
 
+# Get the global tag version for istio from the proxy image tag
 proxy_image=$(img istio/proxyv2)
 version=${proxy_image##*:}
 
@@ -147,7 +151,7 @@ juju deploy --trust --debug ./$(charm tensorboard-controller) --resource tensorb
 juju deploy --trust --debug ./$(charm tensorboards-web-app) --resource tensorboards-web-app-image=$(img tensorboards-web-app)
 juju deploy --trust --debug ./$(charm training-operator) --resource training-operator-image=$(img training-operator)
 
-# ----- Relations
+# Add the relations from the 1.8 bundle
 juju relate argo-controller minio
 juju relate dex-auth:oidc-client oidc-gatekeeper:oidc-client
 juju relate istio-pilot:ingress dex-auth:ingress
