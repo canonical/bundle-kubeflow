@@ -10,7 +10,7 @@ sudo apt update
 # Install and Setup Docker
 # we don't do `newgrp docker` here so not to open a new bash session
 # so that the rest of the scripts continue to execute.
-# See in the README.md instructions for the docker user changes to take effect.
+# See in the tests/airgapped README.md instructions for the docker user changes to take effect.
 echo "Installing Docker"
 sudo snap install docker
 sudo groupadd docker
