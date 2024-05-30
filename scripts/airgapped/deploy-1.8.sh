@@ -79,7 +79,7 @@ juju deploy --trust --debug ./$(charm kfp-metadata-writer) --resource oci-image=
 juju deploy --trust --debug ./$(charm kfp-persistence) --resource oci-image=$(img persistenceagent)
 juju deploy --trust --debug ./$(charm kfp-profile-controller) --resource oci-image=$(img python:3.11.9-alpine) \
     --config custom_images="visualization_server: '$(img visualization-server)'
-frontend_image : '$(img frontend)'
+frontend_image: '$(img frontend)'
 "
 
 juju deploy --trust --debug ./$(charm kfp-schedwf) --resource oci-image=$(img scheduledworkflow)
