@@ -77,6 +77,7 @@ juju deploy --trust --debug ./$(charm kfp-profile-controller) --resource oci-ima
     --config custom_images="visualization_server: '$(img visualization-server)'
 frontend_image : '$(img frontend)'
 "
+
 juju deploy --trust --debug ./$(charm kfp-schedwf) --resource oci-image=$(img scheduledworkflow)
 juju deploy --trust --debug ./$(charm kfp-ui) --resource ml-pipeline-ui=$(img frontend)
 juju deploy --trust --debug ./$(charm kfp-viewer) --resource kfp-viewer-image=$(img viewer-crd-controller)
