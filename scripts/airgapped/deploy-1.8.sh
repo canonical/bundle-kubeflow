@@ -1,14 +1,22 @@
 # This script assumes the presence of `retagged-images.txt` file and `charms` directory in the root dir.
 # You can generate these files using the [Airgap utility scripts](https://github.com/canonical/bundle-kubeflow/blob/main/scripts/airgapped/README.md). 
 
-IMAGES=~/retagged-images.txt
-CHARMS_DIR=~/charms
+# Define paths and variables
+IMAGES="$HOME/retagged-images.txt"
+CHARMS_DIR="$HOME/charms"
 OCI_REGISTRY=$(head -n 1 $IMAGES | cut -d'/' -f1)
 
-img(){ echo "$(cat $IMAGES | grep $1 | tail -n1)"; }
+# Function to retrieve the image for a given keyword
+img(){
+    echo "$(cat $IMAGES | grep $1 | tail -n1)";
+    }
 
-charm(){ echo "$(ls $CHARMS_DIR | grep $1)"; }
+# Function to retrieve the charm for a given keyword
+charm(){
+    echo "$(ls $CHARMS_DIR | grep $1)";
+    }
 
+# Ensure correct permissions for the contents of the charms directory so we can `juju deploy` them
 sudo chown -R "$USER:" $CHARMS_DIR
 cd $CHARMS_DIR
 
