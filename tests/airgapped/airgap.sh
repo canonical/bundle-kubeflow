@@ -81,7 +81,8 @@ function setup_microk8s() {
 
 function create_ingress_object_in_kubeflow_namespace() {
   local NAME=$1
-  lxc exec "$NAME" -- bash -c 'echo "apiVersion: networking.k8s.io/v1
+  if ! lxc exec "$NAME" -- bash -c 'cat <<EOF | microk8s kubectl apply -n kubeflow -f -
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: http-ingress
@@ -96,7 +97,11 @@ spec:
           service:
             name: istio-ingressgateway-workload
             port:
-              number: 80" | microk8s kubectl apply -n kubeflow -f -'
+              number: 80
+EOF'; then
+    echo "Error: Failed to create Ingress object in Kubeflow namespace"
+    return 1
+  fi
 }
 
 function post_airgap_tests() {
