@@ -43,6 +43,9 @@ IMAGES+=($(bash ./tools/get-images.sh))
 cd ..
 rm -rf resource-dispatcher
 
+# manually retrieve pipelines runner image to test pipelines
+IMAGES+=($(echo "charmedkubeflow/pipelines-runner:ckf-1.8"))
+
 # ensure we only show unique images
 IMAGES=($(echo "${IMAGES[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
 
