@@ -97,6 +97,7 @@ spec:
         pathType: Prefix
         backend:
           service:
+            # Name must match the Service in [istio-gateway manifests](https://github.com/canonical/istio-operators/blob/track/1.17/charms/istio-gateway/src/manifest.yaml#L296)
             name: istio-ingressgateway-workload
             port:
               number: 80
