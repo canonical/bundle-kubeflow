@@ -17,8 +17,8 @@ We've prepared some scripts for setting up the environment
 ./tests/airgapped/setup/setup.sh
 ```
 
-We've observed that in almost all cases we needed to reboot to be able to
-run docker as sudo and the lxc container to, initially, have network access.
+Make sure to reboot your machine after running the setup scripts to be able to
+run docker commands and the lxc container to, initially, have network access.
 
 ## Running the tests
 
