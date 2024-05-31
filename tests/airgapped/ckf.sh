@@ -37,9 +37,7 @@ function create_charms_tar() {
   fi
 
   python3 scripts/airgapped/save-charms-to-tar.py \
-      $BUNDLE_PATH \
-      --zip-all \
-      --delete-afterwards
+      $BUNDLE_PATH
 }
 
 function copy_tars_to_airgapped_env() {
@@ -67,8 +65,9 @@ function install_juju() {
   juju_channel="$2"
 
   lxc exec "$container" -- bash -c "
-    snap install juju --channel ${juju_channel} --classic
-    juju bootstrap microk8s
+    snap install juju --channel ${juju_channel}
+    sudo mkdir -p ~/.local/share/juju
+    sudo juju bootstrap microk8s
   "
 
 }

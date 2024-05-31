@@ -31,8 +31,8 @@ function push_juju_images_to_registry() {
   local NAME=$1
 
   lxc exec "$NAME" -- bash -c "
-    microk8s ctr images pull docker.io/jujusolutions/charm-base:ubuntu-20.04
-    microk8s ctr images pull docker.io/jujusolutions/charm-base:ubuntu-22.04
+    sudo microk8s ctr images pull docker.io/jujusolutions/charm-base:ubuntu-20.04
+    sudo microk8s ctr images pull docker.io/jujusolutions/charm-base:ubuntu-22.04
   "
 }
 
