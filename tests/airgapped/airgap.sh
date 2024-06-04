@@ -81,6 +81,32 @@ function setup_microk8s() {
   airgap_wait_for_pods "$NAME"
 }
 
+function create_ingress_object_in_kubeflow_namespace() {
+  local NAME=$1
+  if ! lxc exec "$NAME" -- bash -c 'cat <<EOF | microk8s kubectl apply -n kubeflow -f -
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: http-ingress
+  namespace: kubeflow
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            # Name must match the Service in [istio-gateway manifests](https://github.com/canonical/istio-operators/blob/track/1.17/charms/istio-gateway/src/manifest.yaml#L296)
+            name: istio-ingressgateway-workload
+            port:
+              number: 80
+EOF'; then
+    echo "Error: Failed to create Ingress object in Kubeflow namespace"
+    return 1
+  fi
+}
+
 function post_airgap_tests() {
   local AIRGAPPED_NAME=$2
   lxc rm "$AIRGAPPED_NAME" --force
@@ -152,6 +178,9 @@ then
   make_machine_airgapped "$AIRGAPPED_NAME"
   echo "10/X -- Initialize Kubeflow model in JuJu"
   init_juju_model "$AIRGAPPED_NAME" "$JUJU_CHANNEL"
+  echo "11/X -- Create Ingress in Kubeflow namespace"
+  create_ingress_object_in_kubeflow_namespace "$AIRGAPPED_NAME"
+
   #echo "Cleaning up"
 
   lxc exec "$AIRGAPPED_NAME" -- bash -c "bash"
