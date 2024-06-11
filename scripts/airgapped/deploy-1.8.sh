@@ -93,7 +93,9 @@ mt-broker-filter/filter: $(img knative-releases/knative.dev/eventing/cmd/broker/
 mt-broker-ingress/ingress: $(img knative-releases/knative.dev/eventing/cmd/broker/ingress)
 mt-broker-controller/mt-broker-controller: $(img knative-releases/knative.dev/eventing/cmd/mtchannel_broker)
 imc-dispatcher/dispatcher: $(img knative-releases/knative.dev/eventing/cmd/in_memory/channel_dispatcher)
+imc-controller/controller: $(img knative-releases/knative.dev/eventing/cmd/in_memory/channel_controller)
 pingsource-mt-adapter/dispatcher: $(img knative-releases/knative.dev/eventing/cmd/mtping)
+migrate: $(img knative-releases/knative.dev/pkg/apiextensions/storageversion/cmd/migrate)
 "
 juju deploy --trust --debug ./$(charm knative-operator) --resource knative-operator-image=$(img knative-releases/knative.dev/operator/cmd/operator) --resource knative-operator-webhook-image=$(img knative-releases/knative.dev/operator/cmd/webhook) --config otel-collector-image=$(img otel/opentelemetry-collector)
 juju deploy --trust --debug ./$(charm knative-serving) --config namespace=knative-serving --config istio.gateway.namespace=kubeflow --config istio.gateway.name=kubeflow-gateway \
