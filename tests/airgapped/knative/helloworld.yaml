@@ -1,0 +1,19 @@
+# This example is based on the [Knative Serving tutorial](https://knative.dev/docs/getting-started/first-service/#__tabbed_1_2)
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: hello
+spec:
+  template:
+    metadata:
+      labels:
+        # Disable istio sidecar due to https://github.com/canonical/kserve-operators/issues/216
+        sidecar.istio.io/inject	: "false"
+    spec:
+      containers:
+        - image: 172.17.0.2:5000/knative/helloworld-go:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: TARGET
+              value: "World"
