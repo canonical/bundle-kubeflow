@@ -86,9 +86,19 @@ juju deploy --trust --debug ./$(charm kfp-schedwf) --resource oci-image=$(img sc
 juju deploy --trust --debug ./$(charm kfp-ui) --resource ml-pipeline-ui=$(img frontend)
 juju deploy --trust --debug ./$(charm kfp-viewer) --resource kfp-viewer-image=$(img viewer-crd-controller)
 juju deploy --trust --debug ./$(charm kfp-viz) --resource oci-image=$(img visualization-server)
-juju deploy --trust --debug ./$(charm knative-eventing) --config namespace=knative-eventing
+juju deploy --trust --debug ./$(charm knative-eventing) --config namespace=knative-eventing \
+    --config custom_images="eventing-webhook/eventing-webhook: $(img knative-releases/knative.dev/eventing/cmd/webhook)
+eventing-controller/eventing-controller: $(img knative-releases/knative.dev/eventing/cmd/controller)
+mt-broker-filter/filter: $(img knative-releases/knative.dev/eventing/cmd/broker/filter)
+mt-broker-ingress/ingress: $(img knative-releases/knative.dev/eventing/cmd/broker/ingress)
+mt-broker-controller/mt-broker-controller: $(img knative-releases/knative.dev/eventing/cmd/mtchannel_broker)
+imc-dispatcher/dispatcher: $(img knative-releases/knative.dev/eventing/cmd/in_memory/channel_dispatcher)
+imc-controller/controller: $(img knative-releases/knative.dev/eventing/cmd/in_memory/channel_controller)
+pingsource-mt-adapter/dispatcher: $(img knative-releases/knative.dev/eventing/cmd/mtping)
+"
 juju deploy --trust --debug ./$(charm knative-operator) --resource knative-operator-image=$(img knative-releases/knative.dev/operator/cmd/operator) --resource knative-operator-webhook-image=$(img knative-releases/knative.dev/operator/cmd/webhook) --config otel-collector-image=$(img otel/opentelemetry-collector)
 juju deploy --trust --debug ./$(charm knative-serving) --config namespace=knative-serving --config istio.gateway.namespace=kubeflow --config istio.gateway.name=kubeflow-gateway \
+    --config queue_sidecar_image="$(img knative-releases/knative.dev/serving/cmd/queue)" \
     --config custom_images="activator: $(img knative-releases/knative.dev/serving/cmd/activator)
 autoscaler: $(img knative-releases/knative.dev/serving/cmd/autoscaler)
 controller: $(img knative-releases/knative.dev/serving/cmd/controller)
@@ -99,6 +109,7 @@ net-istio-webhook/webhook: $(img knative-releases/knative.dev/net-istio/cmd/webh
 queue-proxy: $(img knative-releases/knative.dev/serving/cmd/queue)
 domain-mapping: $(img knative-releases/knative.dev/serving/cmd/domain-mapping:)
 domainmapping-webhook: $(img knative-releases/knative.dev/serving/cmd/domain-mapping-webhook)
+migrate: $(img knative-releases/knative.dev/pkg/apiextensions/storageversion/cmd/migrate)
 "
 
 juju deploy --trust --debug ./$(charm kserve-controller) --resource kserve-controller-image=$(img kserve-controller) --resource kube-rbac-proxy-image=$(img kubebuilder/kube-rbac-proxy) --config custom_images="configmap__agent: '$(img kserve/agent)'
