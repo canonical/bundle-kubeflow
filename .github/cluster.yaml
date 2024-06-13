@@ -10,8 +10,6 @@ iam:
 addons:
 - name: aws-ebs-csi-driver
   serviceAccountRoleARN: "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-  wellKnownPolicies:
-   ebsCSIController: true
 kind: ClusterConfig
 kubernetesNetworkConfig:
   ipFamily: IPv4
