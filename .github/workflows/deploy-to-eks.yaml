@@ -19,12 +19,12 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        bundle_version: ${{ fromJSON(format('[{0}]', inputs.bundle_version || '"1.8","latest"')) }}
+        bundle_version: ${{ fromJSON(format('[{0}]', inputs.bundle_version || '"1.7","1.8","latest"')) }}
       fail-fast: false
     env:
-      K8S_VERSION: ${{ inputs.k8s_version || fromJSON('{"1.8":"1.26", "latest":"1.29"}')[matrix.bundle_version] }}
-      JUJU_VERSION: ${{ fromJSON('{"1.8":"3.5.0","latest":"3.5.0"}')[ matrix.bundle_version ] }}
-      UATS_BRANCH: ${{ inputs.uats_branch || fromJSON('{"1.8":"main", "latest":"main"}')[matrix.bundle_version] }}
+      K8S_VERSION: ${{ inputs.k8s_version || fromJSON('{"1.7":"1.24", "1.8":"1.26", "latest":"1.29"}')[matrix.bundle_version] }}
+      JUJU_VERSION: ${{ fromJSON('{"1.7":"2.9.49","1.8":"3.5.0","latest":"3.5.0"}')[ matrix.bundle_version ] }}
+      UATS_BRANCH: ${{ inputs.uats_branch || fromJSON('{"1.7":"main", "1.8":"main", "latest":"main"}')[matrix.bundle_version] }}
       PYTHON_VERSION: "3.8"
 
     steps:
