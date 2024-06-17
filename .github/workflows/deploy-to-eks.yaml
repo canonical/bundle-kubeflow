@@ -2,21 +2,29 @@ name: Create EKS cluster, deploy CKF and run bundle test
 on:
   workflow_dispatch: # This event allows manual triggering from the Github UI
     inputs:
+      bundle_version:
+        description: 'Comma-separated list of bundle versions e.g. "1.7","1.8"'
+        default: '"1.8"'
+        required: true
+      k8s_version:
+        description: 'Kubernetes version to be used for the AKS cluster'
+        required: false
       uats_branch:
         description: 'Branch to run the UATs from e.g. main or track/1.8. By default, the workflow uses main.'
         required: false
-    secrets:
-      BUNDLE_KUBEFLOW_EKS_AWS_ACCESS_KEY_ID:
-        required: true
-      BUNDLE_KUBEFLOW_EKS_AWS_SECRET_ACCESS_KEY:
-        required: true
   schedule:
     - cron: "23 0 * * 2"
 jobs:
   deploy-ckf-to-eks:
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        bundle_version: ${{ fromJSON(format('[{0}]', inputs.bundle_version || '"1.8","latest"')) }}
+      fail-fast: false
     env:
-      UATS_BRANCH: ${{ inputs.uats_branch || 'main' }}
+      K8S_VERSION: ${{ inputs.k8s_version || fromJSON('{"1.8":"1.26", "latest":"1.29"}')[matrix.bundle_version] }}
+      JUJU_VERSION: ${{ fromJSON('{"1.8":"3.5.0","latest":"3.5.0"}')[ matrix.bundle_version ] }}
+      UATS_BRANCH: ${{ inputs.uats_branch || fromJSON('{"1.8":"main", "latest":"main"}')[matrix.bundle_version] }}
       PYTHON_VERSION: "3.8"
 
     steps:
@@ -38,11 +46,12 @@ jobs:
           python${{ env.PYTHON_VERSION }} -m pip install tox
           sudo snap install charmcraft --classic
           # We need to install from binrary because of this https://bugs.launchpad.net/juju/+bug/2007848
-          curl -LO https://launchpad.net/juju/3.5/3.5.0/+download/juju-3.5.0-linux-amd64.tar.xz
-          tar xf juju-3.5.0-linux-amd64.tar.xz
+          JUJU_VERSION_WITHOUT_PATCH=${${{ env.JUJU_VERSION }}%.*}
+          curl -LO https://launchpad.net/juju/$JUJU_VERSION_WITHOUT_PATCH/${{ env.JUJU_VERSION }}/+download/juju-${{ env.JUJU_VERSION }}-linux-amd64.tar.xz
+          tar xf juju-${{ env.JUJU_VERSION }}-linux-amd64.tar.xz
           sudo install -o root -g root -m 0755 juju /usr/local/bin/juju
           juju version
-      
+
       - name: Configure AWS Credentials
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.BUNDLE_KUBEFLOW_EKS_AWS_ACCESS_KEY_ID }}
@@ -54,7 +63,7 @@ jobs:
       
       - name: Install kubectl
         run: |
-          sudo snap install kubectl --classic --channel=1.24/stable
+          sudo snap install kubectl --classic --channel=${{ env.K8S_VERSION }}/stable
           mkdir ~/.kube
           kubectl version --client
       
@@ -68,6 +77,10 @@ jobs:
       
       - name: Create cluster
         run: |
+          VERSION=${{ matrix.bundle_version }}
+          KF_VERSION="${version//.}"
+          yq e ".metadata.name |= \"kubeflow-test-$VERSION\"" -i .github/cluster.yaml
+          yq e ".metadata.version |= \"${{ env.K8S_VERSION }}\"" -i .github/cluster.yaml
           eksctl create cluster -f .github/cluster.yaml
           kubectl get nodes
       
@@ -79,7 +92,7 @@ jobs:
       
       - name: Test bundle deployment
         run: |
-          tox -vve test_bundle_deployment-1.8 -- --model kubeflow --keep-models -vv -s
+          tox -vve test_bundle_deployment-${{ matrix.bundle_version }} -- --model kubeflow --keep-models -vv -s
 
       - name: Run Kubeflow UATs
         run: |
