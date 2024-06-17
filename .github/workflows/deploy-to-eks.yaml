@@ -78,7 +78,7 @@ jobs:
       - name: Create cluster
         run: |
           VERSION=${{ matrix.bundle_version }}
-          VERSION_WITHOUT_DOT="${version//.}"
+          VERSION_WITHOUT_DOT="${VERSION//.}"
           yq e ".metadata.name |= \"kubeflow-test-$VERSION_WITHOUT_DOT\"" -i .github/cluster.yaml
           yq e ".metadata.version |= \"${{ env.K8S_VERSION }}\"" -i .github/cluster.yaml
           eksctl create cluster -f .github/cluster.yaml
