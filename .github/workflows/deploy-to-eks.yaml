@@ -22,12 +22,9 @@ jobs:
         bundle_version: ${{ fromJSON(format('[{0}]', inputs.bundle_version || '"1.7","1.8","latest"')) }}
       fail-fast: false
     env:
-      PREVIOUS_VERSION : "1.7"
-      CURRENT_VERSION: "1.8"
-      LATEST: "latest"
-      K8S_VERSION: ${{ inputs.k8s_version || fromJSON('{"$PREVIOUS_VERSION":"1.24", "$CURRENT_VERSION":"1.26", "$LATEST":"1.29"}')[matrix.bundle_version] }}
-      JUJU_VERSION: ${{ fromJSON('{"$PREVIOUS_VERSION":"2.9.49","$CURRENT_VERSION":"3.5.0","$LATEST":"3.5.0"}')[ matrix.bundle_version ] }}
-      UATS_BRANCH: ${{ inputs.uats_branch || fromJSON('{"$PREVIOUS_VERSION":"track/1.7", "$CURRENT_VERSION":"main", "$LATEST":"main"}')[matrix.bundle_version] }}
+      K8S_VERSION: ${{ inputs.k8s_version || fromJSON('{"1.7":"1.24", "1.8":"1.26", "latest":"1.29"}')[matrix.bundle_version] }}
+      JUJU_VERSION: ${{ fromJSON('{"1.7":"2.9.49","1.8":"3.5.0","latest":"3.5.0"}')[ matrix.bundle_version ] }}
+      UATS_BRANCH: ${{ inputs.uats_branch || fromJSON('{"1.7":"track/1.7", "1.8":"main", "latest":"main"}')[matrix.bundle_version] }}
       PYTHON_VERSION: "3.8"
 
     steps:
