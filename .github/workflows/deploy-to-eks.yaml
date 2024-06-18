@@ -4,7 +4,7 @@ on:
     inputs:
       bundle_version:
         description: 'Comma-separated list of bundle versions e.g. "1.7","1.8"'
-        default: '"1.8"'
+        default: '"1.7","1.8","latest"'
         required: true
       k8s_version:
         description: 'Kubernetes version to be used for the AKS cluster'
@@ -22,9 +22,12 @@ jobs:
         bundle_version: ${{ fromJSON(format('[{0}]', inputs.bundle_version || '"1.7","1.8","latest"')) }}
       fail-fast: false
     env:
-      K8S_VERSION: ${{ inputs.k8s_version || fromJSON('{"1.7":"1.24", "1.8":"1.26", "latest":"1.29"}')[matrix.bundle_version] }}
-      JUJU_VERSION: ${{ fromJSON('{"1.7":"2.9.49","1.8":"3.5.0","latest":"3.5.0"}')[ matrix.bundle_version ] }}
-      UATS_BRANCH: ${{ inputs.uats_branch || fromJSON('{"1.7":"track/1.7", "1.8":"main", "latest":"main"}')[matrix.bundle_version] }}
+      PREVIOUS_VERSION : "1.7"
+      CURRENT_VERSION: "1.8"
+      LATEST: "latest"
+      K8S_VERSION: ${{ inputs.k8s_version || fromJSON('{"env.PREVIOUS_VERSION":"1.24", "env.CURRENT_VERSION":"1.26", "env.LATEST":"1.29"}')[matrix.bundle_version] }}
+      JUJU_VERSION: ${{ fromJSON('{"env.PREVIOUS_VERSION":"2.9.49","env.CURRENT_VERSION":"3.5.0","env.LATEST":"3.5.0"}')[ matrix.bundle_version ] }}
+      UATS_BRANCH: ${{ inputs.uats_branch || fromJSON('{"env.PREVIOUS_VERSION":"track/1.7", "env.CURRENT_VERSION":"main", "env.LATEST":"main"}')[matrix.bundle_version] }}
       PYTHON_VERSION: "3.8"
 
     steps:
