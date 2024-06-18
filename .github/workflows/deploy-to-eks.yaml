@@ -134,7 +134,9 @@ jobs:
       - name: Delete EKS cluster
         if: always()
         run: |
-          eksctl delete cluster --region eu-central-1 --name=kubeflow-test
+          VERSION=${{ matrix.bundle_version }}
+          VERSION_WITHOUT_DOT="${VERSION//.}"
+          eksctl delete cluster --region eu-central-1 --name=kubeflow-test-$VERSION_WITHOUT_DOT
 
   delete-unattached-volumes:
     if: always()
