@@ -45,7 +45,7 @@ jobs:
           python${{ env.PYTHON_VERSION }} get-pip.py
           python${{ env.PYTHON_VERSION }} -m pip install tox
           sudo snap install charmcraft --classic
-          # We need to install from binrary because of this https://bugs.launchpad.net/juju/+bug/2007848
+          # We need to install from binary because of this https://bugs.launchpad.net/juju/+bug/2007575
           JUJU_VERSION_WITHOUT_PATCH=${JUJU_VERSION%.*}
           curl -LO https://launchpad.net/juju/$JUJU_VERSION_WITHOUT_PATCH/${{ env.JUJU_VERSION }}/+download/juju-${{ env.JUJU_VERSION }}-linux-amd64.tar.xz
           tar xf juju-${{ env.JUJU_VERSION }}-linux-amd64.tar.xz
