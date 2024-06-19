@@ -10,7 +10,7 @@ on:
         description: 'Kubernetes version to be used for the AKS cluster'
         required: false
       uats_branch:
-        description: 'Branch to run the UATs from e.g. main or track/1.8. By default, the workflow uses main.'
+        description: 'Branch to run the UATs from e.g. main or track/1.8. By default, this is defined by the dependencies.yaml file.'
         required: false
   schedule:
     - cron: "23 0 * * 2"
@@ -22,126 +22,141 @@ jobs:
         bundle_version: ${{ fromJSON(format('[{0}]', inputs.bundle_version || '"1.7","1.8","latest"')) }}
       fail-fast: false
     env:
-      K8S_VERSION: ${{ inputs.k8s_version || fromJSON('{"1.7":"1.24", "1.8":"1.26", "latest":"1.29"}')[matrix.bundle_version] }}
-      JUJU_VERSION: ${{ fromJSON('{"1.7":"2.9.49","1.8":"3.5.0","latest":"3.5.0"}')[ matrix.bundle_version ] }}
-      UATS_BRANCH: ${{ inputs.uats_branch || fromJSON('{"1.7":"track/1.7", "1.8":"main", "latest":"main"}')[matrix.bundle_version] }}
       PYTHON_VERSION: "3.8"
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        
+      - name: Run YAML to Github Output Action
+        id: yaml-output
+        uses: christian-ci/action-yaml-github-output@v2
+        with:
+          file_path: ".github/versions.yaml"
+          main_key: ${{ matrix.bundle_version }}
 
-      # Remove once https://github.com/canonical/bundle-kubeflow/issues/761
-      # is resolved and applied to uats repository.
-      - name: Install python ${{ env.PYTHON_VERSION }}
+      - name: Update ENV variables from inputs if available
         run: |
-          sudo add-apt-repository ppa:deadsnakes/ppa -y
-          sudo apt update -y
-          sudo apt install python${{ env.PYTHON_VERSION }} python${{ env.PYTHON_VERSION }}-distutils python${{ env.PYTHON_VERSION }}-venv -y
+          K8S_VERSION = ${{ inputs.k8s_version || env.K8S_VERSION }} 
+          echo "K8S_VERSION=${K8S_VERSION}" >> $GITHUB_ENV
+          UATS_BRANCH = ${{ inputs.uats_branch || env.UATS_BRANCH }} 
+          echo "K8S_VERSION=${K8S_VERSION}" >> $GITHUB_ENV
 
-      - name: Install CLI tools
+      - name: Print environment variables
         run: |
-          wget https://bootstrap.pypa.io/get-pip.py
-          python${{ env.PYTHON_VERSION }} get-pip.py
-          python${{ env.PYTHON_VERSION }} -m pip install tox
-          sudo snap install charmcraft --classic
-          # We need to install from binary because of this https://bugs.launchpad.net/juju/+bug/2007575
-          JUJU_VERSION_WITHOUT_PATCH=${JUJU_VERSION%.*}
-          curl -LO https://launchpad.net/juju/$JUJU_VERSION_WITHOUT_PATCH/${{ env.JUJU_VERSION }}/+download/juju-${{ env.JUJU_VERSION }}-linux-amd64.tar.xz
-          tar xf juju-${{ env.JUJU_VERSION }}-linux-amd64.tar.xz
-          sudo install -o root -g root -m 0755 juju /usr/local/bin/juju
-          juju version
+          printenv
 
-      - name: Configure AWS Credentials
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.BUNDLE_KUBEFLOW_EKS_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.BUNDLE_KUBEFLOW_EKS_AWS_SECRET_ACCESS_KEY }}
-        run: |
-          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-          aws configure set default.region eu-central-1
+  #     # Remove once https://github.com/canonical/bundle-kubeflow/issues/761
+  #     # is resolved and applied to uats repository.
+  #     - name: Install python ${{ env.PYTHON_VERSION }}
+  #       run: |
+  #         sudo add-apt-repository ppa:deadsnakes/ppa -y
+  #         sudo apt update -y
+  #         sudo apt install python${{ env.PYTHON_VERSION }} python${{ env.PYTHON_VERSION }}-distutils python${{ env.PYTHON_VERSION }}-venv -y
+
+  #     - name: Install CLI tools
+  #       run: |
+  #         wget https://bootstrap.pypa.io/get-pip.py
+  #         python${{ env.PYTHON_VERSION }} get-pip.py
+  #         python${{ env.PYTHON_VERSION }} -m pip install tox
+  #         sudo snap install charmcraft --classic
+  #         # We need to install from binary because of this https://bugs.launchpad.net/juju/+bug/2007575
+  #         JUJU_VERSION_WITHOUT_PATCH=${JUJU_VERSION%.*}
+  #         curl -LO https://launchpad.net/juju/$JUJU_VERSION_WITHOUT_PATCH/${{ env.JUJU_VERSION }}/+download/juju-${{ env.JUJU_VERSION }}-linux-amd64.tar.xz
+  #         tar xf juju-${{ env.JUJU_VERSION }}-linux-amd64.tar.xz
+  #         sudo install -o root -g root -m 0755 juju /usr/local/bin/juju
+  #         juju version
+
+  #     - name: Configure AWS Credentials
+  #       env:
+  #         AWS_ACCESS_KEY_ID: ${{ secrets.BUNDLE_KUBEFLOW_EKS_AWS_ACCESS_KEY_ID }}
+  #         AWS_SECRET_ACCESS_KEY: ${{ secrets.BUNDLE_KUBEFLOW_EKS_AWS_SECRET_ACCESS_KEY }}
+  #       run: |
+  #         aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+  #         aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+  #         aws configure set default.region eu-central-1
       
-      - name: Install kubectl
-        run: |
-          sudo snap install kubectl --classic --channel=${{ env.K8S_VERSION }}/stable
-          mkdir ~/.kube
-          kubectl version --client
+  #     - name: Install kubectl
+  #       run: |
+  #         sudo snap install kubectl --classic --channel=${{ env.K8S_VERSION }}/stable
+  #         mkdir ~/.kube
+  #         kubectl version --client
       
-      - name: Install eksctl
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y unzip
-          curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-          sudo mv /tmp/eksctl /usr/local/bin
-          eksctl version
+  #     - name: Install eksctl
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install -y unzip
+  #         curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+  #         sudo mv /tmp/eksctl /usr/local/bin
+  #         eksctl version
       
-      - name: Create cluster
-        run: |
-          VERSION=${{ matrix.bundle_version }}
-          VERSION_WITHOUT_DOT="${VERSION//.}"
-          yq e ".metadata.name |= \"kubeflow-test-$VERSION_WITHOUT_DOT\"" -i .github/cluster.yaml
-          yq e ".metadata.version |= \"${{ env.K8S_VERSION }}\"" -i .github/cluster.yaml
-          eksctl create cluster -f .github/cluster.yaml
-          kubectl get nodes
+  #     - name: Create cluster
+  #       run: |
+  #         VERSION=${{ matrix.bundle_version }}
+  #         VERSION_WITHOUT_DOT="${VERSION//.}"
+  #         yq e ".metadata.name |= \"kubeflow-test-$VERSION_WITHOUT_DOT\"" -i .github/cluster.yaml
+  #         yq e ".metadata.version |= \"${{ env.K8S_VERSION }}\"" -i .github/cluster.yaml
+  #         eksctl create cluster -f .github/cluster.yaml
+  #         kubectl get nodes
       
-      - name: Setup juju
-        run: |
-          juju add-k8s eks --client
-          juju bootstrap eks kubeflow-controller
-          juju add-model kubeflow
+  #     - name: Setup juju
+  #       run: |
+  #         juju add-k8s eks --client
+  #         juju bootstrap eks kubeflow-controller
+  #         juju add-model kubeflow
       
-      - name: Test bundle deployment
-        run: |
-          tox -vve test_bundle_deployment-${{ matrix.bundle_version }} -- --model kubeflow --keep-models -vv -s
+  #     - name: Test bundle deployment
+  #       run: |
+  #         tox -vve test_bundle_deployment-${{ matrix.bundle_version }} -- --model kubeflow --keep-models -vv -s
 
-      - name: Run Kubeflow UATs
-        run: |
-          git clone https://github.com/canonical/charmed-kubeflow-uats.git ~/charmed-kubeflow-uats
-          cd ~/charmed-kubeflow-uats
-          git checkout ${{ env.UATS_BRANCH }}
-          tox -e kubeflow-remote
+  #     - name: Run Kubeflow UATs
+  #       run: |
+  #         git clone https://github.com/canonical/charmed-kubeflow-uats.git ~/charmed-kubeflow-uats
+  #         cd ~/charmed-kubeflow-uats
+  #         git checkout ${{ env.UATS_BRANCH }}
+  #         tox -e kubeflow-remote
 
-      # On failure, capture debugging resources
-      - name: Save debug artifacts
-        uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main
-        if: failure() || cancelled()
+  #     # On failure, capture debugging resources
+  #     - name: Save debug artifacts
+  #       uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main
+  #       if: failure() || cancelled()
 
-      # On failure, capture debugging resources
-      - name: Get juju status
-        run: juju status
-        if: failure() || cancelled()
+  #     # On failure, capture debugging resources
+  #     - name: Get juju status
+  #       run: juju status
+  #       if: failure() || cancelled()
 
-      - name: Get juju debug logs
-        run: juju debug-log --replay --no-tail
-        if: failure() || cancelled()
+  #     - name: Get juju debug logs
+  #       run: juju debug-log --replay --no-tail
+  #       if: failure() || cancelled()
 
-      - name: Get all kubernetes resources
-        run: kubectl get all -A
-        if: failure() || cancelled()
+  #     - name: Get all kubernetes resources
+  #       run: kubectl get all -A
+  #       if: failure() || cancelled()
 
-      - name: Get logs from pods with status = Pending
-        run: kubectl -n kubeflow get pods | tail -n +2 | grep Pending | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
-        if: failure() || cancelled()
+  #     - name: Get logs from pods with status = Pending
+  #       run: kubectl -n kubeflow get pods | tail -n +2 | grep Pending | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
+  #       if: failure() || cancelled()
 
-      - name: Get logs from pods with status = Failed
-        run: kubectl -n kubeflow get pods | tail -n +2 | grep Failed | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
-        if: failure() || cancelled()
+  #     - name: Get logs from pods with status = Failed
+  #       run: kubectl -n kubeflow get pods | tail -n +2 | grep Failed | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
+  #       if: failure() || cancelled()
 
-      - name: Get logs from pods with status = CrashLoopBackOff
-        run: kubectl -n kubeflow get pods | tail -n +2 | grep CrashLoopBackOff | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
-        if: failure() || cancelled()
+  #     - name: Get logs from pods with status = CrashLoopBackOff
+  #       run: kubectl -n kubeflow get pods | tail -n +2 | grep CrashLoopBackOff | awk '{print $1}' | xargs -n1 kubectl -n kubeflow logs --all-containers=true --tail 100
+  #       if: failure() || cancelled()
 
-      - name: Delete EKS cluster
-        if: always()
-        run: |
-          VERSION=${{ matrix.bundle_version }}
-          VERSION_WITHOUT_DOT="${VERSION//.}"
-          eksctl delete cluster --region eu-central-1 --name=kubeflow-test-$VERSION_WITHOUT_DOT
+  #     - name: Delete EKS cluster
+  #       if: always()
+  #       run: |
+  #         VERSION=${{ matrix.bundle_version }}
+  #         VERSION_WITHOUT_DOT="${VERSION//.}"
+  #         eksctl delete cluster --region eu-central-1 --name=kubeflow-test-$VERSION_WITHOUT_DOT
 
-  delete-unattached-volumes:
-    if: always()
-    uses: ./.github/workflows/delete-aws-volumes.yaml
-    secrets: inherit
-    with:
-      region: eu-central-1
-    needs: [deploy-ckf-to-eks]
+  # delete-unattached-volumes:
+  #   if: always()
+  #   uses: ./.github/workflows/delete-aws-volumes.yaml
+  #   secrets: inherit
+  #   with:
+  #     region: eu-central-1
+  #   needs: [deploy-ckf-to-eks]
