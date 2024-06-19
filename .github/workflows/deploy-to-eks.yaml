@@ -32,7 +32,7 @@ jobs:
         id: yaml-output
         uses: christian-ci/action-yaml-github-output@v2
         with:
-          file_path: ".github/versions.yaml"
+          file_path: ".github/dependencies.yaml"
           main_key: ${{ matrix.bundle_version }}
 
       - name: Update ENV variables from inputs if available
