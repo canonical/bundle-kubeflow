@@ -10,7 +10,7 @@ on:
         description: 'Kubernetes version to be used for the AKS cluster'
         required: false
       uats_branch:
-        description: 'Branch to run the UATs from e.g. main or track/1.8. By default, the workflow uses main.'
+        description: 'Branch to run the UATs from e.g. main or track/1.8. By default, this is defined by the dependencies.yaml file.'
         required: false
   schedule:
     - cron: "23 0 * * 2"
@@ -22,14 +22,25 @@ jobs:
         bundle_version: ${{ fromJSON(format('[{0}]', inputs.bundle_version || '"1.7","1.8","latest"')) }}
       fail-fast: false
     env:
-      K8S_VERSION: ${{ inputs.k8s_version || fromJSON('{"1.7":"1.24", "1.8":"1.26", "latest":"1.29"}')[matrix.bundle_version] }}
-      JUJU_VERSION: ${{ fromJSON('{"1.7":"2.9.49","1.8":"3.5.0","latest":"3.5.0"}')[ matrix.bundle_version ] }}
-      UATS_BRANCH: ${{ inputs.uats_branch || fromJSON('{"1.7":"track/1.7", "1.8":"main", "latest":"main"}')[matrix.bundle_version] }}
       PYTHON_VERSION: "3.8"
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
+      - name: Run YAML to Github Output Action
+        id: yaml-output
+        uses: christian-ci/action-yaml-github-output@v2
+        with:
+          file_path: ".github/dependencies.yaml"
+          main_key: ${{ matrix.bundle_version }}
+
+      - name: Update ENV variables from inputs if available
+        run: |
+          K8S_VERSION=${{ inputs.k8s_version || env.K8S_VERSION }}
+          echo "K8S_VERSION=${K8S_VERSION}" >> $GITHUB_ENV
+          UATS_BRANCH=${{ inputs.uats_branch || env.UATS_BRANCH }}
+          echo "UATS_BRANCH=${UATS_BRANCH}" >> $GITHUB_ENV
 
       # Remove once https://github.com/canonical/bundle-kubeflow/issues/761
       # is resolved and applied to uats repository.
@@ -46,9 +57,8 @@ jobs:
           python${{ env.PYTHON_VERSION }} -m pip install tox
           sudo snap install charmcraft --classic
           # We need to install from binary because of this https://bugs.launchpad.net/juju/+bug/2007575
-          JUJU_VERSION_WITHOUT_PATCH=${JUJU_VERSION%.*}
-          curl -LO https://launchpad.net/juju/$JUJU_VERSION_WITHOUT_PATCH/${{ env.JUJU_VERSION }}/+download/juju-${{ env.JUJU_VERSION }}-linux-amd64.tar.xz
-          tar xf juju-${{ env.JUJU_VERSION }}-linux-amd64.tar.xz
+          curl -LO https://launchpad.net/juju/${{ env.JUJU_VERSION }}/${{ env.JUJU_VERSION_WITH_PATCH }}/+download/juju-${{ env.JUJU_VERSION_WITH_PATCH }}-linux-amd64.tar.xz
+          tar xf juju-${{ env.JUJU_VERSION_WITH_PATCH }}-linux-amd64.tar.xz
           sudo install -o root -g root -m 0755 juju /usr/local/bin/juju
           juju version
 
