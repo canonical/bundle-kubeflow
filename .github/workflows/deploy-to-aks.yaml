@@ -81,7 +81,7 @@ jobs:
         run: |
           az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.NAME }} --admin
           juju add-k8s aks --client
-          juju bootstrap aks aks-controller
+          juju bootstrap --agent-version=3.5.0 aks aks-controller
           juju add-model kubeflow
 
       - name: Test bundle deployment

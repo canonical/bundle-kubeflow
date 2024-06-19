@@ -74,7 +74,7 @@ jobs:
       - name: Setup juju
         run: |
           juju add-k8s eks --client
-          juju bootstrap eks kubeflow-controller
+          juju bootstrap --agent-version=3.5.0 eks kubeflow-controller
           juju add-model kubeflow
       
       - name: Test bundle deployment
