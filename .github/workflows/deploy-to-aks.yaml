@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       bundle_version:
-        description: 'Comma-separated list of bundle versions e.g. "1.7","1.8"'
+        description: 'Comma-separated list of bundle versions e.g. "1.8","latest". Make sure that the corresponding k8s version is supported by the cloud.'
         default: '"1.8","latest"'
         required: true
       k8s_version:
