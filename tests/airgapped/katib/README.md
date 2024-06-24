@@ -13,6 +13,7 @@ Once you run the test scripts, the `kubeflowkatib/simple-pbt:v0.16.0` image used
 ```
 lxc ls | grep eth0
 ```
+Look for the IP of the `airgapped-microk8s` instance.
 2. Log in to the dashboard and create a Profile.
 3. Go to `Experiments (AutoML)` tab from the dashboard sidebar.
 4. Click `New Experiment` then `Edit and submit YAML`.
