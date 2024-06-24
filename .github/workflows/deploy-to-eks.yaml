@@ -2,26 +2,45 @@ name: Create EKS cluster, deploy CKF and run bundle test
 on:
   workflow_dispatch: # This event allows manual triggering from the Github UI
     inputs:
-      uats_branch:
-        description: 'Branch to run the UATs from e.g. main or track/1.8. By default, the workflow uses main.'
+      bundle_version:
+        description: 'Comma-separated list of bundle versions e.g. "1.7","1.8". Make sure that the corresponding k8s version is supported by the cloud.'
+        default: '"1.7","1.8","latest"'
+        required: true
+      k8s_version:
+        description: 'Kubernetes version to be used for the AKS cluster'
         required: false
-    secrets:
-      BUNDLE_KUBEFLOW_EKS_AWS_ACCESS_KEY_ID:
-        required: true
-      BUNDLE_KUBEFLOW_EKS_AWS_SECRET_ACCESS_KEY:
-        required: true
+      uats_branch:
+        description: 'Branch to run the UATs from e.g. main or track/1.8. By default, this is defined by the dependencies.yaml file.'
+        required: false
   schedule:
     - cron: "23 0 * * 2"
 jobs:
   deploy-ckf-to-eks:
     runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        bundle_version: ${{ fromJSON(format('[{0}]', inputs.bundle_version || '"1.7","1.8","latest"')) }}
+      fail-fast: false
     env:
-      UATS_BRANCH: ${{ inputs.uats_branch || 'main' }}
       PYTHON_VERSION: "3.8"
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
+      - name: Run YAML to Github Output Action
+        id: yaml-output
+        uses: christian-ci/action-yaml-github-output@v2
+        with:
+          file_path: ".github/dependencies.yaml"
+          main_key: ${{ matrix.bundle_version }}
+
+      - name: Update ENV variables from inputs if available
+        run: |
+          K8S_VERSION=${{ inputs.k8s_version || env.K8S_VERSION }}
+          echo "K8S_VERSION=${K8S_VERSION}" >> $GITHUB_ENV
+          UATS_BRANCH=${{ inputs.uats_branch || env.UATS_BRANCH }}
+          echo "UATS_BRANCH=${UATS_BRANCH}" >> $GITHUB_ENV
 
       # Remove once https://github.com/canonical/bundle-kubeflow/issues/761
       # is resolved and applied to uats repository.
@@ -37,12 +56,12 @@ jobs:
           python${{ env.PYTHON_VERSION }} get-pip.py
           python${{ env.PYTHON_VERSION }} -m pip install tox
           sudo snap install charmcraft --classic
-          # We need to install from binrary because of this https://bugs.launchpad.net/juju/+bug/2007848
-          curl -LO https://launchpad.net/juju/3.5/3.5.0/+download/juju-3.5.0-linux-amd64.tar.xz
-          tar xf juju-3.5.0-linux-amd64.tar.xz
+          # We need to install from binary because of this https://bugs.launchpad.net/juju/+bug/2007575
+          curl -LO https://launchpad.net/juju/${{ env.JUJU_VERSION }}/${{ env.JUJU_VERSION_WITH_PATCH }}/+download/juju-${{ env.JUJU_VERSION_WITH_PATCH }}-linux-amd64.tar.xz
+          tar xf juju-${{ env.JUJU_VERSION_WITH_PATCH }}-linux-amd64.tar.xz
           sudo install -o root -g root -m 0755 juju /usr/local/bin/juju
           juju version
-      
+
       - name: Configure AWS Credentials
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.BUNDLE_KUBEFLOW_EKS_AWS_ACCESS_KEY_ID }}
@@ -54,7 +73,7 @@ jobs:
       
       - name: Install kubectl
         run: |
-          sudo snap install kubectl --classic --channel=1.24/stable
+          sudo snap install kubectl --classic --channel=${{ env.K8S_VERSION }}/stable
           mkdir ~/.kube
           kubectl version --client
       
@@ -68,6 +87,10 @@ jobs:
       
       - name: Create cluster
         run: |
+          VERSION=${{ matrix.bundle_version }}
+          VERSION_WITHOUT_DOT="${VERSION//.}"
+          yq e ".metadata.name |= \"kubeflow-test-$VERSION_WITHOUT_DOT\"" -i .github/cluster.yaml
+          yq e ".metadata.version |= \"${{ env.K8S_VERSION }}\"" -i .github/cluster.yaml
           eksctl create cluster -f .github/cluster.yaml
           kubectl get nodes
       
@@ -79,7 +102,7 @@ jobs:
       
       - name: Test bundle deployment
         run: |
-          tox -vve test_bundle_deployment-1.8 -- --model kubeflow --keep-models -vv -s
+          tox -vve test_bundle_deployment-${{ matrix.bundle_version }} -- --model kubeflow --keep-models -vv -s
 
       - name: Run Kubeflow UATs
         run: |
@@ -121,7 +144,9 @@ jobs:
       - name: Delete EKS cluster
         if: always()
         run: |
-          eksctl delete cluster --region eu-central-1 --name=kubeflow-test
+          VERSION=${{ matrix.bundle_version }}
+          VERSION_WITHOUT_DOT="${VERSION//.}"
+          eksctl delete cluster --region eu-central-1 --name=kubeflow-test-$VERSION_WITHOUT_DOT
 
   delete-unattached-volumes:
     if: always()
