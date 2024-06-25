@@ -46,6 +46,9 @@ rm -rf resource-dispatcher
 # manually retrieve pipelines runner image to test pipelines
 IMAGES+=($(echo "charmedkubeflow/pipelines-runner:ckf-1.8"))
 
+# manually retrieve katib experiment image
+IMAGES+=($(echo "docker.io/kubeflowkatib/simple-pbt:v0.16.0"))
+
 # manually retrieve helloworld image to test knative
 IMAGES+=($(echo "ghcr.io/knative/helloworld-go:latest"))
 

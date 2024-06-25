@@ -1,0 +1,64 @@
+# Source: katib/examples/v1beta1/hp-tuning/simple-pbt.yaml
+# This example is slightly modified from upstream to consume less resources
+# and disable istio sidecar.
+# There's a `modified` comment where we diverge from upstream.
+# When updating this file, make sure to keep those modifications.
+---
+apiVersion: kubeflow.org/v1beta1
+kind: Experiment
+metadata:
+  name: simple-pbt
+spec:
+  maxTrialCount: 1  # modified
+  parallelTrialCount: 1  # modified
+  maxFailedTrialCount: 1  # modified
+  resumePolicy: FromVolume
+  objective:
+    type: maximize
+    goal: 0.99
+    objectiveMetricName: Validation-accuracy
+  algorithm:
+    algorithmName: pbt
+    algorithmSettings:
+      - name: suggestion_trial_dir
+        value: /var/log/katib/checkpoints/
+      - name: n_population
+        value: '40'
+      - name: truncation_threshold
+        value: '0.2'
+  parameters:
+    - name: lr
+      parameterType: double
+      feasibleSpace:
+        min: '0.0001'
+        max: '0.02'
+        step: '0.0001'
+  trialTemplate:
+    primaryContainerName: training-container
+    trialParameters:
+      - name: learningRate
+        description: Learning rate for training the model
+        reference: lr
+    trialSpec:
+      apiVersion: batch/v1
+      kind: Job
+      spec:
+        template:
+          spec:
+            containers:
+              - name: training-container
+                image: 172.17.0.2:5000/kubeflowkatib/simple-pbt:v0.16.0
+                command:
+                  - "python3"
+                  - "/opt/pbt/pbt_test.py"
+                  - "--epochs=20"
+                  - "--lr=${trialParameters.learningRate}"
+                  - "--checkpoint=/var/log/katib/checkpoints/"
+                resources:  # modified
+                  limits:  # modified
+                    memory: "2Gi"  # modified
+                    cpu: "1"  # modified
+            restartPolicy: Never
+          metadata: # modified
+            annotations:  # modified
+              sidecar.istio.io/inject: "false"  # modified
