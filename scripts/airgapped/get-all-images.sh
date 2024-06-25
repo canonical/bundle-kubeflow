@@ -46,6 +46,9 @@ rm -rf resource-dispatcher
 # manually retrieve pipelines runner image to test pipelines
 IMAGES+=($(echo "charmedkubeflow/pipelines-runner:ckf-1.8"))
 
+# manually retrieve helloworld image to test knative
+IMAGES+=($(echo "ghcr.io/knative/helloworld-go:latest"))
+
 # ensure we only show unique images
 IMAGES=($(echo "${IMAGES[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
 
