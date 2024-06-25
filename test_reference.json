@@ -1,5 +1,7 @@
 {
   "ckf-1.8-stable-mlflow-2.0-stable": {
+    "ckf":"1.8/stable",
+    "mlflow": "2.0/stable",
     "k8s-substrates": {
       "charmed-kubernetes": {
         "min-supported": "1.24",
@@ -24,6 +26,8 @@
     }
   },
   "ckf-1.8-edge-mlflow-2.0-edge": {
+    "ckf":"1.8/edge",
+    "mlflow": "2.0/edge",
     "k8s-substrates": {
       "charmed-kubernetes": {
         "min-supported": "1.24",
@@ -50,6 +54,8 @@
     }
   },
   "ckf-latest-edge-mlflow-latest-edge": {
+    "ckf":"latest/edge",
+    "mlflow": "latest/edge",
     "k8s-substrates": {
       "charmed-kubernetes": {
         "min-supported": "1.24",
