@@ -2,7 +2,7 @@
   "ckf-1.8-stable-mlflow-2.0-stable": {
     "ckf":"1.8/stable",
     "mlflow": "2.0/stable",
-    "k8s-substrates": {
+    "k8s": {
       "charmed-kubernetes": {
         "min-supported": "1.24",
         "max-supported": "1.29"
@@ -20,7 +20,7 @@
         "max-supported": "1.29"
       }
     },
-    "juju-versions": {
+    "juju": {
       "current": "3.4/stable",
       "future": "3.5/stable"
     }
@@ -28,7 +28,7 @@
   "ckf-1.8-edge-mlflow-2.0-edge": {
     "ckf":"1.8/edge",
     "mlflow": "2.0/edge",
-    "k8s-substrates": {
+    "k8s": {
       "charmed-kubernetes": {
         "min-supported": "1.24",
         "max-supported": "1.29"
@@ -46,7 +46,7 @@
         "max-supported": "1.29"
       }
     },
-    "juju-versions": {
+    "juju": {
       "current-edge": "3.4/edge",
       "current-stable": "3.4/stable",
       "future-edge": "3.5/edge",
@@ -56,7 +56,7 @@
   "ckf-latest-edge-mlflow-latest-edge": {
     "ckf":"latest/edge",
     "mlflow": "latest/edge",
-    "k8s-substrates": {
+    "k8s": {
       "charmed-kubernetes": {
         "min-supported": "1.24",
         "max-supported": "1.29"
@@ -74,7 +74,7 @@
         "max-supported": "1.29"
       }
     },
-    "juju-versions": {
+    "juju": {
       "current-edge": "3.4/edge",
       "current-stable": "3.4/stable",
       "future-edge": "3.5/edge",
