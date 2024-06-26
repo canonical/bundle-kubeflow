@@ -27,8 +27,9 @@ You can run the script that will spin up an airgapped microk8s cluster with:
 ```bash
 ./tests/airgapped/airgap.sh \
   --node-name airgapped-microk8s \
-  --microk8s-channel 1.24/stable \
-  --bundle-path releases/latest/edge/bundle.yaml
+  --microk8s-channel 1.25-strict/stable \
+  --bundle-path releases/1.8/stable/kubeflow/bundle.yaml \
+  --juju-channel 3.1/stable
 ```
 
 ### Size considerations
@@ -55,15 +56,13 @@ all the CKF images. These are 125Gb, which will make it difficult for running a
 lot of tests locally.
 
 Devs are urged to instead define their own `images.txt` file with the images
-they'd like to be loaded during tests. Note that in the instructions below I
-used `1.7/stable` until https://github.com/canonical/bundle-kubeflow/issues/679
-is resolved, and we'll be able to use other bundle files.
+they'd like to be loaded during tests.
 
 ```bash
-./scripts/airgapped/get-all-images.sh releases/1.7/stable/kubeflow/bundle.yaml > images-all.txt
+./scripts/airgapped/get-all-images.sh releases/1.8/stable/kubeflow/bundle.yaml > images-all.txt
 ```
 
-This will generate an `images-all.txt`, with all images of CKF 1.7. You can
+This will generate an `images-all.txt`, with all images of CKF 1.8. You can
 create a copy of that file `images.txt` and keep which images you want from
 the initial file, or change the rest. Then you can continue with the following
 commands to generate the `images.tar.gz`
