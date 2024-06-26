@@ -10,7 +10,7 @@ For running the tests we expect an environment that can:
 We need docker to pull all the images necessary and push them to the airgapped
 lxc container.
 
-## Setup
+## Setup the environment
 
 We've prepared some scripts for setting up the environment
 ```bash
@@ -20,7 +20,7 @@ We've prepared some scripts for setting up the environment
 Make sure to reboot your machine after running the setup scripts to be able to
 run docker commands and the lxc container to, initially, have network access.
 
-## Running the tests
+## Prepare the airgapped cluster
 
 You can run the script that will spin up an airgapped microk8s cluster with:
 
@@ -108,3 +108,28 @@ that cached file.
 If you want to use Charms from a different bundle, then make sure to remove
 `charms.tar.gz`
 
+## Deploy the bundle
+We've prepared a script for deploying the 1.8 bundle in airgapped:
+```bash
+bash ./scripts/airgapped/deploy-1.8.sh
+```
+
+## Configure the dashboard
+1. Configure the public URL
+```
+juju config dex-auth public-url=http://10.64.140.43.nip.io
+juju config oidc-gatekeeper public-url=http://10.64.140.43.nip.io
+```
+2. Configure the username and password
+```
+juju config dex-auth static-username=admin
+juju config dex-auth static-password=admin
+```
+
+## Test Charmed Kubeflow components in airgapped
+
+To test Charmed Kubeflow components in airgapped, follow the instructions in the following READMEs:
+* [Katib](./katib/README.md)
+* [KNative](./knative/README.md)
+* [Pipelines](./pipelines/README.md)
+* [Training Operator](./training/README.md)
