@@ -3,16 +3,15 @@ on:
   workflow_dispatch:
     inputs:
       bundle_version:
-        description: 'Comma-separated list of bundle versions e.g. "1.7","1.8"'
-        default: '"1.8"'
+        description: 'Comma-separated list of bundle versions e.g. "1.8","latest". Make sure that the corresponding k8s version is supported by the cloud.'
+        default: '"1.8","latest"'
         required: true
       k8s_version:
         description: 'Kubernetes version to be used for the AKS cluster'
         required: false
       uats_branch:
-        description: 'Branch to run the UATs from e.g. main or track/1.8. By default, the workflow uses main.'
+        description: 'Branch to run the UATs from e.g. main or track/1.8. By default, this is defined by the dependencies.yaml file.'
         required: false
-
   schedule:
     - cron: "17 0 * * 2"
 jobs:
@@ -24,13 +23,25 @@ jobs:
       fail-fast: false
     env:
       AZURE_CORE_OUTPUT: none
-      K8S_VERSION: ${{ inputs.k8s_version || fromJSON('{"1.8":"1.28", "latest":"1.28"}')[matrix.bundle_version] }}
-      JUJU_VERSION: ${{ fromJSON('{"1.8":"3.5","latest":"3.5"}')[ matrix.bundle_version ] }}
-      UATS_BRANCH: ${{ inputs.uats_branch || fromJSON('{"1.8":"main", "latest":"main"}')[matrix.bundle_version] }}
       PYTHON_VERSION: "3.8"
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
+      - name: Run YAML to Github Output Action
+        id: yaml-output
+        uses: christian-ci/action-yaml-github-output@v2
+        with:
+          file_path: ".github/dependencies.yaml"
+          main_key: ${{ matrix.bundle_version }}
+
+      - name: Update ENV variables from inputs if available
+        run: |
+          K8S_VERSION=${{ inputs.k8s_version || env.K8S_VERSION }}
+          echo "K8S_VERSION=${K8S_VERSION}" >> $GITHUB_ENV
+          UATS_BRANCH=${{ inputs.uats_branch || env.UATS_BRANCH }}
+          echo "UATS_BRANCH=${UATS_BRANCH}" >> $GITHUB_ENV
 
       # Remove once https://github.com/canonical/bundle-kubeflow/issues/761
       # is resolved and applied to uats repository.
