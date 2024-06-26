@@ -1,0 +1,22 @@
+# Based on the upstream [TFJob example](https://github.com/kubeflow/training-operator/blob/964a6e836eedff11edfe79cc9f4e5b7c623cbe88/examples/tensorflow/image-classification/create-tfjob.ipynb)
+apiVersion: "kubeflow.org/v1"
+kind: TFJob
+metadata:
+  name: tfjob-simple
+spec:
+   tfReplicaSpecs:
+     Worker:
+       replicas: 2
+       restartPolicy: OnFailure
+       template:
+         metadata:
+           annotations:
+             sidecar.istio.io/inject: "false"  # disable istio sidecar injection to get tfjob running
+         spec:
+           containers:
+             - name: tensorflow
+               image: 172.17.0.2:5000/kubeflow-ci/tf-mnist-with-summaries:1.0
+               command:
+                 - "python"
+                 - "/var/tf_mnist/mnist_with_summaries.py"
+                 - "--fake_data=True"  # uses dummy data to avoid pulling the dataset from the internet
