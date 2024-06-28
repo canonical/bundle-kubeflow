@@ -15,7 +15,7 @@ spec:
          spec:
            containers:
              - name: tensorflow
-               image: 172.17.0.2:5000/kubeflow-ci/tf-mnist-with-summaries:1.0
+               image: 172.17.0.2:5000/kubeflow-ci/tf-mnist-with-summaries:1.0  # the registry address is hardcoded to `172.17.0.2:5000` in the [test scripts](https://github.com/canonical/bundle-kubeflow/blob/main/tests/airgapped/registry.sh#L21)
                command:
                  - "python"
                  - "/var/tf_mnist/mnist_with_summaries.py"

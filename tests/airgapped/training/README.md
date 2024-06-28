@@ -4,7 +4,7 @@ This directory is dedicated to testing training operator in an airgapped environ
 
 ## Prerequisites
 
-Prepare the airgapped environment and deploy CKF by following the steps in [Airgapped test scripts](https://github.com/canonical/bundle-kubeflow/tree/main/tests/airgapped#testing-airgapped-installation).
+Prepare the airgapped environment and deploy CKF by following the steps in [Airgapped test scripts](../README.md#testing-airgapped-installation).
 
 Once you run the test scripts, the `kubeflow-ci/tf-mnist-with-summaries:1.0` image used in the `tfjob-simple` training job will be included in your airgapped environment. It's specifically added in the [`get-all-images.sh` script](../../../scripts/airgapped/get-all-images.sh).
 
