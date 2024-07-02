@@ -77,7 +77,7 @@ juju deploy --trust --debug ./$(charm kfp-api) --resource oci-image=$(img api-se
 juju deploy --trust --debug ./$(charm mysql-k8s) kfp-db --constraints="mem=2G" --resource mysql-image=$(img canonical/charmed-mysql)
 juju deploy --trust --debug ./$(charm kfp-metadata-writer) --resource oci-image=$(img metadata-writer)
 juju deploy --trust --debug ./$(charm kfp-persistence) --resource oci-image=$(img persistenceagent)
-juju deploy --trust --debug ./$(charm kfp-profile-controller) --resource oci-image=$(img python:3.11.9-alpine) \
+juju deploy --trust --debug ./$(charm kfp-profile-controller) --resource oci-image=$(img python:3.8-20.04_edge) \
     --config custom_images="visualization_server: '$(img visualization-server)'
 frontend: '$(img frontend)'
 "
