@@ -52,6 +52,9 @@ IMAGES+=($(echo "docker.io/kubeflowkatib/simple-pbt:v0.16.0"))
 # manually retrieve helloworld image to test knative
 IMAGES+=($(echo "ghcr.io/knative/helloworld-go:latest"))
 
+# manually retrieve tf-mnist-with-summaries image to test training operator
+IMAGES+=($(echo "gcr.io/kubeflow-ci/tf-mnist-with-summaries:1.0"))
+
 # ensure we only show unique images
 IMAGES=($(echo "${IMAGES[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
 
