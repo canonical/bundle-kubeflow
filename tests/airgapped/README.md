@@ -10,7 +10,7 @@ For running the tests we expect an environment that can:
 We need docker to pull all the images necessary and push them to the airgapped
 lxc container.
 
-## Setup
+## Setup the environment
 
 We've prepared some scripts for setting up the environment
 ```bash
@@ -20,15 +20,16 @@ We've prepared some scripts for setting up the environment
 Make sure to reboot your machine after running the setup scripts to be able to
 run docker commands and the lxc container to, initially, have network access.
 
-## Running the tests
+## Prepare the airgapped cluster
 
 You can run the script that will spin up an airgapped microk8s cluster with:
 
 ```bash
 ./tests/airgapped/airgap.sh \
   --node-name airgapped-microk8s \
-  --microk8s-channel 1.24/stable \
-  --bundle-path releases/latest/edge/bundle.yaml
+  --microk8s-channel 1.25-strict/stable \
+  --bundle-path releases/1.8/stable/kubeflow/bundle.yaml \
+  --juju-channel 3.1/stable
 ```
 
 ### Size considerations
@@ -55,15 +56,13 @@ all the CKF images. These are 125Gb, which will make it difficult for running a
 lot of tests locally.
 
 Devs are urged to instead define their own `images.txt` file with the images
-they'd like to be loaded during tests. Note that in the instructions below I
-used `1.7/stable` until https://github.com/canonical/bundle-kubeflow/issues/679
-is resolved, and we'll be able to use other bundle files.
+they'd like to be loaded during tests.
 
 ```bash
-./scripts/airgapped/get-all-images.sh releases/1.7/stable/kubeflow/bundle.yaml > images-all.txt
+./scripts/airgapped/get-all-images.sh releases/1.8/stable/kubeflow/bundle.yaml > images-all.txt
 ```
 
-This will generate an `images-all.txt`, with all images of CKF 1.7. You can
+This will generate an `images-all.txt`, with all images of CKF 1.8. You can
 create a copy of that file `images.txt` and keep which images you want from
 the initial file, or change the rest. Then you can continue with the following
 commands to generate the `images.tar.gz`
@@ -109,3 +108,28 @@ that cached file.
 If you want to use Charms from a different bundle, then make sure to remove
 `charms.tar.gz`
 
+## Deploy the bundle
+We've prepared a script for deploying the 1.8 bundle in airgapped:
+```bash
+bash ./scripts/airgapped/deploy-1.8.sh
+```
+
+## Configure the dashboard
+1. Configure the public URL
+```
+juju config dex-auth public-url=http://10.64.140.43.nip.io
+juju config oidc-gatekeeper public-url=http://10.64.140.43.nip.io
+```
+2. Configure the username and password
+```
+juju config dex-auth static-username=admin
+juju config dex-auth static-password=admin
+```
+
+## Test Charmed Kubeflow components in airgapped
+
+To test Charmed Kubeflow components in airgapped, follow the instructions in the following READMEs:
+* [Katib](./katib/README.md)
+* [KNative](./knative/README.md)
+* [Pipelines](./pipelines/README.md)
+* [Training Operator](./training/README.md)
