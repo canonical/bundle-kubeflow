@@ -114,13 +114,8 @@ We've prepared a script for deploying the 1.8 bundle in airgapped:
 bash ./scripts/airgapped/deploy-1.8.sh
 ```
 
-## Configure the dashboard
-1. Configure the public URL
-```
-juju config dex-auth public-url=http://10.64.140.43.nip.io
-juju config oidc-gatekeeper public-url=http://10.64.140.43.nip.io
-```
-2. Configure the username and password
+## Configure authentication and authorization
+Configure the username and password to be able to log in from the dashboard
 ```
 juju config dex-auth static-username=admin
 juju config dex-auth static-password=admin
