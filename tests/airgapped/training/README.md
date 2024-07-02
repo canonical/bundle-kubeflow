@@ -18,11 +18,11 @@ Once you run the test scripts, the `kubeflow-ci/tf-mnist-with-summaries:1.0` ima
 2. Log in to the dashboard and create a Profile.
 3. Apply the `tfjob-simple.yaml` found in this directory to your Profile's Namespace:
 ```
-kubectl apply -f ./tfjob-simple.yaml -n <your namespace>
+microk8s.kubectl apply -f ./tfjob-simple.yaml -n <your namespace>
 ```
 4. Wait for the tfjob to be `Succeeded`
 ```
-kubectl get tfjob -n <your namespace>
+microk8s.kubectl get tfjob -n <your namespace>
 ```
 Expected output:
 ```
