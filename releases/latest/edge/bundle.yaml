@@ -290,7 +290,6 @@ relations:
   - [istio-pilot:istio-pilot, istio-ingressgateway:istio-pilot]
   - [istio-pilot:ingress, tensorboards-web-app:ingress]
   - [istio-pilot:gateway-info, tensorboard-controller:gateway-info]
-  - [katib-controller, katib-db-manager]
   - [katib-db-manager:k8s-service-info, katib-controller:k8s-service-info]
   - [katib-db-manager:relational-db, katib-db:database]
   - [kfp-api:relational-db, kfp-db:database]
