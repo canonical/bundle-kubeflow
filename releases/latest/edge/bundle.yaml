@@ -254,13 +254,6 @@ applications:
     series: focal
     _github_repo_name: pvcviewer-operator
     _github_repo_branch: main
-  seldon-controller-manager:
-    charm: seldon-core
-    channel: latest/edge
-    scale: 1
-    trust: true
-    _github_repo_name: seldon-core-operator
-    _github_repo_branch: main
   tensorboard-controller:
     charm: tensorboard-controller
     channel: latest/edge
@@ -297,7 +290,6 @@ relations:
   - [istio-pilot:istio-pilot, istio-ingressgateway:istio-pilot]
   - [istio-pilot:ingress, tensorboards-web-app:ingress]
   - [istio-pilot:gateway-info, tensorboard-controller:gateway-info]
-  - [katib-controller, katib-db-manager]
   - [katib-db-manager:k8s-service-info, katib-controller:k8s-service-info]
   - [katib-db-manager:relational-db, katib-db:database]
   - [kfp-api:relational-db, kfp-db:database]
