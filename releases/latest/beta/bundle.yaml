@@ -307,5 +307,6 @@ relations:
   - [kubeflow-dashboard:links, kfp-ui:dashboard-links]
   - [kubeflow-dashboard:links, kubeflow-volumes:dashboard-links]
   - [kubeflow-dashboard:links, tensorboards-web-app:dashboard-links]
+  - [kubeflow-dashboard:links, training-operator:dashboard-links]
   - [mlmd:grpc, envoy:grpc]
   - [mlmd:grpc, kfp-metadata-writer:grpc]
