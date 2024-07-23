@@ -277,6 +277,7 @@ applications:
     _github_repo_branch: main
 relations:
   - [argo-controller, minio]
+  - [dex-auth:dex-oidc-config, oidc-gatekeeper:dex-oidc-config]
   - [dex-auth:oidc-client, oidc-gatekeeper:oidc-client]
   - [istio-pilot:ingress, dex-auth:ingress]
   - [istio-pilot:ingress, jupyter-ui:ingress]
