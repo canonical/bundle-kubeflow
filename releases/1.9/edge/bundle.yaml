@@ -64,7 +64,7 @@ applications:
     _github_repo_branch: main
   katib-controller:
     charm: katib-controller
-    channel: 0.16/edge
+    channel: 0.17/edge
     scale: 1
     trust: true
     _github_repo_name: katib-operators
@@ -79,14 +79,14 @@ applications:
     _github_dependency_repo_branch: main
   katib-db-manager:
     charm: katib-db-manager
-    channel: 0.16/edge
+    channel: 0.17/edge
     scale: 1
     trust: true
     _github_repo_name: katib-operators
     _github_repo_branch: main
   katib-ui:
     charm: katib-ui
-    channel: 0.16/edge
+    channel: 0.17/edge
     scale: 1
     trust: true
     _github_repo_name: katib-operators
