@@ -9,9 +9,9 @@ import requests
 from pytest_operator.plugin import OpsTest
 from lightkube.resources.core_v1 import Service
 
-BUNDLE_NAME = "kubeflow"
-BUNDLE_VERSION = os.environ.get("BUNDLE_VERSION")
+from _pytest.config.argparsing import Parser
 
+BUNDLE_NAME = "kubeflow"
 
 @pytest.fixture()
 def lightkube_client() -> lightkube.Client:
@@ -20,18 +20,22 @@ def lightkube_client() -> lightkube.Client:
 
 
 @pytest.fixture
-def bundle_path() -> str:
-    return f"./releases/{BUNDLE_VERSION}/stable/kubeflow/bundle.yaml"
+def bundle_path(request) -> str:
+    """Return the relative path to the bundle file given a track and risk."""
+    track = request.config.getoption("track")
+    risk = request.config.getoption("risk")
+    bundle_path = sh.find("./releases/{track}/{risk}", "-name", "bundle.yaml")
+    return bundle_path
 
 
 class TestCharm:
     @pytest.mark.abort_on_fail
-    async def test_bundle_deployment_works(self, ops_test: OpsTest, lightkube_client, bundle_path):
+    async def test_bundle_deployment_works(self, ops_test: OpsTest, lightkube_client, bundle_path, request):
         subprocess.Popen(["juju", "deploy", bundle_path, "--trust"])
         # To keep compatibility with CKF 1.8, the public-url configuration
         # must be set. For >=1.9 this is not required.
         # TODO: remove when CKF 1.8 falls out of support
-        if BUNDLE_VERSION == "1.8":
+        if request.config.getoption("track") == "1.8":
             await ops_test.model.wait_for_idle(
                 apps=["istio-ingressgateway"],
                 status="active",
@@ -93,3 +97,20 @@ async def fetch_response(url, headers=None):
             result_status = response.status
             result_text = await response.text()
     return result_status, str(result_text)
+
+
+def pytest_addoption(parser: Parser):
+    parser.addoption(
+        "--track",
+        default="1.9",
+        help="Charmed Kubeflow bundle track where the version to be tested is."
+        "Defaults to the latest patch version."
+        "Allowed values: latest, 1.8, 1.9",
+    )
+    parser.addoption(
+        "--risk",
+        default="stable"
+        help="The risk level from the Charmhub track."
+        "Defaults to stable."
+        "Allowed values: stable, edge, beta.",
+    )
