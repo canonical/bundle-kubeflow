@@ -97,7 +97,7 @@ jobs:
 
       - name: Test bundle deployment
         run: |
-          tox -vve test_bundle_deployment-${{ matrix.bundle_version }} -- --model kubeflow --keep-models -vv -s  --track ${{ matrix.bundle_version }}
+          tox -vve test_bundle_deployment-${{ matrix.bundle_version }} -- --model kubeflow --keep-models -vv -s
 
       - name: Run Kubeflow UATs
         run: |
