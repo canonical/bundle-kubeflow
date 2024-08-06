@@ -25,6 +25,9 @@ class TestCharm:
     async def test_bundle_deployment_works(self, ops_test: OpsTest, lightkube_client, bundle_path):
         subprocess.Popen(["juju", "deploy", bundle_path, "--trust"])
 
+        # Wait for istio-ingressgateway charm to be active and idle
+        # This is required because later we'll try to fetch a response from the login url
+        # using the ingress gateway service IP address (provided by the LoadBalancer)
         await ops_test.model.wait_for_idle(
             apps=["istio-ingressgateway"],
             status="active",
@@ -33,18 +36,26 @@ class TestCharm:
             timeout=1500,
         )
 
-        await ops_test.model.wait_for_idle(
-            apps=["oidc-gatekeeper"],
-            status="blocked",
-            raise_on_blocked=False,
-            raise_on_error=False,
-            timeout=1500,
-        )
+        # To keep compatibility with CKF 1.8, the public-url configuration
+        # must be set. For >=1.9 this is not required.
+        # TODO: remove when CKF 1.8 falls out of support
+        if "1.8" in bundle_path:
+            await ops_test.model.wait_for_idle(
+                apps=["oidc-gatekeeper"],
+                status="blocked",
+                raise_on_blocked=False,
+                raise_on_error=False,
+                timeout=1500,
+            )
+    
+            await ops_test.model.applications["dex-auth"].set_config({"public-url": url})
+            await ops_test.model.applications["oidc-gatekeeper"].set_config({"public-url": url})
+        else:
+            await ops_test.model.add_relation(
+                "oidc-gatekeeper:dex-oidc-config", f"dex-auth:dex-oidc-config"
+            )
 
-        url = get_public_url(lightkube_client, BUNDLE_NAME)
-        await ops_test.model.applications["dex-auth"].set_config({"public-url": url})
-        await ops_test.model.applications["oidc-gatekeeper"].set_config({"public-url": url})
-
+        # Wait for the whole bundle to become active and idle
         await ops_test.model.wait_for_idle(
             status="active",
             raise_on_blocked=False,
@@ -52,6 +63,7 @@ class TestCharm:
             timeout=1500,
         )
 
+        url = get_public_url(lightkube_client, BUNDLE_NAME)
         result_status, result_text = await fetch_response(url)
         assert result_status == 200
         assert "Log in to Your Account" in result_text
