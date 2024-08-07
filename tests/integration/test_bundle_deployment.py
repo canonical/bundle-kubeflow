@@ -47,9 +47,11 @@ class TestCharm:
                 raise_on_error=False,
                 timeout=1500,
             )
+
+            dex_svc_dns_name = "http://dex-auth.kubeflow.svc:5556"
     
-            await ops_test.model.applications["dex-auth"].set_config({"public-url": url})
-            await ops_test.model.applications["oidc-gatekeeper"].set_config({"public-url": url})
+            await ops_test.model.applications["dex-auth"].set_config({"public-url": dex_svc_dns_name})
+            await ops_test.model.applications["oidc-gatekeeper"].set_config({"public-url": dex_svc_dns_name})
 
         # Wait for the whole bundle to become active and idle
         await ops_test.model.wait_for_idle(
