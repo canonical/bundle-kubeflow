@@ -50,10 +50,6 @@ class TestCharm:
     
             await ops_test.model.applications["dex-auth"].set_config({"public-url": url})
             await ops_test.model.applications["oidc-gatekeeper"].set_config({"public-url": url})
-        else:
-            await ops_test.model.add_relation(
-                "oidc-gatekeeper:dex-oidc-config", f"dex-auth:dex-oidc-config"
-            )
 
         # Wait for the whole bundle to become active and idle
         await ops_test.model.wait_for_idle(
