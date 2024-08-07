@@ -3,8 +3,8 @@ on:
   workflow_dispatch: # This event allows manual triggering from the Github UI
     inputs:
       bundle_version:
-        description: 'Comma-separated list of bundle versions e.g. "1.7","1.8". Make sure that the corresponding k8s version is supported by the cloud.'
-        default: '"1.7","1.8","latest"'
+        description: 'Comma-separated list of bundle versions e.g. "1.8","latest". Make sure that the corresponding k8s version is supported by the cloud.'
+        default: '"1.8","1.9","latest"'
         required: true
       k8s_version:
         description: 'Kubernetes version to be used for the AKS cluster'
@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        bundle_version: ${{ fromJSON(format('[{0}]', inputs.bundle_version || '"1.7","1.8","latest"')) }}
+        bundle_version: ${{ fromJSON(format('[{0}]', inputs.bundle_version || '"1.8","1.9","latest"')) }}
       fail-fast: false
     env:
       PYTHON_VERSION: "3.8"
