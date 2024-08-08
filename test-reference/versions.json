@@ -22,8 +22,7 @@
     "juju": {
       "current-edge": "3.4/edge",
       "current-stable": "3.4/stable",
-      "future-edge": "3.6/edge",
-      "future-stable": "3.6/stable"
+      "future-beta": "3.6/beta"
     }
   },
   "ckf-1.8-stable-mlflow-2.0-stable": {
