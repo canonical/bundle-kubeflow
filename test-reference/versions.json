@@ -3,11 +3,11 @@
     "ckf":"1.9/stable",
     "k8s": {
       "charmed-kubernetes": {
-        "min-supported": "1.24",
+        "min-supported": "1.27",
         "max-supported": "1.30"
       },
       "microk8s": {
-        "min-supported": "1.25",
+        "min-supported": "1.27",
         "max-supported": "1.30"
       },
       "aks": {
@@ -15,7 +15,7 @@
         "max-supported": "1.30"
       },
       "eks": {
-        "min-supported": "1.24",
+        "min-supported": "1.27",
         "max-supported": "1.30"
       }
     },
