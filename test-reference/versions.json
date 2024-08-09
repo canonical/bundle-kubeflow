@@ -1,4 +1,30 @@
 {
+  "ckf-1.9-stable": {
+    "ckf":"1.9/stable",
+    "k8s": {
+      "charmed-kubernetes": {
+        "min-supported": "1.27",
+        "max-supported": "1.30"
+      },
+      "microk8s": {
+        "min-supported": "1.27",
+        "max-supported": "1.30"
+      },
+      "aks": {
+        "min-supported": "1.27",
+        "max-supported": "1.30"
+      },
+      "eks": {
+        "min-supported": "1.27",
+        "max-supported": "1.30"
+      }
+    },
+    "juju": {
+      "current-edge": "3.4/edge",
+      "current-stable": "3.4/stable",
+      "future-beta": "3.6/beta"
+    }
+  },
   "ckf-1.8-stable-mlflow-2.0-stable": {
     "ckf":"1.8/stable",
     "mlflow": "2.0/stable",
