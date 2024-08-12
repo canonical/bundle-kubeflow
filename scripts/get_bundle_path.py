@@ -11,9 +11,9 @@ def get_bundle_path_from_release() -> None:
     release = sys.argv[1]
     bundle_is_latest = re.search("^latest/", release)
     if bundle_is_latest:
-        bundle_path = "./releases/" + release + "/"
+        bundle_path = "./releases/" + release + "/bundle.yaml"
     else:
-        bundle_path = "./releases/" + release + "/kubeflow/"
+        bundle_path = "./releases/" + release + "/kubeflow/bundle.yaml"
 
     # Check if file in bundle_path output exists
     # Expect the script to be executed from `bundle-kubeflow` repo directory
