@@ -27,9 +27,9 @@ You can run the script that will spin up an airgapped microk8s cluster with:
 ```bash
 ./tests/airgapped/airgap.sh \
   --node-name airgapped-microk8s \
-  --microk8s-channel 1.25-strict/stable \
-  --bundle-path releases/1.8/stable/kubeflow/bundle.yaml \
-  --juju-channel 3.1/stable
+  --microk8s-channel 1.29-strict/stable \
+  --bundle-path releases/1.9/stable/bundle.yaml \
+  --juju-channel 3.4/stable
 ```
 
 ### Size considerations
@@ -109,9 +109,9 @@ If you want to use Charms from a different bundle, then make sure to remove
 `charms.tar.gz`
 
 ## Deploy the bundle
-We've prepared a script for deploying the 1.8 bundle in airgapped:
+We've prepared a script for deploying the 1.9 bundle in airgapped:
 ```bash
-bash ./scripts/airgapped/deploy-1.8.sh
+bash ./scripts/airgapped/deploy-1.9.sh
 ```
 
 ## Configure authentication and authorization
