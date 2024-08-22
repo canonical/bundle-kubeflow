@@ -80,9 +80,11 @@ python3 scripts/airgapped/save-images-to-tar.py retagged-images.txt
 
 This is most probably happening because LXC and Docker do not play nice together.
 
-To mitigate try to:
-1. `./tests/airgapped/setup/lxd-docker-networking.sh`
-2. If the problem persists, reboot the machine
+To mitigate try to run the following script:
+```bash
+./tests/airgapped/setup/lxd-docker-networking.sh
+```
+If the problem persists, reboot the machine and try again.
 
 
 #### This "instances" entry already exists
