@@ -1,18 +1,18 @@
 # Testing Airgapped Installation
-> :warning: **Those scripts require at least 500Gb**: Since they download all images of Kubeflow, both in host and inside the LXC container
+> :warning: **Those scripts require at least 500 GB**: Since they download all images of Kubeflow, both in host and inside the LXC container
 >
 > :warning: **Those scripts require Python 3.10**
 
 For running the tests we expect an environment that can:
 1. Spin up LXC containers
-2. Have Docker, to pull images
+2. Have Docker to pull images
 
-We need docker to pull all the images necessary and push them to the airgapped
-lxc container.
+We need Docker to pull all the images necessary and push them to the airgapped
+LXC container.
 
 ## Setup the environment
 
-We've prepared some scripts for setting up the environment
+This repository contains a script for setting up the environment:
 ```bash
 ./tests/airgapped/setup/setup.sh
 ```
@@ -36,26 +36,26 @@ You can run the script that will spin up an airgapped microk8s cluster with:
 
 As stated in the beginning these scripts require a lot of storage, if run with
 the full set of images of Kubeflow. To better expose this, we'll take for
-granted that the total of all OCI images of Kubeflow is 125Gb. Then the amount
+granted that the total of all OCI images of Kubeflow is 125 GB. Then the amount
 of storage needed is:
-- 125Gb, for host to pull all images locally
-- 125Gb, for the compressed `images.tar.gz` (the size almost always will be
-  smaller, but here I'll use the worst case scenario
-- 125Gb, to copy this tarbal inside the airgapped LXC machine
-- 125Gb, to copy the contents of the tarball into the container registry inside
+- 125 GB, for host to pull all images locally
+- 125 GB, for the compressed `images.tar.gz` (the size almost always will be
+  smaller, so this is the worst case scenario)
+- 125 GB, to copy this tarbal inside the airgapped LXC machine
+- 125 GB, to copy the contents of the tarball into the container registry inside
   the airgapped LXC machine
 
-So in the worst case, we need to have at least 500Gb to be able to run those
+So in the worst case, at least 500 GB are needed to be able to run those
 scripts and use all images of Kubeflow.
 
 ### Running with a subset of images
 
-By default, if no `images.tar.gz` file is found, in working directory from where
+By default, if no `images.tar.gz` file is found in the working directory from where
 the script was executed from, then the script will try to download
-all the CKF images. These are 125Gb, which will make it difficult for running a
+all the CKF images. These are 125 GB, which will make it difficult for running a
 lot of tests locally.
 
-Devs are urged to instead define their own `images.txt` file with the images
+Developers are urged to instead define their own `images.txt` file with the images
 they'd like to be loaded during tests.
 
 ```bash
@@ -109,9 +109,14 @@ If you want to use Charms from a different bundle, then make sure to remove
 `charms.tar.gz`
 
 ## Deploy the bundle
-We've prepared a script for deploying the 1.9 bundle in airgapped:
+The repository contains a scripts for deploying CKF 1.9 in airgapped:
 ```bash
 bash ./scripts/airgapped/deploy-1.9.sh
+```
+
+If you want to deploy CKF 1.8, you can use the following script:
+```bash
+bash ./scripts/airgapped/deploy-1.8.sh
 ```
 
 ## Configure authentication and authorization

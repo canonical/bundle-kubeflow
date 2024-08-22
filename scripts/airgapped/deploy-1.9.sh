@@ -25,7 +25,7 @@ cd $CHARMS_DIR
 
 juju deploy --trust --debug ./$(charm admission-webhook) --resource oci-image=$(img poddefaults-webhook)
 juju deploy --trust --debug ./$(charm argo-controller) --resource oci-image=$(img workflow-controller)  --config executor-image=$(img argoexec)
-juju deploy --trust --debug ./$(charm dex-auth) --resource oci-image=$(img dex) --config public-url=http://dex-auth.kubeflow.svc:5556
+juju deploy --trust --debug ./$(charm dex-auth) --resource oci-image=$(img dex)
 juju deploy --trust --debug ./$(charm envoy) --resource oci-image=$(img metadata-envoy)
 juju deploy --trust --debug ./$(charm istio-gateway) istio-ingressgateway --config kind=ingress --config proxy-image=$(img istio/proxyv2)
 
@@ -137,7 +137,7 @@ juju deploy --trust --debug ./$(charm metacontroller-operator) --config metacont
 juju deploy --trust --debug ./$(charm mlmd) --resource oci-image=$(img ml_metadata_store_server)
 
 juju deploy --debug ./$(charm minio) --resource oci-image=$(img minio)
-juju deploy --trust --debug ./$(charm oidc-gatekeeper) --resource oci-image=$(img oidc-authservice) --config public-url=http://dex-auth.kubeflow.svc:5556
+juju deploy --trust --debug ./$(charm oidc-gatekeeper) --resource oci-image=$(img oidc-authservice)
 juju deploy --trust --debug ./$(charm pvcviewer-operator) --series=focal --resource oci-image=$(img pvcviewer-controller) --resource oci-image-proxy=$(img kubebuilder/kube-rbac-proxy)
 
 juju deploy --trust --debug ./$(charm tensorboard-controller) --resource tensorboard-controller-image=$(img tensorboard-controller)
