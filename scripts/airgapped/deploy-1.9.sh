@@ -138,11 +138,11 @@ juju deploy --trust --debug ./$(charm mlmd) --resource oci-image=$(img ml_metada
 
 juju deploy --debug ./$(charm minio) --resource oci-image=$(img minio)
 juju deploy --trust --debug ./$(charm oidc-gatekeeper) --resource oci-image=$(img oidc-authservice)
-juju deploy --trust --debug ./$(charm pvcviewer-operator) --series=focal --resource oci-image=$(img pvcviewer-controller) --resource oci-image-proxy=$(img kubebuilder/kube-rbac-proxy)
+juju deploy --trust --debug ./$(charm pvcviewer-operator) --series=focal --resource oci-image=$(img pvcviewer-controller)
 
 juju deploy --trust --debug ./$(charm tensorboard-controller) --resource tensorboard-controller-image=$(img tensorboard-controller)
 juju deploy --trust --debug ./$(charm tensorboards-web-app) --resource tensorboards-web-app-image=$(img tensorboards-web-app)
-juju deploy --trust --debug ./$(charm training-operator) --resource training-operator-image=$(img training-operator)
+juju deploy --trust --debug ./$(charm training-operator)
 
 # Add the relations from the 1.9 bundle
 juju relate argo-controller minio
