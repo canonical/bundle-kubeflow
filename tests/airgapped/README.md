@@ -50,7 +50,9 @@ Developers are urged to instead define their own `images.txt` file with the imag
 they'd like to be loaded during tests.
 
 ```bash
-./scripts/airgapped/get-all-images.sh releases/1.9/stable/bundle.yaml > images-all.txt
+python3 scripts/airgapped/get-all-images.py \
+    releases/1.9/stable/bundle.yaml \
+    > images-all.txt
 ```
 
 This will generate an `images-all.txt`, with all images of CKF 1.9. You can

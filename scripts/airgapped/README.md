@@ -32,7 +32,9 @@ This script makes the following assumptions:
    the images for that repo
 
 ```bash
-./scripts/airgapped/get-all-images.sh releases/1.7/stable/kubeflow/bundle.yaml > images.txt
+python3 scripts/airgapped/get-all-images.py \
+    releases/1.8/stable/kubeflow/bundle.yaml \
+    --airgap-testing > images.txt
 ```
 
 ## Pull images to docker cache
