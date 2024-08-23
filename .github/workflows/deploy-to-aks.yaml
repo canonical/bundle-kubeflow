@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        bundle_version: ${{ fromJSON(format('["{0}"]', join('","', inputs.bundle_version.split(',')))) || '1.8,1.9,latest'}}
+        bundle_version: ${{ fromJSON(format('["{0}"]', join('","', inputs.bundle_version.split(','))) || '1.8,1.9,latest') }}
       fail-fast: false
     env:
       AZURE_CORE_OUTPUT: none
