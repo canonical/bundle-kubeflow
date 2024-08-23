@@ -10,7 +10,7 @@ on:
         description: 'Kubernetes version to be used for the AKS cluster'
         required: false
       uats_branch:
-        description: 'Branch to run the UATs from e.g. main or track/1.8. By default, this is defined by the dependencies.yaml file.'
+        description: 'Branch to run the UATs from e.g. main or track/1.9. By default, this is defined by the dependencies.yaml file.'
         required: false
   schedule:
     - cron: "17 0 * * 2"
