@@ -15,7 +15,6 @@ on:
   schedule:
     - cron: "23 0 * * 2"
 jobs:
-  jobs:
   preprocess-input:
     runs-on: ubuntu-22.04
     outputs:
@@ -35,6 +34,7 @@ jobs:
           
           echo "bundle_versions=${JSON_ARRAY}" >> $GITHUB_OUTPUT
   deploy-ckf-to-eks:
+    needs: preprocess-input
     runs-on: ubuntu-22.04
     strategy:
       matrix:
