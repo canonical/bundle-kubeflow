@@ -35,7 +35,9 @@ jobs:
           
           # Set the JSON array as an output
           echo "bundle_versions=${JSON_ARRAY}" >> $GITHUB_OUTPUT
+          
   deploy-ckf-to-aks:
+    needs: preprocess
     runs-on: ubuntu-22.04
     strategy:
       matrix:
