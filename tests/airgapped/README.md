@@ -1,14 +1,11 @@
 # Testing Airgapped Installation
-> :warning: **Those scripts require at least 500 GB**: Since they download all images of Kubeflow, both in host and inside the LXC container
->
-> :warning: **Those scripts require Python 3.10**
+The scripts for testing an airgapped installation have the following requirements for the host machine:
+- Internet connection
+- Ubuntu 22.04
+- Python 3.10
+- 500 GB of disk space available
 
-For running the tests we expect an environment that can:
-1. Spin up LXC containers
-2. Have Docker to pull images
-
-We need Docker to pull all the images necessary and push them to the airgapped
-LXC container.
+Additionally, the host machine will use Docker the pull all the images needed, and LXC to create the airgapped container.
 
 ## Setup the environment
 
@@ -17,8 +14,7 @@ This repository contains a script for setting up the environment:
 ./tests/airgapped/setup/setup.sh
 ```
 
-Make sure to reboot your machine after running the setup scripts to be able to
-run docker commands and the lxc container to, initially, have network access.
+Make sure to reboot your machine after running the setup scripts to be able to run docker commands and the lxc container to, initially, have network access.
 
 ## Prepare the airgapped cluster
 
@@ -34,16 +30,11 @@ You can run the script that will spin up an airgapped microk8s cluster with:
 
 ### Size considerations
 
-As stated in the beginning these scripts require a lot of storage, if run with
-the full set of images of Kubeflow. To better expose this, we'll take for
-granted that the total of all OCI images of Kubeflow is 125 GB. Then the amount
-of storage needed is:
-- 125 GB, for host to pull all images locally
-- 125 GB, for the compressed `images.tar.gz` (the size almost always will be
-  smaller, so this is the worst case scenario)
-- 125 GB, to copy this tarbal inside the airgapped LXC machine
-- 125 GB, to copy the contents of the tarball into the container registry inside
-  the airgapped LXC machine
+The total size of all OCI images needed for Kubeflow is around 125 GB. As a result, the total amount of storage needed for the airgapped test is:
+- 125 GB, for the host to pull all images locally
+- 125 GB, for the compressed `images.tar.gz` (the size almost always will be smaller, so this is the worst case scenario)
+- 125 GB, to copy `images.tar.gz` inside the airgapped LXC machine
+- 125 GB, to copy the contents of the tarball into the container registry inside the airgapped LXC machine
 
 So in the worst case, at least 500 GB are needed to be able to run those
 scripts and use all images of Kubeflow.
