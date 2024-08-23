@@ -27,12 +27,15 @@ jobs:
             INPUT_VERSIONS="1.8,1.9,latest"
           else
             INPUT_VERSIONS="${{ github.event.inputs.bundle_version }}"
+            # Also remove whitespace between the entries
+            INPUT_VERSIONS="$(echo "$INPUT_VERSIONS" | tr -d ' ')"
           fi
           
           # Convert the comma-separated values into a JSON array
           JSON_ARRAY=$(echo "[\"${INPUT_VERSIONS//,/\",\"}\"]")
           
           echo "bundle_versions=${JSON_ARRAY}" >> $GITHUB_OUTPUT
+          # Output to the terminal so we can see the final value
           echo "bundle_versions=${JSON_ARRAY}"
           
   deploy-ckf-to-eks:
