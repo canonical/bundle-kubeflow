@@ -13,9 +13,9 @@ jobs:
         # specfy location of bundle(s) to be scanned
         bundle:
           - releases/1.8/stable/kubeflow
-          - releases/1.9/stable/kubeflow
+          - releases/1.9/stable
           - releases/latest/edge
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       # Ideally we'd use self-hosted runners, but this effort is still not stable
       # This action will remove unused software (dotnet, haskell, android libs, codeql,
@@ -30,15 +30,23 @@ jobs:
           remove-android: 'true'
           remove-codeql: 'true'
           remove-docker-images: 'true'
+
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
       - name: Setup tools
         id: setup
         run: |
           sudo snap install yq
           echo "date=$(date '+%Y-%m-%d-%H-%M-%S')" >> $GITHUB_OUTPUT
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
       - name: Checkout kubeflow-ci
         uses: actions/checkout@v3
         with:
@@ -46,6 +54,7 @@ jobs:
           sparse-checkout: scripts/images/
           ref: main
           path: kubeflow-ci
+
       - name: Get images
         id: images
         run: |
@@ -53,18 +62,22 @@ jobs:
           BUNDLE_SPLIT=(${BUNDLE//\// })
           RELEASE=${BUNDLE_SPLIT[1]}
           RISK=${BUNDLE_SPLIT[2]}
-          IMAGES=$(./kubeflow-ci/scripts/images/get-all-images.sh ${{ matrix.bundle }}/bundle.yaml ${RELEASE}-${RISK})
-          echo "$IMAGES" > ./image_list.txt
+
+          pip3 install -r scripts/airgapped/requirements.txt
+          python3 scripts/airgapped/get-all-images.py ${{ matrix.bundle }}/bundle.yaml > image_list.txt
           echo "Image list:"
           cat ./image_list.txt
           echo "release_risk=${RELEASE}-${RISK}" >> $GITHUB_OUTPUT
+
       - name: Scan images
         run: |
           ./kubeflow-ci/scripts/images/scan-images.sh ./image_list.txt
           ./kubeflow-ci/scripts/images/get-summary.py --report-path ./trivy-reports --print-header > scan-summary-${{ steps.setup.outputs.date}}-${{ steps.images.outputs.release_risk }}.csv
+
       - name: Prepare artifacts
         run: |
           tar zcvf trivy-reports-${{ steps.setup.outputs.date}}-${{ steps.images.outputs.release_risk }}-${{ strategy.job-index }}.tar.gz ./trivy-reports
+
       - name: Upload Trivy reports
         uses: actions/upload-artifact@v3
         with:
