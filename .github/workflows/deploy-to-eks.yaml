@@ -33,6 +33,8 @@ jobs:
           JSON_ARRAY=$(echo "[\"${INPUT_VERSIONS//,/\",\"}\"]")
           
           echo "bundle_versions=${JSON_ARRAY}" >> $GITHUB_OUTPUT
+          echo "bundle_versions=${bundle_versions}"
+          
   deploy-ckf-to-eks:
     needs: preprocess-input
     runs-on: ubuntu-22.04
