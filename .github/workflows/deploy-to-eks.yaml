@@ -3,7 +3,7 @@ on:
   workflow_dispatch: # This event allows manual triggering from the Github UI
     inputs:
       bundle_version:
-        description: 'Comma-separated list of bundle versions e.g. 1.8,1.9,latest. Make sure that the corresponding k8s version is supported by the cloud.'
+        description: 'Comma-separated list of bundle versions e.g. 1.8,1.9,latest. Make sure that the corresponding K8s version is supported by the cloud.'
         default: '1.8,1.9,latest'
         required: true
       k8s_version:
