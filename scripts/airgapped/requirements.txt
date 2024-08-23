@@ -1,4 +1,5 @@
 docker
-#FIXME: remove requests pin when https://github.com/docker/docker-py/issues/3256 is solved 
+#FIXME: remove requests pin when https://github.com/docker/docker-py/issues/3256 is solved
 requests<2.32.0
 PyYAML
+gitpython
