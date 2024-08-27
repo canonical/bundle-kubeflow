@@ -142,7 +142,7 @@ juju deploy --trust --debug ./$(charm pvcviewer-operator) --series=focal --resou
 
 juju deploy --trust --debug ./$(charm tensorboard-controller) --resource tensorboard-controller-image=$(img tensorboard-controller)
 juju deploy --trust --debug ./$(charm tensorboards-web-app) --resource tensorboards-web-app-image=$(img tensorboards-web-app)
-juju deploy --trust --debug ./$(charm training-operator)
+juju deploy --trust --debug ./$(charm training-operator) --config training-operator-image=$(img training-operator)
 
 # Add the relations from the 1.9 bundle
 juju relate argo-controller minio
