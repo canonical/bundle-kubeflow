@@ -57,7 +57,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Publish bundle release ${{ inputs.release }}
-        uses: mvlassis/charming-actions/upload-bundle@1.0.0
+        uses: mvlassis/charming-actions/upload-bundle
         with:
           credentials: ${{ secrets.CHARMCRAFT_CREDENTIALS }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
