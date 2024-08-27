@@ -49,7 +49,7 @@ juju deploy --trust --debug ./$(charm jupyter-ui) --resource oci-image=$(img jup
     --config vscode-images="['$(img codeserver-python)']"
 
 juju deploy --trust --debug ./$(charm katib-controller)  --resource oci-image=$(img katib-controller) \
-     --config custom_images="default_trial_template: '$(img mxnet-mnist)'
+     --config custom_images="default_trial_template: '$(img ubuntu:22.04)'
 default_trial_template_enas: '$(img enas-cnn-cifar10-cpu)'
 default_trial_template_pytorch: '$(img pytorch-mnist-cpu)'
 early_stopping__medianstop: '$(img earlystopping-medianstop)'
