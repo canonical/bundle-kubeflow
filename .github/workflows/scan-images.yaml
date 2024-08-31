@@ -15,22 +15,8 @@ jobs:
           - releases/1.8/stable/kubeflow
           - releases/1.9/stable
           - releases/latest/edge
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, linux, X64, jammy, large]
     steps:
-      # Ideally we'd use self-hosted runners, but this effort is still not stable
-      # This action will remove unused software (dotnet, haskell, android libs, codeql,
-      # and docker images) from the GH runner, which will liberate around 60 GB of storage
-      # distributed in 40GB for root and around 20 for a mnt point.
-      - name: Maximise GH runner space
-        uses: easimon/maximize-build-space@v7
-        with:
-          root-reserve-mb: 29696
-          remove-dotnet: 'true'
-          remove-haskell: 'true'
-          remove-android: 'true'
-          remove-codeql: 'true'
-          remove-docker-images: 'true'
-
       - name: Checkout
         uses: actions/checkout@v3
         with:
@@ -41,11 +27,6 @@ jobs:
         run: |
           sudo snap install yq
           echo "date=$(date '+%Y-%m-%d-%H-%M-%S')" >> $GITHUB_OUTPUT
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.12
 
       - name: Checkout kubeflow-ci
         uses: actions/checkout@v3
@@ -63,8 +44,8 @@ jobs:
           RELEASE=${BUNDLE_SPLIT[1]}
           RISK=${BUNDLE_SPLIT[2]}
 
-          pip3 install -r scripts/airgapped/requirements.txt
-          python3 scripts/airgapped/get-all-images.py ${{ matrix.bundle }}/bundle.yaml > image_list.txt
+          pip3 install -r scripts/requirements.txt
+          python3 scripts/get-all-images.py ${{ matrix.bundle }}/bundle.yaml > image_list.txt
           echo "Image list:"
           cat ./image_list.txt
           echo "release_risk=${RELEASE}-${RISK}" >> $GITHUB_OUTPUT
