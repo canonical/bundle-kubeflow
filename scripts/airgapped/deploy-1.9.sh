@@ -123,7 +123,7 @@ serving_runtimes__pmmlserver: '$(img charmedkubeflow/pmmlserver)'
 serving_runtimes__sklearnserver: '$(img charmedkubeflow/sklearnserver)'
 serving_runtimes__tensorflow_serving: '$(img tensorflow/serving)'
 serving_runtimes__torchserve: '$(img pytorch/torchserve-kfs)'
-serving_runtimes__tritonserver: '$(img nvcr.io/nvidia/tritonserver)'
+serving_runtimes__tritonserver: '$(img nvidia/tritonserver)'
 serving_runtimes__xgbserver: '$(img charmedkubeflow/xgbserver)'
 "
 
