@@ -3,7 +3,7 @@ The scripts for testing an airgapped installation have the following requirement
 - Internet connection
 - Ubuntu 22.04
 - Python 3.10
-- 500 GB of disk space available
+- 400 GB of disk space available
 
 Additionally, the host machine will use Docker the pull all the images needed, and LXC to create the airgapped container.
 
@@ -30,33 +30,33 @@ You can run the script that will spin up an airgapped microk8s cluster with:
 
 ### Size considerations
 
-The total size of all OCI images needed for Kubeflow is around 125 GB. As a result, the total amount of storage needed for the airgapped test is:
-- 125 GB, for the host to pull all images locally
-- 125 GB, for the compressed `images.tar.gz` (the size almost always will be smaller, so this is the worst case scenario)
-- 125 GB, to copy `images.tar.gz` inside the airgapped LXC machine
-- 125 GB, to copy the contents of the tarball into the container registry inside the airgapped LXC machine
+The total size of all OCI images needed for Kubeflow is around 100 GB. As a result, the total amount of storage needed for the airgapped test is:
+- 100 GB, for the host to pull all images locally.
+- 100 GB, for the compressed `images.tar.gz` (the size almost always will be smaller, so this is the worst case scenario).
+- 100 GB, to copy `images.tar.gz` inside the airgapped LXC machine.
+- 100 GB, to copy the contents of the tarball into the container registry inside the airgapped LXC machine.
 
-So in the worst case, at least 500 GB are needed to be able to run those
+So in the worst case, 400 GB are needed to be able to run those
 scripts and use all images of Kubeflow.
 
 ### Running with a subset of images
 
 By default, if no `images.tar.gz` file is found in the working directory from where
 the script was executed from, then the script will try to download
-all the CKF images. These are 125 GB, which will make it difficult for running a
+all the CKF images. These are 100 GB, which will make it difficult for running a
 lot of tests locally.
 
 Developers are urged to instead define their own `images.txt` file with the images
 they'd like to be loaded during tests.
 
 ```bash
-./scripts/airgapped/get-all-images.sh releases/1.8/stable/kubeflow/bundle.yaml > images-all.txt
+./scripts/airgapped/get-all-images.sh releases/1.9/stable/bundle.yaml > images-all.txt
 ```
 
-This will generate an `images-all.txt`, with all images of CKF 1.8. You can
+This will generate an `images-all.txt`, with all images of CKF 1.9. You can
 create a copy of that file `images.txt` and keep which images you want from
 the initial file, or change the rest. Then you can continue with the following
-commands to generate the `images.tar.gz`
+commands to generate the `images.tar.gz`:
 
 ```bash
 python3 scripts/airgapped/save-images-to-cache.py images.txt
