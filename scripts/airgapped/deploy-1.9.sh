@@ -106,27 +106,25 @@ autoscaler-hpa: $(img knative-releases/knative.dev/serving/cmd/autoscaler-hpa)
 net-istio-controller/controller: $(img knative-releases/knative.dev/net-istio/cmd/controller)
 net-istio-webhook/webhook: $(img knative-releases/knative.dev/net-istio/cmd/webhook)
 queue-proxy: $(img knative-releases/knative.dev/serving/cmd/queue)
-domain-mapping: $(img knative-releases/knative.dev/serving/cmd/domain-mapping:)
-domainmapping-webhook: $(img knative-releases/knative.dev/serving/cmd/domain-mapping-webhook)
 migrate: $(img knative-releases/knative.dev/pkg/apiextensions/storageversion/cmd/migrate)
 "
 
-juju deploy --trust --debug ./$(charm kserve-controller) --resource kserve-controller-image=$(img kserve-controller) --resource kube-rbac-proxy-image=$(img kubebuilder/kube-rbac-proxy) --config custom_images="configmap__agent: '$(img kserve/agent)'
-configmap__batcher: '$(img kserve/agent)'
+juju deploy --trust --debug ./$(charm kserve-controller) --resource kserve-controller-image=$(img kserve-controller) --resource kube-rbac-proxy-image=$(img kubebuilder/kube-rbac-proxy) --config custom_images="configmap__agent: '$(img charmedkubeflow/agent)'
+configmap__batcher: '$(img charmedkubeflow/agent)'
 configmap__explainers__art: '$(img kserve/art-explainer)'
-configmap__logger: '$(img kserve/agent)'
+configmap__logger: '$(img charmedkubeflow/agent)'
 configmap__router: '$(img kserve/router)'
-configmap__storageInitializer: '$(img kserve/storage-initializer)'
+configmap__storageInitializer: '$(img charmedkubeflow/storage-initializer)'
 serving_runtimes__huggingfaceserver: '$(img kserve/huggingfaceserver)'
-serving_runtimes__lgbserver: '$(img kserve/lgbserver)'
+serving_runtimes__lgbserver: '$(img charmedkubeflow/lgbserver)'
 serving_runtimes__kserve_mlserver: '$(img seldonio/mlserver)'
-serving_runtimes__paddleserver: '$(img kserve/paddleserver)'
-serving_runtimes__pmmlserver: '$(img kserve/pmmlserver)'
-serving_runtimes__sklearnserver: '$(img kserve/sklearnserver)'
+serving_runtimes__paddleserver: '$(img charmedkubeflow/paddleserver)'
+serving_runtimes__pmmlserver: '$(img charmedkubeflow/pmmlserver)'
+serving_runtimes__sklearnserver: '$(img charmedkubeflow/sklearnserver)'
 serving_runtimes__tensorflow_serving: '$(img tensorflow/serving)'
 serving_runtimes__torchserve: '$(img pytorch/torchserve-kfs)'
 serving_runtimes__tritonserver: '$(img nvcr.io/nvidia/tritonserver)'
-serving_runtimes__xgbserver: '$(img kserve/xgbserver)'
+serving_runtimes__xgbserver: '$(img charmedkubeflow/xgbserver)'
 "
 
 juju deploy --trust --debug ./$(charm kubeflow-dashboard) --resource oci-image=$(img dashboard)
