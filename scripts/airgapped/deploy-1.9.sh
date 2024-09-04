@@ -109,7 +109,7 @@ queue-proxy: $(img knative-releases/knative.dev/serving/cmd/queue)
 migrate: $(img knative-releases/knative.dev/pkg/apiextensions/storageversion/cmd/migrate)
 "
 
-juju deploy --trust --debug ./$(charm kserve-controller) --resource kserve-controller-image=$(img kserve-controller) --resource kube-rbac-proxy-image=$(img kubebuilder/kube-rbac-proxy) --config custom_images="configmap__agent: '$(img charmedkubeflow/agent)'
+juju deploy --trust --debug ./$(charm kserve-controller) --resource kserve-controller-image=$(img kserve-controller) --resource kube-rbac-proxy-image=$(img kubebuilder/kube-rbac-proxy) --config custom_images="configmap__agent: '$(img charmedkubeflow/kserve-agent)'
 configmap__batcher: '$(img charmedkubeflow/agent)'
 configmap__explainers__art: '$(img kserve/art-explainer)'
 configmap__logger: '$(img charmedkubeflow/agent)'
