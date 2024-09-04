@@ -110,9 +110,9 @@ migrate: $(img knative-releases/knative.dev/pkg/apiextensions/storageversion/cmd
 "
 
 juju deploy --trust --debug ./$(charm kserve-controller) --resource kserve-controller-image=$(img kserve-controller) --resource kube-rbac-proxy-image=$(img kubebuilder/kube-rbac-proxy) --config custom_images="configmap__agent: '$(img charmedkubeflow/kserve-agent)'
-configmap__batcher: '$(img charmedkubeflow/agent)'
+configmap__batcher: '$(img charmedkubeflow/kserve-agent)'
 configmap__explainers__art: '$(img kserve/art-explainer)'
-configmap__logger: '$(img charmedkubeflow/agent)'
+configmap__logger: '$(img charmedkubeflow/kserve-agent)'
 configmap__router: '$(img kserve/router)'
 configmap__storageInitializer: '$(img charmedkubeflow/storage-initializer)'
 serving_runtimes__huggingfaceserver: '$(img kserve/huggingfaceserver)'
