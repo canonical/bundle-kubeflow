@@ -44,7 +44,7 @@ cd ..
 rm -rf resource-dispatcher
 
 # manually retrieve pipelines runner image to test pipelines
-IMAGES+=($(echo "charmedkubeflow/pipelines-runner:ckf-1.8"))
+IMAGES+=($(echo "charmedkubeflow/pipelines-runner:ckf-1.9"))
 
 # manually retrieve katib experiment image
 IMAGES+=($(echo "docker.io/kubeflowkatib/simple-pbt:v0.17.0"))
