@@ -1,0 +1,5 @@
+gitpython
+tenacity
+boto3
+click
+pyyaml

@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
-# This file includes helper functions for 
+# This file includes helper functions for
 # 1. Fetching CKF artifacts (images,tars)
 # 2. Pushing the artifacts to the airgapped VM
 # 3. Initialising juju and preparing the model for CKF
 
 function create_images_tar() {
   local BUNDLE_PATH=$1
+  local TESTING_IMAGES_PATH=$2
 
   if [ -f "images.tar.gz" ]; then
       echo "images.tar.gz exists. Will not recreate it."
@@ -16,7 +17,10 @@ function create_images_tar() {
   pip3 install -r scripts/airgapped/requirements.txt
 
   echo "Generating list of images of Charmed Kubeflow"
-  bash scripts/airgapped/get-all-images.sh "$BUNDLE_PATH" > images.txt
+  python3 scripts/get-all-images.py \
+    --append-images "$TESTING_IMAGES_PATH" \
+    "$BUNDLE_PATH" \
+    > images.txt
 
   echo "Using produced list to load it into our machine's docker cache"
   python3 scripts/airgapped/save-images-to-cache.py images.txt
