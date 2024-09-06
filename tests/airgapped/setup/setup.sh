@@ -3,6 +3,7 @@ set -xe
 
 cat tests/airgapped/lxd.profile | lxd init --preseed
 
+export NEEDRESTART_MODE=l
 ./tests/airgapped/setup/prerequisites.sh
 ./scripts/airgapped/prerequisites.sh
 ./tests/airgapped/setup/lxd-docker-networking.sh
