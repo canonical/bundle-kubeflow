@@ -123,8 +123,16 @@ juju config dex-auth static-password=admin
 
 ## Test Charmed Kubeflow components in airgapped
 
-To test Charmed Kubeflow components in airgapped, follow the instructions in the following READMEs:
-* [Katib](./katib/README.md)
-* [KNative](./knative/README.md)
-* [Pipelines](./pipelines/README.md)
-* [Training Operator](./training/README.md)
+To test Charmed Kubeflow components in airgapped, go the directory corresponding to your Charmed Kubeflow version and follow the instructions in the READMEs.
+
+For Charmed Kubeflow 1.9:
+* [Katib](./1.9/katib/README.md)
+* [KNative](./1.9/knative/README.md)
+* [Pipelines](./1.9/pipelines/README.md)
+* [Training Operator](./1.9training/README.md)
+
+For Charmed Kubeflow 1.8:
+* [Katib](./1.8/katib/README.md)
+* [KNative](./1.8/knative/README.md)
+* [Pipelines](./1.8/pipelines/README.md)
+* [Training Operator](./1.8training/README.md)
