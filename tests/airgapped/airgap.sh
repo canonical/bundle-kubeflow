@@ -123,7 +123,7 @@ eval set -- "$TEMP"
 AIRGAPPED_NAME="${AIRGAPPED_NAME:-"airgapped-microk8s"}"
 DISTRO="${DISTRO:-"ubuntu:22.04"}"
 MICROK8S_CHANNEL="${MICROK8S_CHANNEL:-}"
-JUJU_CHANNEL="${JUJU_CHANNEL:-"2.9/stable"}"
+JUJU_CHANNEL="${JUJU_CHANNEL:-"3.4/stable"}"
 BUNDLE_PATH="${BUNDLE_PATH:-"releases/latest/edge/bundle.yaml"}"
 LIBRARY_MODE=false
 
