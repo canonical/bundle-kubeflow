@@ -39,7 +39,17 @@ You can run the script that will spin up an airgapped microk8s cluster with:
   --node-name airgapped-microk8s \
   --microk8s-channel 1.29-strict/stable \
   --bundle-path releases/1.9/stable/bundle.yaml \
-  --testing-images-path tests/airgapped/1.9/ckf-1.9-testing-images.txt \
+  --testing-images-path tests/airgapped/1.9/testing-images.txt \
+  --juju-channel 3.4/stable
+```
+
+For Charmed Kubeflow 1.8, run:
+```bash
+./tests/airgapped/airgap.sh \
+  --node-name airgapped-microk8s \
+  --microk8s-channel 1.28-strict/stable \
+  --bundle-path releases/1.8/stable/kubeflow/bundle.yaml \
+  --testing-images-path tests/airgapped/1.8/testing-images.txt \
   --juju-channel 3.4/stable
 ```
 
