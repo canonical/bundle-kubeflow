@@ -1,6 +1,6 @@
 # `charmedkubeflow/pipelines-runner` image
 
-A simple image that contains the `kfp` and `kfp-server-api` packages installed on top of a `python` base image.
+A simple image that contains the `kfp` package installed on top of a `python` base image.
 The purpose of this image is to use it as the `base-image` for Pipelines components to enable running a Pipeline in an airgapped environment.
 
 ## How to publish the image
