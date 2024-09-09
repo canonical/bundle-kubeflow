@@ -1,4 +1,4 @@
-JUJU_CHANNEL="${JUJU_CHANNEL:-2.9/stable}"
+JUJU_CHANNEL="${JUJU_CHANNEL:-3.4/stable}"
 
 echo "Installing pip"
 sudo apt update

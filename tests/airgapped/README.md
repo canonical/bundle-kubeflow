@@ -39,7 +39,17 @@ You can run the script that will spin up an airgapped microk8s cluster with:
   --node-name airgapped-microk8s \
   --microk8s-channel 1.29-strict/stable \
   --bundle-path releases/1.9/stable/bundle.yaml \
-  --testing-images-path tests/airgapped/ckf-1.9-testing-images.txt \
+  --testing-images-path tests/airgapped/1.9/testing-images.txt \
+  --juju-channel 3.4/stable
+```
+
+For Charmed Kubeflow 1.8, run:
+```bash
+./tests/airgapped/airgap.sh \
+  --node-name airgapped-microk8s \
+  --microk8s-channel 1.28-strict/stable \
+  --bundle-path releases/1.8/stable/kubeflow/bundle.yaml \
+  --testing-images-path tests/airgapped/1.8/testing-images.txt \
   --juju-channel 3.4/stable
 ```
 
@@ -138,11 +148,19 @@ juju config dex-auth static-password=admin
 
 ## Test Charmed Kubeflow components in airgapped
 
-To test Charmed Kubeflow components in airgapped, follow the instructions in the following READMEs:
-* [Katib](./katib/README.md)
-* [KNative](./knative/README.md)
-* [Pipelines](./pipelines/README.md)
-* [Training Operator](./training/README.md)
+To test Charmed Kubeflow components in airgapped, go the directory corresponding to your Charmed Kubeflow version and follow the instructions in the READMEs.
 
-Make sure to follow the first part of this guide on updating the oci images that need to be present
+For Charmed Kubeflow 1.9:
+* [Katib](./1.9/katib/README.md)
+* [KNative](./1.9/knative/README.md)
+* [Pipelines](./1.9/pipelines/README.md)
+* [Training Operator](./1.9/training/README.md)
+
+For Charmed Kubeflow 1.8:
+* [Katib](./1.8/katib/README.md)
+* [KNative](./1.8/knative/README.md)
+* [Pipelines](./1.8/pipelines/README.md)
+* [Training Operator](./1.8/training/README.md)
+
+Make sure to follow the first part of this guide on updating the OCI images that need to be present
 in the airgapped cluster in order to execute tests.
