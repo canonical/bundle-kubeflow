@@ -13,7 +13,7 @@ sudo apt update
 # See in the tests/airgapped README.md instructions for the docker user changes to take effect.
 echo "Installing Docker"
 sudo snap install docker
-sudo groupadd docker
+sudo groupadd -f docker
 sudo usermod -aG docker $USER
 sudo snap disable docker
 sudo snap enable docker
