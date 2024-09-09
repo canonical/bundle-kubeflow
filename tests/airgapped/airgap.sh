@@ -125,7 +125,7 @@ DISTRO="${DISTRO:-"ubuntu:22.04"}"
 MICROK8S_CHANNEL="${MICROK8S_CHANNEL:-}"
 JUJU_CHANNEL="${JUJU_CHANNEL:-"3.4/stable"}"
 BUNDLE_PATH="${BUNDLE_PATH:-"releases/1.9/stable/bundle.yaml"}"
-TESTING_IMAGES_PATH="${TESTING_IMAGES_PATH:-"tests/airgapped/1.9/ckf-1.9-testing-images.txt"}"
+TESTING_IMAGES_PATH="${TESTING_IMAGES_PATH:-"tests/airgapped/1.9/testing-images.txt"}"
 LIBRARY_MODE=false
 
 echo "$1"
