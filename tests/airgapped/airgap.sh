@@ -128,8 +128,6 @@ BUNDLE_PATH="${BUNDLE_PATH:-"releases/1.9/stable/bundle.yaml"}"
 TESTING_IMAGES_PATH="${TESTING_IMAGES_PATH:-"tests/airgapped/1.9/testing-images.txt"}"
 LIBRARY_MODE=false
 
-echo "$1"
-
 while true; do
   case "$1" in
     -l | --lib-mode ) LIBRARY_MODE=true; shift ;;
