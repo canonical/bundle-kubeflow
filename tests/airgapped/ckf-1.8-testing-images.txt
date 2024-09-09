@@ -1,0 +1,4 @@
+  charmedkubeflow/pipelines-runner:ckf-1.8
+  docker.io/kubeflowkatib/simple-pbt:v0.16.0
+  ghcr.io/knative/helloworld-go:latest
+  gcr.io/kubeflow-ci/tf-mnist-with-summaries:1.0

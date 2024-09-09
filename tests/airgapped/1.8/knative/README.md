@@ -6,7 +6,7 @@ This directory is dedicated to testing Knative in an airgapped environment.
 
 Prepare the airgapped environment and deploy CKF by following the steps in [Airgapped test scripts](https://github.com/canonical/bundle-kubeflow/tree/main/tests/airgapped#testing-airgapped-installation).
 
-Once you run the test scripts, the `knative/helloworld-go` image used in the `helloworld` example will be included in your airgapped environment. It's specifically added in the [`get-all-images.sh` script](../../../../scripts/airgapped/get-all-images.sh).
+Once you run the test scripts, the `knative/helloworld-go` image used in the `helloworld` example will be included in your airgapped environment. It's specifically added in the [`get-all-images.py` script](../../../scripts/get-all-images.py).
 
 ## How to test Knative in an Airgapped environment
 1. Connect to the dashboard by visiting the IP of your airgapped VM. To get the IP run:
@@ -25,7 +25,7 @@ kubectl get ksvc -n <your namespace>
 Expected output:
 ```
 NAME         URL                                           LATESTCREATED      LATESTREADY        READY   REASON
-helloworld   http://helloworld.admin.10.64.140.43.nip.io   helloworld-00001   helloworld-00001   True    
+helloworld   http://helloworld.admin.10.64.140.43.nip.io   helloworld-00001   helloworld-00001   True
 ```
 5. Curl the Knative Service using the `URL` from the previous step
 ```

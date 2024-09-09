@@ -7,6 +7,20 @@ The scripts for testing an airgapped installation have the following requirement
 
 Additionally, the host machine will use Docker the pull all the images needed, and LXC to create the airgapped container.
 
+## Update testing images
+
+The scripts that setup and test the airgapped environment will also need to load
+a list of predefined images, for running tests in the airgapped environment.
+
+Every release has its own set of images. If you are creating a new release, you'll
+need to create a new directory and the corresponding images file.
+
+You can find such files under `tests/airgapped/<release>/testing-images.txt`
+
+To understand how those image are being used by the tests, please take a look
+at the
+[Test Charmed Kubeflow components in airgapped](#test-charmed-kubeflow-components-in-airgapped)
+
 ## Setup the environment
 
 This repository contains a script for setting up the environment:
@@ -25,6 +39,7 @@ You can run the script that will spin up an airgapped microk8s cluster with:
   --node-name airgapped-microk8s \
   --microk8s-channel 1.29-strict/stable \
   --bundle-path releases/1.9/stable/bundle.yaml \
+  --testing-images-path tests/airgapped/ckf-1.9-testing-images.txt \
   --juju-channel 3.4/stable
 ```
 
@@ -50,7 +65,9 @@ Developers are urged to instead define their own `images.txt` file with the imag
 they'd like to be loaded during tests.
 
 ```bash
-./scripts/airgapped/get-all-images.sh releases/1.9/stable/bundle.yaml > images-all.txt
+python3 scripts/airgapped/get-all-images.py \
+    releases/1.9/stable/bundle.yaml \
+    > images-all.txt
 ```
 
 This will generate an `images-all.txt`, with all images of CKF 1.9. You can
@@ -134,3 +151,5 @@ For Charmed Kubeflow 1.8:
 * [KNative](./1.8/knative/README.md)
 * [Pipelines](./1.8/pipelines/README.md)
 * [Training Operator](./1.8training/README.md)
+Make sure to follow the first part of this guide on updating the oci images that need to be present
+in the airgapped cluster in order to execute tests.

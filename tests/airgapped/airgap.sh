@@ -125,6 +125,7 @@ DISTRO="${DISTRO:-"ubuntu:22.04"}"
 MICROK8S_CHANNEL="${MICROK8S_CHANNEL:-}"
 JUJU_CHANNEL="${JUJU_CHANNEL:-"3.4/stable"}"
 BUNDLE_PATH="${BUNDLE_PATH:-"releases/latest/edge/bundle.yaml"}"
+TESTING_IMAGES_PATH="${TESTING_IMAGES_PATH:-"tests/airgapped/ckf-1.8-testing-images.txt"}"
 LIBRARY_MODE=false
 
 
@@ -136,6 +137,7 @@ while true; do
     --microk8s-channel ) MICROK8S_CHANNEL="$2"; shift 2 ;;
     --juju-channel) JUJU_CHANNEL="$2"; shift 2 ;;
     --bundle-path) BUNDLE_PATH="$2"; shift 2 ;;
+    --testing-images-path) TESTING_IMAGES_PATH="$2"; shift 2 ;;
     -h | --help )
       prog=$(basename -s.wrapper "$0")
       echo "Usage: $prog [options...]"
@@ -158,7 +160,7 @@ done
 if [ "$LIBRARY_MODE" == "false" ];
 then
   echo "1/X -- (us) Create images tar.gz"
-  create_images_tar "$BUNDLE_PATH"
+  create_images_tar "$BUNDLE_PATH" "$TESTING_IMAGES_PATH"
   echo "2/X -- (us) Create charms tar.gz"
   create_charms_tar "$BUNDLE_PATH"
   echo "3/X -- (client) Setup K8s cluster (MicroK8s)"

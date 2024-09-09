@@ -7,12 +7,13 @@ to create airgap artifacts or via our testing scripts.
 We'll document some use-case scenarios here for the different scripts.
 
 ## Prerequisites
+NOTE: All the commands are expected to be run from the root directory of the repo
 
 To use the scripts in this directory you'll need to install a couple of Python
 and Ubuntu packages on the host machine, driving the test (not the LXC machine
 that will contain the airgapped environment).
 ```
-pip3 install -r requirements.txt
+pip3 install -r scripts/airgapped/requirements.txt
 sudo apt install pigz
 sudo snap install docker
 sudo snap install yq
@@ -32,7 +33,10 @@ This script makes the following assumptions:
    the images for that repo
 
 ```bash
-./scripts/airgapped/get-all-images.sh releases/1.7/stable/kubeflow/bundle.yaml > images.txt
+python3 scripts/get-all-images.py \
+    --append-images=tests/airgapped/ckf-1.8-testing-images.txt \
+    releases/1.8/stable/kubeflow/bundle.yaml \
+    > images.txt
 ```
 
 ## Pull images to docker cache
