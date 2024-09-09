@@ -24,12 +24,13 @@ microk8s kubectl get ksvc -n <your namespace>
 ```
 Expected output:
 ```
-NAME         URL                                           LATESTCREATED      LATESTREADY        READY   REASON
-helloworld   http://helloworld.admin.10.64.140.43.nip.io   helloworld-00001   helloworld-00001   True    
+NAME    URL                                      LATESTCREATED   LATESTREADY   READY   REASON
+hello   http://hello.admin.10.64.140.43.nip.io   hello-00001     hello-00001   True
 ```
+
 5. Curl the Knative Service using the `URL` from the previous step
 ```
-curl -L http://helloworld.admin.10.64.140.43.nip.io
+curl -L http://hello.admin.10.64.140.43.nip.io
 ```
 Expected output:
 ```
