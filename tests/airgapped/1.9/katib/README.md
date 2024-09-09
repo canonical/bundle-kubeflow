@@ -16,7 +16,7 @@ Once you run the test scripts, the `kubeflowkatib/simple-pbt:v0.17.0` image used
     Look for the IP of the `airgapped-microk8s` instance.
 
 2. Log in to the dashboard and create a Profile.
-3. Go to `Experiments (AutoML)` tab from the dashboard sidebar.
+3. Go to the `Katib Experiments` tab from the dashboard sidebar.
 4. Click `New Experiment` then `Edit and submit YAML`.
 5. Paste the contents of the `simple-pbt.yaml` file found in this directory.
 6. Create the Experiment, and monitor its status to check it is `Succeeded`.
