@@ -11,7 +11,7 @@ The `pipelines-runner` image will be included in your airgapped environment give
 ```
 lxc ls | grep eth0
 ```
-3. Create a Notebook server and choose `jupyter-tensorflow-full` image from the dropdown.
+3. Go to the `Notebooks` tab, create a new Notebook server and choose `jupyter-tensorflow-full` image from the dropdown.
 4. Connect to the Notebook server and upload the `kfp-airgapped-ipynb` Notebook.
 5. Run the Notebook.
 6. Click on `Run details` from the output of the last cell in the Notebook to see the status of the Pipeline run.
