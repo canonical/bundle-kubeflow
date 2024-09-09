@@ -6,11 +6,11 @@ This directory contains helper scripts for Charmed Kubeflow, during CI and not o
 
 You can get a list of all the OCI images used by the bundle by running the following command:
 ```bash
-pip3 install -r scritps/requirements.txt
+pip3 install -r scripts/requirements.txt
 
 python3 scripts/get-all-images.py \
-    --append-images tests/airgapped/ckf-1.8-testing-images.txt \
-    releases/1.8/stable/kubeflow/bundle.yaml \
+    --append-images tests/airgapped/1.9/ckf-1.9-testing-images.txt \
+    releases/1.9/stable/bundle.yaml \
     > images-all.txt
 ```
 

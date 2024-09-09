@@ -144,12 +144,13 @@ For Charmed Kubeflow 1.9:
 * [Katib](./1.9/katib/README.md)
 * [KNative](./1.9/knative/README.md)
 * [Pipelines](./1.9/pipelines/README.md)
-* [Training Operator](./1.9training/README.md)
+* [Training Operator](./1.9/training/README.md)
 
 For Charmed Kubeflow 1.8:
 * [Katib](./1.8/katib/README.md)
 * [KNative](./1.8/knative/README.md)
 * [Pipelines](./1.8/pipelines/README.md)
-* [Training Operator](./1.8training/README.md)
-Make sure to follow the first part of this guide on updating the oci images that need to be present
+* [Training Operator](./1.8/training/README.md)
+
+Make sure to follow the first part of this guide on updating the OCI images that need to be present
 in the airgapped cluster in order to execute tests.
