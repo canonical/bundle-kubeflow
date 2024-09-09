@@ -113,7 +113,7 @@ function post_airgap_tests() {
 }
 
 TEMP=$(getopt -o "lh" \
-              --long help,lib-mode,registry-name:,node-name:,distro:,microk8s-channel:,juju-channel:,bundle-path:,proxy: \
+              --long help,lib-mode,registry-name:,node-name:,distro:,microk8s-channel:,juju-channel:,bundle-path:,testing-images-path:,proxy: \
               -n "$(basename "$0")" -- "$@")
 
 if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
@@ -128,6 +128,7 @@ BUNDLE_PATH="${BUNDLE_PATH:-"releases/1.9/stable/bundle.yaml"}"
 TESTING_IMAGES_PATH="${TESTING_IMAGES_PATH:-"tests/airgapped/1.9/ckf-1.9-testing-images.txt"}"
 LIBRARY_MODE=false
 
+echo "$1"
 
 while true; do
   case "$1" in
