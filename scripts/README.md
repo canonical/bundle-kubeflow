@@ -13,6 +13,15 @@ python3 scripts/get-all-images.py \
     releases/1.9/stable/bundle.yaml \
     > images-all.txt
 ```
+For Charmed Kubeflow 1.8, run
+```bash
+pip3 install -r scripts/requirements.txt
+
+python3 scripts/get-all-images.py \
+    --append-images tests/airgapped/1.8/ckf-1.8-testing-images.txt \
+    releases/1.9/stable/kubeflow/bundle.yaml \
+    > images-all.txt
+```
 
 The script will gather the images in the following way:
 1. For each `application` in the provided `bundle.yaml` file:

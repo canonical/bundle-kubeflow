@@ -26,15 +26,24 @@ Use the following script to get the list of all OCI images used by a bundle.
 This script makes the following assumptions:
 1. Every charm in the bundle has a `_github_repo_name` metadata field,
    containing the repository name of the charm (the org is assumed to be
-   canonical)
+   canonical).
 2. Every charm in the bundle has a `_github_repo_branch` metadata field,
-   containing the branch of the source code
+   containing the branch of the source code.
 3. There is a script called `tools/get_images.sh` in each repo that gathers
-   the images for that repo
+   the images for that repo.
 
+For Charmed Kubeflow 1.9, run:
 ```bash
 python3 scripts/get-all-images.py \
-    --append-images=tests/airgapped/ckf-1.8-testing-images.txt \
+    --append-images=tests/airgapped/1.9/ckf-1.9-testing-images.txt \
+    releases/1.9/stable/bundle.yaml \
+    > images.txt
+```
+
+For Charmed Kubeflow 1.8, run:
+```bash
+python3 scripts/get-all-images.py \
+    --append-images=tests/airgapped/1.8/ckf-1.8-testing-images.txt \
     releases/1.8/stable/kubeflow/bundle.yaml \
     > images.txt
 ```
