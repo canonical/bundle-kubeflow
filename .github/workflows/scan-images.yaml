@@ -1,4 +1,4 @@
-name: Scan images
+name: Container image vulnerability scans
 on:
   schedule:
   # every day at 1:12AM UTC
@@ -7,65 +7,17 @@ on:
 
 jobs:
   scan-images:
-    name: Scan images in bundle
+    name: Perform vulnerability scans
     strategy:
+      fail-fast: false
       matrix:
         # specfy location of bundle(s) to be scanned
-        bundle:
-          - releases/1.8/stable/kubeflow
-          - releases/1.9/stable
-          - releases/latest/edge
-    runs-on: [self-hosted, linux, X64, jammy, large]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Setup tools
-        id: setup
-        run: |
-          sudo snap install yq
-          echo "date=$(date '+%Y-%m-%d-%H-%M-%S')" >> $GITHUB_OUTPUT
-
-      - name: Checkout kubeflow-ci
-        uses: actions/checkout@v3
-        with:
-          repository: canonical/kubeflow-ci.git
-          sparse-checkout: scripts/images/
-          ref: main
-          path: kubeflow-ci
-
-      - name: Get images
-        id: images
-        run: |
-          BUNDLE="${{ matrix.bundle }}"
-          BUNDLE_SPLIT=(${BUNDLE//\// })
-          RELEASE=${BUNDLE_SPLIT[1]}
-          RISK=${BUNDLE_SPLIT[2]}
-
-          pip3 install -r scripts/requirements.txt
-          python3 scripts/get-all-images.py ${{ matrix.bundle }}/bundle.yaml > image_list.txt
-          echo "Image list:"
-          cat ./image_list.txt
-          echo "release_risk=${RELEASE}-${RISK}" >> $GITHUB_OUTPUT
-
-      - name: Scan images
-        run: |
-          ./kubeflow-ci/scripts/images/scan-images.sh ./image_list.txt
-          ./kubeflow-ci/scripts/images/get-summary.py --report-path ./trivy-reports --print-header > scan-summary-${{ steps.setup.outputs.date}}-${{ steps.images.outputs.release_risk }}.csv
-
-      - name: Prepare artifacts
-        run: |
-          tar zcvf trivy-reports-${{ steps.setup.outputs.date}}-${{ steps.images.outputs.release_risk }}-${{ strategy.job-index }}.tar.gz ./trivy-reports
-
-      - name: Upload Trivy reports
-        uses: actions/upload-artifact@v3
-        with:
-          name: trivy-reports
-          path: trivy-reports-${{ steps.setup.outputs.date}}-${{ steps.images.outputs.release_risk }}-${{ strategy.job-index }}.tar.gz
-      - name: Upload summary
-        uses: actions/upload-artifact@v3
-        with:
-          name: summary
-          path: scan-summary-${{ steps.setup.outputs.date}}-${{ steps.images.outputs.release_risk }}.csv
+        bundle-path:
+          - 1.8/stable/kubeflow
+          - 1.9/stable
+          - latest/edge
+    uses: ./.github/workflows/get-images-scan-and-upload-report.yaml
+    with:
+      bundle-path: ${{ matrix.bundle-path }}
+    secrets:
+      github-token: ${{ secrets.TEMPORAL_GH_TOKEN }}
