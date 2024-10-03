@@ -4,22 +4,18 @@ import json
 
 # Parse the versions given as a comma-separated list and return a JSON array
 def parse_versions(input_versions):
-    # Default version string if the input is empty
-    if not input_versions:
-        input_versions = "1.8,1.9,latest"
-    else:
-        # Remove whitespace between entries
-        input_versions = input_versions.replace(" ", "")
+    # Remove whitespace between entries
+    input_versions = input_versions.replace(" ", "")
     
     # Convert to JSON array
     json_array = json.dumps(input_versions.split(","))
     return json_array
 
 if __name__ == "__main__":
-    if len(sys.argv) >= 1:
-        input_versions = sys.argv[1]
-    else:
-        input_versions = None
+    if len(sys.argv) < 1:
+        raise Exception("No bundle versions given as input.")
+    
+    input_versions = sys.argv[1]
     json_array = parse_versions(input_versions)
     print(f"bundle_versions={json_array}")
 
