@@ -8,7 +8,7 @@ You can get a list of all the OCI images used by the bundle by running the follo
 ```bash
 pip3 install -r scripts/requirements.txt
 
-python3 scripts/get-all-images.py \
+python3 scripts/get_all_images.py \
     --append-images tests/airgapped/1.9/testing-images.txt \
     releases/1.9/stable/bundle.yaml \
     > images-all.txt
@@ -17,7 +17,7 @@ For Charmed Kubeflow 1.8, run
 ```bash
 pip3 install -r scripts/requirements.txt
 
-python3 scripts/get-all-images.py \
+python3 scripts/get_all_images.py \
     --append-images tests/airgapped/1.8/testing-images.txt \
     releases/1.9/stable/kubeflow/bundle.yaml \
     > images-all.txt

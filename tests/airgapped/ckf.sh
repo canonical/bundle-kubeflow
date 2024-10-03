@@ -17,7 +17,7 @@ function create_images_tar() {
   pip3 install -r scripts/airgapped/requirements.txt
 
   echo "Generating list of images of Charmed Kubeflow"
-  python3 scripts/get-all-images.py \
+  python3 scripts/get_all_images.py \
     --append-images "$TESTING_IMAGES_PATH" \
     "$BUNDLE_PATH" \
     > images.txt
