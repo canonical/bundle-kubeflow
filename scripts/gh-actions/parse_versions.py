@@ -17,9 +17,9 @@ def parse_versions(input_versions):
 
 if __name__ == "__main__":
     if len(sys.argv) >= 1:
-        input_versions = parse_versions(sys.argv[1])
+        input_versions = sys.argv[1]
     else:
-        input_versions = parse_versions(None)
+        input_versions = None
     json_array = parse_versions(input_versions)
     print(f"bundle_versions={json_array}")
 
