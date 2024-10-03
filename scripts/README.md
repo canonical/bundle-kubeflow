@@ -33,3 +33,30 @@ The script will gather the images in the following way:
 7. If the `get-images.sh` script either fails (return code non zero) or has error logs then the script should **fail**
 8. Aggregate the outputs of all `get-images.sh` scripts to one output
 9. If user passed an argument `--append-images` then the script will amend a list of images we need for airgap testing
+
+
+## Produce SBOM for images in a bundle
+
+### Prerequisites
+1. Install `syft` snap
+```
+sudo snap install syft --classic
+```
+
+2. Install `docker` snap
+```
+sudo snap install docker
+```
+Setup `docker` snap to run as a normal user by following the snap [documentation](https://snapcraft.io/docker).
+
+## Run SBOM producing script
+You can get a list of all the SBOMs for the images used by the bundle by running the following command:
+```
+python3 scripts/get_bundle_images_sbom.py <bundle_path>
+```
+For example for the 1.9 bundle, run:
+```
+python3 scripts/get_bundle_images_sbom.py releases/1.9/stable/bundle.yaml
+```
+
+This creates a directory under the repo's root with the name `images_SBOM`. The script will store all the SBOMs there. For each image, there will be the SBOM file formatted as `<image_name>.spdx.json`.
