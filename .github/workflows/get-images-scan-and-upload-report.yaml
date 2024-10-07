@@ -63,11 +63,11 @@ jobs:
         echo "report-path=$PATH" >> $GITHUB_OUTPUT
 
     - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@0.20.0
+      uses: aquasecurity/trivy-action@0.25.0
       # Workaround for https://github.com/aquasecurity/trivy-action/issues/389
       env:
         TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
-        TRIVY_JAVA_DB_REPOSITORY: ghcr.io/aquasecurity/trivy-java-db:1
+        TRIVY_JAVA_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-java-db:1
       with:
         image-ref: ${{ matrix.image }}
         scan-type: image
