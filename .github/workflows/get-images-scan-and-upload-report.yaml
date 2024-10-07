@@ -1,4 +1,4 @@
-name: Get and scan images, and report vulnerabilities
+name: Get images, scan them, and report vulnerabilities
 on:
   workflow_call:
     inputs:
@@ -43,16 +43,13 @@ jobs:
     runs-on: ubuntu-22.04
     needs: get-images
     outputs:
-      report-path: ${{ steps.report-path.outputs.report-path }}
       release-track: ${{ steps.release-track.outputs.release-track }}
-      image-name: ${{ steps.image-name.outputs.image-name }}
     strategy:
       fail-fast: false
       matrix:
         image: ${{ fromJSON(needs.get-images.outputs.images-array) }}
     steps:
     - name: Generate release track
-      if: always()
       id: release-track
       run: |
         RELEASE_TRACK=$(echo ${{ inputs.bundle-path }} | sed 's/\//-/g')
@@ -82,45 +79,34 @@ jobs:
         # CVE-2021-43565, CVE-2022-27191
         skip-files: '/bin/pebble,/usr/bin/pebble,usr/bin/pebble,bin/pebble'
 
-    - name: Output image name
-      id: image-name
-      run: echo "image-name=${{ steps.release-track.outputs.release-track }}-${{ matrix.image }}" >> $GITHUB_OUTPUT
-
     - name: Upload Trivy reports
-      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.report-path.outputs.report-path }}
         path: ${{ steps.report-path.outputs.report-path }}
 
     - name: Print vulnerability report
-      if: always()
       run: cat ${{ steps.report-path.outputs.report-path }}
 
   generate-and-upload-summary:
-    name: Generate summary of vulnerability reports and uploads it
+    name: Generate and upload summary of vulnerability reports
     runs-on: ubuntu-22.04
     needs: scan-images-upload-individual-reports
+    # This always() is required as we always want to generate and upload summaries even
+    # if the previous job had one or more failures.
     if: always()
     strategy:
       fail-fast: false
     steps:
-    - name: Generate release track
-      if: always()
-      id: release-track
+    - name: Make directory to temporarily store scans
       run: |
-        RELEASE_TRACK=$(echo ${{ inputs.bundle-path }} | sed 's/\//-/g')
-        echo "release-track=$RELEASE_TRACK" >> $GITHUB_OUTPUT
-
-    - name: Make trivy-reports/ directory
-      run: |
-        mkdir -p /tmp/trivy-reports-${{ steps.release-track.outputs.release-track }}/
+        mkdir -p ${{ inputs.scans-out-dir}}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}/
 
     - name: Download all artefacts
       uses: actions/download-artifact@v4
       with:
-        path: /tmp/trivy-reports-${{ steps.release-track.outputs.release-track }}/
-        pattern: ${{ steps.release-track.outputs.release-track }}*.json
+        path: ${{ inputs.scans-out-dir}}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}/
+        pattern: ${{ needs.scan-images-upload-individual-reports.outputs.release-track }}*.json
         merge-multiple: true
 
     - name: Clone canonical/kubeflow-ci
@@ -134,16 +120,18 @@ jobs:
     - name: Generate summary of reports
       run: |
         export date=$(date '+%Y-%m-%d-%H-%M-%S')
-        ./kubeflow-ci/scripts/images/get-summary.py --report-path /tmp/trivy-reports-${{ steps.release-track.outputs.release-track }}/ --print-header > /tmp/scan-summary-${date}-${{ steps.release-track.outputs.release-track }}.csv
+        ./kubeflow-ci/scripts/images/get-summary.py --report-path ${{ inputs.scans-out-dir }}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}/ --print-header > /tmp/scan-summary-${date}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}.csv
 
     - name: Upload summary report
       uses: actions/upload-artifact@v4
       with:
-        name: summary-trivy-report-${{ steps.release-track.outputs.release-track }}
+        name: summary-trivy-report-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}
         path: /tmp/scan-summary-*.csv
+        retention-days: 90
 
     - name: Upload individual reports
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ steps.release-track.outputs.release-track }}-individual-reports
-        path: /tmp/trivy-reports-${{ steps.release-track.outputs.release-track }}/
+        name: ${{ needs.scan-images-upload-individual-reports.outputs.release-track }}-individual-reports
+        path: ${{ inputs.scans-out-dir }}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}/
+        retention-days: 90
