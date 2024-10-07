@@ -4,8 +4,6 @@ import json
 
 # Parse the versions given as a comma-separated list and return a JSON array
 def parse_versions(input_versions):
-    # Remove double quotes
-    input_versions = input_versions.strip('"')
     # Remove whitespace between entries
     input_versions = input_versions.replace(" ", "")
     
