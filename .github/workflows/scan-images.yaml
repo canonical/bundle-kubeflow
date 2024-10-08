@@ -33,7 +33,7 @@ jobs:
         with:
           repository: canonical/kubeflow-ci.git
           sparse-checkout: scripts/images/
-          ref: KF-6285-fix-bundle-kubeflow-1080
+          ref: KF-6285-add-trivy-java-db
           path: kubeflow-ci
 
       - name: Get images
