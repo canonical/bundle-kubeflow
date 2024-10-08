@@ -45,7 +45,7 @@ jobs:
           RISK=${BUNDLE_SPLIT[2]}
 
           pip3 install -r scripts/requirements.txt
-          python3 scripts/get-all-images.py ${{ matrix.bundle }}/bundle.yaml > image_list.txt
+          python3 scripts/get_all_images.py ${{ matrix.bundle }}/bundle.yaml > image_list.txt
           echo "Image list:"
           cat ./image_list.txt
           echo "release_risk=${RELEASE}-${RISK}" >> $GITHUB_OUTPUT
