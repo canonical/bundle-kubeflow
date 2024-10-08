@@ -49,7 +49,16 @@ sudo snap install docker
 ```
 Setup `docker` snap to run as a normal user by following the snap [documentation](https://snapcraft.io/docker).
 
-## Run SBOM producing script
+3. Create a venv and install python requirements.
+Note that python version 3.10 is required to run the script.
+```
+python3 -m venv venv
+source venv/bin/activate
+
+pip3 install -r scripts/requirements.txt
+```
+
+### Run SBOM producing script
 You can get a list of all the SBOMs for the images used by the bundle by running the following command:
 ```
 python3 scripts/get_bundle_images_sbom.py <bundle_path>
@@ -59,4 +68,7 @@ For example for the 1.9 bundle, run:
 python3 scripts/get_bundle_images_sbom.py releases/1.9/stable/bundle.yaml
 ```
 
-This creates a directory under the repo's root with the name `images_SBOM`. The script will store all the SBOMs there. For each image, there will be the SBOM file formatted as `<image_name>.spdx.json`.
+> [!WARNING] 
+> To produce the SBOMs of all images in the bundle (~100 images), the script can take up to a few hours depending on the network and processing resources.
+
+The script creates a compressed file under the repo's root with the name `images_SBOM.tar.gz`. The script will store all the SBOMs there. For each image, there will be the SBOM file formatted as `<image_name>.spdx.json` inside the compressed file.
