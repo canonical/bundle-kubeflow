@@ -133,5 +133,4 @@ jobs:
       uses: actions/upload-artifact/merge@v4
       with:
         name: ${{ needs.scan-images-upload-individual-reports.outputs.release-track }}-individual-reports
-        pattern: *.json
         retention-days: 90
