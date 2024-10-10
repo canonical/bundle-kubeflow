@@ -135,3 +135,4 @@ jobs:
         name: ${{ needs.scan-images-upload-individual-reports.outputs.release-track }}-individual-reports
         pattern: '*.json'
         retention-days: 90
+        delete-merged: true
