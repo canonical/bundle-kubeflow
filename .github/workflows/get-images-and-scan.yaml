@@ -130,8 +130,8 @@ jobs:
         retention-days: 90
 
     - name: Upload individual reports
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact/merge@v4
       with:
         name: ${{ needs.scan-images-upload-individual-reports.outputs.release-track }}-individual-reports
-        path: ${{ inputs.scans-out-dir }}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}/
+        pattern: *.json
         retention-days: 90
