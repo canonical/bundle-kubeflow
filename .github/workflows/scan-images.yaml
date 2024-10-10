@@ -16,6 +16,6 @@ jobs:
           - 1.8/stable/kubeflow
           - 1.9/stable
           - latest/edge
-    uses: ./.github/workflows/get-images-scan-and-upload-report.yaml
+    uses: ./.github/workflows/get-images-and-scan.yaml
     with:
       bundle-path: ${{ matrix.bundle-path }}

@@ -1,4 +1,4 @@
-name: Get images, scan them, and report vulnerabilities
+name: Get and scan images, upload vulnerability reports
 on:
   workflow_call:
     inputs:
