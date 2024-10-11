@@ -105,7 +105,7 @@ jobs:
     - name: Download all artefacts
       uses: actions/download-artifact@v4
       with:
-        path: ${{ steps.sans-out-dir.outputs.scans-out-dir}}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}/
+        path: ${{ steps.sans-out-dir.outputs.scans-out-dir }}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}/
         pattern: ${{ needs.scan-images-upload-individual-reports.outputs.release-track }}*.json
         merge-multiple: true
 
@@ -120,7 +120,7 @@ jobs:
     - name: Generate summary of reports
       run: |
         export date=$(date '+%Y-%m-%d-%H-%M-%S')
-        ./kubeflow-ci/scripts/images/get-summary.py --report-path ${{ steps.sans-out-dir.outputs.scans-out-dir}}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}/ --print-header > /tmp/scan-summary-${date}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}.csv
+        ./kubeflow-ci/scripts/images/get-summary.py --report-path ${{ steps.sans-out-dir.outputs.scans-out-dir }}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}/ --print-header > /tmp/scan-summary-${date}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}.csv
 
     - name: Upload summary report
       uses: actions/upload-artifact@v4
