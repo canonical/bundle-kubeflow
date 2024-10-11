@@ -24,7 +24,7 @@ jobs:
     - name: Run get-all-images.py
       run: |
         pip3 install -r scripts/requirements.txt
-        python3 scripts/get-all-images.py releases/${{ inputs.bundle-directory }}/bundle.yaml > /tmp/images_list.txt
+        python3 scripts/get_all_images.py releases/${{ inputs.bundle-directory }}/bundle.yaml > /tmp/images_list.txt
 
     - name: Generate an array of images
       id: set-images-array
