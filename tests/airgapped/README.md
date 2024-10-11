@@ -75,7 +75,7 @@ Developers are urged to instead define their own `images.txt` file with the imag
 they'd like to be loaded during tests.
 
 ```bash
-python3 scripts/airgapped/get-all-images.py \
+python3 scripts/airgapped/get_all_images.py \
     releases/1.9/stable/bundle.yaml \
     > images-all.txt
 ```
