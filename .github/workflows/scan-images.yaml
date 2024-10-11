@@ -18,4 +18,4 @@ jobs:
           - latest/edge
     uses: ./.github/workflows/get-images-and-scan.yaml
     with:
-      bundle-path: ${{ matrix.bundle-path }}
+      bundle-directory: ${{ matrix.bundle-path }}
