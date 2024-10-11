@@ -1,0 +1,138 @@
+name: Get and scan images, upload vulnerability reports
+on:
+  workflow_call:
+    inputs:
+      bundle-directory:
+        description: |
+          The directory where the bundle.yaml to be scanned is placed inside releases/ in this repository.
+          An example input would be 1.9/stable/, which is placed inside releases/ at the root of this repository.
+        required: true
+        type: string
+
+jobs:
+  get-images:
+    name: Get images
+    runs-on: ubuntu-22.04
+    outputs:
+      images-array: ${{ steps.set-images-array.outputs.images-array }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Run get-all-images.py
+      run: |
+        pip3 install -r scripts/requirements.txt
+        python3 scripts/get_all_images.py releases/${{ inputs.bundle-directory }}/bundle.yaml > /tmp/images_list.txt
+
+    - name: Generate an array of images
+      id: set-images-array
+      run: | 
+        # Output the images as an array that can be used in the matrix strategy for the scan images job
+        # This array contains all the images from /tmp/image_list.txt
+        sudo snap install jq
+        IMAGES=$(cat /tmp/images_list.txt | jq -R -s -c 'split("\n")[:-1]')
+        echo "images-array=$IMAGES" >> $GITHUB_OUTPUT
+
+  scan-images-upload-individual-reports:
+    name: Run vulnerability scans and upload reports
+    runs-on: ubuntu-22.04
+    needs: get-images
+    outputs:
+      release-track: ${{ steps.release-track.outputs.release-track }}
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJSON(needs.get-images.outputs.images-array) }}
+    steps:
+    - name: Generate release track
+      id: release-track
+      run: |
+        RELEASE_TRACK=$(echo ${{ inputs.bundle-directory }} | sed 's/\//-/g')
+        echo "release-track=$RELEASE_TRACK" >> $GITHUB_OUTPUT
+
+    - name: Generate report path
+      id: report-path
+      run: |
+        FILENAME=$(echo ${{ matrix.image }} | sed 's/:/-/g; s/\//-/g; s/\./-/g')
+        PATH="${{ steps.release-track.outputs.release-track}}-${FILENAME}.json"
+        echo "report-path=$PATH" >> $GITHUB_OUTPUT
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@0.25.0
+      # Workaround for https://github.com/aquasecurity/trivy-action/issues/389
+      env:
+        TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
+        TRIVY_JAVA_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-java-db:1
+      with:
+        image-ref: ${{ matrix.image }}
+        scan-type: image
+        output: '${{ steps.report-path.outputs.report-path }}'
+        format: 'json'
+        ignore-unfixed: true
+        severity: 'CRITICAL,HIGH'
+        # NOTE: pebble is flagged with a HIGH vuln because of golang.org/x/crypto
+        # CVE-2021-43565, CVE-2022-27191
+        skip-files: '/bin/pebble,/usr/bin/pebble,usr/bin/pebble,bin/pebble'
+
+    - name: Upload Trivy reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ steps.report-path.outputs.report-path }}
+        path: ${{ steps.report-path.outputs.report-path }}
+
+    - name: Print vulnerability report
+      run: cat ${{ steps.report-path.outputs.report-path }}
+
+  generate-and-upload-summary:
+    name: Generate and upload summary of vulnerability reports
+    runs-on: ubuntu-22.04
+    needs: scan-images-upload-individual-reports
+    # This always() is required as we always want to generate and upload summaries even
+    # if the previous job had one or more failures.
+    if: always()
+    strategy:
+      fail-fast: false
+    steps:
+    - name: Make directory to temporarily store scans
+      id: scans-out-dir
+      run: |
+        SCANS_OUT_DIR="/tmp/trivy-reports"
+        mkdir -p ${SCANS_OUT_DIR}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}/
+        echo "scans-out-dir=$SCANS_OUT_DIR" >> $GITHUB_OUTPUT
+
+    - name: Download all artefacts
+      uses: actions/download-artifact@v4
+      with:
+        path: ${{ steps.scans-out-dir.outputs.scans-out-dir }}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}/
+        pattern: ${{ needs.scan-images-upload-individual-reports.outputs.release-track }}*.json
+        merge-multiple: true
+
+    - name: Clone canonical/kubeflow-ci
+      uses: actions/checkout@v4
+      with:
+        repository: canonical/kubeflow-ci.git
+        sparse-checkout: scripts/images/
+        ref: main
+        path: kubeflow-ci
+
+    - name: Generate summary of reports
+      run: |
+        export date=$(date '+%Y-%m-%d-%H-%M-%S')
+        ./kubeflow-ci/scripts/images/get-summary.py --report-path ${{ steps.scans-out-dir.outputs.scans-out-dir }}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}/ --print-header > /tmp/scan-summary-${date}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}.csv
+
+    - name: Upload summary report
+      uses: actions/upload-artifact@v4
+      with:
+        name: summary-trivy-report-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}
+        path: /tmp/scan-summary-*.csv
+        retention-days: 90
+
+    - name: Upload individual reports
+      uses: actions/upload-artifact/merge@v4
+      with:
+        name: ${{ needs.scan-images-upload-individual-reports.outputs.release-track }}-individual-reports
+        pattern: '${{ needs.scan-images-upload-individual-reports.outputs.release-track }}*.json'
+        retention-days: 90
+        delete-merged: true
