@@ -1,4 +1,4 @@
-name: Container image vulnerability scans
+name: Scan images
 on:
   schedule:
   # every day at 1:12AM UTC
