@@ -2,15 +2,12 @@ name: Get and scan images, upload vulnerability reports
 on:
   workflow_call:
     inputs:
-      bundle-path:
-        description: The bundle path on which the vulnerability scan will be executed
+      bundle-directory:
+        description: |
+          The directory where the bundle.yaml to be scanned is placed inside releases/ in this repository.
+          An example input would be 1.9/stable/, which is placed inside releases/ at the root of this repository.
         required: true
         type: string
-      scans-out-dir:
-        description: The directory to store all vulnerability reports
-        required: false
-        type: string
-        default: "/tmp/trivy-reports"
 
 jobs:
   get-images:
@@ -27,7 +24,7 @@ jobs:
     - name: Run get-all-images.py
       run: |
         pip3 install -r scripts/requirements.txt
-        python3 scripts/get-all-images.py releases/${{ inputs.bundle-path }}/bundle.yaml > /tmp/images_list.txt
+        python3 scripts/get-all-images.py releases/${{ inputs.bundle-directory }}/bundle.yaml > /tmp/images_list.txt
 
     - name: Generate an array of images
       id: set-images-array
@@ -52,7 +49,7 @@ jobs:
     - name: Generate release track
       id: release-track
       run: |
-        RELEASE_TRACK=$(echo ${{ inputs.bundle-path }} | sed 's/\//-/g')
+        RELEASE_TRACK=$(echo ${{ inputs.bundle-directory }} | sed 's/\//-/g')
         echo "release-track=$RELEASE_TRACK" >> $GITHUB_OUTPUT
 
     - name: Generate report path
@@ -99,13 +96,16 @@ jobs:
       fail-fast: false
     steps:
     - name: Make directory to temporarily store scans
+      id: scans-out-dir
       run: |
-        mkdir -p ${{ inputs.scans-out-dir}}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}/
+        SCANS_OUT_DIR="/tmp/trivy-reports"
+        mkdir -p ${SCANS_OUT_DIR}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}/
+        echo "scans-out-dir=$SCANS_OUT_DIR" >> $GITHUB_OUTPUT
 
     - name: Download all artefacts
       uses: actions/download-artifact@v4
       with:
-        path: ${{ inputs.scans-out-dir}}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}/
+        path: ${{ steps.sans-out-dir.outputs.scans-out-dir}}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}/
         pattern: ${{ needs.scan-images-upload-individual-reports.outputs.release-track }}*.json
         merge-multiple: true
 
@@ -120,7 +120,7 @@ jobs:
     - name: Generate summary of reports
       run: |
         export date=$(date '+%Y-%m-%d-%H-%M-%S')
-        ./kubeflow-ci/scripts/images/get-summary.py --report-path ${{ inputs.scans-out-dir }}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}/ --print-header > /tmp/scan-summary-${date}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}.csv
+        ./kubeflow-ci/scripts/images/get-summary.py --report-path ${{ steps.sans-out-dir.outputs.scans-out-dir}}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}/ --print-header > /tmp/scan-summary-${date}-${{ needs.scan-images-upload-individual-reports.outputs.release-track }}.csv
 
     - name: Upload summary report
       uses: actions/upload-artifact@v4
