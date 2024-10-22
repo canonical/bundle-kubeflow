@@ -36,18 +36,25 @@ jobs:
   generate-bundle-versions-on-schedule:
     if: ${{ github.event_name == 'schedule' }}
     runs-on: ubuntu-22.04
-    run: |
-      # These are the versions that the scheduled workflow will run on
-      TARGET_VERSIONS="1.8, 1.9, latest"
-      bundle_versions=$(yq '. | keys | map(select(. == env(TARGET_VERSIONS).split(", ")[]))' .github/dependencies.yaml -o=json)
-      echo "bundle_versions=${bundle_versions}" >> $GITHUB_OUTPUT
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install CLI tools
+        run: |
+          sudo snap install yq
+        
+      - name: Create JSON array of bundle versions
+          run: |
+            bundle_versions=$(yq '. | keys' .github/dependencies.yaml -o=json)
+            echo "bundle_versions=${bundle_versions}" >> $GITHUB_OUTPUT
       
   deploy-ckf-to-aks:
     needs: preprocess-input
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        bundle_version: ${{ fromJSON(needs.preprocess-input.outputs.processed_bundle_versions) }}
+        bundle_version: ${{ fromJSON(needs.preprocess-input.outputs.processed_bundle_versions) || fromJSON(jobs.generate-bundle-versions-on-schedule.outputs.bundle_versions) }}
       fail-fast: false
     env:
       AZURE_CORE_OUTPUT: none
