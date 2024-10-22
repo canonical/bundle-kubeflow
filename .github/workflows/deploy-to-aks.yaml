@@ -45,9 +45,9 @@ jobs:
           sudo snap install yq
         
       - name: Create JSON array of bundle versions
-          run: |
-            bundle_versions=$(yq '. | keys' .github/dependencies.yaml -o=json)
-            echo "bundle_versions=${bundle_versions}" >> $GITHUB_OUTPUT
+        run: |
+          bundle_versions=$(yq '. | keys' .github/dependencies.yaml -o=json)
+          echo "bundle_versions=${bundle_versions}" >> $GITHUB_OUTPUT
       
   deploy-ckf-to-aks:
     needs: preprocess-input
