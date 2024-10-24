@@ -46,8 +46,7 @@ jobs:
         
       - name: Create JSON array of bundle versions
         run: |
-          TARGET_VERSIONS="1.8, 1.9, latest"
-          bundle_versions=$(yq '. | keys | map(select(. == env(TARGET_VERSIONS).split(", ")[]))' .github/dependencies.yaml -o=json)
+          bundle_versions=$(yq '. | keys' .github/dependencies.yaml -o=json)
           echo "bundle_versions=${bundle_versions}" >> $GITHUB_OUTPUT
       
   deploy-ckf-to-aks:
