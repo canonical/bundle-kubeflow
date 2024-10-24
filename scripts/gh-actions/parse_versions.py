@@ -12,7 +12,7 @@ def parse_versions(input_versions):
     return json_array
 
 if __name__ == "__main__":
-    if len(sys.argv) < 1:
+    if len(sys.argv) < 2 or sys.argv[1] == "":
         raise Exception("No bundle versions given as input.")
     
     input_versions = sys.argv[1]
