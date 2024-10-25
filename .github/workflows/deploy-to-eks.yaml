@@ -16,6 +16,7 @@ on:
     - cron: "23 0 * * 2"
 jobs:
   preprocess-input:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-22.04
     outputs:
       processed_bundle_versions: ${{ steps.process_bundle_versions.outputs.bundle_versions }}
@@ -31,13 +32,29 @@ jobs:
       - name: Process bundle versions
         id: process_bundle_versions
         run: python scripts/gh-actions/parse_versions.py "${{ inputs.bundle_version }}"
-          
+        
+  generate-bundle-versions-on-schedule:
+    if: ${{ github.event_name == 'schedule' }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install CLI tools
+        run: |
+          sudo snap install yq
+        
+      - name: Create JSON array of bundle versions
+        run: |
+          bundle_versions=$(yq '. | keys' .github/dependencies.yaml -o=json)
+          echo "bundle_versions=${bundle_versions}" >> $GITHUB_OUTPUT
+        
   deploy-ckf-to-eks:
     needs: preprocess-input
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        bundle_version: ${{ fromJSON(needs.preprocess-input.outputs.processed_bundle_versions) }}
+        bundle_version: ${{ fromJSON(needs.preprocess-input.outputs.processed_bundle_versions) || fromJSON(jobs.generate-bundle-versions-on-schedule.outputs.bundle_versions) }}
       fail-fast: false
     env:
       PYTHON_VERSION: "3.8"
