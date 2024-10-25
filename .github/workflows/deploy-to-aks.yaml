@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        bundle_version: ${{ fromJSON(needs.preprocess-input.outputs.processed_bundle_versions) || fromJSON(jobs.generate-bundle-versions-on-schedule.outputs.bundle_versions) }}
+        bundle_version: ${{ fromJSON(needs.preprocess-input.outputs.processed_bundle_versions) || fromJSON(needs.generate-bundle-versions-on-schedule.outputs.bundle_versions) }}
       fail-fast: false
     env:
       AZURE_CORE_OUTPUT: none
