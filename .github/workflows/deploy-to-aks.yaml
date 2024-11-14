@@ -36,11 +36,12 @@ jobs:
         id: process_bundle_versions
         run: |
           if [[ "${{ github.event_name }}" == "schedule" ]]; then
-              bundle_versions=$(yq '. | keys' .github/dependencies.yaml -o=json)
+              bundle_versions=$(yq '. | keys' .github/dependencies.yaml -o=json | tr -d '\n')
+              echo "bundle_versions=${bundle_versions}"
               echo "bundle_versions=${bundle_versions}" >> $GITHUB_OUTPUT
           else
               python scripts/gh-actions/parse_versions.py "${{ inputs.bundle_version }}"
-          fi          
+          fi
       
   deploy-ckf-to-aks:
     needs: preprocess-input
