@@ -16,13 +16,12 @@ on:
     - cron: "17 0 * * 2"
 jobs:
   preprocess-input:
-    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-22.04
     outputs:
       processed_bundle_versions: ${{ steps.process_bundle_versions.outputs.bundle_versions }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v5
