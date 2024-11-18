@@ -16,45 +16,41 @@ on:
     - cron: "17 0 * * 2"
 jobs:
   preprocess-input:
-    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-22.04
     outputs:
       processed_bundle_versions: ${{ steps.process_bundle_versions.outputs.bundle_versions }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-          
-      - name: Process bundle versions
-        id: process_bundle_versions
-        run: python scripts/gh-actions/parse_versions.py "${{ inputs.bundle_version }}"
-
-  generate-bundle-versions-on-schedule:
-    if: ${{ github.event_name == 'schedule' }}
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
 
       - name: Install CLI tools
         run: |
           sudo snap install yq
-        
-      - name: Create JSON array of bundle versions
+          
+      - name: Process bundle versions
+        id: process_bundle_versions
         run: |
-          bundle_versions=$(yq '. | keys' .github/dependencies.yaml -o=json)
-          echo "bundle_versions=${bundle_versions}" >> $GITHUB_OUTPUT
+          if [[ "${{ github.event_name }}" == "schedule" ]]; then
+              # Use `tr` to remove new lines as a workaround to:
+              # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#multiline-strngs
+              bundle_versions=$(yq '. | keys' .github/dependencies.yaml -o=json | tr -d '\n')
+              echo "bundle_versions=${bundle_versions}"
+              echo "bundle_versions=${bundle_versions}" >> $GITHUB_OUTPUT
+          else
+              python scripts/gh-actions/parse_versions.py "${{ inputs.bundle_version }}"
+          fi
       
   deploy-ckf-to-aks:
     needs: preprocess-input
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        bundle_version: ${{ fromJSON(needs.preprocess-input.outputs.processed_bundle_versions) || fromJSON(jobs.generate-bundle-versions-on-schedule.outputs.bundle_versions) }}
+        bundle_version: ${{ fromJSON(needs.preprocess-input.outputs.processed_bundle_versions) }}
       fail-fast: false
     env:
       AZURE_CORE_OUTPUT: none
@@ -62,7 +58,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Run YAML to Github Output Action
         id: yaml-output
