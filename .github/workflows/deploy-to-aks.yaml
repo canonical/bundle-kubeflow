@@ -36,6 +36,9 @@ jobs:
         id: process_bundle_versions
         run: |
           if [[ "${{ github.event_name }}" == "schedule" ]]; then
+              # There is an issue when writing multiline strings gto $GITHUB_OUTPUT
+              # So we remove them with tr as a workaround
+              # See: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#multiline-strings
               bundle_versions=$(yq '. | keys' .github/dependencies.yaml -o=json | tr -d '\n')
               echo "bundle_versions=${bundle_versions}"
               echo "bundle_versions=${bundle_versions}" >> $GITHUB_OUTPUT
