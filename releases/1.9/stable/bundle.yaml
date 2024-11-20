@@ -93,7 +93,7 @@ applications:
     _github_repo_branch: track/0.17
   kfp-api:
     charm: kfp-api
-    channel: 2.2/stable
+    channel: 2.3/stable
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
@@ -108,49 +108,49 @@ applications:
     _github_dependency_repo_branch: main
   kfp-metadata-writer:
     charm: kfp-metadata-writer
-    channel: 2.2/stable
+    channel: 2.3/stable
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
     _github_repo_branch: track/2.2
   kfp-persistence:
     charm: kfp-persistence
-    channel: 2.2/stable
+    channel: 2.3/stable
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
     _github_repo_branch: track/2.2
   kfp-profile-controller:
     charm: kfp-profile-controller
-    channel: 2.2/stable
+    channel: 2.3/stable
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
     _github_repo_branch: track/2.2
   kfp-schedwf:
     charm: kfp-schedwf
-    channel: 2.2/stable
+    channel: 2.3/stable
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
     _github_repo_branch: track/2.2
   kfp-ui:
     charm: kfp-ui
-    channel: 2.2/stable
+    channel: 2.3/stable
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
     _github_repo_branch: track/2.2
   kfp-viewer:
     charm: kfp-viewer
-    channel: 2.2/stable
+    channel: 2.3/stable
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
     _github_repo_branch: track/2.2
   kfp-viz:
     charm: kfp-viz
-    channel: 2.2/stable
+    channel: 2.3/stable
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
