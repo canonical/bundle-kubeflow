@@ -16,7 +16,7 @@ on:
     - cron: "17 0 * * 2"
 jobs:
   preprocess-input:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       processed_bundle_versions: ${{ steps.process_bundle_versions.outputs.bundle_versions }}
     steps:
@@ -42,7 +42,7 @@ jobs:
       
   deploy-ckf-to-aks:
     needs: preprocess-input
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         bundle_version: ${{ fromJSON(needs.preprocess-input.outputs.processed_bundle_versions) }}
