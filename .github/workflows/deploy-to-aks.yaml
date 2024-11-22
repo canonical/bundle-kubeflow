@@ -23,11 +23,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-
       - name: Install CLI tools
         run: |
           sudo snap install yq
@@ -54,7 +49,6 @@ jobs:
       fail-fast: false
     env:
       AZURE_CORE_OUTPUT: none
-      PYTHON_VERSION: "3.8"
 
     steps:
       - name: Checkout repository
@@ -74,19 +68,9 @@ jobs:
           UATS_BRANCH=${{ inputs.uats_branch || env.UATS_BRANCH }}
           echo "UATS_BRANCH=${UATS_BRANCH}" >> $GITHUB_ENV
 
-      # Remove once https://github.com/canonical/bundle-kubeflow/issues/761
-      # is resolved and applied to uats repository.
-      - name: Install python ${{ env.PYTHON_VERSION }}
-        run: |
-          sudo add-apt-repository ppa:deadsnakes/ppa -y
-          sudo apt update -y
-          sudo apt install python${{ env.PYTHON_VERSION }} python${{ env.PYTHON_VERSION }}-distutils python${{ env.PYTHON_VERSION }}-venv -y
-
       - name: Install CLI tools
         run: |
-          wget https://bootstrap.pypa.io/get-pip.py
-          python${{ env.PYTHON_VERSION }} get-pip.py
-          python${{ env.PYTHON_VERSION }} -m pip install tox
+          pip install tox 
           sudo snap install juju --classic --channel=${{ env.JUJU_VERSION }}/stable
           sudo snap install charmcraft --classic
           juju version
