@@ -105,8 +105,8 @@ jobs:
       
       - name: Clean previous cluster
         run: |
-          aws cloudformation delete-stack --region eu-central-1 --stack-name eksctl-kubeflow-test-latest-cluster
-      
+          aws cloudformation delete-stack --region eu-central-1 --stack-name eksctl-kubeflow-test-19-cluster
+          eksctl delete cluster --region=eu-central-1 --name=kubeflow-test-19
       # - name: Create cluster
       #   run: |
       #     VERSION=${{ matrix.bundle_version }}
