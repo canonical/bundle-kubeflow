@@ -4,7 +4,7 @@ import os
 import re
 import sys
 
-ACCEPTED_TRACKS = ["1.7", "1.8", "latest"]
+ACCEPTED_TRACKS = ["1.7", "1.8", "1.9", "latest"]
 ACCEPTED_RISKS = ["beta", "edge", "stable"]
 
 
