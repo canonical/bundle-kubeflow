@@ -179,6 +179,14 @@ jobs:
           VERSION_WITHOUT_DOT="${VERSION//.}"
           eksctl delete cluster --region eu-central-1 --name=kubeflow-test-$VERSION_WITHOUT_DOT
 
+        # Clean up leftover CloudFormation stack when cluster creation fails unexpectedly
+      - name: Delete CloudFormation stack (if present)
+        if: always()
+        run: |
+          VERSION=${{ matrix.bundle_version }}
+          VERSION_WITHOUT_DOT="${VERSION//.}"
+          aws cloudformation delete-stack --region eu-central-1 --stack-name eksctl-kubeflow-test-$VERSION_WITHOUT_DOT-cluster
+
   delete-unattached-volumes:
     if: always()
     uses: ./.github/workflows/delete-aws-volumes.yaml
