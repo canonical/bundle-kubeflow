@@ -11,7 +11,7 @@ description = "charmed-kubeflow.io"
 authors = [""]
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = ">=3.10"
 click = "^7"
 pyyaml = "^5.3"
 
