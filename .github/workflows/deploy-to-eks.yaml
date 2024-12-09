@@ -86,11 +86,8 @@ jobs:
           wget https://bootstrap.pypa.io/get-pip.py
           python${{ env.PYTHON_VERSION }} get-pip.py
           python${{ env.PYTHON_VERSION }} -m pip install tox
+          sudo snap install juju --channel=${{ env.JUJU_VERSION }}/stable
           sudo snap install charmcraft --classic
-          # We need to install from binary because of this https://bugs.launchpad.net/juju/+bug/2007575
-          curl -LO https://launchpad.net/juju/${{ env.JUJU_VERSION }}/${{ env.JUJU_VERSION_WITH_PATCH }}/+download/juju-${{ env.JUJU_VERSION_WITH_PATCH }}-linux-amd64.tar.xz
-          tar xf juju-${{ env.JUJU_VERSION_WITH_PATCH }}-linux-amd64.tar.xz
-          sudo install -o root -g root -m 0755 juju /usr/local/bin/juju
           juju version
 
       - name: Configure AWS Credentials
@@ -127,7 +124,8 @@ jobs:
       
       - name: Setup juju
         run: |
-          juju add-k8s eks --client
+          # Call juju bin directly as a workaround to https://bugs.launchpad.net/juju/+bug/2007575
+          /snap/juju/current/bin/juju add-k8s eks --client
           juju bootstrap eks kubeflow-controller
           juju add-model kubeflow
       
