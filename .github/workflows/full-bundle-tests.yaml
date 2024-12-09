@@ -17,7 +17,7 @@ on:
       juju-channel:
         description: Juju channel e.g. 3.5/stable
         required: false
-        default: "3.4/stable"
+        default: "3.6/stable"
   workflow_call:
     inputs:
       bundle-source:
