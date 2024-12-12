@@ -77,34 +77,8 @@ jobs:
           }
           EOF
 
-      - name: Setup Python 3.8
-        run: |
-          echo "deb-src http://archive.ubuntu.com/ubuntu/ jammy main" | sudo tee -a /etc/apt/sources.list
-
-          sudo apt-get update -yqq
-          sudo apt-get build-dep -yqq python3
-          sudo apt-get install -yqq pkg-config
-
-          sudo apt-get install -yqq build-essential gdb lcov pkg-config \
-            libbz2-dev libffi-dev libgdbm-dev libgdbm-compat-dev liblzma-dev \
-            libncurses5-dev libreadline6-dev libsqlite3-dev libssl-dev \
-            lzma lzma-dev tk-dev uuid-dev zlib1g-dev
-
-          curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
-
-          export PYENV_ROOT="$HOME/.pyenv"
-          command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-
-          pyenv install 3.8.16
-          pyenv global 3.8.16
-
-          # configure environment variables to be available in subsequent steps
-          echo "PYENV_ROOT=$PYENV_ROOT" >> "$GITHUB_ENV"
-          echo "PATH=$PATH" >> "$GITHUB_ENV"
-
       - name: Install tox
         run: |
-          eval "$(pyenv init -)"
           pip install tox
 
       - name: Setup operator environment
