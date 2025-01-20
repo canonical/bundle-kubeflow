@@ -86,27 +86,27 @@
     "mlflow": "latest/edge",
     "k8s": {
       "charmed-kubernetes": {
-        "min-supported": "1.24",
-        "max-supported": "1.29"
+        "min-supported": "1.29",
+        "max-supported": "1.31"
       },
       "microk8s": {
-        "min-supported": "1.25",
-        "max-supported": "1.29"
+        "min-supported": "1.29",
+        "max-supported": "1.31"
       },
       "aks": {
-        "min-supported": "1.27",
-        "max-supported": "1.29"
+        "min-supported": "1.29",
+        "max-supported": "1.31"
       },
       "eks": {
-        "min-supported": "1.24",
-        "max-supported": "1.29"
+        "min-supported": "1.29",
+        "max-supported": "1.31"
       }
     },
     "juju": {
-      "current-edge": "3.4/edge",
-      "current-stable": "3.4/stable",
-      "future-edge": "3.5/edge",
-      "future-stable": "3.5/stable"
+      "current-edge": "3.6/edge",
+      "current-stable": "3.6/stable",
+      "future-edge": "4.0/edge",
+      "future-stable": "4.0/stable"
     }
   }
 }

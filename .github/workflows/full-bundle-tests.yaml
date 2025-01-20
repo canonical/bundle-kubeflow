@@ -11,9 +11,9 @@ on:
         required: false
         default: main
       microk8s-channel:
-        description: Microk8s channel e.g. 1.25-strict/stable
+        description: Microk8s channel e.g. 1.31-strict/stable
         required: false
-        default: "1.25-strict/stable"
+        default: "1.31-strict/stable"
       juju-channel:
         description: Juju channel e.g. 3.5/stable
         required: false
@@ -30,10 +30,10 @@ on:
         type: string
         default: main
       microk8s-channel:
-        description: Microk8s channel e.g. 1.25-strict/stable
+        description: Microk8s channel e.g. 1.31-strict/stable
         required: false
         type: string
-        default: "1.25-strict/stable"
+        default: "1.31-strict/stable"
       juju-channel:
         description: Juju channel e.g. 3.5/stable
         required: false
