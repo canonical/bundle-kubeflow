@@ -128,7 +128,7 @@ jobs:
           git checkout ${{ env.UATS_BRANCH }}
           
           EXTRA_ARGS=""
-          if [[ -z "${{env.BUNDLE_URL}}" ]];
+          if [[ -n "${{env.BUNDLE_URL}}" ]];
           then 
             EXTRA_ARGS="-- --bundle-url ${{env.BUNDLE_URL}}"
           fi
