@@ -107,9 +107,48 @@ jobs:
           VERSION_WITHOUT_DOT="${VERSION//.}"
           yq e ".metadata.name |= \"kubeflow-test-$VERSION_WITHOUT_DOT\"" -i .github/cluster.yaml
           yq e ".metadata.version |= \"${{ env.K8S_VERSION }}\"" -i .github/cluster.yaml
+
+          # Generate ssh-key pair
+          ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa <<<y >/dev/null 2>&1
+
           eksctl create cluster -f .github/cluster.yaml
           kubectl get nodes
-      
+
+      - name: Configure EKS Nodes
+        run: |
+          
+          # Export all instances
+          aws ec2 describe-instances \
+            --filters Name=instance-state-name,Values=running \
+            --output yaml > instances.yaml
+
+          INTERNAL_DNS=$(kubectl get nodes -A | tail -n+2 | awk '{print $1}')
+                    
+          for DNS in $INTERNAL_DNS;
+          do
+            # Figure out external dns
+            DNS_QUERY=".Reservations[].Instances | flatten | map(select(.PrivateDnsName==\"${DNS}\"))[].PublicDnsName"
+            echo $DNS_QUERY
+            EXTERNAL_DNS=$(yq "$DNS_QUERY" instances.yaml)
+
+            echo "=========================================="
+            echo "Internal DNS: ${DNS}"
+            echo "Using external DNS: ${EXTERNAL_DNS}"
+            SSH_CMD="ssh -o StrictHostKeyChecking=no ubuntu@$EXTERNAL_DNS"
+          
+            # Setting the sysctl properties
+            echo "Setting values"
+            $SSH_CMD 'sudo sysctl fs.inotify.max_user_watches=655360'
+            $SSH_CMD 'sudo sysctl fs.inotify.max_user_instances=1280'
+          
+            # To check the settings
+            echo "Checking values"
+            $SSH_CMD 'sudo sysctl -a | grep "^fs.inotify"'
+            echo "=========================================="
+          done
+          
+          rm instances.yaml
+
       - name: Setup juju
         run: |
           # Call juju bin directly as a workaround to https://bugs.launchpad.net/juju/+bug/2007575
