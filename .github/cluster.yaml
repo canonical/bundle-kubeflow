@@ -27,7 +27,7 @@ managedNodeGroups:
   name: ng-d06bd84e
   releaseVersion: ""
   ssh:
-    allow: false
+    allow: true
   tags:
     alpha.eksctl.io/nodegroup-name: ng-d06bd84e
     alpha.eksctl.io/nodegroup-type: managed
