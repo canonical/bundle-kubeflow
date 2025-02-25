@@ -140,7 +140,7 @@ jobs:
           if [[ $INPUT_BUNDLE == "--file"* ]];
           then
             FILE=$(echo ${INPUT_BUNDLE##--file} | xargs)
-            EXTRA_ARGS="-- --bundle-url file:$FILE"
+            EXTRA_ARGS="-- --bundle file:$FILE"
           fi
           
           eval "$(pyenv init -)"

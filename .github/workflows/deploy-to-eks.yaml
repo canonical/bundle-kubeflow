@@ -130,7 +130,7 @@ jobs:
           EXTRA_ARGS=""
           if [[ -n "${{env.BUNDLE_URL}}" ]];
           then 
-            EXTRA_ARGS="-- --bundle-url ${{env.BUNDLE_URL}}"
+            EXTRA_ARGS="-- --bundle ${{env.BUNDLE_URL}}"
           fi
           
           tox -e kubeflow-remote $EXTRA_ARGS
