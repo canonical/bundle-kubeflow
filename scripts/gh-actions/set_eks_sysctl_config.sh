@@ -11,7 +11,10 @@ function check_sysctl(){
 
     if [ "$CURRENT" != "$VALUE" ]
     then
+      echo "Failing check for ${KEY}: current ${CURRENT} expected: ${VALUE}"
       exit 1
+    else
+      echo "Check for ${KEY} passed successfully"
     fi
 }
 
@@ -32,6 +35,7 @@ do
   echo "=========================================="
   echo "Internal DNS: ${DNS}"
   echo "Using external DNS: ${EXTERNAL_DNS}"
+
   SSH_CMD="ssh -o StrictHostKeyChecking=no ubuntu@$EXTERNAL_DNS"
 
   # Setting the sysctl properties
@@ -41,7 +45,7 @@ do
 
   # To check the settings
   echo "Checking values"
-  check_sysctl "$SSH_CMD" "fs.inotify.max_user_watches" "65536"
+  check_sysctl "$SSH_CMD" "fs.inotify.max_user_watches" "655360"
   check_sysctl "$SSH_CMD" "fs.inotify.max_user_instances" "1280"
   echo "=========================================="
 done
