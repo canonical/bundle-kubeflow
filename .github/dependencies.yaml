@@ -9,5 +9,4 @@
 latest:
   K8S_VERSION: "1.31"
   JUJU_VERSION: "3.6"
-  BUNDLE_URL: "https://raw.githubusercontent.com/canonical/bundle-kubeflow/refs/heads/main/releases/latest/edge/bundle.yaml"
   UATS_BRANCH: "main"
