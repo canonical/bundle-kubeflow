@@ -41,8 +41,8 @@ do
 
   # To check the settings
   echo "Checking values"
-  check_sysctl $SSH_CMD "fs.inotify.max_user_watches" "65536"
-  check_sysctl $SSH_CMD "fs.inotify.max_user_instances" "1280"
+  check_sysctl "$SSH_CMD" "fs.inotify.max_user_watches" "65536"
+  check_sysctl "$SSH_CMD" "fs.inotify.max_user_instances" "1280"
   echo "=========================================="
 done
 
