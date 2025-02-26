@@ -13,7 +13,7 @@ on:
         description: 'Branch to run the UATs from e.g. main or track/1.9. By default, this is defined by the dependencies.yaml file.'
         required: false
       bundle_url:
-        description: 'URL to be used for version checking. In tracks prior to 1.10 release (track/1.8 and track/1.9), its value is hardcoded in the UATs. For main and track/1.10 branches this value can customized, despite sensible defaults are provided. Leave this empty unless you want to perform a custom check.'
+        description: 'URL to be used for version checking. In tracks prior to 1.10 release (track/1.8 and track/1.9), its value is hardcoded in the UATs. For main and track/1.10 branches this value can be customized, but sensible defaults are provided. Leave this empty unless you want to perform a custom check.'
         required: false
   schedule:
     - cron: "17 0 * * 2"
