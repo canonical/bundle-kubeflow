@@ -110,7 +110,8 @@ jobs:
           kubectl get nodes
 
       - name: Configure EKS Nodes
-        run: |          
+        run: |         
+          echo "Configuring sysctl on EKS workers"
           source ./scripts/gh-actions/set_eks_sysctl_config.sh
 
       - name: Setup juju
