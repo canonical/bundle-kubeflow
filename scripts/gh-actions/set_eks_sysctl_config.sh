@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -xe
 # This script checks that the sysctl are correctly set on an EKS cluster
 
 function check_sysctl(){
