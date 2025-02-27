@@ -133,8 +133,18 @@ jobs:
           git checkout ${{ inputs.uats-branch }}
       - name: Run UATs
         run: |
+
+          INPUT_BUNDLE=${{ inputs.bundle-source }}
+          
+          EXTRA_ARGS=""
+          if [[ $INPUT_BUNDLE == "--file"* ]];
+          then
+            FILE=$(echo ${INPUT_BUNDLE##--file} | xargs)
+            EXTRA_ARGS="-- --bundle file:$FILE"
+          fi
+          
           eval "$(pyenv init -)"
-          sg microk8s -c "tox -c ~/charmed-kubeflow-uats/ -e kubeflow-local"
+          sg microk8s -c "tox -c ~/charmed-kubeflow-uats/ -e kubeflow-local $EXTRA_ARGS"
 
       - name: Save debug artifacts
         uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main

@@ -5,7 +5,7 @@
 "1.9":
   K8S_VERSION: "1.29"
   JUJU_VERSION: "3.6"
-  UATS_BRANCH: "main"
+  UATS_BRANCH: "track/1.9"
 latest:
   K8S_VERSION: "1.31"
   JUJU_VERSION: "3.6"
