@@ -107,9 +107,18 @@ jobs:
           VERSION_WITHOUT_DOT="${VERSION//.}"
           yq e ".metadata.name |= \"kubeflow-test-$VERSION_WITHOUT_DOT\"" -i .github/cluster.yaml
           yq e ".metadata.version |= \"${{ env.K8S_VERSION }}\"" -i .github/cluster.yaml
+
+          # Generate ssh-key pair
+          ssh-keygen -q -t rsa -N '' -f ~/.ssh/id_rsa <<<y >/dev/null 2>&1
+
           eksctl create cluster -f .github/cluster.yaml
           kubectl get nodes
-      
+
+      - name: Configure EKS Nodes
+        run: |         
+          echo "Configuring sysctl on EKS workers"
+          source ./scripts/gh-actions/set_eks_sysctl_config.sh
+
       - name: Setup juju
         run: |
           # Call juju bin directly as a workaround to https://bugs.launchpad.net/juju/+bug/2007575
