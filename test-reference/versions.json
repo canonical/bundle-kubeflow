@@ -20,9 +20,9 @@
       }
     },
     "juju": {
-      "current-edge": "3.4/edge",
-      "current-stable": "3.4/stable",
-      "future-beta": "3.6/beta"
+      "current-edge": "3.6/edge",
+      "current-stable": "3.6/stable",
+      "future-beta": "4.0/beta"
     }
   },
   "ckf-1.9-stable-mlflow-2.15-stable": {
@@ -30,11 +30,11 @@
     "mlflow": "2.15/stable",
     "k8s": {
       "charmed-kubernetes": {
-        "min-supported": "1.24",
+        "min-supported": "1.27",
         "max-supported": "1.30"
       },
       "microk8s": {
-        "min-supported": "1.25",
+        "min-supported": "1.27",
         "max-supported": "1.30"
       },
       "aks": {
@@ -42,14 +42,14 @@
         "max-supported": "1.30"
       },
       "eks": {
-        "min-supported": "1.24",
+        "min-supported": "1.27",
         "max-supported": "1.30"
       }
     },
     "juju": {
-      "current-edge": "3.4/edge",
-      "current-stable": "3.4/stable",
-      "future-beta": "3.6/beta"
+      "current-edge": "3.6/edge",
+      "current-stable": "3.6/stable",
+      "future-beta": "4.0/beta"
     }
   },
   "ckf-1.9-edge-mlflow-2.15-edge": {
@@ -57,11 +57,11 @@
     "mlflow": "2.15/edge",
     "k8s": {
       "charmed-kubernetes": {
-        "min-supported": "1.24",
+        "min-supported": "1.27",
         "max-supported": "1.30"
       },
       "microk8s": {
-        "min-supported": "1.25",
+        "min-supported": "1.27",
         "max-supported": "1.30"
       },
       "aks": {
@@ -69,14 +69,14 @@
         "max-supported": "1.30"
       },
       "eks": {
-        "min-supported": "1.24",
+        "min-supported": "1.27",
         "max-supported": "1.30"
       }
     },
     "juju": {
-      "current-edge": "3.4/edge",
-      "current-stable": "3.4/stable",
-      "future-beta": "3.6/beta"
+      "current-edge": "3.6/edge",
+      "current-stable": "3.6/stable",
+      "future-beta": "4.0/beta"
     }
   },
   "ckf-latest-edge-mlflow-latest-edge": {
@@ -84,11 +84,11 @@
     "mlflow": "latest/edge",
     "k8s": {
       "charmed-kubernetes": {
-        "min-supported": "1.24",
+        "min-supported": "1.27",
         "max-supported": "1.30"
       },
       "microk8s": {
-        "min-supported": "1.25",
+        "min-supported": "1.27",
         "max-supported": "1.30"
       },
       "aks": {
@@ -96,14 +96,14 @@
         "max-supported": "1.30"
       },
       "eks": {
-        "min-supported": "1.24",
+        "min-supported": "1.27",
         "max-supported": "1.30"
       }
     },
     "juju": {
-      "current-edge": "3.4/edge",
-      "current-stable": "3.4/stable",
-      "future-beta": "3.6/beta"
+      "current-edge": "3.6/edge",
+      "current-stable": "3.6/stable",
+      "future-beta": "4.0/beta"
     }
   }
 }
