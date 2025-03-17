@@ -22,7 +22,7 @@ on:
 jobs:
   get-release-inputs:
     name: Get required inputs
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       bundle_path: ${{ steps.bundle-path.outputs.bundle_path }}
       bundle_test_path: ${{ steps.bundle-test-path.outputs.bundle_test_path }}
@@ -50,7 +50,7 @@ jobs:
 
   publish-bundle-for-releases-affected:
     name: Publish bundle
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     # we'll need to add back `run-tests` in the `needs` part, once we bring it back
     needs: [get-release-inputs]
     steps:
