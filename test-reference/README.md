@@ -46,4 +46,4 @@ where,
 
 ## Usage
 
-Each object in "ckf-version-risk-mlflow-version-risk" can be combined to form the environment in which the bundle will be tested. For example `ckf 1.8/stable, mlflow 2.0/stable, on charmed-kubernetes 1.29 and juju 3.4/stable`.
+Each object in "ckf-version-risk-mlflow-version-risk" can be combined to form the environment in which the bundle will be tested. For example `ckf 1.9/stable, mlflow 2.15/stable, on charmed-kubernetes 1.30 and juju 3.6/stable`.
