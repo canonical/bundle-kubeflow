@@ -10,7 +10,7 @@ jobs:
 
   get-releases-affected:
     name: Get releases affected
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       releases_affected: ${{ steps.get-releases-affected.outputs.releases_affected_json }}
     steps:

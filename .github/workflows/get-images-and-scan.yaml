@@ -12,7 +12,7 @@ on:
 jobs:
   get-images:
     name: Get images
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       images-array: ${{ steps.set-images-array.outputs.images-array }}
     steps:
@@ -47,7 +47,7 @@ jobs:
 
   scan-images-upload-individual-reports:
     name: Run vulnerability scans and upload reports
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: get-images
     outputs:
       release-track: ${{ steps.release-track.outputs.release-track }}
@@ -97,7 +97,7 @@ jobs:
 
   generate-and-upload-summary:
     name: Generate and upload summary of vulnerability reports
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: scan-images-upload-individual-reports
     # This always() is required as we always want to generate and upload summaries even
     # if the previous job had one or more failures.
