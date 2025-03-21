@@ -148,6 +148,8 @@ jobs:
       - name: Save debug artifacts
         uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main
         if: failure() || cancelled()
+        with:
+          artifact-prefix: ${{ matrix.bundle_version }}
 
       # On failure, capture debugging resources
       - name: Get juju status
