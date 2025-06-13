@@ -57,12 +57,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run YAML to Github Output Action
-        id: yaml-output
-        uses: christian-ci/action-yaml-github-output@v2
-        with:
-          file_path: ".github/dependencies.yaml"
-          main_key: ${{ matrix.bundle_version }}
+      - name: Set envvars from dependencies.yaml
+        run: |
+          if [[ $(yq eval ".\"${{ matrix.bundle_version }}\"" ".github/dependencies.yaml") == "null" ]]; 
+          then
+            echo "Bundle version '${{ matrix.bundle_version }}' not found in dependencies.yaml. Exiting."
+            exit 1
+          fi
+
+          yq eval ".\"${{ matrix.bundle_version }}\"" ".github/dependencies.yaml" | \
+            yq eval 'to_entries | .[] | "\(.key)=\(.value)"' - | while IFS= read -r line; do
+              echo "$line" >> "$GITHUB_ENV"
+          done
 
       - name: Update ENV variables from inputs if available
         run: |
