@@ -1,3 +1,0 @@
-[include_start]
-I feel included!
-[include_end]
