@@ -1,6 +1,6 @@
 bundle: kubernetes
 name: kubeflow
-docs: https://discourse.charmhub.io/t/18106 
+docs: https://discourse.charmhub.io/t/18106
 applications:
   admission-webhook:
     charm: admission-webhook
