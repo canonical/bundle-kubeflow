@@ -9,7 +9,7 @@ def get_release_from_bundle_source() -> None:
 
     bundle_source = sys.argv[1]
     # Bundle source input should be `--channel <channel_name>` or `--file <bundle_file>.yaml``
-    # e.g. --channel 1.8/stable or --file releases/1.8/stable/kubeflow/bundle.yaml
+    # e.g. --channel 1.10/stable or --file releases/1.10/stable/kubeflow/bundle.yaml
     bundle_source_starts_with_channel = re.search("^--channel", bundle_source)
     bundle_source_starts_with_file = re.search("^--file", bundle_source)
 
