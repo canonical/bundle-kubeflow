@@ -71,7 +71,7 @@ applications:
     _github_repo_branch: track/0.18
   katib-db:
     charm: mysql-k8s
-    channel: 8.0/edge
+    channel: 8.0/stable
     scale: 1
     trust: true
     constraints: mem=2G
