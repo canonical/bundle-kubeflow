@@ -1,4 +1,84 @@
 {
+  "ckf-1.10-stable": {
+    "ckf":"1.10/stable",
+    "k8s": {
+      "charmed-kubernetes": {
+        "min-supported": "1.29",
+        "max-supported": "1.32"
+      },
+      "microk8s": {
+        "min-supported": "1.29",
+        "max-supported": "1.32"
+      },
+      "aks": {
+        "min-supported": "1.29",
+        "max-supported": "1.32"
+      },
+      "eks": {
+        "min-supported": "1.29",
+        "max-supported": "1.32"
+      }
+    },
+    "juju": {
+      "current-edge": "3.6/edge",
+      "current-stable": "3.6/stable",
+      "future-beta": "4.0/beta"
+    }
+  },
+  "ckf-1.10-stable-mlflow-2.22-stable": {
+    "ckf":"1.10/stable",
+    "mlflow": "2.22/stable",
+    "k8s": {
+      "charmed-kubernetes": {
+        "min-supported": "1.29",
+        "max-supported": "1.32"
+      },
+      "microk8s": {
+        "min-supported": "1.29",
+        "max-supported": "1.32"
+      },
+      "aks": {
+        "min-supported": "1.29",
+        "max-supported": "1.32"
+      },
+      "eks": {
+        "min-supported": "1.29",
+        "max-supported": "1.32"
+      }
+    },
+    "juju": {
+      "current-edge": "3.6/edge",
+      "current-stable": "3.6/stable",
+      "future-beta": "4.0/beta"
+    }
+  },
+  "ckf-1.10-edge-mlflow-2.22-edge": {
+    "ckf":"1.10/edge",
+    "mlflow": "2.22/edge",
+    "k8s": {
+      "charmed-kubernetes": {
+        "min-supported": "1.29",
+        "max-supported": "1.32"
+      },
+      "microk8s": {
+        "min-supported": "1.29",
+        "max-supported": "1.32"
+      },
+      "aks": {
+        "min-supported": "1.29",
+        "max-supported": "1.32"
+      },
+      "eks": {
+        "min-supported": "1.29",
+        "max-supported": "1.32"
+      }
+    },
+    "juju": {
+      "current-edge": "3.6/edge",
+      "current-stable": "3.6/stable",
+      "future-beta": "4.0/beta"
+    }
+  },
   "ckf-1.9-stable": {
     "ckf":"1.9/stable",
     "k8s": {
@@ -137,20 +217,20 @@
     "mlflow": "latest/edge",
     "k8s": {
       "charmed-kubernetes": {
-        "min-supported": "1.27",
-        "max-supported": "1.30"
+        "min-supported": "1.29",
+        "max-supported": "1.32"
       },
       "microk8s": {
-        "min-supported": "1.27",
-        "max-supported": "1.30"
+        "min-supported": "1.29",
+        "max-supported": "1.32"
       },
       "aks": {
-        "min-supported": "1.27",
-        "max-supported": "1.30"
+        "min-supported": "1.29",
+        "max-supported": "1.32"
       },
       "eks": {
-        "min-supported": "1.27",
-        "max-supported": "1.30"
+        "min-supported": "1.29",
+        "max-supported": "1.32"
       }
     },
     "juju": {

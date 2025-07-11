@@ -36,23 +36,6 @@ class TestCharm:
             timeout=1500,
         )
 
-        # To keep compatibility with CKF 1.8, the public-url configuration
-        # must be set. For >=1.9 this is not required.
-        # TODO: remove when CKF 1.8 falls out of support
-        if "1.8" in bundle_path:
-            await ops_test.model.wait_for_idle(
-                apps=["oidc-gatekeeper"],
-                status="blocked",
-                raise_on_blocked=False,
-                raise_on_error=False,
-                timeout=1500,
-            )
-
-            dex_svc_dns_name = "http://dex-auth.kubeflow.svc:5556"
-    
-            await ops_test.model.applications["dex-auth"].set_config({"public-url": dex_svc_dns_name})
-            await ops_test.model.applications["oidc-gatekeeper"].set_config({"public-url": dex_svc_dns_name})
-
         # Wait for the whole bundle to become active and idle
         await ops_test.model.wait_for_idle(
             status="active",
