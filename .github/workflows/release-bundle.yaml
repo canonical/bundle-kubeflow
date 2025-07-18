@@ -1,9 +1,9 @@
-name: Publish bundle to CharmHub
+name: Release bundle to CharmHub
 on:
   workflow_call:
     inputs:
       release:
-        description: Bundle release to run tests on and publish to Charmhub
+        description: Bundle to run release to Charmhub (i.e. 1.10/candidate)
         type: string
         required: true
     secrets:
@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       release:
-        description: Bundle release to run tests on and publish to Charmhub (i.e. 1.10/stable
+        description: Bundle to run release to Charmhub (i.e. 1.10/candidate)
         type: string
         required: true
     secrets:
@@ -20,11 +20,11 @@ on:
         required: true
 
 jobs:
-  publish-bundle-for-releases-affected:
-    name: Publish bundle
+  release-bundle:
+    name: releasea bundle
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Publish bundle release ${{ inputs.release }}
         uses: canonical/charming-actions/upload-bundle@2.6.3
