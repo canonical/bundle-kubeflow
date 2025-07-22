@@ -159,59 +159,6 @@
       "future-beta": "4.0/beta"
     }
   },
-  "ckf-latest-beta": {
-    "ckf":"latest/beta",
-    "k8s": {
-      "charmed-kubernetes": {
-        "min-supported": "1.29",
-        "max-supported": "1.32"
-      },
-      "microk8s": {
-        "min-supported": "1.29",
-        "max-supported": "1.32"
-      },
-      "aks": {
-        "min-supported": "1.29",
-        "max-supported": "1.32"
-      },
-      "eks": {
-        "min-supported": "1.29",
-        "max-supported": "1.32"
-      }
-    },
-    "juju": {
-      "current-edge": "3.6/edge",
-      "current-stable": "3.6/stable",
-      "future-beta": "4.0/beta"
-    }
-  },
-  "ckf-latest-beta-mlflow-2.15-stable": {
-    "ckf":"latest/beta",
-	"mlflow": "2.15/stable",
-    "k8s": {
-      "charmed-kubernetes": {
-        "min-supported": "1.29",
-        "max-supported": "1.32"
-      },
-      "microk8s": {
-        "min-supported": "1.29",
-        "max-supported": "1.32"
-      },
-      "aks": {
-        "min-supported": "1.29",
-        "max-supported": "1.32"
-      },
-      "eks": {
-        "min-supported": "1.29",
-        "max-supported": "1.32"
-      }
-    },
-    "juju": {
-      "current-edge": "3.6/edge",
-      "current-stable": "3.6/stable",
-      "future-beta": "4.0/beta"
-    }
-  },
   "ckf-latest-edge-mlflow-latest-edge": {
     "ckf":"latest/edge",
     "mlflow": "latest/edge",
