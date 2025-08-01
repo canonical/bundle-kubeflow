@@ -23,6 +23,10 @@ Visit [charmed-kubeflow.io][charmedkf] for more information.
 
 For any Kubernetes, follow the [installation instructions][install].
 
+## Testing
+
+We also provide a full suite of automated User Acceptance Tests (UATs) for evaluating the stability of a Charmed Kubeflow deployment. You can execute the tests by following the instructions in [the tests' repository](https://github.com/canonical/charmed-kubeflow-uats).
+
 ## Documentation
 
 Read the [official documentation][docs].
