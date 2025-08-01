@@ -13,8 +13,8 @@ jobs:
       matrix:
         # specfy location of bundle(s) to be scanned
         bundle-path:
-          - 1.8/stable/kubeflow
           - 1.9/stable
+          - 1.10/stable
           - latest/edge
     uses: ./.github/workflows/get-images-and-scan.yaml
     with:

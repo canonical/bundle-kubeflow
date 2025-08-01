@@ -27,13 +27,9 @@ jobs:
         # The get_all_images.py does not provide a way to include extra repositories to fetch images from.
         # In order to include the resource-dispatcher and the namespace-node-affinity charms in the scans,
         # they can be passed using the --append-images argument.
-        if [[ ${{ inputs.bundle-directory }}  == *"1.8"* ]]; then
-          echo 'charmedkubeflow/resource-dispatcher:1.0-22.04' >> /tmp/extra-images.txt
-          echo 'charmedkubeflow/namespace-node-affinity:90dde45ab265af91369d09a377a26034bc453a5d' >> /tmp/extra-images.txt
-        else
-          echo 'charmedkubeflow/resource-dispatcher:2.0-22.04' >> /tmp/extra-images.txt
-          echo 'charmedkubeflow/namespace-node-affinity:2.2.0' >> /tmp/extra-images.txt
-        fi
+        echo 'charmedkubeflow/resource-dispatcher:2.0-22.04' >> /tmp/extra-images.txt
+        echo 'charmedkubeflow/namespace-node-affinity:2.2.0' >> /tmp/extra-images.txt
+
         python3 scripts/get_all_images.py releases/${{ inputs.bundle-directory }}/bundle.yaml --append-images /tmp/extra-images.txt > /tmp/images_list.txt
 
     - name: Generate an array of images
