@@ -11,11 +11,11 @@ applications:
     _github_repo_branch: track/1.10
   argo-controller:
     charm: argo-controller
-    channel: 3.4/edge
+    channel: 3.5/edge
     trust: true
     scale: 1
     _github_repo_name: argo-operators
-    _github_repo_branch: track/3.4
+    _github_repo_branch: track/3.5
   dex-auth:
     charm: dex-auth
     channel: 2.41/edge
@@ -93,11 +93,11 @@ applications:
     _github_repo_branch: track/0.18
   kfp-api:
     charm: kfp-api
-    channel: 2.4/edge
+    channel: 2.5/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
-    _github_repo_branch: track/2.4
+    _github_repo_branch: track/2.5
   kfp-db:
     charm: mysql-k8s
     channel: 8.0/stable
@@ -108,53 +108,53 @@ applications:
     _github_dependency_repo_branch: main
   kfp-metadata-writer:
     charm: kfp-metadata-writer
-    channel: 2.4/edge
+    channel: 2.5/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
-    _github_repo_branch: track/2.4
+    _github_repo_branch: track/2.5
   kfp-persistence:
     charm: kfp-persistence
-    channel: 2.4/edge
+    channel: 2.5/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
-    _github_repo_branch: track/2.4
+    _github_repo_branch: track/2.5
   kfp-profile-controller:
     charm: kfp-profile-controller
-    channel: 2.4/edge
+    channel: 2.5/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
-    _github_repo_branch: track/2.4
+    _github_repo_branch: track/2.5
   kfp-schedwf:
     charm: kfp-schedwf
-    channel: 2.4/edge
+    channel: 2.5/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
-    _github_repo_branch: track/2.4
+    _github_repo_branch: track/2.5
   kfp-ui:
     charm: kfp-ui
-    channel: 2.4/edge
+    channel: 2.5/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
-    _github_repo_branch: track/2.4
+    _github_repo_branch: track/2.5
   kfp-viewer:
     charm: kfp-viewer
-    channel: 2.4/edge
+    channel: 2.5/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
-    _github_repo_branch: track/2.4
+    _github_repo_branch: track/2.5
   kfp-viz:
     charm: kfp-viz
-    channel: 2.4/edge
+    channel: 2.5/edge
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
-    _github_repo_branch: track/2.4
+    _github_repo_branch: track/2.5
   knative-eventing:
     charm: knative-eventing
     channel: 1.16/edge

@@ -11,7 +11,7 @@ applications:
     _github_repo_branch: main
   argo-controller:
     charm: argo-controller
-    channel: 3.4/candidate
+    channel: 3.5/candidate
     trust: true
     scale: 1
     _github_repo_name: argo-operators
@@ -93,7 +93,7 @@ applications:
     _github_repo_branch: main
   kfp-api:
     charm: kfp-api
-    channel: 2.4/candidate
+    channel: 2.5/candidate
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
@@ -108,49 +108,49 @@ applications:
     _github_dependency_repo_branch: main
   kfp-metadata-writer:
     charm: kfp-metadata-writer
-    channel: 2.4/candidate
+    channel: 2.5/candidate
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
     _github_repo_branch: main
   kfp-persistence:
     charm: kfp-persistence
-    channel: 2.4/candidate
+    channel: 2.5/candidate
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
     _github_repo_branch: main
   kfp-profile-controller:
     charm: kfp-profile-controller
-    channel: 2.4/candidate
+    channel: 2.5/candidate
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
     _github_repo_branch: main
   kfp-schedwf:
     charm: kfp-schedwf
-    channel: 2.4/candidate
+    channel: 2.5/candidate
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
     _github_repo_branch: main
   kfp-ui:
     charm: kfp-ui
-    channel: 2.4/candidate
+    channel: 2.5/candidate
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
     _github_repo_branch: main
   kfp-viewer:
     charm: kfp-viewer
-    channel: 2.4/candidate
+    channel: 2.5/candidate
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
     _github_repo_branch: main
   kfp-viz:
     charm: kfp-viz
-    channel: 2.4/candidate
+    channel: 2.5/candidate
     scale: 1
     trust: true
     _github_repo_name: kfp-operators
