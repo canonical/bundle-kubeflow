@@ -3,17 +3,17 @@ on:
   workflow_dispatch:
     inputs:
       bundle_version:
-        description: 'Comma-separated list of bundle versions e.g. 1.8, 1.9, latest. Make sure that the corresponding K8s version is supported by the cloud.'
-        default: '1.8, 1.9, latest'
+        description: 'Comma-separated list of bundle versions e.g. 1.9, 1.10, latest. Make sure that the corresponding K8s version is supported by the cloud.'
+        default: '1.9, 1.10, latest'
         required: true
       k8s_version:
         description: 'Kubernetes version to be used for the AKS cluster'
         required: false
       uats_branch:
-        description: 'Branch to run the UATs from e.g. main or track/1.9. By default, this is defined by the dependencies.yaml file.'
+        description: 'Branch to run the UATs from e.g. main or track/1.10. By default, this is defined by the dependencies.yaml file.'
         required: false
       bundle_url:
-        description: 'URL to be used for version checking. In tracks prior to 1.10 release (track/1.8 and track/1.9), its value is hardcoded in the UATs. For main and track/1.10 branches this value can be customized, but sensible defaults are provided. Leave this empty unless you want to perform a custom check.'
+        description: 'URL to be used for version checking. In tracks prior to 1.10 release (track/1.9), its value is hardcoded in the UATs. For main and track/1.10 branches this value can be customized, but sensible defaults are provided. Leave this empty unless you want to perform a custom check.'
         required: false
   schedule:
     - cron: "17 0 * * 2"
@@ -72,7 +72,7 @@ jobs:
 
       - name: Update ENV variables from inputs if available
         run: |
-          K8S_VERSION=${{ inputs.k8s_version || env.K8S_VERSION }}
+          K8S_VERSION=${{ inputs.k8s_version || env.AKS_K8S_VERSION || env.K8S_VERSION }}
           echo "K8S_VERSION=${K8S_VERSION}" >> $GITHUB_ENV
           UATS_BRANCH=${{ inputs.uats_branch || env.UATS_BRANCH }}
           echo "UATS_BRANCH=${UATS_BRANCH}" >> $GITHUB_ENV

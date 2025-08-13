@@ -1,0 +1,35 @@
+name: Release bundle to CharmHub
+on:
+  workflow_call:
+    inputs:
+      release:
+        description: Bundle to run release to Charmhub (i.e. 1.10/candidate)
+        type: string
+        required: true
+    secrets:
+      CHARMCRAFT_CREDENTIALS:
+        required: true
+  workflow_dispatch:
+    inputs:
+      release:
+        description: Bundle to run release to Charmhub (i.e. 1.10/candidate)
+        type: string
+        required: true
+    secrets:
+      CHARMCRAFT_CREDENTIALS:
+        required: true
+
+jobs:
+  release-bundle:
+    name: releasea bundle
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Publish bundle release ${{ inputs.release }}
+        uses: canonical/charming-actions/upload-bundle@2.6.3
+        with:
+          credentials: ${{ secrets.CHARMCRAFT_CREDENTIALS }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          bundle-path: releases/${{ inputs.release }}/
+          channel: ${{ inputs.release }}

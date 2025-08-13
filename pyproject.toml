@@ -14,11 +14,3 @@ authors = [""]
 python = ">=3.10"
 click = "^7"
 pyyaml = "^5.3"
-
-[tool.poetry.dev-dependencies]
-pytest = "^6"
-sh = "^1.14"
-kfp = "^1.4"
-selenium = "^3.141"
-flaky = "^3.7"
-charmcraft = "^0.9"
