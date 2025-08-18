@@ -21,7 +21,7 @@ on:
 
 jobs:
   release-bundle:
-    name: releasea bundle
+    name: release bundle
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
