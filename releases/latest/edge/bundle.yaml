@@ -160,8 +160,6 @@ applications:
     channel: latest/edge
     scale: 1
     trust: true
-    options:
-      namespace: knative-eventing
     _github_repo_name: knative-operators
     _github_repo_branch: main
   knative-operator:
@@ -177,7 +175,6 @@ applications:
     scale: 1
     trust: true
     options:
-      namespace: knative-serving
       istio.gateway.namespace: kubeflow
       istio.gateway.name: kubeflow-gateway
     _github_repo_name: knative-operators
