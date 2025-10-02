@@ -1,0 +1,19 @@
+clients:
+  sbom:
+    service_url: https://sbom-request.canonical.com
+    department: charm_engineering
+    email: your.email@canonical.com
+    team: analytics
+artifacts:
+- name: minio
+  type: charm
+  clients: [sbom]
+  channel: ckf-1.10/stable
+- name: mlflow-server
+  type: charm
+  clients: [sbom]
+  channel: 2.22/stable
+- name: mysql-k8s
+  type: charm
+  clients: [sbom]
+  channel: 8.0/stable

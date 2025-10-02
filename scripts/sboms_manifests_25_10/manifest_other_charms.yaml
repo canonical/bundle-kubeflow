@@ -1,0 +1,19 @@
+clients:
+  sbom:
+    service_url: https://sbom-request.canonical.com
+    department: charm_engineering
+    email: your.email@canonical.com
+    team: analytics
+artifacts:
+- name: feast-ui
+  type: charm
+  clients: [sbom]
+  channel: 0.49/stable
+- name: feast-integrator
+  type: charm
+  clients: [sbom]
+  channel: 0.49/stable
+- name: resource-dispatcher
+  type: charm
+  clients: [sbom]
+  channel: 2.0/stable
