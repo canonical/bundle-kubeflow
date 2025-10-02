@@ -92,7 +92,7 @@ The script creates a compressed file under the repo's root with the name `images
 ### Prerequisites
 
 * Setup Canonical VPN.
-* Install and setup `sbomber` according to [sbomber documentation](https://sbom-request.canonical.com/docs).
+* Install and setup `sbomber` according to [sbomber documentation](https://github.com/canonical/sbomber).
 * Familiarize yourself with how `sbomber` works.
 
 ### Step 1: Identify Products for SBOM Generation
@@ -121,7 +121,7 @@ For example, in the 25.10 cycle, generate SBOMs for:
 
 ### Step 3: Non-Bundle Components
 
-For charms or snaps, manually create `manifest.yaml`. Example: [charm-sbom-manifest.yaml](https://github.com/canonical/observability/blob/main/ssdlc-manifests/charm-sbom-manifest.yaml)
+For charms or snaps, manually create `manifest.yaml`. Example manifest files can be found in sboms_manifests_<release> directory.
 
 ### Step 4: Prepare SBOM Artifacts
 
