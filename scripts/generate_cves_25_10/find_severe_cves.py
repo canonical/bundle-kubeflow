@@ -42,8 +42,5 @@ def find_critical_cves(input_csv_file, output_csv_file):
     else:
         print("No unfixed critical/high vulnerabilities found to write.")
 
-    for image in critical_images:
-        print(image)
-    
 if __name__ == "__main__":
     find_critical_cves(INPUT_CSV_FILE, OUTPUT_CSV_FILE)
