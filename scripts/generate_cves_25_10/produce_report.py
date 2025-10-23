@@ -1,18 +1,25 @@
+import argparse
 import csv
 import json
 import logging
 import subprocess
+import sys
 
 # This script reads:
-# - IMAGE_FILE with the images we want to scan
+# - IMAGES_FILE with the images we want to scan
 # - KEV_FILE with the KEVs
 # and outputs:
 # - REPORT_CSV_FILE
 # - MERGED_REPORT_CSV_FILE with the CVEs merged by ID
 
+LOG_FORMAT = '%(levelname)s:%(name)s: %(message)s'
+logging.basicConfig(
+    level=logging.INFO,
+    stream=sys.stdout,
+    format=LOG_FORMAT
+)
 logger = logging.getLogger(__name__)
 
-IMAGE_FILE = "images.txt.20251003"
 KEV_FILE = "known_exploited_vulnerabilities.csv"
 REPORT_CSV_FILE = "vulnerability_report.csv"
 MERGED_REPORT_CSV_FILE = "vulnerability_report_merged.csv"
@@ -54,7 +61,7 @@ def scan_images(image_file: str, kev_file: str, output_csv_file: str):
             for row in reader:
                 if row:
                     kev_cve_set.add(row[0])
-        logger.info("Create set of KEVs")
+        logger.info("Creating set of KEVs")
     except FileNotFoundError:
         logger.error("Could not open file")
 
@@ -64,7 +71,7 @@ def scan_images(image_file: str, kev_file: str, output_csv_file: str):
     seen_vulnerabilities = set()
 
     for image_name in lines:
-        logger.warning(f"Scanning: {image_name}")
+        logger.info(f"Scanning: {image_name}")
         vulnerability_count = 0
 
         process = subprocess.run(["trivy", "image",  image_name, 
@@ -106,7 +113,7 @@ def scan_images(image_file: str, kev_file: str, output_csv_file: str):
                     "Patched Release": fixed_version,
                 }
                 writer.writerow(row_dict)
-        logger.warning(f"Found {vulnerability_count} vulnerabilities")
+        logger.info(f"Found {vulnerability_count} vulnerabilities")
     csvfile.close()
 
 
@@ -143,7 +150,15 @@ def merge_cve(input_csv_file: str, output_csv_file: str, add_headers=False):
                 if data_row.get("Severity"):
                     data_row["Severity"] = data_row["Severity"].capitalize()
                 writer.writerow(data_row)
+            logger.info(f"All vulnerabilities have been written to {output_csv_file}")
 
 if __name__ == "__main__":
-    scan_images(IMAGE_FILE, KEV_FILE, REPORT_CSV_FILE)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        'IMAGES_FILE',
+        type=str,
+        help="The path to the input text file containing image paths."
+    )
+    args = parser.parse_args()
+    scan_images(args.IMAGES_FILE, KEV_FILE, REPORT_CSV_FILE)
     merge_cve(REPORT_CSV_FILE, MERGED_REPORT_CSV_FILE, add_headers=True)

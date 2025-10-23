@@ -1,13 +1,23 @@
+import argparse
 import csv
+import logging
+import sys
 
 # For the purposes of this script, severe CVES are considered CVEs that are
-# (KEV or High or Critical )and unfixable
+# (KEV or High or Critical) and unfixable
 
-INPUT_CSV_FILE = "vulnerability_report_merged.csv"
+LOG_FORMAT = '%(levelname)s:%(name)s: %(message)s'
+logging.basicConfig(
+    level=logging.INFO,
+    stream=sys.stdout,
+    format=LOG_FORMAT
+)
+logger = logging.getLogger(__name__)
+
 OUTPUT_CSV_FILE = "severe_cves.csv"
 
 def find_critical_cves(input_csv_file, output_csv_file):
-    """Open a CSV file and """
+    """Open a CSV file and produce a new one with all severe vulenrabilities."""
     critical_counter = 0
     critical_unfixed_counter = 0
     critical_unfixed_rows = []
@@ -30,7 +40,7 @@ def find_critical_cves(input_csv_file, output_csv_file):
                         critical_images.add(component)
 
                     
-    print(f"There are {critical_counter} critical vulnerabilities, of which {critical_unfixed_counter} cannot be remediated")
+    logger.info(f"There are {critical_counter} critical vulnerabilities, of which {critical_unfixed_counter} cannot be remediated")
 
     if critical_unfixed_rows:
         with open(output_csv_file, "w", newline="", encoding="utf-8") as outfile:
@@ -38,9 +48,16 @@ def find_critical_cves(input_csv_file, output_csv_file):
             writer = csv.DictWriter(outfile, fieldnames=headers)
             writer.writeheader()
             writer.writerows(critical_unfixed_rows)
-        print(f"Successfully wrote {critical_unfixed_counter} unfixed vulnerabilities to {output_csv_file}")
+        logger.info(f"Successfully wrote {critical_unfixed_counter} unfixed vulnerabilities to {output_csv_file}")
     else:
-        print("No unfixed critical/high vulnerabilities found to write.")
+        logger.info("No unfixed critical/high vulnerabilities found to write.")
 
 if __name__ == "__main__":
-    find_critical_cves(INPUT_CSV_FILE, OUTPUT_CSV_FILE)
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        'INPUT_CSV_FILE',
+        type=str,
+        help="The path to the input .csv file container the vulnerability report."
+    )
+    args = parser.parse_args()
+    find_critical_cves(args.INPUT_CSV_FILE, OUTPUT_CSV_FILE)
