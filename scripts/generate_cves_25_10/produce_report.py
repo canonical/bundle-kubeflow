@@ -12,17 +12,14 @@ import sys
 # - REPORT_CSV_FILE
 # - MERGED_REPORT_CSV_FILE with the CVEs merged by ID
 
-LOG_FORMAT = '%(levelname)s:%(name)s: %(message)s'
-logging.basicConfig(
-    level=logging.INFO,
-    stream=sys.stdout,
-    format=LOG_FORMAT
-)
+LOG_FORMAT = "%(levelname)s:%(name)s: %(message)s"
+logging.basicConfig(level=logging.INFO, stream=sys.stdout, format=LOG_FORMAT)
 logger = logging.getLogger(__name__)
 
 KEV_FILE = "known_exploited_vulnerabilities.csv"
 REPORT_CSV_FILE = "vulnerability_report.csv"
 MERGED_REPORT_CSV_FILE = "vulnerability_report_merged.csv"
+
 
 def scan_images(image_file: str, kev_file: str, output_csv_file: str):
     CSV_HEADERS = [
@@ -74,14 +71,22 @@ def scan_images(image_file: str, kev_file: str, output_csv_file: str):
         logger.info(f"Scanning: {image_name}")
         vulnerability_count = 0
 
-        process = subprocess.run(["trivy", "image",  image_name, 
-                                  "-q", "--format", "json", 
-                                  "--skip-files", "'/bin/pebble,/usr/bin/pebble,usr/bin/pebble,bin/pebble'"],
-                                  capture_output=True)
+        process = subprocess.run(
+            [
+                "trivy",
+                "image",
+                image_name,
+                "-q",
+                "--format",
+                "json",
+                "--skip-files",
+                "'/bin/pebble,/usr/bin/pebble,usr/bin/pebble,bin/pebble'",
+            ],
+            capture_output=True,
+        )
         data = json.loads(process.stdout)
         for result in data.get("Results", []):
-             for vulnerability in result.get("Vulnerabilities", []):
-
+            for vulnerability in result.get("Vulnerabilities", []):
                 vuln_id = vulnerability.get("VulnerabilityID", "N/A")
                 unique_vulnerability_key = (vuln_id, image_name)
                 if unique_vulnerability_key in seen_vulnerabilities:
@@ -89,17 +94,31 @@ def scan_images(image_file: str, kev_file: str, output_csv_file: str):
                 seen_vulnerabilities.add(unique_vulnerability_key)
                 vulnerability_count += 1
 
-                is_kev = "Yes" if vulnerability.get("VulnerabilityID", "N/A") in kev_cve_set else "No"
-                patch_exists = "FixedVersion" in vulnerability and vulnerability["FixedVersion"]
-                fixed_version = vulnerability["FixedVersion"] if "FixedVersion" in vulnerability else "N/A"
+                is_kev = (
+                    "Yes"
+                    if vulnerability.get("VulnerabilityID", "N/A") in kev_cve_set
+                    else "No"
+                )
+                patch_exists = (
+                    "FixedVersion" in vulnerability and vulnerability["FixedVersion"]
+                )
+                fixed_version = (
+                    vulnerability["FixedVersion"]
+                    if "FixedVersion" in vulnerability
+                    else "N/A"
+                )
                 can_be_remediated = "Yes" if patch_exists else "No"
-                patch_source = vulnerability.get("References") if patch_exists else "N/A"
+                patch_source = (
+                    vulnerability.get("References") if patch_exists else "N/A"
+                )
 
                 row_dict = {
                     "CVE": vulnerability.get("VulnerabilityID", "N/A"),
                     "Is KEV?": is_kev,
                     "Severity": vulnerability.get("Severity", "N/A").capitalize(),
-                    "NVD/CVSS Score": vulnerability.get("CVSS", {}).get("nvd", {}).get("V3Score", "N/A"),
+                    "NVD/CVSS Score": vulnerability.get("CVSS", {})
+                    .get("nvd", {})
+                    .get("V3Score", "N/A"),
                     "Vulnerability Name": vulnerability.get("Title", "N/A"),
                     "Description": vulnerability.get("Description", "N/A"),
                     "Affected Component": image_name,
@@ -131,7 +150,11 @@ def merge_cve(input_csv_file: str, output_csv_file: str, add_headers=False):
             unique_key = cve_id
 
             # Get the current list of components from the row, splitting by comma and space
-            current_components = {comp.strip() for comp in row.get("Affected Component", "").split(',') if comp.strip()}
+            current_components = {
+                comp.strip()
+                for comp in row.get("Affected Component", "").split(",")
+                if comp.strip()
+            }
 
             if unique_key in merged_data:
                 merged_data[unique_key]["Affected Component"].update(current_components)
@@ -140,24 +163,27 @@ def merge_cve(input_csv_file: str, output_csv_file: str, add_headers=False):
                 merged_data[unique_key] = row
 
     with open(output_csv_file, "w", newline="", encoding="utf-8") as outfile:
-            writer = csv.DictWriter(outfile, fieldnames=headers)
-            if add_headers:
-                writer.writeheader()
+        writer = csv.DictWriter(outfile, fieldnames=headers)
+        if add_headers:
+            writer.writeheader()
 
-            for data_row in merged_data.values():
-                # Join the set of components back into a single, sorted, comma-separated string
-                data_row["Affected Component"] = ", ".join(sorted(list(data_row["Affected Component"])))
-                if data_row.get("Severity"):
-                    data_row["Severity"] = data_row["Severity"].capitalize()
-                writer.writerow(data_row)
-            logger.info(f"All vulnerabilities have been written to {output_csv_file}")
+        for data_row in merged_data.values():
+            # Join the set of components back into a single, sorted, comma-separated string
+            data_row["Affected Component"] = ", ".join(
+                sorted(list(data_row["Affected Component"]))
+            )
+            if data_row.get("Severity"):
+                data_row["Severity"] = data_row["Severity"].capitalize()
+            writer.writerow(data_row)
+        logger.info(f"All vulnerabilities have been written to {output_csv_file}")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        'IMAGES_FILE',
+        "IMAGES_FILE",
         type=str,
-        help="The path to the input text file containing image paths."
+        help="The path to the input text file containing image paths.",
     )
     args = parser.parse_args()
     scan_images(args.IMAGES_FILE, KEV_FILE, REPORT_CSV_FILE)
