@@ -4,6 +4,7 @@ import json
 import logging
 import subprocess
 import sys
+import tenacity
 
 # This script reads:
 # - IMAGES_FILE with the images we want to scan
@@ -21,7 +22,39 @@ REPORT_CSV_FILE = "vulnerability_report.csv"
 MERGED_REPORT_CSV_FILE = "vulnerability_report_merged.csv"
 
 
-def scan_images(image_file: str, kev_file: str, output_csv_file: str):
+@tenacity.retry(
+    stop=tenacity.stop_after_attempt(3), wait=tenacity.wait_fixed(3), reraise=True
+)
+def run_trivy_scan(image_name: str) -> dict:
+    logger.info(f"Scanning: {image_name}")
+    process = subprocess.run(
+        [
+            "trivy",
+            "image",
+            image_name,
+            "-q",
+            "--format",
+            "json",
+            "--timeout",
+            "10m",
+            "--skip-files",
+            "'/bin/pebble,/usr/bin/pebble,usr/bin/pebble,bin/pebble'",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if process.returncode != 0:
+        logger.error(f"Failed to scan {image_name}. Error: {process.stderr}")
+        raise Exception(f"Trivy scan failed: {process.stderr}")
+    else:
+        try:
+            return json.loads(process.stdout)
+        except json.JSONDecodeError as e:
+            logger.error("Failed to decode JSON output for {image_name}.")
+            raise e
+
+
+def scan_images(image_file: str, kev_file_path: str, output_csv_file: str):
     CSV_HEADERS = [
         "CVE",
         "Is KEV?",
@@ -51,7 +84,7 @@ def scan_images(image_file: str, kev_file: str, output_csv_file: str):
     kev_cve_set = set()
 
     try:
-        with open(kev_file, "r", encoding="utf-8") as kev_file:
+        with open(kev_file_path, "r", encoding="utf-8") as kev_file:
             reader = csv.reader(kev_file)
             for row in reader:
                 if row:
@@ -67,23 +100,9 @@ def scan_images(image_file: str, kev_file: str, output_csv_file: str):
         seen_vulnerabilities = set()
 
         for image_name in lines:
-            logger.info(f"Scanning: {image_name}")
             vulnerability_count = 0
 
-            process = subprocess.run(
-                [
-                    "trivy",
-                    "image",
-                    image_name,
-                    "-q",
-                    "--format",
-                    "json",
-                    "--skip-files",
-                    "'/bin/pebble,/usr/bin/pebble,usr/bin/pebble,bin/pebble'",
-                ],
-                capture_output=True,
-            )
-            data = json.loads(process.stdout)
+            data = run_trivy_scan(image_name)
             for result in data.get("Results", []):
                 for vulnerability in result.get("Vulnerabilities", []):
                     vuln_id = vulnerability.get("VulnerabilityID", "N/A")
@@ -99,7 +118,8 @@ def scan_images(image_file: str, kev_file: str, output_csv_file: str):
                         else "No"
                     )
                     patch_exists = (
-                        "FixedVersion" in vulnerability and vulnerability["FixedVersion"]
+                        "FixedVersion" in vulnerability
+                        and vulnerability["FixedVersion"]
                     )
                     fixed_version = (
                         vulnerability["FixedVersion"]
@@ -132,6 +152,7 @@ def scan_images(image_file: str, kev_file: str, output_csv_file: str):
                     }
                     writer.writerow(row_dict)
             logger.info(f"Found {vulnerability_count} vulnerabilities")
+
 
 # We also want to merge CVEs, so only one entry exists for each CVE
 def merge_cve(input_csv_file: str, output_csv_file: str, add_headers=False):
