@@ -47,8 +47,6 @@ def scan_images(image_file: str, kev_file: str, output_csv_file: str):
     with open(image_file, "r") as file:
         lines = [line.strip() for line in file]
 
-    csvfile = open(output_csv_file, "w", newline="", encoding="utf-8")
-
     # Create lookup set to make it more efficient to lookup if a CVE is a KEV
     kev_cve_set = set()
 
@@ -62,79 +60,78 @@ def scan_images(image_file: str, kev_file: str, output_csv_file: str):
     except FileNotFoundError:
         logger.error("Could not open file")
 
-    writer = csv.DictWriter(csvfile, fieldnames=CSV_HEADERS)
-    writer.writeheader()
+    with open(output_csv_file, "w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=CSV_HEADERS)
+        writer.writeheader()
 
-    seen_vulnerabilities = set()
+        seen_vulnerabilities = set()
 
-    for image_name in lines:
-        logger.info(f"Scanning: {image_name}")
-        vulnerability_count = 0
+        for image_name in lines:
+            logger.info(f"Scanning: {image_name}")
+            vulnerability_count = 0
 
-        process = subprocess.run(
-            [
-                "trivy",
-                "image",
-                image_name,
-                "-q",
-                "--format",
-                "json",
-                "--skip-files",
-                "'/bin/pebble,/usr/bin/pebble,usr/bin/pebble,bin/pebble'",
-            ],
-            capture_output=True,
-        )
-        data = json.loads(process.stdout)
-        for result in data.get("Results", []):
-            for vulnerability in result.get("Vulnerabilities", []):
-                vuln_id = vulnerability.get("VulnerabilityID", "N/A")
-                unique_vulnerability_key = (vuln_id, image_name)
-                if unique_vulnerability_key in seen_vulnerabilities:
-                    continue
-                seen_vulnerabilities.add(unique_vulnerability_key)
-                vulnerability_count += 1
+            process = subprocess.run(
+                [
+                    "trivy",
+                    "image",
+                    image_name,
+                    "-q",
+                    "--format",
+                    "json",
+                    "--skip-files",
+                    "'/bin/pebble,/usr/bin/pebble,usr/bin/pebble,bin/pebble'",
+                ],
+                capture_output=True,
+            )
+            data = json.loads(process.stdout)
+            for result in data.get("Results", []):
+                for vulnerability in result.get("Vulnerabilities", []):
+                    vuln_id = vulnerability.get("VulnerabilityID", "N/A")
+                    unique_vulnerability_key = (vuln_id, image_name)
+                    if unique_vulnerability_key in seen_vulnerabilities:
+                        continue
+                    seen_vulnerabilities.add(unique_vulnerability_key)
+                    vulnerability_count += 1
 
-                is_kev = (
-                    "Yes"
-                    if vulnerability.get("VulnerabilityID", "N/A") in kev_cve_set
-                    else "No"
-                )
-                patch_exists = (
-                    "FixedVersion" in vulnerability and vulnerability["FixedVersion"]
-                )
-                fixed_version = (
-                    vulnerability["FixedVersion"]
-                    if "FixedVersion" in vulnerability
-                    else "N/A"
-                )
-                can_be_remediated = "Yes" if patch_exists else "No"
-                patch_source = (
-                    vulnerability.get("References") if patch_exists else "N/A"
-                )
+                    is_kev = (
+                        "Yes"
+                        if vulnerability.get("VulnerabilityID", "N/A") in kev_cve_set
+                        else "No"
+                    )
+                    patch_exists = (
+                        "FixedVersion" in vulnerability and vulnerability["FixedVersion"]
+                    )
+                    fixed_version = (
+                        vulnerability["FixedVersion"]
+                        if "FixedVersion" in vulnerability
+                        else "N/A"
+                    )
+                    can_be_remediated = "Yes" if patch_exists else "No"
+                    patch_source = (
+                        vulnerability.get("References") if patch_exists else "N/A"
+                    )
 
-                row_dict = {
-                    "CVE": vulnerability.get("VulnerabilityID", "N/A"),
-                    "Is KEV?": is_kev,
-                    "Severity": vulnerability.get("Severity", "N/A").capitalize(),
-                    "NVD/CVSS Score": vulnerability.get("CVSS", {})
-                    .get("nvd", {})
-                    .get("V3Score", "N/A"),
-                    "Vulnerability Name": vulnerability.get("Title", "N/A"),
-                    "Description": vulnerability.get("Description", "N/A"),
-                    "Affected Component": image_name,
-                    "Notification source": "trivy version 0.66.0",
-                    "Relevant to Product?": "Yes",
-                    "Affected Releases": "Kubeflow 1.10",
-                    "Can it be remediated?": can_be_remediated,
-                    "Does a patch exist?": can_be_remediated,
-                    "Patch Source": patch_source,
-                    "Remediation status": "Pending",
-                    "Patched Release": fixed_version,
-                }
-                writer.writerow(row_dict)
-        logger.info(f"Found {vulnerability_count} vulnerabilities")
-    csvfile.close()
-
+                    row_dict = {
+                        "CVE": vulnerability.get("VulnerabilityID", "N/A"),
+                        "Is KEV?": is_kev,
+                        "Severity": vulnerability.get("Severity", "N/A").capitalize(),
+                        "NVD/CVSS Score": vulnerability.get("CVSS", {})
+                        .get("nvd", {})
+                        .get("V3Score", "N/A"),
+                        "Vulnerability Name": vulnerability.get("Title", "N/A"),
+                        "Description": vulnerability.get("Description", "N/A"),
+                        "Affected Component": image_name,
+                        "Notification source": "trivy version 0.66.0",
+                        "Relevant to Product?": "Yes",
+                        "Affected Releases": "Kubeflow 1.10",
+                        "Can it be remediated?": can_be_remediated,
+                        "Does a patch exist?": can_be_remediated,
+                        "Patch Source": patch_source,
+                        "Remediation status": "Pending",
+                        "Patched Release": fixed_version,
+                    }
+                    writer.writerow(row_dict)
+            logger.info(f"Found {vulnerability_count} vulnerabilities")
 
 # We also want to merge CVEs, so only one entry exists for each CVE
 def merge_cve(input_csv_file: str, output_csv_file: str, add_headers=False):
