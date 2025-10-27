@@ -17,6 +17,6 @@ geckodriver.log
 [._]sw[a-p]
 
 # airgapped
-images.txt
+images*.txt
 charms.txt
 retagged-images.txt
