@@ -8,7 +8,7 @@ This subdirectory contains scripts that automatically generate `.csv` files of t
 
 - `trivy` which is a security scanner used to scan the images. The binary can be installed on Ubuntu systems with `sudo apt install trivy`. View the [GitHub page](https://github.com/aquasecurity/trivy) for more information.
 - A file named `known_exploited_vulnerabilities.csv` that contains known exploited vulnerabilities (KEVs). This file can be downloaded from the [CISA website](https://www.cisa.gov/known-exploited-vulnerabilities-catalog).
-- An `images.txt` file with the images to scan. Each line should contain an image tag.
+- An `images.txt` file with the images to scan. Each line should contain an image tag. This file can be conveniently generated using the [get_all_images.py](https://github.com/canonical/bundle-kubeflow/tree/main/scripts#gather-images-used-by-a-bundle) script in this repository.
 
 ## How to run
 
