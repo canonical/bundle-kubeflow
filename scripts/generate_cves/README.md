@@ -21,6 +21,8 @@ python3 produce_report.py images.txt
 python3 find_severe_cves.py vulnerability_report_merged.csv
 ```
 
+When ran for the first time, the script has to pull each one of the specified images before scanning, which may take around 20 minutes in total.
+
 The following 3 files will be generated:
 - `vulnerability_report.csv` with all CVEs per image
 - `vulnerability_report_merged.csv` with all CVEs grouped by CVE ID
