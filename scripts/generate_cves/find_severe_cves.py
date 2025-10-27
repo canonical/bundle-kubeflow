@@ -14,12 +14,10 @@ OUTPUT_CSV_FILE = "severe_cves.csv"
 
 
 def find_critical_cves(input_csv_file, output_csv_file):
-    """Open a CSV file and produce a new one with all severe vulenrabilities."""
+    """Open a CSV file and produce a new one with all severe (KEV, High or Critical) vulnerabilities."""
     critical_counter = 0
     critical_unfixed_counter = 0
     critical_unfixed_rows = []
-
-    critical_images = set()
 
     with open(input_csv_file, "r", encoding="utf-8") as file:
         reader = csv.DictReader(file)
@@ -35,13 +33,6 @@ def find_critical_cves(input_csv_file, output_csv_file):
                 if row.get("Can it be remediated?") == "No":
                     critical_unfixed_counter += 1
                     critical_unfixed_rows.append(row)
-
-                    components = [
-                        comp.strip()
-                        for comp in row.get("Affected Component").split(",")
-                    ]
-                    for component in components:
-                        critical_images.add(component)
 
     logger.info(
         f"There are {critical_counter} critical vulnerabilities, of which {critical_unfixed_counter} cannot be remediated"
