@@ -31,7 +31,13 @@ python3 find_severe_cves.py vulnerability_report_merged.csv
 
 When ran for the first time, the script has to pull each one of the specified images before scanning, which may take around 20 minutes in total.
 
-The following 3 files will be generated:
+The `produce_report.py` script can also take as input a folder where the trivy reports for all images are already stored. To do so, provide the 
+path to the folder where the JSON are stored, and change the type of the input using the `--type folder_reports` argument, e.g. 
+
+```shell
+python3 produce_report.py path/to/the/folder --type folder_reports
+```
+
+Running the script above will generate the following 2 files:
 - `vulnerability_report.csv` with all CVEs per image
-- `vulnerability_report_merged.csv` with all CVEs grouped by CVE ID
 - `severe_cves.csv` with all "severe" CVEs grouped by ID. "Severe" CVEs are "High" or "Critical" CVEs that don't have fixed versions.
