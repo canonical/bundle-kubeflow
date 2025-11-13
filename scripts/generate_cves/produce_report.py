@@ -126,7 +126,7 @@ def scan_images(
                     continue
                 seen_vulnerabilities.add(unique_vulnerability_key)
                 vulnerability_count += 1
-
+                
                 is_kev = (
                     "Yes"
                     if vulnerability.get("VulnerabilityID", "N/A") in kev_cve_set
@@ -148,6 +148,8 @@ def scan_images(
 
                 rows.append({
                     "CVE": vulnerability.get("VulnerabilityID", "N/A"),
+                    "Package Name": vulnerability.get("PkgName", "N/A"),
+                    "Version": vulnerability.get("InstalledVersion", "N/A"),
                     "Is KEV?": is_kev,
                     "Severity": vulnerability.get("Severity", "N/A").capitalize(),
                     "NVD/CVSS Score": vulnerability.get("CVSS", {})
@@ -197,14 +199,31 @@ if __name__ == "__main__":
         choices=["image_list_file", "folder_reports"],
         help="The path to the input text file containing image paths.",
     )
+    parser.add_argument(
+        "--severity",
+        dest="SEVERITY",
+        action="append",
+        type=str,
+        help="Severity to be included in the report. Multiple severities can be provided either by as comma separated or as multiple arguments. If not provided, all of the are assumed.",
+    )
+
     args = parser.parse_args()
 
+    severities = set(sum([severity.split(",") for severity in args.SEVERITY], []))
+
+    for severity in severities:
+        if severity not in ["High","Low", "Medium","Critical"]:
+            raise ValueError(f"severity level {severity} is not recognized") 
+    
     data = iter_images(args.IMAGES_FILE) \
         if args.FILE_TYPE == ImageInputType.IMAGE_LIST_FILE \
         else iter_reports(args.IMAGES_FILE)
 
     cve_list = scan_images(data, get_kves(Path(KEV_FILE)))
 
+    if severities:
+        cve_list = cve_list[cve_list["Severity"].isin(list(severities))]
+    
     merged_list = merge_cve(cve_list)
 
     merged_list.to_csv(REPORT_CSV_FILE)
