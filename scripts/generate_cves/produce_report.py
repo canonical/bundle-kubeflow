@@ -25,6 +25,7 @@ logging.basicConfig(level=logging.INFO, stream=sys.stdout, format=LOG_FORMAT)
 logger = logging.getLogger(__name__)
 
 KEV_FILE = "known_exploited_vulnerabilities.csv"
+EXCEPTION_FILE="CVE_Exceptions.xlsx"
 REPORT_CSV_FILE = "vulnerability_report.csv"
 
 class ImageInputType(str, Enum):
@@ -90,6 +91,29 @@ def iter_reports(image_path: str):
         output = get_output(Path(image_path) / folder / filename)
         yield output["ArtifactName"], output
 
+def get_exceptions(exception_file: Path) -> dict[str, dict[str, str]]:
+    # Get the dictionary of exceptions that is structured with the following
+    # structure:
+    # { <CVE>: { <IMAGE>: <RATIONALE> } }
+
+    if not exception_file.exists():
+        return {}
+
+    df = pd.read_excel(
+        exception_file, index_col=[0, 1, 2, 3]
+    ).reset_index()
+
+    selection = df[df["Patchable"]=="No"][
+        ["CVE", "Image Name", "Rationale"]
+    ].drop_duplicates()
+
+    selection["Image Name"] = selection["Image Name"].apply(lambda x: x.removeprefix("docker-quarantine-local/"))
+
+    return {
+        name: group[
+            ["Image Name", "Rationale"]
+        ].set_index("Image Name")["Rationale"].to_dict()
+        for name, group in selection.groupby("CVE")}
 
 def get_kves(kev_file_path: Path) -> set[str]:
     # Create lookup set to make it more efficient to lookup if a CVE is a KEV
@@ -109,7 +133,7 @@ def get_kves(kev_file_path: Path) -> set[str]:
 
 def scan_images(
         iter_scans: typing.Iterator[tuple[str, dict]],
-        kev_cve_set: set[str]
+        kev_cve_set: set[str], exceptions: dict[str, dict[str, str]],
 ) -> pd.DataFrame:
 
     vulnerability_count = 0
@@ -146,8 +170,23 @@ def scan_images(
                     vulnerability.get("References") if patch_exists else "N/A"
                 )
 
+                cveId = vulnerability.get("VulnerabilityID")
+
+                if not cveId:
+                    continue
+                exception = exceptions.get(cveId)
+
+                if exception:
+                    image_ref = image_name.split(":")[0]
+                    if image_ref in exception:
+                        rationale = exception[image_ref]
+                    else:
+                        most_common = pd.Series(exception).value_counts()\
+                            .sort_values(ascending=False).head(1).index[0]
+                        rationale = f"(Possible) {most_common}"
+
                 rows.append({
-                    "CVE": vulnerability.get("VulnerabilityID", "N/A"),
+                    "CVE": cveId,
                     "Package Name": vulnerability.get("PkgName", "N/A"),
                     "Version": vulnerability.get("InstalledVersion", "N/A"),
                     "Is KEV?": is_kev,
@@ -159,7 +198,8 @@ def scan_images(
                     "Description": vulnerability.get("Description", "N/A").replace("\r", "\n"),
                     "Affected Component": image_name,
                     "Notification source": "trivy version 0.66.0",
-                    "Relevant to Product?": "Yes",
+                    "Relevant to Product?": "No" if exception else "Yes",
+                    "Reason": rationale if exception else "N/A",
                     "Affected Releases": "Kubeflow 1.10",
                     "Can it be remediated?": can_be_remediated,
                     "Does a patch exist?": can_be_remediated,
@@ -219,12 +259,14 @@ if __name__ == "__main__":
             raise ValueError(f"severity level {severity} is not recognized") 
 
     logger.info(f"Selecting severities: {','.join(severities)}")
-        
+
     data = iter_images(args.IMAGES_FILE) \
         if args.FILE_TYPE == ImageInputType.IMAGE_LIST_FILE \
         else iter_reports(args.IMAGES_FILE)
 
-    cve_list = scan_images(data, get_kves(Path(KEV_FILE)))
+    cve_list = scan_images(
+        data, get_kves(Path(KEV_FILE)), get_exceptions(Path(EXCEPTION_FILE))
+    )
 
     if severities:
         cve_list = cve_list[cve_list["Severity"].isin(list(severities))]
