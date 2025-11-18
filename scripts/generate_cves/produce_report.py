@@ -209,7 +209,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    severities = set(sum([severity.split(",") for severity in args.SEVERITY], []))
+    severities = set(sum([severity.split(",") for severity in args.SEVERITY or []], []))
 
     for severity in severities:
         if severity not in ["High","Low", "Medium","Critical"]:
