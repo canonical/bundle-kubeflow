@@ -209,12 +209,17 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    severities = set(sum([severity.split(",") for severity in args.SEVERITY or []], []))
+    severities = {
+        severity.capitalize()
+        for severity in sum([severity.split(",") for severity in args.SEVERITY or []], [])
+    }
 
     for severity in severities:
         if severity not in ["High","Low", "Medium","Critical"]:
             raise ValueError(f"severity level {severity} is not recognized") 
-    
+
+    logger.info(f"Selecting severities: {','.join(severities)}")
+        
     data = iter_images(args.IMAGES_FILE) \
         if args.FILE_TYPE == ImageInputType.IMAGE_LIST_FILE \
         else iter_reports(args.IMAGES_FILE)
