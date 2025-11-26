@@ -23,15 +23,35 @@ pip install -r requirements.txt
 Then, run the 2 scripts in order:
 
 ```shell
-# Create `vulnerability_report.csv` and `vulnerability_report_merged.csv`
+# Create `vulnerability_report.csv`
 python3 produce_report.py images.txt
 # Find the severe CVEs with the file produced above
-python3 find_severe_cves.py vulnerability_report_merged.csv
+python3 find_severe_cves.py vulnerability_report.csv
 ```
 
 When ran for the first time, the script has to pull each one of the specified images before scanning, which may take around 20 minutes in total.
 
-The following 3 files will be generated:
+The `produce_report.py` script can also take as input a folder where the trivy reports for all images are already stored. To do so, provide the 
+path to the folder where the JSON are stored, and change the type of the input using the `--type folder_reports` argument, e.g. 
+
+```shell
+python3 produce_report.py path/to/the/folder --type folder_reports
+```
+
+When creating the report, only certain severities can be selected by using the `--severity` command line argument, e.g.
+
+```
+python3 produce_report.py --severity High,Low --severity Critical
+```
+
+Note that the severity can be fed into multiple case format, e.g.
+
+```
+python3 produce_report.py --severity High,LOW --severity critical --severity high
+```
+
+are all valid options.
+
+Running the script above will generate the following 2 files:
 - `vulnerability_report.csv` with all CVEs per image
-- `vulnerability_report_merged.csv` with all CVEs grouped by CVE ID
 - `severe_cves.csv` with all "severe" CVEs grouped by ID. "Severe" CVEs are "High" or "Critical" CVEs that don't have fixed versions.
