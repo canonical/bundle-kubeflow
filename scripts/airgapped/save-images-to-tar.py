@@ -13,11 +13,14 @@ cli = docker.client.from_env()
 log = logging.getLogger(__name__)
 
 
-def save_image(image_nm) -> str:
+def save_image(base_path, image_nm) -> str:
     """Given an Image object, save it as tar."""
     get_or_pull_image(image_nm)
     file_name = "%s.tar" % image_nm
-    file_name = file_name.replace("/", "-").replace(":", "-")
+    file_name = os.path.join(
+        base_path, 
+        file_name.replace("/", "-").replace(":", "-")
+    )
     if os.path.isfile(file_name):
         log.info("Tar '%s' already exists. Skipping...", file_name)
         return file_name
@@ -44,6 +47,7 @@ def save_image(image_nm) -> str:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create tar.gz from images")
     parser.add_argument("images")
+    parser.add_argument("prefix")
     args = parser.parse_args()
 
     images_ls = get_images_list_from_file(args.images)
@@ -51,15 +55,17 @@ if __name__ == "__main__":
     tar_files = []
     for idx, image_nm in enumerate(images_ls):
         log.info("%s/%s", idx + 1, images_len)
-        tar_file = save_image(image_nm)
+        tar_file = save_image(args.prefix, image_nm)
         tar_files.append(tar_file)
 
+    
     log.info("Creating final tar.gz file. Will take a while...")
     subprocess.run(["tar", "-cv", "--use-compress-program=pigz",
-                    "-f", "images.tar.gz", *tar_files])
+                    "-f", f"{args.prefix}/images.tar.gz", *tar_files])
     log.info("Created the tar.gz file!")
 
-    log.info("Deleting intermediate .tar files.")
-    for file in tar_files:
-        delete_file_if_exists(file)
-    log.info("Deleted all .tar files.")
+    # log.info("Deleting intermediate .tar files.")
+    # for file in tar_files:
+    #     delete_file_if_exists(file)
+    # log.info("Deleted all .tar files.")
+        
