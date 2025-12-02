@@ -5,9 +5,6 @@ import logging
 import subprocess
 import sys
 import typing
-import pickle
-
-import numpy as np
 import tenacity
 
 import pandas as pd
