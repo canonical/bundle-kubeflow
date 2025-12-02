@@ -301,7 +301,16 @@ if __name__ == "__main__":
         dest="TICKETS",
         type=str,
         default=None,
-        help="The path to the input text file containing tickets and their relations to CVEs.",
+        help="The path to the input file containing tickets and their relations to CVEs.",
+        # https://docs.google.com/spreadsheets/d/1jBoL3Itc2SEgJdukd4rASOd01r9vXhRv/edit?usp=drive_link&ouid=106637444762362243511&rtpof=true&sd=true
+    )
+    parser.add_argument(
+        "--exceptions",
+        dest="EXCEPTIONS",
+        type=str,
+        default=EXCEPTION_FILE,
+        help="The path to the input file containing the list of known exceptions.",
+        # https://docs.google.com/spreadsheets/d/1wIPrpKPdm4QVR0XyOtPRkAWU0kqLUb2x/edit?usp=drive_link&ouid=106637444762362243511&rtpof=true&sd=true
     )
 
     args = parser.parse_args()
@@ -329,7 +338,7 @@ if __name__ == "__main__":
         actions = {}
 
     cve_list = scan_images(
-        data, get_kves(Path(KEV_FILE)), get_exceptions(Path(EXCEPTION_FILE)),
+        data, get_kves(Path(KEV_FILE)), get_exceptions(Path(args.EXCEPTION_FILE)),
         upstream_cves, actions
     )
 

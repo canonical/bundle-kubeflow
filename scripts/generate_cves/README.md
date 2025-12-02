@@ -55,3 +55,17 @@ are all valid options.
 Running the script above will generate the following 2 files:
 - `vulnerability_report.csv` with all CVEs per image
 - `severe_cves.csv` with all "severe" CVEs grouped by ID. "Severe" CVEs are "High" or "Critical" CVEs that don't have fixed versions.
+
+
+### Exceptions and Actions
+
+In the RAF review process, Security asked further information in the CVE export, specifically:
+
+* Vulnerability applicability to Kubeflow (whether there are exception for which those CVEs would not apply)
+* To refer to the tickets when the CVE would be fixed by some development work we have in our backlog.
+
+To get these information we therefore need to integrate the CVE export with two information (that have also been uploaded to Drive):
+
+* [exceptions list](https://docs.google.com/spreadsheets/d/1wIPrpKPdm4QVR0XyOtPRkAWU0kqLUb2x/edit?usp=drive_link&ouid=106637444762362243511&rtpof=true&sd=true)
+* [Jira tickets addressing CVEs](https://docs.google.com/spreadsheets/d/1jBoL3Itc2SEgJdukd4rASOd01r9vXhRv/edit?usp=drive_link&ouid=106637444762362243511&rtpof=true&sd=true)
+
