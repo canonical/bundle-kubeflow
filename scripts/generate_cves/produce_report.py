@@ -287,7 +287,7 @@ if __name__ == "__main__":
         help="Severity to be included in the report. Multiple severities can be provided either by as comma separated or as multiple arguments. If not provided, all of the are assumed.",
     )
     parser.add_argument(
-        "--upstream",
+        "--upstream-images",
         dest="UPSTREAM",
         type=str,
         default=None,
