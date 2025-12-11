@@ -59,7 +59,7 @@ Running the script above will generate the following 2 files:
 
 ### Exceptions and Actions
 
-In the RAF review process, Security asked further information in the CVE export, specifically:
+In the RAF review process, the Security team asked for further information in the CVE export, specifically:
 
 * Vulnerability applicability to Kubeflow (whether there are exception for which those CVEs would not apply)
 * To refer to the tickets when the CVE would be fixed by some development work we have in our backlog.
