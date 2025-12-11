@@ -64,7 +64,7 @@ In the RAF review process, the Security team asked for further information in th
 * Vulnerability applicability to Kubeflow (whether there are exceptions for which those CVEs would not apply)
 * To refer to the tickets when the CVE would be fixed by some development work we have in our backlog.
 
-To get these information we therefore need to integrate the CVE export with two information (that have also been uploaded to Drive):
+To get these pieces of information we therefore need to integrate the CVE export with two sources of data (that have also been uploaded to Google Drive):
 
 * [exceptions list](https://docs.google.com/spreadsheets/d/1wIPrpKPdm4QVR0XyOtPRkAWU0kqLUb2x/edit?usp=drive_link&ouid=106637444762362243511&rtpof=true&sd=true)
 * [Jira tickets addressing CVEs](https://docs.google.com/spreadsheets/d/1jBoL3Itc2SEgJdukd4rASOd01r9vXhRv/edit?usp=drive_link&ouid=106637444762362243511&rtpof=true&sd=true)
