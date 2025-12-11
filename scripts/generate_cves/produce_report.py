@@ -98,6 +98,9 @@ def get_exceptions(exception_file: Path) -> dict[str, dict[str, str]]:
     if not exception_file.exists():
         return {}
 
+    # The files has the following columns: Package, Version, CVE, CVSS Score, Image Name, Patchable, ETA, Rationale
+    # However the first four columns represents a MultiIndex, and need to be provided as index_col below to ensure
+    # the correct parsing
     df = pd.read_excel(
         exception_file, index_col=[0, 1, 2, 3]
     ).reset_index()
@@ -149,7 +152,7 @@ def get_upstream_cves(
 def scan_images(
         iter_scans: typing.Iterator[tuple[str, dict]],
         kev_cve_set: set[str], exceptions: dict[str, dict[str, str]],
-        upstream_vulns: dict[str, list[str]], actions: dict[str, dict[str, str]]
+        upstream_vulns: dict[str, list[str]] | None, actions: dict[str, dict[str, str]]
 ) -> pd.DataFrame:
 
     vulnerability_count = 0
@@ -215,8 +218,6 @@ def scan_images(
                         "Ticket": action_plan
                     }
 
-                is_in_upstream = cveId in upstream_vulns
-
                 rows.append({
                     "CVE": cveId,
                     "Package Name": vulnerability.get("PkgName", "N/A"),
@@ -224,7 +225,7 @@ def scan_images(
                     "Is KEV?": is_kev,
                     "Severity": vulnerability.get("Severity", "N/A").capitalize(),
                     "NVD/CVSS Score": vulnerability.get("CVSS", {}).get("nvd", {}).get("V3Score", "N/A"),
-                    "Upstream presence": "Yes" if is_in_upstream else "No",
+                    "Upstream presence": ("Yes" if cveId in upstream_vulns else "No") if upstream_vulns else "N/A",
                     "Patch version": fixed_version if patch_exists else "N/A",
                     "Patch produced by Canonical": ("Yes" if "ubuntu" in fixed_version else "No") if patch_exists else "N/A",
                     "Vulnerability Name": vulnerability.get("Title", "N/A"),
@@ -327,7 +328,7 @@ if __name__ == "__main__":
         if args.FILE_TYPE == ImageInputType.IMAGE_LIST_FILE \
         else iter_reports(args.IMAGES_FILE)
 
-    upstream_cves = get_upstream_cves(iter_reports(args.UPSTREAM)) if args.UPSTREAM else {}
+    upstream_cves = get_upstream_cves(iter_reports(args.UPSTREAM)) if args.UPSTREAM else None
 
     if args.TICKETS:
         actions = read_tickets(args.TICKETS)
@@ -335,7 +336,7 @@ if __name__ == "__main__":
         actions = {}
 
     cve_list = scan_images(
-        data, get_kves(Path(KEV_FILE)), get_exceptions(Path(args.EXCEPTION_FILE)),
+        data, get_kves(Path(KEV_FILE)), get_exceptions(Path(args.EXCEPTIONS)),
         upstream_cves, actions
     )
 
