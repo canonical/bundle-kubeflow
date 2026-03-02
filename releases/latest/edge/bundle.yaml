@@ -30,24 +30,28 @@ applications:
     trust: true
     _github_repo_name: envoy-operator
     _github_repo_branch: main
-  istio-ingressgateway:
-    charm: istio-gateway
-    channel: latest/edge
+  istio-beacon-k8s:
+    charm: istio-beacon-k8s
+    channel: 2/edge
+    base: ubuntu@22.04/stable
     scale: 1
     trust: true
-    _github_repo_name: istio-operators
-    _github_repo_branch: main
-    options:
-      kind: ingress
-  istio-pilot:
-    charm: istio-pilot
-    channel: latest/edge
+    _github_repo_name: istio-beacon-k8s-operator
+    _github_repo_branch: track/2
+  istio-ingress-k8s:
+    charm: istio-ingress-k8s
+    channel: 2/edge
     scale: 1
     trust: true
-    _github_repo_name: istio-operators
-    _github_repo_branch: main
-    options:
-      default-gateway: kubeflow-gateway
+    _github_repo_name: istio-ingress-k8s-operator
+    _github_repo_branch: track/2
+  istio-k8s:
+    charm: istio-k8s
+    channel: 2/edge
+    scale: 1
+    trust: true
+    _github_repo_name: istio-k8s-operator
+    _github_repo_branch: track/2
   jupyter-controller:
     charm: jupyter-controller
     channel: latest/edge
@@ -72,7 +76,8 @@ applications:
   katib-db:
     charm: mysql-k8s
     channel: 8.0/edge
-    scale: 1
+    base: ubuntu@22.04/stable
+    scale: 3
     trust: true
     constraints: mem=2G
     _github_dependency_repo_name: mysql-k8s-operator
@@ -101,7 +106,8 @@ applications:
   kfp-db:
     charm: mysql-k8s
     channel: 8.0/edge
-    scale: 1
+    base: ubuntu@22.04/stable
+    scale: 3
     trust: true
     constraints: mem=2G
     _github_dependency_repo_name: mysql-k8s-operator
@@ -155,37 +161,13 @@ applications:
     trust: true
     _github_repo_name: kfp-operators
     _github_repo_branch: main
-  knative-eventing:
-    charm: knative-eventing
-    channel: latest/edge
-    scale: 1
-    trust: true
-    _github_repo_name: knative-operators
-    _github_repo_branch: main
-  knative-operator:
-    charm: knative-operator
-    channel: latest/edge
-    scale: 1
-    trust: true
-    _github_repo_name: knative-operators
-    _github_repo_branch: main
-  knative-serving:
-    charm: knative-serving
-    channel: latest/edge
-    scale: 1
-    trust: true
-    options:
-      istio.gateway.namespace: kubeflow
-      istio.gateway.name: kubeflow-gateway
-    _github_repo_name: knative-operators
-    _github_repo_branch: main
   kserve-controller:
     charm: kserve-controller
     channel: latest/edge
     scale: 1
     trust: true
     options:
-      deployment-mode: serverless
+      deployment-mode: rawdeployment
     _github_repo_name: kserve-operators
     _github_repo_branch: main
   kubeflow-dashboard:
@@ -199,6 +181,9 @@ applications:
     charm: kubeflow-profiles
     channel: latest/edge
     scale: 1
+    options:
+      istio-gateway-principal: cluster.local/ns/kubeflow/sa/istio-ingress-k8s-istio
+      service-mesh-mode: istio-ambient
     trust: true
     _github_repo_name: kubeflow-profiles-operator
     _github_repo_branch: main
@@ -207,8 +192,11 @@ applications:
     channel: latest/edge
     scale: 1
     trust: true
-    _github_repo_name: kubeflow-roles-operator
-    _github_repo_branch: main
+  kubeflow-trainer:
+    charm: kubeflow-trainer
+    channel: latest/edge
+    scale: 1
+    trust: true
   kubeflow-volumes:
     charm: kubeflow-volumes
     channel: latest/edge
@@ -234,21 +222,22 @@ applications:
     charm: minio
     channel: latest/edge
     scale: 1
-    _github_repo_name: minio-operator
-    _github_repo_branch: main
+    trust: true
   oidc-gatekeeper:
     charm: oidc-gatekeeper
     channel: latest/edge
     scale: 1
     trust: true
-    _github_repo_name: oidc-gatekeeper-operator
-    _github_repo_branch: main
+  opentelemetry-collector-k8s-kubeflow:
+    charm: opentelemetry-collector-k8s
+    channel: 2/stable
+    scale: 1
+    trust: true
   pvcviewer-operator:
     charm: pvcviewer-operator
     channel: latest/edge
     scale: 1
     trust: true
-    series: focal
     _github_repo_name: pvcviewer-operator
     _github_repo_branch: main
   tensorboard-controller:
@@ -273,38 +262,126 @@ applications:
     _github_repo_name: training-operator
     _github_repo_branch: main
 relations:
-  - [argo-controller, minio]
+  - [istio-ingress-k8s:istio-ingress-config, istio-k8s:istio-ingress-config]
+  - [istio-beacon-k8s:service-mesh, opentelemetry-collector-k8s-kubeflow:service-mesh]
+  - [istio-beacon-k8s:service-mesh, pvcviewer-operator:service-mesh]
+  - [istio-ingress-k8s:gateway-metadata, pvcviewer-operator:gateway-metadata]
+  - [dex-auth:istio-ingress-route-unauthenticated, istio-ingress-k8s:istio-ingress-route-unauthenticated]
+  - [istio-beacon-k8s:service-mesh, kfp-api:service-mesh]
+  - [dex-auth:service-mesh, istio-beacon-k8s:service-mesh]
+  - [opentelemetry-collector-k8s-kubeflow:metrics-endpoint, pvcviewer-operator:metrics-endpoint]
+  - [pvcviewer-operator:grafana-dashboard, opentelemetry-collector-k8s-kubeflow:grafana-dashboards-consumer]
+  - [dex-auth:grafana-dashboard, opentelemetry-collector-k8s-kubeflow:grafana-dashboards-consumer]
+  - [pvcviewer-operator:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [kfp-api:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [kfp-api:metrics-endpoint, opentelemetry-collector-k8s-kubeflow:metrics-endpoint]
+  - [dex-auth:metrics-endpoint, opentelemetry-collector-k8s-kubeflow:metrics-endpoint]
+  - [dex-auth:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [kfp-api:grafana-dashboard, opentelemetry-collector-k8s-kubeflow:grafana-dashboards-consumer]
+  - [istio-beacon-k8s:service-mesh, katib-ui:service-mesh]
+  - [istio-ingress-k8s:istio-ingress-route, katib-ui:istio-ingress-route]
+  - [istio-ingress-k8s:istio-ingress-route, jupyter-ui:istio-ingress-route]
+  - [katib-db-manager:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [istio-ingress-k8s:gateway-metadata, jupyter-controller:gateway-metadata]
+  - [istio-beacon-k8s:service-mesh, jupyter-ui:service-mesh]
+  - [admission-webhook:service-mesh, istio-beacon-k8s:service-mesh]
+  - [istio-beacon-k8s:service-mesh, jupyter-controller:service-mesh]
+  - [jupyter-ui:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [katib-ui:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [katib-ui:dashboard-links, kubeflow-dashboard:links]
+  - [jupyter-controller:metrics-endpoint, opentelemetry-collector-k8s-kubeflow:metrics-endpoint]
+  - [kfp-metadata-writer:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [istio-ingress-k8s:istio-ingress-route, kubeflow-dashboard:istio-ingress-route]
+  - [istio-beacon-k8s:service-mesh, kubeflow-dashboard:service-mesh]
+  - [jupyter-ui:dashboard-links, kubeflow-dashboard:links]
+  - [jupyter-controller:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [kubeflow-dashboard:metrics-endpoint, opentelemetry-collector-k8s-kubeflow:metrics-endpoint]
+  - [jupyter-controller:grafana-dashboard, opentelemetry-collector-k8s-kubeflow:grafana-dashboards-consumer]
+  - [training-operator:dashboard-links, kubeflow-dashboard:links]
+  - [kubeflow-dashboard:grafana-dashboard, opentelemetry-collector-k8s-kubeflow:grafana-dashboards-consumer]
+  - [istio-ingress-k8s:gateway-metadata, tensorboard-controller:gateway-metadata]
+  - [admission-webhook:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [kubeflow-dashboard:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [istio-beacon-k8s:service-mesh, training-operator:service-mesh]
+  - [istio-ingress-k8s:forward-auth, oidc-gatekeeper:forward-auth]
   - [dex-auth:dex-oidc-config, oidc-gatekeeper:dex-oidc-config]
+  - [istio-beacon-k8s:service-mesh, tensorboard-controller:service-mesh]
+  - [istio-beacon-k8s:service-mesh, oidc-gatekeeper:service-mesh]
   - [dex-auth:oidc-client, oidc-gatekeeper:oidc-client]
-  - [istio-pilot:ingress, dex-auth:ingress]
-  - [istio-pilot:ingress, jupyter-ui:ingress]
-  - [istio-pilot:ingress, katib-ui:ingress]
-  - [istio-pilot:ingress, kfp-ui:ingress]
-  - [istio-pilot:ingress, kubeflow-dashboard:ingress]
-  - [istio-pilot:ingress, kubeflow-volumes:ingress]
-  - [istio-pilot:ingress, oidc-gatekeeper:ingress]
-  - [istio-pilot:ingress, envoy:ingress]
-  - [istio-pilot:ingress-auth, oidc-gatekeeper:ingress-auth]
-  - [istio-pilot:istio-pilot, istio-ingressgateway:istio-pilot]
-  - [istio-pilot:ingress, tensorboards-web-app:ingress]
-  - [istio-pilot:gateway-info, tensorboard-controller:gateway-info]
-  - [katib-db-manager:k8s-service-info, katib-controller:k8s-service-info]
-  - [katib-db-manager:relational-db, katib-db:database]
-  - [kfp-api:relational-db, kfp-db:database]
-  - [kfp-api:kfp-api, kfp-persistence:kfp-api]
-  - [kfp-api:kfp-api, kfp-ui:kfp-api]
+  - [istio-beacon-k8s:service-mesh, kfp-viz:service-mesh]
+  - [argo-controller:grafana-dashboard, opentelemetry-collector-k8s-kubeflow:grafana-dashboards-consumer]
+  - [kfp-viewer:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [tensorboard-controller:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [training-operator:grafana-dashboard, opentelemetry-collector-k8s-kubeflow:grafana-dashboards-consumer]
   - [kfp-api:kfp-viz, kfp-viz:kfp-viz]
-  - [kfp-api:object-storage, minio:object-storage]
-  - [kfp-profile-controller:object-storage, minio:object-storage]
+  - [oidc-gatekeeper:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [istio-ingress-k8s:istio-ingress-route-unauthenticated, oidc-gatekeeper:istio-ingress-route-unauthenticated]
+  - [istio-beacon-k8s:service-mesh, tensorboards-web-app:service-mesh]
+  - [argo-controller:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [kubeflow-trainer:metrics-endpoint, opentelemetry-collector-k8s-kubeflow:metrics-endpoint]
+  - [opentelemetry-collector-k8s-kubeflow:metrics-endpoint, tensorboard-controller:metrics-endpoint]
+  - [kfp-viz:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [istio-beacon-k8s:service-mesh, kubeflow-trainer:service-mesh]
+  - [argo-controller:metrics-endpoint, opentelemetry-collector-k8s-kubeflow:metrics-endpoint]
+  - [opentelemetry-collector-k8s-kubeflow:metrics-endpoint, training-operator:metrics-endpoint]
+  - [tensorboards-web-app:dashboard-links, kubeflow-dashboard:links]
+  - [kubeflow-volumes:dashboard-links, kubeflow-dashboard:links]
+  - [istio-ingress-k8s:istio-ingress-route, kubeflow-volumes:istio-ingress-route]
+  - [istio-ingress-k8s:istio-ingress-route, tensorboards-web-app:istio-ingress-route]
+  - [istio-ingress-k8s:gateway-metadata, kserve-controller:gateway-metadata]
+  - [istio-beacon-k8s:service-mesh, kserve-controller:service-mesh]
+  - [istio-beacon-k8s:service-mesh, kubeflow-volumes:service-mesh]
+  - [kubeflow-trainer:grafana-dashboard, opentelemetry-collector-k8s-kubeflow:grafana-dashboards-consumer]
+  - [kubeflow-trainer:dashboard-links, kubeflow-dashboard:links]
+  - [kserve-controller:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [tensorboards-web-app:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [envoy:istio-ingress-route, istio-ingress-k8s:istio-ingress-route]
+  - [envoy:service-mesh, istio-beacon-k8s:service-mesh]
+  - [metacontroller-operator:grafana-dashboard, opentelemetry-collector-k8s-kubeflow:grafana-dashboards-consumer]
+  - [kubeflow-volumes:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [envoy:metrics-endpoint, opentelemetry-collector-k8s-kubeflow:metrics-endpoint]
+  - [kserve-controller:metrics-endpoint, opentelemetry-collector-k8s-kubeflow:metrics-endpoint]
+  - [envoy:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [metacontroller-operator:metrics-endpoint, opentelemetry-collector-k8s-kubeflow:metrics-endpoint]
+  - [kfp-api:kfp-api-grpc, kfp-schedwf:kfp-api-grpc]
+  - [kfp-schedwf:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [envoy:grafana-dashboard, opentelemetry-collector-k8s-kubeflow:grafana-dashboards-consumer]
+  - [istio-beacon-k8s:service-mesh, kfp-schedwf:service-mesh]
+  - [kfp-db:database, kfp-api:relational-db]
+  - [kfp-ui:dashboard-links, kubeflow-dashboard:links]
+  - [kfp-db:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [kfp-db:metrics-endpoint, opentelemetry-collector-k8s-kubeflow:metrics-endpoint]
+  - [kfp-db:grafana-dashboard, opentelemetry-collector-k8s-kubeflow:grafana-dashboards-consumer]
+  - [istio-ingress-k8s:istio-ingress-route, kfp-ui:istio-ingress-route]
   - [kfp-ui:object-storage, minio:object-storage]
-  - [kserve-controller:ingress-gateway, istio-pilot:gateway-info]
-  - [kserve-controller:local-gateway, knative-serving:local-gateway]
-  - [kubeflow-profiles, kubeflow-dashboard]
-  - [kubeflow-dashboard:links, jupyter-ui:dashboard-links]
-  - [kubeflow-dashboard:links, katib-ui:dashboard-links]
-  - [kubeflow-dashboard:links, kfp-ui:dashboard-links]
-  - [kubeflow-dashboard:links, kubeflow-volumes:dashboard-links]
-  - [kubeflow-dashboard:links, tensorboards-web-app:dashboard-links]
-  - [kubeflow-dashboard:links, training-operator:dashboard-links]
-  - [mlmd:grpc, envoy:grpc]
-  - [mlmd:grpc, kfp-metadata-writer:grpc]
+  - [argo-controller:object-storage, minio:object-storage]
+  - [kfp-api:kfp-api, kfp-ui:kfp-api]
+  - [istio-beacon-k8s:service-mesh, minio:service-mesh]
+  - [istio-beacon-k8s:service-mesh, kfp-ui:service-mesh]
+  - [kfp-api:object-storage, minio:object-storage]
+  - [kfp-ui:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [minio:grafana-dashboard, opentelemetry-collector-k8s-kubeflow:grafana-dashboards-consumer]
+  - [minio:metrics-endpoint, opentelemetry-collector-k8s-kubeflow:metrics-endpoint]
+  - [katib-controller:grafana-dashboard, opentelemetry-collector-k8s-kubeflow:grafana-dashboards-consumer]
+  - [katib-controller:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [katib-controller:metrics-endpoint, opentelemetry-collector-k8s-kubeflow:metrics-endpoint]
+  - [katib-controller:k8s-service-info, katib-db-manager:k8s-service-info]
+  - [istio-beacon-k8s:service-mesh, katib-controller:service-mesh]
+  - [kfp-api:kfp-api-grpc, kfp-persistence:kfp-api-grpc]
+  - [kfp-api:kfp-api, kfp-persistence:kfp-api]
+  - [istio-beacon-k8s:service-mesh, kfp-persistence:service-mesh]
+  - [kfp-persistence:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [kfp-profile-controller:object-storage, minio:object-storage]
+  - [istio-beacon-k8s:service-mesh, kfp-profile-controller:service-mesh]
+  - [kfp-profile-controller:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [katib-db:database, katib-db-manager:relational-db]
+  - [katib-db:grafana-dashboard, opentelemetry-collector-k8s-kubeflow:grafana-dashboards-consumer]
+  - [katib-db:metrics-endpoint, opentelemetry-collector-k8s-kubeflow:metrics-endpoint]
+  - [envoy:grpc, mlmd:grpc]
+  - [istio-beacon-k8s:service-mesh, kubeflow-profiles:service-mesh]
+  - [katib-db:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [kfp-metadata-writer:grpc, mlmd:grpc]
+  - [kubeflow-dashboard:kubeflow-profiles, kubeflow-profiles:kubeflow-profiles]
+  - [kubeflow-profiles:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [mlmd:logging, opentelemetry-collector-k8s-kubeflow:receive-loki-logs]
+  - [kubeflow-profiles:metrics-endpoint, opentelemetry-collector-k8s-kubeflow:metrics-endpoint]
