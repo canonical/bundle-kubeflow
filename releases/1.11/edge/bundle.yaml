@@ -1,0 +1,345 @@
+bundle: kubernetes
+name: kubeflow
+docs: https://discourse.charmhub.io/t/18106
+applications:
+  admission-webhook:
+    _github_repo_branch: track/1.10
+    _github_repo_name: admission-webhook-operator
+    channel: 1.10/edge
+    charm: admission-webhook
+    scale: 1
+    trust: true
+  argo-controller:
+    _github_repo_branch: track/3.7
+    _github_repo_name: argo-operators
+    channel: 3.7/edge
+    charm: argo-controller
+    scale: 1
+    trust: true
+  dex-auth:
+    _github_repo_branch: track/2.41
+    _github_repo_name: dex-auth-operator
+    channel: 2.41/edge
+    charm: dex-auth
+    scale: 1
+    trust: true
+  envoy:
+    _github_repo_branch: track/2.4
+    _github_repo_name: envoy-operator
+    channel: 2.4/edge
+    charm: envoy
+    scale: 1
+    trust: true
+  istio-ingressgateway:
+    _github_repo_branch: track/1.28
+    _github_repo_name: istio-operators
+    channel: 1.28/edge
+    charm: istio-gateway
+    options:
+      kind: ingress
+    scale: 1
+    trust: true
+  istio-pilot:
+    _github_repo_branch: track/1.28
+    _github_repo_name: istio-operators
+    channel: 1.28/edge
+    charm: istio-pilot
+    options:
+      default-gateway: kubeflow-gateway
+    scale: 1
+    trust: true
+  jupyter-controller:
+    _github_repo_branch: track/1.10
+    _github_repo_name: notebook-operators
+    channel: 1.10/edge
+    charm: jupyter-controller
+    scale: 1
+    trust: true
+  jupyter-ui:
+    _github_repo_branch: track/1.10
+    _github_repo_name: notebook-operators
+    channel: 1.10/edge
+    charm: jupyter-ui
+    scale: 1
+    trust: true
+  katib-controller:
+    _github_repo_branch: track/0.19
+    _github_repo_name: katib-operators
+    channel: 0.19/edge
+    charm: katib-controller
+    scale: 1
+    trust: true
+  katib-db:
+    _github_dependency_repo_branch: main
+    _github_dependency_repo_name: mysql-k8s-operator
+    channel: 8.0/stable
+    charm: mysql-k8s
+    constraints: mem=2G
+    scale: 1
+    trust: true
+  katib-db-manager:
+    _github_repo_branch: track/0.19
+    _github_repo_name: katib-operators
+    channel: 0.19/edge
+    charm: katib-db-manager
+    scale: 1
+    trust: true
+  katib-ui:
+    _github_repo_branch: track/0.19
+    _github_repo_name: katib-operators
+    channel: 0.19/edge
+    charm: katib-ui
+    scale: 1
+    trust: true
+  kfp-api:
+    _github_repo_branch: track/2.15
+    _github_repo_name: kfp-operators
+    channel: 2.15/edge
+    charm: kfp-api
+    scale: 1
+    trust: true
+  kfp-db:
+    _github_dependency_repo_branch: main
+    _github_dependency_repo_name: mysql-k8s-operator
+    channel: 8.0/stable
+    charm: mysql-k8s
+    constraints: mem=2G
+    scale: 1
+    trust: true
+  kfp-metadata-writer:
+    _github_repo_branch: track/2.15
+    _github_repo_name: kfp-operators
+    channel: 2.15/edge
+    charm: kfp-metadata-writer
+    scale: 1
+    trust: true
+  kfp-persistence:
+    _github_repo_branch: track/2.15
+    _github_repo_name: kfp-operators
+    channel: 2.15/edge
+    charm: kfp-persistence
+    scale: 1
+    trust: true
+  kfp-profile-controller:
+    _github_repo_branch: track/2.15
+    _github_repo_name: kfp-operators
+    channel: 2.15/edge
+    charm: kfp-profile-controller
+    scale: 1
+    trust: true
+  kfp-schedwf:
+    _github_repo_branch: track/2.15
+    _github_repo_name: kfp-operators
+    channel: 2.15/edge
+    charm: kfp-schedwf
+    scale: 1
+    trust: true
+  kfp-ui:
+    _github_repo_branch: track/2.15
+    _github_repo_name: kfp-operators
+    channel: 2.15/edge
+    charm: kfp-ui
+    scale: 1
+    trust: true
+  kfp-viewer:
+    _github_repo_branch: track/2.15
+    _github_repo_name: kfp-operators
+    channel: 2.15/edge
+    charm: kfp-viewer
+    scale: 1
+    trust: true
+  kfp-viz:
+    _github_repo_branch: track/2.15
+    _github_repo_name: kfp-operators
+    channel: 2.15/edge
+    charm: kfp-viz
+    scale: 1
+    trust: true
+  knative-eventing:
+    _github_repo_branch: track/1.16
+    _github_repo_name: knative-operators
+    channel: 1.16/edge
+    charm: knative-eventing
+    scale: 1
+    trust: true
+  knative-operator:
+    _github_repo_branch: track/1.16
+    _github_repo_name: knative-operators
+    channel: 1.16/edge
+    charm: knative-operator
+    scale: 1
+    trust: true
+  knative-serving:
+    _github_repo_branch: track/1.16
+    _github_repo_name: knative-operators
+    channel: 1.16/edge
+    charm: knative-serving
+    options:
+      istio.gateway.name: kubeflow-gateway
+      istio.gateway.namespace: kubeflow
+    scale: 1
+    trust: true
+  kserve-controller:
+    _github_repo_branch: track/0.15
+    _github_repo_name: kserve-operators
+    channel: 0.15/edge
+    charm: kserve-controller
+    options:
+      deployment-mode: serverless
+    scale: 1
+    trust: true
+  kubeflow-dashboard:
+    _github_repo_branch: track/1.10
+    _github_repo_name: kubeflow-dashboard-operator
+    channel: 1.10/edge
+    charm: kubeflow-dashboard
+    scale: 1
+    trust: true
+  kubeflow-profiles:
+    _github_repo_branch: track/1.10
+    _github_repo_name: kubeflow-profiles-operator
+    channel: 1.10/edge
+    charm: kubeflow-profiles
+    scale: 1
+    trust: true
+  kubeflow-roles:
+    _github_repo_branch: track/1.10
+    _github_repo_name: kubeflow-roles-operator
+    channel: 1.10/edge
+    charm: kubeflow-roles
+    scale: 1
+    trust: true
+  kubeflow-volumes:
+    _github_repo_branch: track/1.10
+    _github_repo_name: kubeflow-volumes-operator
+    channel: 1.10/edge
+    charm: kubeflow-volumes
+    scale: 1
+    trust: true
+  metacontroller-operator:
+    _github_repo_branch: track/4.11
+    _github_repo_name: metacontroller-operator
+    channel: 4.11/edge
+    charm: metacontroller-operator
+    scale: 1
+    trust: true
+  minio:
+    _github_repo_branch: track/1.10
+    _github_repo_name: minio-operator
+    channel: 1.10/edge
+    charm: minio
+    scale: 1
+  mlmd:
+    _github_repo_branch: track/ckf-1.10
+    _github_repo_name: mlmd-operator
+    channel: ckf-1.10/edge
+    charm: mlmd
+    scale: 1
+    trust: true
+  oidc-gatekeeper:
+    _github_repo_branch: track/ckf-1.10
+    _github_repo_name: oidc-gatekeeper-operator
+    channel: ckf-1.10/edge
+    charm: oidc-gatekeeper
+    scale: 1
+    trust: true
+  pvcviewer-operator:
+    _github_repo_branch: track/1.10
+    _github_repo_name: pvcviewer-operator
+    channel: 1.10/edge
+    charm: pvcviewer-operator
+    scale: 1
+    series: focal
+    trust: true
+  tensorboard-controller:
+    _github_repo_branch: track/1.10
+    _github_repo_name: kubeflow-tensorboards-operator
+    channel: 1.10/edge
+    charm: tensorboard-controller
+    scale: 1
+    trust: true
+  tensorboards-web-app:
+    _github_repo_branch: track/1.10
+    _github_repo_name: kubeflow-tensorboards-operator
+    channel: 1.10/edge
+    charm: tensorboards-web-app
+    scale: 1
+    trust: true
+  training-operator:
+    _github_repo_branch: track/1.9
+    _github_repo_name: training-operator
+    channel: 1.9/edge
+    charm: training-operator
+    scale: 1
+    trust: true
+relations:
+- - argo-controller
+  - minio
+- - dex-auth:dex-oidc-config
+  - oidc-gatekeeper:dex-oidc-config
+- - dex-auth:oidc-client
+  - oidc-gatekeeper:oidc-client
+- - istio-pilot:ingress
+  - dex-auth:ingress
+- - istio-pilot:ingress
+  - jupyter-ui:ingress
+- - istio-pilot:ingress
+  - katib-ui:ingress
+- - istio-pilot:ingress
+  - kfp-ui:ingress
+- - istio-pilot:ingress
+  - kubeflow-dashboard:ingress
+- - istio-pilot:ingress
+  - kubeflow-volumes:ingress
+- - istio-pilot:ingress
+  - oidc-gatekeeper:ingress
+- - istio-pilot:ingress
+  - envoy:ingress
+- - istio-pilot:ingress-auth
+  - oidc-gatekeeper:ingress-auth
+- - istio-pilot:istio-pilot
+  - istio-ingressgateway:istio-pilot
+- - istio-pilot:ingress
+  - tensorboards-web-app:ingress
+- - istio-pilot:gateway-info
+  - tensorboard-controller:gateway-info
+- - katib-db-manager:k8s-service-info
+  - katib-controller:k8s-service-info
+- - katib-db-manager:relational-db
+  - katib-db:database
+- - kfp-api:relational-db
+  - kfp-db:database
+- - kfp-api:kfp-api
+  - kfp-persistence:kfp-api
+- - kfp-api:kfp-api
+  - kfp-ui:kfp-api
+- - kfp-api:kfp-viz
+  - kfp-viz:kfp-viz
+- - kfp-api:object-storage
+  - minio:object-storage
+- - kfp-profile-controller:object-storage
+  - minio:object-storage
+- - kfp-ui:object-storage
+  - minio:object-storage
+- - kserve-controller:ingress-gateway
+  - istio-pilot:gateway-info
+- - kserve-controller:local-gateway
+  - knative-serving:local-gateway
+- - kubeflow-profiles
+  - kubeflow-dashboard
+- - kubeflow-dashboard:links
+  - jupyter-ui:dashboard-links
+- - kubeflow-dashboard:links
+  - katib-ui:dashboard-links
+- - kubeflow-dashboard:links
+  - kfp-ui:dashboard-links
+- - kubeflow-dashboard:links
+  - kubeflow-volumes:dashboard-links
+- - kubeflow-dashboard:links
+  - tensorboards-web-app:dashboard-links
+- - kubeflow-dashboard:links
+  - training-operator:dashboard-links
+- - mlmd:grpc
+  - envoy:grpc
+- - mlmd:grpc
+  - kfp-metadata-writer:grpc
