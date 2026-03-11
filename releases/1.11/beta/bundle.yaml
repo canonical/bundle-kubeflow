@@ -249,7 +249,6 @@ applications:
     channel: 1.10/beta
     charm: pvcviewer-operator
     scale: 1
-    series: focal
     trust: true
   tensorboard-controller:
     _github_repo_branch: track/1.10

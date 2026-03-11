@@ -251,7 +251,6 @@ applications:
     channel: 1.10/edge
     scale: 1
     trust: true
-    series: focal
     _github_repo_name: pvcviewer-operator
     _github_repo_branch: track/1.10
   tensorboard-controller:
