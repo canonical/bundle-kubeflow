@@ -223,11 +223,15 @@ applications:
     channel: latest/edge
     scale: 1
     trust: true
+    _github_repo_name: minio-operator
+    _github_repo_branch: main
   oidc-gatekeeper:
     charm: oidc-gatekeeper
     channel: latest/edge
     scale: 1
     trust: true
+    _github_repo_name: oidc-gatekeeper-operator
+    _github_repo_branch: main
   pvcviewer-operator:
     charm: pvcviewer-operator
     channel: latest/edge
