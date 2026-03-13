@@ -33,7 +33,6 @@ applications:
   istio-beacon-k8s:
     charm: istio-beacon-k8s
     channel: 2/stable
-    base: ubuntu@22.04/stable
     scale: 1
     trust: true
     _github_repo_name: istio-beacon-k8s-operator
@@ -76,7 +75,6 @@ applications:
   katib-db:
     charm: mysql-k8s
     channel: 8.0/edge
-    base: ubuntu@22.04/stable
     scale: 3
     trust: true
     constraints: mem=2G
@@ -106,7 +104,6 @@ applications:
   kfp-db:
     charm: mysql-k8s
     channel: 8.0/edge
-    base: ubuntu@22.04/stable
     scale: 3
     trust: true
     constraints: mem=2G
