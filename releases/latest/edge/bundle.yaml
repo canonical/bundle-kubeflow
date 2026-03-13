@@ -32,7 +32,7 @@ applications:
     _github_repo_branch: main
   istio-beacon-k8s:
     charm: istio-beacon-k8s
-    channel: 2/edge
+    channel: 2/stable
     base: ubuntu@22.04/stable
     scale: 1
     trust: true
@@ -40,14 +40,14 @@ applications:
     _github_repo_branch: track/2
   istio-ingress-k8s:
     charm: istio-ingress-k8s
-    channel: 2/edge
+    channel: 2/stable
     scale: 1
     trust: true
     _github_repo_name: istio-ingress-k8s-operator
     _github_repo_branch: track/2
   istio-k8s:
     charm: istio-k8s
-    channel: 2/edge
+    channel: 2/stable
     scale: 1
     trust: true
     _github_repo_name: istio-k8s-operator
