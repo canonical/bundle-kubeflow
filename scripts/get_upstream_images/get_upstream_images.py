@@ -122,7 +122,8 @@ def clone_and_extract_images(version, skip_list):
                 clone_cmd,
                 cwd=temp_dir, 
                 check=True,
-                stdout=subprocess.DEVNULL
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
             )
         except subprocess.CalledProcessError as e:
             log(f"ERROR: Failed to clone repository. Details: {e}")
