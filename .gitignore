@@ -2,6 +2,7 @@ venv/
 __pycache__/
 *.charm
 build/
+images/
 .idea
 sel-screenshots/*
 geckodriver.log
