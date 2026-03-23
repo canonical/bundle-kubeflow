@@ -22,7 +22,7 @@ pip install -r requirements.txt
 
 To create all Trivy reports for the images, run:
 ```
-python create_trivy_reports images.txt
+./create_trivy_reports.py images.txt
 ```
 
 The default output directory is `trivy-reports`. You can also specify the output directory with the `-o` option.
