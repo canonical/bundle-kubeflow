@@ -42,7 +42,7 @@ python produce_vulnerability_report.py images.txt --kev-file known_exploited_vul
 When creating the report, only certain severities can be selected by using the `--severity` command line argument, e.g.
 
 ```
-python3 produce_report.py trivy-reports \
+python3 produce_vulnerability_report.py trivy-reports \
   --kev-file known_exploited_vulnerabilities.csv \
   --severity High,Low \
   --severity Critical
