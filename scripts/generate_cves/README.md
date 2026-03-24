@@ -33,7 +33,7 @@ Then, run the `produce_report.py` script to produce the vulnerability report. Yo
 
 ```shell
 # Using a directory of Trivy reports
-python produce_report.py trivy-reports --kev-file known_exploited_vulnerabilities.csv
+python produce_vulnerability_report.py trivy-reports --kev-file known_exploited_vulnerabilities.csv
 
 # Using a list of images (the script will scan them with Trivy)
 python produce_vulnerability_report.py images.txt --kev-file known_exploited_vulnerabilities.csv
