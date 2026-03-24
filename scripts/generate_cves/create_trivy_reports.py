@@ -93,7 +93,7 @@ def main() -> int:
             "%s directory already exists.",
             output_dir,
         )
-    logging.info("Scanning container images specified in %s", image_file)
+    logging.info(f"Scanning container images specified in {image_file}")
     output_dir.mkdir(parents=True, exist_ok=True)
     images = [
         line.strip() for line in image_file.read_text().splitlines() if line.strip()
