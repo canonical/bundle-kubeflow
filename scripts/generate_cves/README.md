@@ -27,7 +27,7 @@ To create all Trivy reports for the images, run:
 
 The default output directory is `trivy-reports`. You can also specify the output directory with the `-o` option.
 
-Then, run the `produce_report.py` script to produce the vulnerability report. You can pass either:
+Then, run the `produce_vulnerability_report.py` script to produce the vulnerability report. You can pass either:
 - A directory of Trivy JSON reports, or
 - A text file containing a list of images (one per line).
 
