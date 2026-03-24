@@ -66,7 +66,7 @@ Running the script above will generate the following a file named `Vulnerability
 
 ## CLI reference
 
-`produce_report.py` usage:
+`produce_vulnerability_report.py` usage:
 
 ```
 python produce_report.py INPUT_PATH [options]
