@@ -109,7 +109,8 @@ def main():
         logging.info(f"Scanning image {image} → {report_path}")
         try:
             run_trivy(image, report_path)
-        except Exception:
+        except Exception as e:
+            logging.error(f"Execution failed: {e}")
             return 1
     logging.info("All scans completed.")
 
