@@ -52,7 +52,7 @@ def run_trivy(image: str, report_path: Path) -> None:
     duration = time.time() - start
     if result.returncode != 0:
         logging.error(
-            "Trivy scan failed for %s (exit code %s)", image, result.returncode
+            f"Trivy scan failed for {image} (exit code {result.returncode})"
         )
         if result.stderr:
             logging.error(f"stderr:\n{result.stderr.strip()}")
