@@ -36,7 +36,7 @@ Then, run the `produce_report.py` script to produce the vulnerability report. Yo
 python produce_report.py trivy-reports --kev-file known_exploited_vulnerabilities.csv
 
 # Using a list of images (the script will scan them with Trivy)
-python produce_report.py images.txt --kev-file known_exploited_vulnerabilities.csv
+python produce_vulnerability_report.py images.txt --kev-file known_exploited_vulnerabilities.csv
 ```
 
 When creating the report, only certain severities can be selected by using the `--severity` command line argument, e.g.
