@@ -41,7 +41,7 @@ def run_trivy(image: str, report_path: Path) -> None:
         "--skip-files",
         TRIVY_SKIP_FILES,
     ]
-    logging.debug("Executing command: %s", " ".join(cmd))
+    logging.debug(f"Executing command: {' '.join(cmd)}")
     start = time.time()
     result = subprocess.run(
         cmd,
