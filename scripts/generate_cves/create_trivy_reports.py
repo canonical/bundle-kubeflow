@@ -107,7 +107,7 @@ def main() -> int:
                 f"Trivy report '{report_path}' for {image} already exists, skipping",
             )
             continue
-        logging.info("Scanning image %s → %s", image, report_path)
+        logging.info(f"Scanning image {image} → {report_path}")
         try:
             run_trivy(image, report_path)
         except Exception:
