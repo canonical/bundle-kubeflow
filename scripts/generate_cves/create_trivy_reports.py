@@ -36,8 +36,6 @@ def ensure_file_path(file: str):
 def ensure_dir_path(directory: str):
     """Ensure a given directory path exists, create it if it doesn't."""
     output_dir = Path(directory)
-    if output_dir.exists():
-        logging.info(f"Directory already exists: {output_dir}")
     output_dir.mkdir(parents=True, exist_ok=True)
     return output_dir
 
