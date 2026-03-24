@@ -2,7 +2,7 @@
 
 This directory contains scripts to produce reports of the vulnerabilities that exist in the images used by Charmed Kubeflow:
 - `create_trivy_reports.py`
-- `produce_report.py` 
+- `produce_vulnerability_report.py` 
 
 ## Prerequisites
 
