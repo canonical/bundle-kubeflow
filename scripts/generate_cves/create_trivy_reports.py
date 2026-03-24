@@ -25,6 +25,23 @@ def normalize_image_name(image: str) -> str:
     return image.replace(":", "-").replace("/", "-").replace(".", "-")
 
 
+def ensure_file_path(file: str):
+    """Ensure a given file path actually exists."""
+    image_file = Path(file)
+    if not image_file.is_file():
+        raise argparse.ArgumentTypeError(f"Input file does not exist: {image_file}")
+    return image_file
+
+
+def ensure_dir_path(directory: str):
+    """Ensure a given directory path exists, create it if it doesn't."""
+    output_dir = Path(directory)
+    if output_dir.exists():
+        logging.info(f"Directory already exists: {output_dir}")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    return output_dir
+
+
 def run_trivy(image: str, report_path: Path) -> None:
     """Run trivy scan for an image file, and output to report_path."""
     cmd = [
@@ -51,9 +68,7 @@ def run_trivy(image: str, report_path: Path) -> None:
     )
     duration = time.time() - start
     if result.returncode != 0:
-        logging.error(
-            f"Trivy scan failed for {image} (exit code {result.returncode})"
-        )
+        logging.error(f"Trivy scan failed for {image} (exit code {result.returncode})")
         if result.stderr:
             logging.error(f"stderr:\n{result.stderr.strip()}")
         raise RuntimeError(f"Trivy failed for {image}")
@@ -62,8 +77,8 @@ def run_trivy(image: str, report_path: Path) -> None:
         logging.debug(f"Trivy stderr:\n{result.stderr.strip()}")
 
 
-def main() -> int:
-    """Receive image list as an argument, and output """
+def main():
+    """Receive image list as an argument, and output"""
     parser = argparse.ArgumentParser(
         description="Scan container images with Trivy and generate reports."
     )
@@ -72,7 +87,7 @@ def main() -> int:
         "-o",
         "--output",
         default="trivy-reports",
-        help="Directory where trivy reports will be stored (default: trivy-reports)"
+        help="Directory where trivy reports will be stored (default: trivy-reports)",
     )
     parser.add_argument(
         "--verbose",
@@ -81,24 +96,14 @@ def main() -> int:
     )
     args = parser.parse_args()
     configure_logging(args.verbose)
+    file_path = ensure_file_path(args.file)
+    output_dir = ensure_dir_path(args.output)
     
-    image_file = Path(args.file)
-    output_dir = Path(args.output)
-    
-    if not image_file.is_file():
-        logging.error("Input file does not exist: %s", image_file)
-        return 1
-    if output_dir.exists():
-        logging.warning(
-            "%s directory already exists.",
-            output_dir,
-        )
-    logging.info(f"Scanning container images specified in {image_file}")
-    output_dir.mkdir(parents=True, exist_ok=True)
+    logging.info(f"Scanning container images specified in {file_path}")
     images = [
-        line.strip() for line in image_file.read_text().splitlines() if line.strip()
+        line.strip() for line in file_path.read_text().splitlines() if line.strip()
     ]
-    
+
     for image in images:
         normalized = normalize_image_name(image)
         report_path = output_dir / f"{normalized}.{TRIVY_REPORT_TYPE}"
