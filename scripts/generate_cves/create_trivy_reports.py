@@ -82,12 +82,13 @@ def main():
     parser = argparse.ArgumentParser(
         description="Scan container images with Trivy and generate reports."
     )
-    parser.add_argument("file", help="File containing list of images")
+    parser.add_argument("file", help="File containing list of images", type=ensure_file_path)
     parser.add_argument(
         "-o",
         "--output",
         default="trivy-reports",
         help="Directory where trivy reports will be stored (default: trivy-reports)",
+        type=ensure_dir_path
     )
     parser.add_argument(
         "--verbose",
@@ -96,22 +97,15 @@ def main():
     )
     args = parser.parse_args()
     configure_logging(args.verbose)
-    file_path = ensure_file_path(args.file)
-    output_dir = ensure_dir_path(args.output)
     
-    logging.info(f"Scanning container images specified in {file_path}")
+    logging.info(f"Scanning container images specified in {args.file}")
     images = [
-        line.strip() for line in file_path.read_text().splitlines() if line.strip()
+        line.strip() for line in args.file.read_text().splitlines() if line.strip()
     ]
 
     for image in images:
         normalized = normalize_image_name(image)
-        report_path = output_dir / f"{normalized}.{TRIVY_REPORT_TYPE}"
-        if report_path.exists():
-            logging.info(
-                f"Trivy report '{report_path}' for {image} already exists, skipping",
-            )
-            continue
+        report_path = args.output / f"{normalized}.{TRIVY_REPORT_TYPE}"
         logging.info(f"Scanning image {image} → {report_path}")
         try:
             run_trivy(image, report_path)
