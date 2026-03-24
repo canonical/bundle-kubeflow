@@ -51,7 +51,7 @@ python3 produce_report.py trivy-reports \
 Note that the severity can be fed into multiple case format, e.g.
 
 ```
-python3 produce_report.py trivy-reports \
+python3 produce_vulnerability_report.py trivy-reports \
   --kev-file known_exploited_vulnerabilities.csv \
   --severity High,LOW \
   --severity critical \
