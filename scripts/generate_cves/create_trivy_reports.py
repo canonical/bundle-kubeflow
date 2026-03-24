@@ -59,7 +59,7 @@ def run_trivy(image: str, report_path: Path) -> None:
         raise RuntimeError(f"Trivy failed for {image}")
     logging.info(f"Scan completed for {image} in {duration:.2f}")
     if result.stderr:
-        logging.debug("Trivy stderr:\n%s", result.stderr.strip())
+        logging.debug(f"Trivy stderr:\n{result.stderr.strip()}")
 
 
 def main() -> int:
