@@ -104,9 +104,7 @@ def main() -> int:
         report_path = output_dir / f"{normalized}.{TRIVY_REPORT_TYPE}"
         if report_path.exists():
             logging.info(
-                "Trivy report '%s' for %s already exists, skipping",
-                report_path,
-                image,
+                f"Trivy report '{report_path}' for {image} already exists, skipping",
             )
             continue
         logging.info("Scanning image %s → %s", image, report_path)
