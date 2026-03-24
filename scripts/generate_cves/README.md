@@ -69,7 +69,7 @@ Running the script above will generate the following a file named `Vulnerability
 `produce_vulnerability_report.py` usage:
 
 ```
-python produce_report.py INPUT_PATH [options]
+python produce_vulnerability_report.py INPUT_PATH [options]
 ```
 
 ### Positional argument
