@@ -113,7 +113,6 @@ def main() -> int:
         except Exception:
             return 1
     logging.info("All scans completed.")
-    return 0
 
 
 if __name__ == "__main__":
