@@ -105,16 +105,15 @@ def extract_images(version, skip_list=None):
     save_images("all", uniq_images, version)
 
     
-def clone_and_extract_images(version, skip_list):
+def clone_and_extract_images(ref, skip_list):
     """Clone kubeflow/manifests repository temporarily, and extract the images."""
     repo_url = "https://github.com/kubeflow/manifests.git"
 
     with tempfile.TemporaryDirectory() as temp_dir:
         try:
             clone_cmd = ["git", "clone", "--depth", "1"]
-            if version != "latest":
-                tag = f"v{version}"
-                clone_cmd.extend(["--branch", tag])
+            if ref != "latest":
+                clone_cmd.extend(["--branch", ref])
             # Clone into the temp directory (shallow clone for speed)
             log(f"Cloning repository: {repo_url}")
             clone_cmd.extend([repo_url, "manifests"])
@@ -144,10 +143,8 @@ parser = argparse.ArgumentParser(
 # Define a positional argument 'version' with optional occurrence and default value 'latest'. You can run this file as python3 <filename>.py or python <filename>.py <version>
 parser.add_argument(
     "version",
-    nargs="?",
     type=str,
-    default="latest",
-    help="Kubeflow version to use (defaults to latest).",
+    help="Kubeflow version tag or branch to use (e.g. 'v1.11.0, 26.03-rc.1, or 'latest' which pulls from main).",
 )
 # Skip any specified workgroups
 parser.add_argument(

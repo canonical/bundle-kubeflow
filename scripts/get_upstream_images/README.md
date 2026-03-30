@@ -7,7 +7,7 @@ This script automates the extraction of container image references from the offi
 From inside this directory:
 
 ```shell
-python3 extract_images.py
+python3 get_upstream_images.py
 ```
 
 The script creates an `images` directory in the folder where you executed the script. Inside, it generates text files containing a sorted, unique list of images. You will get one file per processed workgroup, plus an aggregate file containing all images across the entire deployment:
