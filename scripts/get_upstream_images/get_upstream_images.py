@@ -13,6 +13,7 @@ SCRIPT_DIRECTORY = os.getcwd()
 IMAGES_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "images")
 os.makedirs(IMAGES_DIRECTORY, exist_ok=True)
 
+
 def log(*args, **kwargs):
     """Custom log function that print messages with flush=True by default."""
     kwargs.setdefault("flush", True)
@@ -29,7 +30,7 @@ def save_images(wg, images, version):
 
 def validate_semantic_version(version):
     """Validates a semantic version string (e.g., "1.11.0" or "26.03-rc.0")."""
-    regex=r"^v?(?P<major>0|[1-9]\d*)\.(?P<minor>|[0-9]\d*)\.?(?P<patch>|[0-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
+    regex = r"^v?(?P<major>0|[1-9]\d*)\.(?P<minor>|[0-9]\d*)\.?(?P<patch>|[0-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
     if re.match(regex, version) or version == "latest":
         return version
     else:
@@ -38,12 +39,12 @@ def validate_semantic_version(version):
 
 def extract_variables_from_script(filepath):
     """
-    Safely parses a Python file using AST to extract the 'wg_dirs' dictionary 
+    Safely parses a Python file using AST to extract the 'wg_dirs' dictionary
     without executing the file's code.
     """
     with open(filepath, "r", encoding="utf-8") as f:
         tree = ast.parse(f.read(), filename=filepath)
-    
+
     for node in tree.body:
         # Look for an assignment (e.g., variable = ...)
         if isinstance(node, ast.Assign):
@@ -51,9 +52,9 @@ def extract_variables_from_script(filepath):
                 if isinstance(target, ast.Name) and target.id == "wg_dirs":
                     # Evaluate and return
                     return ast.literal_eval(node.value)
-    
+
     raise ValueError(f"Could not find 'wg_dirs' assignment in {filepath}")
-    
+
 
 def extract_images(version, wg_dirs, skip_list=None):
     """Extract images of specified working groups and save them according to their version."""
@@ -113,7 +114,7 @@ def extract_images(version, wg_dirs, skip_list=None):
     uniq_images = sorted(all_images)
     save_images("all", uniq_images, version)
 
-    
+
 def clone_and_extract_images(ref, skip_list):
     """Clone kubeflow/manifests repository temporarily, and extract the images."""
     repo_url = "https://github.com/kubeflow/manifests.git"
@@ -128,10 +129,10 @@ def clone_and_extract_images(ref, skip_list):
             clone_cmd.extend([repo_url, "manifests"])
             subprocess.run(
                 clone_cmd,
-                cwd=temp_dir, 
+                cwd=temp_dir,
                 check=True,
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+                stderr=subprocess.DEVNULL,
             )
         except subprocess.CalledProcessError as e:
             log(f"ERROR: Failed to clone repository. Details: {e}")
