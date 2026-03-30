@@ -38,18 +38,17 @@ def save_images(wg, images, version):
 
 
 def validate_semantic_version(version):
-    # Validates a semantic version string (e.g., "0.1.2" or "latest").
-    regex = r"^[0-9]+\.[0-9]+\.[0-9]+$"
+    # Validates a semantic version string (e.g., "1.11.0" or "26.03-rc.0").
+    regex=r"^v?(?P<major>0|[1-9]\d*)\.(?P<minor>|[0-9]\d*)\.?(?P<patch>|[0-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
     if re.match(regex, version) or version == "latest":
         return version
     else:
-        raise ValueError(f"Invalid semantic version: '{version}'")
+        raise argparse.ArgumentTypeError(f"Invalid semantic version: '{version}'")
     
 
 def extract_images(version, skip_list=None):
     if skip_list is None:
         skip_list = []
-    version = validate_semantic_version(version)
     log(f"Running the script using Kubeflow version: {version}")
 
     if skip_list:
@@ -132,7 +131,7 @@ def clone_and_extract_images(ref, skip_list):
         tests_path = os.path.join(repo_path, "tests")
         os.chdir(tests_path)
 
-        extract_images(version, skip_list)
+        extract_images(ref, skip_list)
 
         os.chdir(SCRIPT_DIRECTORY)
 
@@ -143,7 +142,7 @@ parser = argparse.ArgumentParser(
 # Define a positional argument 'version' with optional occurrence and default value 'latest'. You can run this file as python3 <filename>.py or python <filename>.py <version>
 parser.add_argument(
     "version",
-    type=str,
+    type=validate_semantic_version,
     help="Kubeflow version tag or branch to use (e.g. 'v1.11.0, 26.03-rc.1, or 'latest' which pulls from main).",
 )
 # Skip any specified workgroups
