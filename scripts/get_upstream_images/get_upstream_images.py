@@ -157,7 +157,7 @@ def clone_and_extract_images(ref, skip_list):
 parser = argparse.ArgumentParser(
     description="Extract images from Kubeflow kustomizations."
 )
-# Define a positional argument 'version' with optional occurrence and default value 'latest'. You can run this file as python3 <filename>.py or python <filename>.py <version>
+# Mandatory positional argument
 parser.add_argument(
     "version",
     type=validate_semantic_version,
