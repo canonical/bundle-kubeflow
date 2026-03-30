@@ -38,7 +38,7 @@ The script will gather the images in the following way:
 8. Aggregate the outputs of all `get-images.sh` scripts to one output
 9. If user passed an argument `--append-images` then the script will amend a list of images we need for airgap testing
 
-## Produce SBOM for images in a bundle
+## Produce SBOM for a list of images
 
 ### Prerequisites
 
@@ -68,22 +68,26 @@ pip3 install -r scripts/requirements.txt
 
 ### Run SBOM producing script for images
 
-You can get a list of all the SBOMs for the images used by the bundle by running the following command:
+First, prepare a file containing the list of container images (one image per line), for example:
 
 ```
-python3 scripts/get_bundle_images_sbom.py <bundle_path>
+nginx:1.25
+redis:7
+ghcr.io/org/app:1.0
 ```
 
-For example for the 1.9 bundle, run:
+Then run:
 
 ```
-python3 scripts/get_bundle_images_sbom.py releases/1.9/stable/bundle.yaml
+python3 scripts/get_bundle_images_sbom.py images.txt
 ```
 
 > [!WARNING]
-> To produce the SBOMs of all images in the bundle (~100 images), the script can take up to a few hours depending on the network and processing resources.
+> To produce the SBOMs for a large list of images (~100 images), the script can take up to a few hours depending on the network and processing resources.
 
-The script creates a compressed file under the repo's root with the name `images_SBOM.tar.gz`. The script will store all the SBOMs there. For each image, there will be the SBOM file formatted as `<image_name>.spdx.json` inside the compressed file.
+The script creates a directory named `images_SBOM` where individual SBOM files are stored as `<image_name>.spdx.json`. If an SBOM file for an image already exists, the script will skip regenerating it (caching behavior).
+
+After processing, the script creates a compressed file `images_SBOM.tar.gz` containing all generated SBOM files.
 
 ---
 
