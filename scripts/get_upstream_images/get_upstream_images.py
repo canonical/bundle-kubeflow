@@ -170,6 +170,7 @@ parser.add_argument(
     type=str,
     default=["spark", "model-registry"],
     help="List of workgroups to skip (e.g., --skip katib spark manifests). Defaults to [spark, model-registry]",
+    metavar="WORKGROUP",
 )
 args = parser.parse_args()
 clone_and_extract_images(args.version, args.skip)

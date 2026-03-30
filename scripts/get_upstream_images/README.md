@@ -28,7 +28,7 @@ python3 extract_images.py v1.11.0
 You can also skip any working groups by passing the `--skip` argument:
 
 ```shell
-python3 extract_images.py v1.11.0 --skip spark model-registry
+python3 get_upstream_images.py v1.11.0 --skip spark model-registry
 ```
 
 The default value of `--skip` is `["spark", "model-registry"]` (since we don't currently have charmed operators for these controllers).
