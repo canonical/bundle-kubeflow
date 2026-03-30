@@ -6,18 +6,8 @@ import subprocess
 import re
 import argparse
 import tempfile
+import ast
 
-# Dictionary mapping Kubeflow workgroups to directories containing kustomization files
-wg_dirs = {
-    "katib": "../applications/katib/upstream/installs",
-    "pipelines": "../applications/pipeline/upstream/env/cert-manager/platform-agnostic-multi-user",
-    "trainer": "../applications/training-operator/upstream/overlays ../applications/trainer/overlays",
-    "manifests": "../common/cert-manager/cert-manager/base ../common/cert-manager/kubeflow-issuer/base ../common/istio/istio-crds/base ../common/istio/istio-namespace/base ../common/istio/istio-install/overlays/oauth2-proxy ../common/oauth2-proxy/overlays/m2m-self-signed ../common/dex/overlays/oauth2-proxy ../common/knative/knative-serving/overlays/gateways ../common/knative/knative-eventing/base ../common/istio/cluster-local-gateway/base ../common/kubeflow-namespace/base ../common/kubeflow-roles/base ../common/istio/kubeflow-istio-resources/base",
-    "workbenches": "../applications/pvcviewer-controller/upstream/base ../applications/admission-webhook/upstream/overlays ../applications/centraldashboard/overlays ../applications/jupyter/jupyter-web-app/upstream/overlays ../applications/volumes-web-app/upstream/overlays ../applications/tensorboard/tensorboards-web-app/upstream/overlays ../applications/profiles/upstream/overlays ../applications/jupyter/notebook-controller/upstream/overlays ../applications/tensorboard/tensorboard-controller/upstream/overlays",
-    "kserve": "../applications/kserve - ../applications/kserve/models-web-app/overlays/kubeflow",
-    "model-registry": "../applications/model-registry/upstream/overlays/db ../applications/model-registry/upstream/options/istio ../applications/model-registry/upstream/options/ui/overlays/istio",
-    "spark": "../applications/spark/spark-operator/overlays/kubeflow",
-}
 
 SCRIPT_DIRECTORY = os.getcwd()
 IMAGES_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "images")
@@ -44,9 +34,28 @@ def validate_semantic_version(version):
         return version
     else:
         raise argparse.ArgumentTypeError(f"Invalid semantic version: '{version}'")
+
+
+def extract_variables_from_script(filepath):
+    """
+    Safely parses a Python file using AST to extract the 'wg_dirs' dictionary 
+    without executing the file's code.
+    """
+    with open(filepath, "r", encoding="utf-8") as f:
+        tree = ast.parse(f.read(), filename=filepath)
+    
+    for node in tree.body:
+        # Look for an assignment (e.g., variable = ...)
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id == "wg_dirs":
+                    # Evaluate and return
+                    return ast.literal_eval(node.value)
+    
+    raise ValueError(f"Could not find 'wg_dirs' assignment in {filepath}")
     
 
-def extract_images(version, skip_list=None):
+def extract_images(version, wg_dirs, skip_list=None):
     if skip_list is None:
         skip_list = []
     log(f"Running the script using Kubeflow version: {version}")
@@ -129,9 +138,16 @@ def clone_and_extract_images(ref, skip_list):
 
         repo_path = os.path.join(temp_dir, "manifests")
         tests_path = os.path.join(repo_path, "tests")
+        trivy_scan_path = os.path.join(tests_path, "trivy_scan.py")
+        try:
+            wg_dirs = extract_variables_from_script(trivy_scan_path)
+            log("Successfully extracted wg_dirs from upstream script.")
+        except Exception as e:
+            log(f"ERROR: Could not extract wg_dirs. Details: {e}")
+            exit(1)
         os.chdir(tests_path)
 
-        extract_images(ref, skip_list)
+        extract_images(ref, wg_dirs, skip_list)
 
         os.chdir(SCRIPT_DIRECTORY)
 
