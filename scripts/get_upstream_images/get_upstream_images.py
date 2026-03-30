@@ -14,13 +14,13 @@ IMAGES_DIRECTORY = os.path.join(SCRIPT_DIRECTORY, "images")
 os.makedirs(IMAGES_DIRECTORY, exist_ok=True)
 
 def log(*args, **kwargs):
-    # Custom log function that print messages with flush=True by default.
+    """Custom log function that print messages with flush=True by default."""
     kwargs.setdefault("flush", True)
     print(*args, **kwargs)
 
 
 def save_images(wg, images, version):
-    # Saves a list of container images to a text file named after the workgroup and version.
+    """Saves a list of container images to a text file named after the workgroup and version."""
     output_file = os.path.join(IMAGES_DIRECTORY, f"kf_{version}_{wg}_images.txt")
     with open(output_file, "w") as f:
         f.write("\n".join(images))
@@ -28,7 +28,7 @@ def save_images(wg, images, version):
 
 
 def validate_semantic_version(version):
-    # Validates a semantic version string (e.g., "1.11.0" or "26.03-rc.0").
+    """Validates a semantic version string (e.g., "1.11.0" or "26.03-rc.0")."""
     regex=r"^v?(?P<major>0|[1-9]\d*)\.(?P<minor>|[0-9]\d*)\.?(?P<patch>|[0-9]\d*)(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
     if re.match(regex, version) or version == "latest":
         return version
@@ -56,6 +56,7 @@ def extract_variables_from_script(filepath):
     
 
 def extract_images(version, wg_dirs, skip_list=None):
+    """Extract images of specified working groups and save them according to their version."""
     if skip_list is None:
         skip_list = []
     log(f"Running the script using Kubeflow version: {version}")
