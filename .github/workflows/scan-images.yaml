@@ -1,8 +1,8 @@
 name: Scan images
 on:
-  schedule:
+  # schedule:
   # every day at 1:12AM UTC
-  - cron: '12 1 * * *'
+  # - cron: '12 1 * * *'
   workflow_dispatch:
 
 jobs:
