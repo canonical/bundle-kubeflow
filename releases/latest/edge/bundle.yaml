@@ -325,3 +325,4 @@ relations:
   - [istio-beacon-k8s:service-mesh, kubeflow-profiles:service-mesh]
   - [kfp-metadata-writer:grpc, mlmd:grpc]
   - [kubeflow-dashboard:kubeflow-profiles, kubeflow-profiles:kubeflow-profiles]
+  - [istio-beacon-k8s:service-mesh, metacontroller-operator:service-mesh]
