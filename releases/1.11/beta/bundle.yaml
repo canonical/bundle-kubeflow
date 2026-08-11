@@ -324,8 +324,8 @@ relations:
   - istio-pilot:gateway-info
 - - kserve-controller:local-gateway
   - knative-serving:local-gateway
-- - kubeflow-profiles
-  - kubeflow-dashboard
+- - kubeflow-profiles:kubeflow-profiles
+  - kubeflow-dashboard:kubeflow-profiles
 - - kubeflow-dashboard:links
   - jupyter-ui:dashboard-links
 - - kubeflow-dashboard:links
