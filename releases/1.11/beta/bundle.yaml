@@ -3,9 +3,9 @@ name: kubeflow
 docs: https://discourse.charmhub.io/t/18106
 applications:
   admission-webhook:
-    _github_repo_branch: track/1.10
+    _github_repo_branch: track/2.0
     _github_repo_name: admission-webhook-operator
-    channel: 1.10/beta
+    channel: 2.0/beta
     charm: admission-webhook
     scale: 1
     trust: true
@@ -49,16 +49,16 @@ applications:
     scale: 1
     trust: true
   jupyter-controller:
-    _github_repo_branch: track/1.10
+    _github_repo_branch: track/1.11
     _github_repo_name: notebook-operators
-    channel: 1.10/beta
+    channel: 1.11/beta
     charm: jupyter-controller
     scale: 1
     trust: true
   jupyter-ui:
-    _github_repo_branch: track/1.10
+    _github_repo_branch: track/1.11
     _github_repo_name: notebook-operators
-    channel: 1.10/beta
+    channel: 1.11/beta
     charm: jupyter-ui
     scale: 1
     trust: true
@@ -92,9 +92,9 @@ applications:
     scale: 1
     trust: true
   kfp-api:
-    _github_repo_branch: track/2.15
+    _github_repo_branch: track/2.16
     _github_repo_name: kfp-operators
-    channel: 2.15/beta
+    channel: 2.16/beta
     charm: kfp-api
     scale: 1
     trust: true
@@ -107,51 +107,51 @@ applications:
     scale: 1
     trust: true
   kfp-metadata-writer:
-    _github_repo_branch: track/2.15
+    _github_repo_branch: track/2.16
     _github_repo_name: kfp-operators
-    channel: 2.15/beta
+    channel: 2.16/beta
     charm: kfp-metadata-writer
     scale: 1
     trust: true
   kfp-persistence:
-    _github_repo_branch: track/2.15
+    _github_repo_branch: track/2.16
     _github_repo_name: kfp-operators
-    channel: 2.15/beta
+    channel: 2.16/beta
     charm: kfp-persistence
     scale: 1
     trust: true
   kfp-profile-controller:
-    _github_repo_branch: track/2.15
+    _github_repo_branch: track/2.16
     _github_repo_name: kfp-operators
-    channel: 2.15/beta
+    channel: 2.16/beta
     charm: kfp-profile-controller
     scale: 1
     trust: true
   kfp-schedwf:
-    _github_repo_branch: track/2.15
+    _github_repo_branch: track/2.16
     _github_repo_name: kfp-operators
-    channel: 2.15/beta
+    channel: 2.16/beta
     charm: kfp-schedwf
     scale: 1
     trust: true
   kfp-ui:
-    _github_repo_branch: track/2.15
+    _github_repo_branch: track/2.16
     _github_repo_name: kfp-operators
-    channel: 2.15/beta
+    channel: 2.16/beta
     charm: kfp-ui
     scale: 1
     trust: true
   kfp-viewer:
-    _github_repo_branch: track/2.15
+    _github_repo_branch: track/2.16
     _github_repo_name: kfp-operators
-    channel: 2.15/beta
+    channel: 2.16/beta
     charm: kfp-viewer
     scale: 1
     trust: true
   kfp-viz:
-    _github_repo_branch: track/2.15
+    _github_repo_branch: track/2.16
     _github_repo_name: kfp-operators
-    channel: 2.15/beta
+    channel: 2.16/beta
     charm: kfp-viz
     scale: 1
     trust: true
@@ -180,25 +180,25 @@ applications:
     scale: 1
     trust: true
   kserve-controller:
-    _github_repo_branch: track/0.15
+    _github_repo_branch: track/0.17
     _github_repo_name: kserve-operators
-    channel: 0.15/beta
+    channel: 0.17/beta
     charm: kserve-controller
     options:
       deployment-mode: serverless
     scale: 1
     trust: true
   kubeflow-dashboard:
-    _github_repo_branch: track/1.10
+    _github_repo_branch: track/2.0
     _github_repo_name: kubeflow-dashboard-operator
-    channel: 1.10/beta
+    channel: 2.0/beta
     charm: kubeflow-dashboard
     scale: 1
     trust: true
   kubeflow-profiles:
-    _github_repo_branch: track/1.10
+    _github_repo_branch: track/2.0
     _github_repo_name: kubeflow-profiles-operator
-    channel: 1.10/beta
+    channel: 2.0/beta
     charm: kubeflow-profiles
     scale: 1
     trust: true
@@ -210,9 +210,9 @@ applications:
     scale: 1
     trust: true
   kubeflow-volumes:
-    _github_repo_branch: track/1.10
+    _github_repo_branch: track/1.11
     _github_repo_name: kubeflow-volumes-operator
-    channel: 1.10/beta
+    channel: 1.11/beta
     charm: kubeflow-volumes
     scale: 1
     trust: true
@@ -244,23 +244,23 @@ applications:
     scale: 1
     trust: true
   pvcviewer-operator:
-    _github_repo_branch: track/1.10
+    _github_repo_branch: track/1.11
     _github_repo_name: pvcviewer-operator
-    channel: 1.10/beta
+    channel: 1.11/beta
     charm: pvcviewer-operator
     scale: 1
     trust: true
   tensorboard-controller:
-    _github_repo_branch: track/1.10
+    _github_repo_branch: track/1.11
     _github_repo_name: kubeflow-tensorboards-operator
-    channel: 1.10/beta
+    channel: 1.11/beta
     charm: tensorboard-controller
     scale: 1
     trust: true
   tensorboards-web-app:
-    _github_repo_branch: track/1.10
+    _github_repo_branch: track/1.11
     _github_repo_name: kubeflow-tensorboards-operator
-    channel: 1.10/beta
+    channel: 1.11/beta
     charm: tensorboards-web-app
     scale: 1
     trust: true
@@ -324,8 +324,8 @@ relations:
   - istio-pilot:gateway-info
 - - kserve-controller:local-gateway
   - knative-serving:local-gateway
-- - kubeflow-profiles
-  - kubeflow-dashboard
+- - kubeflow-profiles:kubeflow-profiles
+  - kubeflow-dashboard:kubeflow-profiles
 - - kubeflow-dashboard:links
   - jupyter-ui:dashboard-links
 - - kubeflow-dashboard:links
