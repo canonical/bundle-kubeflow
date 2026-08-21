@@ -60,8 +60,8 @@ if __name__ == "__main__":
 
     
     log.info("Creating final tar.gz file. Will take a while...")
-    subprocess.run(["tar", "-cv", "--use-compress-program=pigz",
-                    "-f", f"{args.prefix}/images.tar.gz", *tar_files])
+    subprocess.run(["tar", "-cv", "--use-compress-program=pigz", "-C", args.prefix,
+                    "-f", f"{args.prefix}/images.tar.gz", *[f.removeprefix(args.prefix) for f in tar_files]])
     log.info("Created the tar.gz file!")
 
     # log.info("Deleting intermediate .tar files.")
