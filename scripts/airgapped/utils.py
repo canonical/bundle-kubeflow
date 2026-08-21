@@ -3,6 +3,9 @@ import os
 import pathlib
 
 import docker
+import subprocess
+
+SHA_TOKEN = "@sha256"
 
 cli = docker.client.from_env()
 
@@ -53,3 +56,67 @@ def get_or_pull_image(image: str):
 
         log.info("%s: Pulled image", image)
         return img
+
+def save_image(base_path, image_nm) -> str:
+    """Given an Image object, save it as tar."""
+    get_or_pull_image(image_nm)
+    file_name = "%s.tar" % image_nm
+    file_name = os.path.join(
+        base_path,
+        file_name.replace("/", "-").replace(":", "-")
+    )
+    if os.path.isfile(file_name):
+        log.info("Tar '%s' already exists. Skipping...", file_name)
+        return file_name
+
+    log.info("%s: Saving image to tar '%s'.", image_nm, file_name)
+    for i in range(10):
+        # We've seen that sometimes we get socket timeouts. Try 10 times
+        try:
+            with open(file_name, "w+b") as f:
+                subprocess.run(["docker", "save", image_nm], stdout=f)
+
+            logging.info("%s: Saved image to tar '%s'", image_nm, file_name)
+            return file_name
+        except Exception as e:
+            log.error("Failed to create tar file. Deleting tar '%s", file_name)
+            log.error(e)
+            log.info("Retrying %s/10 to store image to tar '%s'",
+                     i + 1, file_name)
+
+    log.error("Tried 10 times to create tar '%s' and failed: %s", file_name)
+    delete_file_if_exists(file_name)
+
+
+def retag_image_with_sha(image):
+    """Retag the image by using the sha value."""
+    log.info("Retagging image digest: %s", image)
+    repo_digest = image.attrs["RepoDigests"][0]
+    [repository_name, sha_value] = repo_digest.split("@sha256:")
+
+    tagged_image = "%s:%s" % (repository_name, sha_value)
+    log.info("Retagging to: %s", tagged_image)
+    image.tag(tagged_image)
+
+    log.info("Tagged image successfully: %s", tagged_image)
+    return cli.images.get(tagged_image)
+
+
+def get_retagged_image_name(image_nm: str, new_registry: str) -> str:
+    """Given an image name replace the repo and use sha as tag."""
+    if SHA_TOKEN in image_nm:
+        log.info("Provided image has sha. Using it's value as tag.")
+        image_nm = image_nm.replace(SHA_TOKEN, "")
+
+    if len(image_nm.split("/")) == 1:
+        # docker.io/library image, i.e. ubuntu:22.04
+        return "%s/%s" % (new_registry, image_nm)
+
+    if len(image_nm.split("/")) == 2:
+        # classic docker.io image, i.e. argoproj/workflow-controller
+        return "%s/%s" % (new_registry, image_nm)
+
+    # There are more than 2 / in the image name. Replace first part
+    # Example image: quay.io/metallb/speaker:v0.13.3
+    _, image_nm = image_nm.split("/", 1)
+    return "%s/%s" % (new_registry, image_nm)
