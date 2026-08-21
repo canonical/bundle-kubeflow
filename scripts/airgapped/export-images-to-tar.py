@@ -47,8 +47,6 @@ if __name__ == "__main__":
         tar_file = save_image(args.prefix, retagged_image_nm or image_nm)
 
         delete_file_if_exists(image_nm)
-        if retagged_image_nm:
-            delete_file_if_exists(retagged_image_nm)
 
         tar_files.append(tar_file)
 

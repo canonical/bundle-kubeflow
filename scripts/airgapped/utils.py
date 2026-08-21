@@ -32,6 +32,7 @@ def delete_image_if_exists(image):
     img = cli.images.get(image)
 
     for tag in img.tags:
+        log.info("%s: Removing %s", image, tag)
         cli.images.remove(tag)
 
 
