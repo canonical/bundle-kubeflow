@@ -20,7 +20,7 @@ if __name__ == "__main__":
     parser.add_argument("images")
     parser.add_argument("--prefix", default="")
     parser.add_argument("--new-registry", default="")
-    parser.add_argument("--cleanup", "store_true")
+    parser.add_argument("--cleanup", action="store_true")
 
     args = parser.parse_args()
 
