@@ -31,7 +31,8 @@ def delete_image_if_exists(image):
     """Delete the image if it exists."""
     img = cli.images.get(image)
 
-    cli.images.remove(img.id)
+    for tag in img.tags:
+        cli.images.remove(tag)
 
 
 def get_images_list_from_file(file_name: str) -> list[str]:
