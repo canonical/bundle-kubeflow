@@ -27,6 +27,12 @@ def delete_file_if_exists(file_name):
     """Delete the file name if it exists."""
     pathlib.Path(file_name).unlink(missing_ok=True)
 
+def delete_image_if_exists(image):
+    """Delete the image if it exists."""
+    img = cli.images.get(image)
+
+    cli.images.remove(img.id)
+
 
 def get_images_list_from_file(file_name: str) -> list[str]:
     """Given a file name with \n separated names return the list of names."""

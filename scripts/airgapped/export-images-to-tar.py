@@ -6,7 +6,7 @@ import subprocess
 import docker
 
 from utils import (save_image, get_images_list_from_file,
-                   get_or_pull_image, get_retagged_image_name, delete_file_if_exists)
+                   get_or_pull_image, get_retagged_image_name, delete_file_if_exists, delete_image_if_exists)
 
 cli = docker.client.from_env()
 
@@ -20,6 +20,7 @@ if __name__ == "__main__":
     parser.add_argument("images")
     parser.add_argument("--prefix", default="")
     parser.add_argument("--new-registry", default="")
+    parser.add_argument("--cleanup", "store_true")
 
     args = parser.parse_args()
 
@@ -44,6 +45,11 @@ if __name__ == "__main__":
             retagged_image_nm = None
 
         tar_file = save_image(args.prefix, retagged_image_nm or image_nm)
+
+        delete_file_if_exists(image_nm)
+        if retagged_image_nm:
+            delete_file_if_exists(retagged_image_nm)
+
         tar_files.append(tar_file)
 
     log.info("Creating final tar.gz file. Will take a while...")
@@ -51,8 +57,9 @@ if __name__ == "__main__":
                     "-f", f"{args.prefix}/images.tar.gz", *[f.removeprefix(args.prefix) for f in tar_files]])
     log.info("Created the tar.gz file!")
 
-    log.info("Deleting intermediate .tar files.")
-    for file in tar_files:
-        delete_file_if_exists(file)
-    log.info("Deleted all .tar files.")
+    if args.cleanup:
+        log.info("Deleting intermediate .tar files.")
+        for file in tar_files:
+            delete_file_if_exists(file)
+        log.info("Deleted all .tar files.")
         
