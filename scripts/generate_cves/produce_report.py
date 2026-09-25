@@ -13,6 +13,8 @@ import pathlib
 from pathlib import Path
 from enum import Enum
 
+from dataclasses import dataclass
+
 # This script reads:
 # - IMAGES_FILE with the images we want to scan
 # - KEV_FILE with the KEVs
@@ -24,8 +26,9 @@ LOG_FORMAT = "%(levelname)s:%(name)s: %(message)s"
 logging.basicConfig(level=logging.INFO, stream=sys.stdout, format=LOG_FORMAT)
 logger = logging.getLogger(__name__)
 
-KEV_FILE = "known_exploited_vulnerabilities.csv"
+KEV_FILE = "./data/known_exploited_vulnerabilities.20260916.csv"
 REPORT_CSV_FILE = "vulnerability_report.csv"
+EXCEPTION_FILE = "./data/CVE_Exceptions.xlsx"
 
 class ImageInputType(str, Enum):
     IMAGE_LIST_FILE = "image_list_file"
@@ -73,6 +76,56 @@ def iter_images(image_path: str):
 
             yield image_name, json_data
 
+@dataclass(frozen=True)
+class ImageReference:
+    platform: str
+    image: str
+    tag: str | None = None
+
+    @classmethod
+    def parse(cls, image_reference: str) -> 'ImageReference | None':
+        import re
+
+        pattern = r"^(?:(docker\.io|ghcr\.io)\/)?([a-z0-9]+(?:[._-][a-z0-9]+)*(?:\/[a-z0-9]+(?:[._-][a-z0-9]+)*)+)(?:(?::|(?:@sha256:|@))([a-zA-Z0-9_.-]+))?$"
+
+        match = re.match(pattern, image_reference)
+        if match:
+            platform, name, tag = match.groups()
+            return cls(platform or "docker.io", name, tag)
+
+        return None
+
+    @property
+    def unpinned(self):
+        return ImageReference(self.platform, self.image)
+
+def get_exception_list(exception_path: Path):
+    exceptions = pd.read_excel(
+        exception_path,
+        sheet_name="Exceptions"
+    )
+    exceptions["images"] = exceptions["images"].apply(
+        lambda ll: {ImageReference.parse(name).unpinned for name in ll.split(";")}
+    )
+
+    return exceptions[["ID", "images"]]
+
+
+def select_exception(cve_id, image_reference, exceptions: pd.DataFrame):
+    image_name = ImageReference.parse(image_reference)
+
+    if not image_name:
+        print(f"{image_reference}")
+        raise ValueError("image name not parsed correctly")
+
+    image_name = image_name.unpinned
+    cve_id = cve_id
+    select = exceptions[(exceptions["ID"]==cve_id)*(exceptions["images"].apply(lambda x: image_name in x))]
+    if len(select)>1:
+        raise ValueError("Multiple entries")
+    if len(select)==0:
+        return None
+    return select.iloc[0].to_dict()
 
 def get_output(filename: Path) -> dict:
     with open(filename, "r") as fid:
@@ -109,7 +162,8 @@ def get_kves(kev_file_path: Path) -> set[str]:
 
 def scan_images(
         iter_scans: typing.Iterator[tuple[str, dict]],
-        kev_cve_set: set[str]
+        kev_cve_set: set[str],
+        exceptions: pd.DataFrame
 ) -> pd.DataFrame:
 
     vulnerability_count = 0
@@ -132,6 +186,13 @@ def scan_images(
                     if vulnerability.get("VulnerabilityID", "N/A") in kev_cve_set
                     else "No"
                 )
+
+                exception = select_exception(
+                    vulnerability["VulnerabilityID"],
+                    image_name,
+                    exceptions
+                )
+
                 patch_exists = (
                     "FixedVersion" in vulnerability
                     and vulnerability["FixedVersion"]
@@ -159,12 +220,12 @@ def scan_images(
                     "Description": vulnerability.get("Description", "N/A").replace("\r", "\n"),
                     "Affected Component": image_name,
                     "Notification source": "trivy version 0.66.0",
-                    "Relevant to Product?": "Yes",
-                    "Affected Releases": "Kubeflow 1.10",
+                    "Relevant to Product?": "Yes" if not exception else "No",
+                    "Affected Releases": "Kubeflow 1.11-ubuntu2",
                     "Can it be remediated?": can_be_remediated,
                     "Does a patch exist?": can_be_remediated,
                     "Patch Source": patch_source,
-                    "Remediation status": "Pending",
+                    "Remediation status": "Pending" if not exception and vulnerability.get("Severity", "N/A").capitalize() == "Critical" else "Not planned",
                     "Patched Release": fixed_version,
                 })
 
@@ -182,7 +243,8 @@ def merge_cve(input_df: pd.DataFrame):
         row["Affected Component"] = components
         return row
 
-    return input_df.groupby("CVE").apply(reduce, include_groups=False)
+    return input_df.groupby(["CVE","Relevant to Product?"]).apply(reduce, include_groups=False)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -224,11 +286,31 @@ if __name__ == "__main__":
         if args.FILE_TYPE == ImageInputType.IMAGE_LIST_FILE \
         else iter_reports(args.IMAGES_FILE)
 
-    cve_list = scan_images(data, get_kves(Path(KEV_FILE)))
+    cve_list = scan_images(
+        data, get_kves(Path(KEV_FILE)), get_exception_list(Path(EXCEPTION_FILE))
+    )
 
     if severities:
         cve_list = cve_list[cve_list["Severity"].isin(list(severities))]
     
     merged_list = merge_cve(cve_list)
 
-    merged_list.to_csv(REPORT_CSV_FILE)
+    merged_list.reset_index()[[
+        "CVE",
+        "Package Name",
+        "Version",
+        "Is KEV?",
+        "Severity",
+        "NVD/CVSS Score",
+        "Vulnerability Name",
+        "Description",
+        "Affected Component",
+        "Notification source",
+        "Relevant to Product?",
+        "Affected Releases",
+        "Can it be remediated?",
+        "Does a patch exist?",
+        "Patch Source",
+        "Remediation status",
+        "Patched Release"
+    ]].to_csv(REPORT_CSV_FILE, index=False)
